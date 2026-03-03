@@ -4,6 +4,7 @@ backend/.mvn/wrapper/maven-wrapper.jar
 
 # Node / Angular
 frontend/node_modules/
+node_modules/
 frontend/dist/
 frontend/.angular/
 

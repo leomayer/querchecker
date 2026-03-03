@@ -1,7 +1,28 @@
-.filter-field {
-  width: 100%;
-  max-width: 400px;
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.search-mode-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-bottom: 16px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background: var(--mat-sys-surface-variant);
+  color: var(--mat-sys-on-surface-variant);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  button {
+    margin-left: auto;
+  }
 }
 
 .listings-table {
@@ -26,14 +47,17 @@
 .no-data {
   padding: 24px;
   text-align: center;
-  color: rgba(0, 0, 0, 0.54);
+  color: var(--mat-sys-on-surface-variant);
 }
 
-a {
+.free-icon {
+  font-size: 0.85rem;
+  font-weight: 600;
   color: var(--color-primary);
-  text-decoration: none;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
 
-  &:hover {
-    text-decoration: underline;
-  }
+.cdk-column-price {
+  text-align: right;
 }

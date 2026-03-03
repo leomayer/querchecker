@@ -1,0 +1,12 @@
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.filter-field {
+  flex: 1 1 240px;
+  max-width: 400px;
+}

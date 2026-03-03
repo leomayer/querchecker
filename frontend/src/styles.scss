@@ -1,14 +1,35 @@
 /* TealMist CSS Custom Properties */
 :root {
-  --color-primary: #4a7a8a;
-  --color-secondary: #5a8f8f;
+  /* Brand Definitions */
+  --color-haggle-primary: #4a7a8a;
+  --color-haggle-secondary: #5a8f8f;
+  --color-haggle-divider: #ffffff; // Bright gap for light mode
+
+  /* Functional Mapping */
+  --color-primary: var(--color-haggle-primary);
   --color-tertiary: #7ab0b0;
+
   --color-background: #f5f5f5;
   --color-surface: #ffffff;
-  --color-on-primary: #ffffff;
-  --color-border: #7ab0b0;
+  --color-on-surface: #202020;
+  --color-on-haggle-primary: #ffffff;
+  --color-on-surface-variant: #5a8f8f; // Icons in inputs/banners
+
   --font-brand: 'Dancing Script', cursive;
   --font-body: 'Source Sans 3', sans-serif;
+}
+
+body.dark-theme {
+  --color-haggle-primary: #365162;
+  --color-haggle-secondary: #42746b;
+  --color-haggle-divider: #e0e0e0; // Muted teal gap for dark mode
+
+  --color-tertiary: #9acaca;
+
+  --color-background: #121212;
+  --color-surface: #1e1e1e;
+  --color-on-surface: #e0e0e0;
+  --color-on-surface-variant: #9acaca; // Lighter teal for dark bg contrast
 }
 
 * {
@@ -23,16 +44,82 @@ body {
   background-color: var(--color-background);
 }
 
-.brand-title {
-  font-family: var(--font-brand);
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--color-on-primary);
-  letter-spacing: 0.02em;
-}
-
 .page-content {
   padding: 24px;
   max-width: 1400px;
   margin: 0 auto;
+}
+
+// Always show a faint sort indicator on sortable columns that have not yet been sorted.
+// Angular Material only renders the arrow on hover/active by default.
+th[aria-sort='none'] {
+  .mat-sort-header-arrow,
+  .mat-sort-header-indicator {
+    opacity: 0.3 !important;
+    transform: translateY(0) !important;
+  }
+}
+
+/* Apply to all Material Cards/Text globally */
+.mat-mdc-card {
+  background-color: var(--color-surface) !important;
+  color: var(--color-on-surface) !important;
+}
+
+.mat-mdc-card-title {
+  color: var(--color-on-surface) !important;
+}
+
+/* Corrected Anchor Logic */
+a {
+  color: var(--color-haggle-primary);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    text-decoration: underline;
+  }
+  body.dark-theme & {
+    color: var(--color-on-surface-variant);
+  }
+}
+
+// Base Row Styles
+.mat-mdc-row {
+  transition: background-color 0.2s ease;
+}
+
+.mat-mdc-row:nth-child(even) {
+  background-color: var(--color-background) !important;
+}
+.mat-mdc-row:nth-child(odd) {
+  background-color: var(--color-surface) !important;
+}
+
+// Hover State Logic
+.mat-mdc-row:hover {
+  // Use Haggle Blue for hover to ensure brand consistency
+  background-color: color-mix(in srgb, var(--color-haggle-primary), transparent 20%) !important;
+
+  // Force ALL children to flip to white for contrast
+  .mat-mdc-cell,
+  .mat-icon,
+  .mat-mdc-button,
+  .mat-mdc-icon-button,
+  a {
+    color: var(--color-on-haggle-primary) !important;
+    --mdc-icon-button-icon-color: var(--color-on-haggle-primary);
+  }
+
+  // Ensure links remain readable
+  a {
+    text-decoration: underline;
+    opacity: 0.9;
+  }
+}
+
+// Default icon color — overridden per-component where needed
+.mat-icon {
+  color: var(--color-on-surface-variant);
 }

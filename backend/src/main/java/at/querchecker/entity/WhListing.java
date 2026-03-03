@@ -24,7 +24,7 @@ public class WhListing {
     @Column(nullable = false, unique = true)
     private String whId;
 
-    @Column(nullable = false)
+    // nullable – Willhaben liefert HEADING nicht immer
     private String title;
 
     @Column(columnDefinition = "TEXT")
@@ -34,7 +34,7 @@ public class WhListing {
 
     private String location;
 
-    @Column(nullable = false)
+    // nullable – Self-Link fehlt gelegentlich
     private String url;
 
     private LocalDateTime listedAt;

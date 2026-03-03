@@ -76,24 +76,16 @@
           }
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@angular/build:unit-test",
           "options": {
-            "polyfills": ["zone.js", "zone.js/testing"],
             "tsConfig": "tsconfig.spec.json",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
-            ],
-            "styles": [
-              "src/custom-theme.scss",
-              "src/styles.scss"
-            ],
-            "scripts": []
+            "buildTarget": "querchecker-frontend:build:development"
           }
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "f1acb7c5-750b-425d-b141-abd824d96db9"
   }
 }

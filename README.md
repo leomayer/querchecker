@@ -16,7 +16,7 @@ Preisvergleichs-App für Elektronik/Hardware. Willhaben-Suchen durchführen, Erg
 # 1. PostgreSQL starten
 docker compose up -d
 
-# 2. Backend starten (eigenes Terminal)
+# 2. Backend starten (eigenes TERMINAL
 cd backend
 mvn spring-boot:run
 

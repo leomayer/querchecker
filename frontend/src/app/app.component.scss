@@ -1,1 +1,89 @@
-// App-level styles – component-specific overrides here
+.mat-toolbar {
+  // Diagonal split: Haggle Blue -> Gap -> Haggle Green
+  // We use a 2% gap (59% to 61%) for the divider
+  background: linear-gradient(
+    135deg,
+    var(--color-haggle-primary) 0%,
+    var(--color-haggle-primary) 59%,
+    var(--color-haggle-divider) 59%,
+    var(--color-haggle-divider) 61%,
+    var(--color-haggle-secondary) 61%,
+    var(--color-haggle-secondary) 100%
+  ) !important;
+
+  height: 64px;
+  position: relative;
+  overflow: hidden;
+
+  // Outer shadow for the bar
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+  // The "Stanced" inner shadow for the blue side
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 60%;
+    height: 100%;
+    box-shadow: inset 10px 0 20px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+.brand-title {
+  font-family: var(--font-brand);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--color-on-haggle-primary);
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
+.theme-toggle-btn {
+  background: var(--color-tertiary);
+
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 8px;
+  padding-block: 8px;
+  padding-inline: 16px;
+
+  // The "Engraved" effect:
+  // Outer shadow makes it pop out, inner shadow makes the icon look set-in
+  box-shadow:
+    2px 2px 5px rgba(0, 0, 0, 0.2),
+    inset 1px 1px 2px rgba(0, 0, 0, 0.3) !important;
+
+  transition: all 0.3s ease !important;
+
+  mat-icon {
+    color: #273f54; // dark blue-green → fits brand context, ~4.5:1 on teal bg ✓
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.5); // Gives the icon an engraved depth
+  }
+
+  :host-context(.dark-theme) & mat-icon {
+    color: var(--color-primary) !important;
+  }
+
+  :host-context(.dark-theme) &:hover mat-icon {
+    color: var(--color-on-haggle-primary) !important;
+  }
+
+  &:hover {
+    background: var(--color-haggle-primary) !important; // solid brand teal → white icon 4.73:1 ✓
+    transform: translateY(-1px);
+    box-shadow:
+      3px 4px 8px rgba(0, 0, 0, 0.3),
+      inset 1px 1px 1px rgba(0, 0, 0, 0.1) !important;
+
+    mat-icon {
+      color: var(--color-on-haggle-primary); // white → 4.73:1 light, 8.37:1 dark ✓
+    }
+  }
+
+  &:active {
+    transform: translateY(1px);
+    box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.4) !important; // Deep press effect
+  }
+}

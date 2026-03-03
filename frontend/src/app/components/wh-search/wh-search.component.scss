@@ -1,0 +1,38 @@
+mat-card-content {
+  padding-top: 16px;
+}
+
+.search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.search-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.keyword-field {
+  flex: 2 1 240px;
+}
+
+.rows-field {
+  flex: 0 1 120px;
+}
+
+.price-field {
+  flex: 1 1 120px;
+}
+
+button[type='submit'] {
+  margin-top: 4px;
+  height: 56px;
+}
+
+.error-message {
+  color: var(--mat-sys-error);
+  margin-top: 8px;
+}
