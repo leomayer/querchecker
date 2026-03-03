@@ -1,0 +1,27 @@
+@use '@angular/material' as mat;
+
+// TealMist Theme Palette
+$querchecker-primary: mat.m3-define-theme((
+  color: (
+    theme-type: light,
+    primary: mat.$cyan-palette,
+  ),
+  typography: (
+    brand-family: 'Source Sans 3',
+    plain-family: 'Source Sans 3',
+  ),
+));
+
+html {
+  @include mat.all-component-themes($querchecker-primary);
+}
+
+.dark-theme {
+  $querchecker-dark: mat.m3-define-theme((
+    color: (
+      theme-type: dark,
+      primary: mat.$cyan-palette,
+    ),
+  ));
+  @include mat.all-component-colors($querchecker-dark);
+}

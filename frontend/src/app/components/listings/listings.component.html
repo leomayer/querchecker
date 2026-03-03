@@ -1,0 +1,105 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Inserate</mat-card-title>
+    <mat-card-subtitle>{{ count() }} Ergebnisse</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Filtern</mat-label>
+      <input
+        matInput
+        [ngModel]="filterText()"
+        (ngModelChange)="onFilterChange($event)"
+        placeholder="Titel oder Standort..."
+      />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    @if (loading()) {
+      <div class="spinner-container">
+        <mat-spinner diameter="48" />
+      </div>
+    }
+
+    @if (error()) {
+      <p class="error-message">{{ error() }}</p>
+    }
+
+    @if (!loading() && !error()) {
+      <table mat-table [dataSource]="filteredListings()" class="listings-table">
+        <!-- Titel -->
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef>Titel</th>
+          <td mat-cell *matCellDef="let listing">
+            <a [href]="listing.url" target="_blank" rel="noopener">{{ listing.title }}</a>
+          </td>
+        </ng-container>
+
+        <!-- Preis -->
+        <ng-container matColumnDef="price">
+          <th mat-header-cell *matHeaderCellDef>Preis</th>
+          <td mat-cell *matCellDef="let listing">
+            @if (listing.price != null) {
+              {{ listing.price | currency: 'EUR' : 'symbol' : '1.0-0' }}
+            } @else {
+              –
+            }
+          </td>
+        </ng-container>
+
+        <!-- Standort -->
+        <ng-container matColumnDef="location">
+          <th mat-header-cell *matHeaderCellDef>Standort</th>
+          <td mat-cell *matCellDef="let listing">{{ listing.location ?? '–' }}</td>
+        </ng-container>
+
+        <!-- Datum -->
+        <ng-container matColumnDef="listedAt">
+          <th mat-header-cell *matHeaderCellDef>Eingestellt</th>
+          <td mat-cell *matCellDef="let listing">
+            {{ listing.listedAt | date: 'dd.MM.yyyy' }}
+          </td>
+        </ng-container>
+
+        <!-- Aktionen -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let listing" class="actions-cell">
+            <button
+              mat-icon-button
+              matTooltip="Auf Willhaben öffnen"
+              (click)="openOnWillhaben(listing)"
+            >
+              <mat-icon>open_in_new</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              matTooltip="Auf Geizhals suchen"
+              (click)="searchOnGeizhals(listing)"
+            >
+              <mat-icon>compare_arrows</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              matTooltip="Löschen"
+              color="warn"
+              (click)="deleteListing(listing)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+            Keine Inserate gefunden.
+          </td>
+        </tr>
+      </table>
+    }
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,39 @@
+.filter-field {
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 16px;
+}
+
+.listings-table {
+  width: 100%;
+}
+
+.actions-cell {
+  white-space: nowrap;
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+}
+
+.error-message {
+  color: var(--mat-sys-error);
+  padding: 16px 0;
+}
+
+.no-data {
+  padding: 24px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

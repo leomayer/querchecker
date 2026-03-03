@@ -1,0 +1,52 @@
+services:
+  querchecker-nginx:
+    image: querchecker-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.querchecker.rule=Host(`querchecker.deinedomain.at`)"
+      - "traefik.http.routers.querchecker.tls=true"
+      - "traefik.http.routers.querchecker.tls.certresolver=letsencrypt"
+      - "traefik.http.services.querchecker.loadbalancer.server.port=80"
+    networks:
+      - traefik-network
+    depends_on:
+      - querchecker-backend
+
+  querchecker-backend:
+    image: querchecker-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://querchecker-db:5432/mydb
+      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_PASSWORD: mypassword
+    networks:
+      - traefik-network
+      - internal
+    depends_on:
+      - querchecker-db
+
+  querchecker-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydb
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - internal
+
+networks:
+  traefik-network:
+    external: true
+  internal:
+    driver: bridge
+
+volumes:
+  postgres-data:

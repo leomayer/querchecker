@@ -1,0 +1,22 @@
+server:
+  port: 14070
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:14071/mydb
+    username: myuser
+    password: mypassword
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
