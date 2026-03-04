@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -71,23 +73,23 @@ public class WhLocationService {
                 return;
             }
 
-            List<WhApiResponse.PossibleValue> values = response.getNavigatorGroups()
-                .stream()
-                .filter(g -> g.getNavigatorList() != null)
-                .flatMap(g -> g.getNavigatorList().stream())
-                .filter(n -> n.getGroupedPossibleValues() != null)
-                .flatMap(n -> n.getGroupedPossibleValues().stream())
-                .filter(gpv -> gpv.getPossibleValues() != null)
-                .flatMap(gpv -> gpv.getPossibleValues().stream())
-                .filter(v -> "areaId".equals(v.getUrlParameterName()))
-                .toList();
+            List<WhApiResponse.PossibleValue> topValues = extractByAreaId(response);
 
-            if (values.isEmpty()) {
+            if (topValues.isEmpty()) {
                 log.warn("Keine Standorte (areaId) in der Willhaben-Antwort gefunden");
                 return;
             }
 
-            processValues(values);
+            List<WhLocation> bundeslaender = saveTopLevel(topValues);
+            log.info("{} Bundesländer gespeichert, starte Bezirk-Abruf...", bundeslaender.size());
+
+            Set<Integer> bundeslandAreaIds = bundeslaender.stream()
+                .map(WhLocation::getAreaId)
+                .collect(Collectors.toSet());
+
+            for (WhLocation bundesland : bundeslaender) {
+                fetchAndSaveBezirke(bundesland, bundeslandAreaIds);
+            }
 
             saveLastFetched();
             log.info("Standort-Aktualisierung abgeschlossen ({} Einträge)", whLocationRepository.count());
@@ -96,7 +98,8 @@ public class WhLocationService {
         }
     }
 
-    private void processValues(List<WhApiResponse.PossibleValue> values) {
+    private List<WhLocation> saveTopLevel(List<WhApiResponse.PossibleValue> values) {
+        List<WhLocation> saved = new java.util.ArrayList<>();
         for (WhApiResponse.PossibleValue val : values) {
             Integer areaId = parseId(val.getUrlParameterValue());
             if (areaId == null || val.getLabel() == null) continue;
@@ -106,8 +109,48 @@ public class WhLocationService {
             loc.setName(val.getLabel());
             loc.setLevel(0);
             loc.setParent(null);
-            whLocationRepository.save(loc);
+            saved.add(whLocationRepository.save(loc));
         }
+        return saved;
+    }
+
+    private void fetchAndSaveBezirke(WhLocation bundesland, Set<Integer> bundeslandAreaIds) {
+        try {
+            String url = NAVIGATOR_URL + "&areaId=" + bundesland.getAreaId();
+            WhApiResponse.Root response = whApiClient
+                .get(URI.create(url), WhApiResponse.Root.class)
+                .getBody();
+
+            if (response == null || response.getNavigatorGroups() == null) return;
+
+            for (WhApiResponse.PossibleValue val : extractByAreaId(response)) {
+                Integer areaId = parseId(val.getUrlParameterValue());
+                if (areaId == null || val.getLabel() == null || bundeslandAreaIds.contains(areaId)) continue;
+
+                WhLocation loc = whLocationRepository.findByAreaId(areaId)
+                    .orElse(WhLocation.builder().areaId(areaId).build());
+                loc.setName(val.getLabel());
+                loc.setLevel(1);
+                loc.setParent(bundesland);
+                whLocationRepository.save(loc);
+            }
+        } catch (Exception e) {
+            log.error("Fehler beim Abruf von Bezirken für {} ({})",
+                bundesland.getName(), bundesland.getAreaId(), e);
+        }
+    }
+
+    private List<WhApiResponse.PossibleValue> extractByAreaId(WhApiResponse.Root response) {
+        return response.getNavigatorGroups()
+            .stream()
+            .filter(g -> g.getNavigatorList() != null)
+            .flatMap(g -> g.getNavigatorList().stream())
+            .filter(n -> n.getGroupedPossibleValues() != null)
+            .flatMap(n -> n.getGroupedPossibleValues().stream())
+            .filter(gpv -> gpv.getPossibleValues() != null)
+            .flatMap(gpv -> gpv.getPossibleValues().stream())
+            .filter(v -> "areaId".equals(v.getUrlParameterName()))
+            .toList();
     }
 
     private void saveLastFetched() {

@@ -13,6 +13,7 @@ export interface SearchParams {
   rows: number;
   priceFrom?: number;
   priceTo?: number;
+  locationAreaId?: number;
 }
 
 export const SORT_FIELDS = [

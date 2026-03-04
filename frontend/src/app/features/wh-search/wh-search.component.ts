@@ -5,13 +5,14 @@ import { QuercheckerListingDto } from '../../api/model/quercheckerListingDto';
 import { API_URLS } from '../../core/api-urls';
 import { FilterComponent, SearchParams } from './filter/filter.component';
 import { ListingsComponent } from './listings/listings.component';
+import { LocationFilterComponent } from './location-filter/location-filter.component';
 import { ZoneLeftComponent } from '../../shared/layout/zone-left/zone-left.component';
 import { ZoneRightComponent } from '../../shared/layout/zone-right/zone-right.component';
 
 @Component({
   selector: 'app-wh-search',
   standalone: true,
-  imports: [ZoneLeftComponent, ZoneRightComponent, FilterComponent, ListingsComponent],
+  imports: [ZoneLeftComponent, ZoneRightComponent, FilterComponent, ListingsComponent, LocationFilterComponent],
   templateUrl: './wh-search.component.html',
   styleUrl: './wh-search.component.scss',
 })
@@ -24,6 +25,7 @@ export class WhSearchComponent {
   freeOnly = signal(false);
   sortColumn = signal('');
   sortDirection = signal<'asc' | 'desc' | ''>('');
+  locationAreaId = signal<number | undefined>(undefined);
 
   searchMode = computed(() => this.searchParams() !== null);
 
@@ -40,6 +42,7 @@ export class WhSearchComponent {
       const params: Record<string, string | number> = { keyword: p.keyword, rows: p.rows };
       if (p.priceFrom != null) params['priceFrom'] = p.priceFrom;
       if (p.priceTo != null) params['priceTo'] = p.priceTo;
+      if (p.locationAreaId != null) params['areaId'] = p.locationAreaId;
       return { url: API_URLS.whSearch, params };
     },
     { defaultValue: [] },
@@ -96,7 +99,7 @@ export class WhSearchComponent {
 
   // ── Event handlers ────────────────────────────────────────────────────────
   onSearch(params: SearchParams): void {
-    this.searchParams.set(params);
+    this.searchParams.set({ ...params, locationAreaId: this.locationAreaId() });
     this.filterText.set('');
     this.freeOnly.set(false);
   }

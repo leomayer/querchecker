@@ -6,6 +6,7 @@
     [error]="searchMode() ? error() : null"
     (search)="onSearch($event)"
   />
+  <app-location-filter [(locationAreaId)]="locationAreaId" />
 </app-zone-left>
 
 <app-zone-right>

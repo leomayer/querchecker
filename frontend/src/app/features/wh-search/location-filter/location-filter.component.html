@@ -1,0 +1,42 @@
+<div class="filter-section">
+  <h2 class="section-label">Standort</h2>
+
+  @if (loading()) {
+    <p class="loading-hint">Lade Standorte…</p>
+  } @else {
+    <mat-accordion displayMode="flat">
+      @for (bl of locations(); track bl.areaId) {
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-checkbox
+                [checked]="isSelected(bl.areaId)"
+                (change)="select(bl.areaId)"
+                (click)="$event.stopPropagation()"
+              >
+                {{ bl.name }}
+              </mat-checkbox>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          @if (bl.children.length) {
+            <div class="bezirk-list">
+              @for (bz of bl.children; track bz.areaId) {
+                <mat-checkbox
+                  [checked]="isSelected(bz.areaId)"
+                  (change)="select(bz.areaId)"
+                >
+                  {{ bz.name }}
+                </mat-checkbox>
+              }
+            </div>
+          } @else {
+            <p class="no-bezirke">Keine Bezirke verfügbar</p>
+          }
+        </mat-expansion-panel>
+      }
+    </mat-accordion>
+  }
+</div>
+
+<div class="section-divider"></div>
