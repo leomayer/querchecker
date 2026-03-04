@@ -8,11 +8,11 @@ import at.querchecker.repository.WhCategoryRepository;
 import at.querchecker.wh.api.WhApiResponse;
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -57,9 +57,8 @@ public class WhCategoryService {
 
     /**
      * Ruft den Kategorie-Navigator von Willhaben ab und aktualisiert die DB.
-     * Verarbeitet bis zu 3 Ebenen aus der verschachtelten Navigator-Antwort.
+     * Stufe 0: alle Top-Level-Kategorien; Stufe 1: Unterkategorien per Drill-Down.
      */
-    @Transactional
     public void fetchAndUpsert() {
         log.info("Starte Kategorie-Aktualisierung...");
         try {
@@ -67,40 +66,31 @@ public class WhCategoryService {
                 .get(URI.create(NAVIGATOR_URL), WhApiResponse.Root.class)
                 .getBody();
 
-            if (
-                response == null ||
-                response.getNavigatorList() == null ||
-                response.getNavigatorList().getNavigator() == null
-            ) {
+            if (response == null || response.getNavigatorGroups() == null) {
                 log.warn(
                     "Kein Kategorie-Navigator in der Willhaben-Antwort gefunden – Abbruch"
                 );
                 return;
             }
 
-            // Kategorie-Navigator erkennen: NavigatorValues haben urlParameterName = "ATTRIBUTE_TREE"
-            response
-                .getNavigatorList()
-                .getNavigator()
-                .stream()
-                .filter(n -> n.getNavigatorValue() != null)
-                .filter(n ->
-                    n
-                        .getNavigatorValue()
-                        .stream()
-                        .anyMatch(v ->
-                            "ATTRIBUTE_TREE".equals(v.getUrlParameterName())
-                        )
-                )
-                .findFirst()
-                .ifPresentOrElse(
-                    nav -> processLevel(nav.getNavigatorValue(), null, 0),
-                    () -> log.warn("Kein ATTRIBUTE_TREE-Navigator gefunden")
-                );
+            List<WhApiResponse.PossibleValue> topValues =
+                extractByParam(response, "ATTRIBUTE_TREE");
+
+            if (topValues.isEmpty()) {
+                log.warn("Keine Kategorien (ATTRIBUTE_TREE) in der Willhaben-Antwort gefunden");
+                return;
+            }
+
+            List<WhCategory> topCategories = saveTopLevel(topValues);
+            log.info("{} Top-Level-Kategorien gespeichert, starte Unterkategorie-Abruf...", topCategories.size());
+
+            for (WhCategory parent : topCategories) {
+                fetchAndSaveSubcategories(parent);
+            }
 
             saveLastFetched();
             log.info(
-                "Kategorie-Aktualisierung abgeschlossen ({} Einträge)",
+                "Kategorie-Aktualisierung abgeschlossen ({} Einträge gesamt)",
                 whCategoryRepository.count()
             );
         } catch (Exception e) {
@@ -108,13 +98,9 @@ public class WhCategoryService {
         }
     }
 
-    private void processLevel(
-        List<WhApiResponse.NavigatorValue> values,
-        WhCategory parent,
-        int level
-    ) {
-        if (values == null || level > 2) return;
-        for (WhApiResponse.NavigatorValue val : values) {
+    private List<WhCategory> saveTopLevel(List<WhApiResponse.PossibleValue> values) {
+        List<WhCategory> saved = new ArrayList<>();
+        for (WhApiResponse.PossibleValue val : values) {
             Integer whId = parseId(val.getUrlParameterValue());
             if (whId == null || val.getLabel() == null) continue;
 
@@ -122,21 +108,56 @@ public class WhCategoryService {
                 .findByWhId(whId)
                 .orElse(WhCategory.builder().whId(whId).build());
             cat.setName(val.getLabel());
-            cat.setLevel(level);
-            cat.setParent(parent);
-            WhCategory saved = whCategoryRepository.save(cat);
-
-            if (
-                val.getSubNavigatorList() != null &&
-                val.getSubNavigatorList().getNavigator() != null
-            ) {
-                for (WhApiResponse.Navigator subNav : val
-                    .getSubNavigatorList()
-                    .getNavigator()) {
-                    processLevel(subNav.getNavigatorValue(), saved, level + 1);
-                }
-            }
+            cat.setLevel(0);
+            cat.setParent(null);
+            saved.add(whCategoryRepository.save(cat));
         }
+        return saved;
+    }
+
+    private void fetchAndSaveSubcategories(WhCategory parent) {
+        try {
+            String url = NAVIGATOR_URL + "&ATTRIBUTE_TREE=" + parent.getWhId();
+            WhApiResponse.Root response = whApiClient
+                .get(URI.create(url), WhApiResponse.Root.class)
+                .getBody();
+
+            if (response == null || response.getNavigatorGroups() == null) return;
+
+            List<WhApiResponse.PossibleValue> subValues =
+                extractByParam(response, "ATTRIBUTE_TREE");
+
+            for (WhApiResponse.PossibleValue val : subValues) {
+                Integer whId = parseId(val.getUrlParameterValue());
+                if (whId == null || val.getLabel() == null || whId.equals(parent.getWhId())) continue;
+
+                WhCategory cat = whCategoryRepository
+                    .findByWhId(whId)
+                    .orElse(WhCategory.builder().whId(whId).build());
+                cat.setName(val.getLabel());
+                cat.setLevel(1);
+                cat.setParent(parent);
+                whCategoryRepository.save(cat);
+            }
+        } catch (Exception e) {
+            log.error("Fehler beim Abruf von Unterkategorien für {} ({})",
+                parent.getName(), parent.getWhId(), e);
+        }
+    }
+
+    private List<WhApiResponse.PossibleValue> extractByParam(
+        WhApiResponse.Root response, String paramName
+    ) {
+        return response.getNavigatorGroups()
+            .stream()
+            .filter(g -> g.getNavigatorList() != null)
+            .flatMap(g -> g.getNavigatorList().stream())
+            .filter(n -> n.getGroupedPossibleValues() != null)
+            .flatMap(n -> n.getGroupedPossibleValues().stream())
+            .filter(gpv -> gpv.getPossibleValues() != null)
+            .flatMap(gpv -> gpv.getPossibleValues().stream())
+            .filter(v -> paramName.equals(v.getUrlParameterName()))
+            .toList();
     }
 
     private void saveLastFetched() {

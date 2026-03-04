@@ -16,7 +16,7 @@ import java.util.List;
  *   GET https://www.willhaben.at/webapi/iad/search/atz/seo/kaufen-und-verkaufen/marktplatz
  *       ?keyword=rtx+4070&rows=30&page=1
  *
- * Relevante Attribute-Namen (Stand 2025):
+ * Relevante Attribute-Namen (Stand 2026):
  *   HEADING      → Titel des Inserats
  *   PRICE        → Preis als Zahl (z.B. "350"), fehlt bei "Preis auf Anfrage"
  *   LOCATION     → Standort
@@ -34,7 +34,8 @@ public final class WhApiResponse {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Root {
         private AdvertSummaryList advertSummaryList;
-        private NavigatorList navigatorList;
+        /** Seit 2026: Navigatoren sind nach Gruppen (z.B. "Kategorie", "Standort") gegliedert. */
+        private List<NavigatorGroup> navigatorGroups;
     }
 
     // -------------------------------------------------------------------------
@@ -126,36 +127,65 @@ public final class WhApiResponse {
     }
 
     // -------------------------------------------------------------------------
-    // Navigator (Kategorie- und Standort-Facetten)
+    // Navigator (Kategorie- und Standort-Facetten) – neue Struktur ab 2026
     // -------------------------------------------------------------------------
 
+    /** Eine thematische Gruppe von Navigatoren, z.B. "Suchbegriff & Kategorie". */
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class NavigatorList {
-        private List<Navigator> navigator;
+    public static class NavigatorGroup {
+        private String label;
+        private List<Navigator> navigatorList;
     }
 
+    /** Ein einzelner Navigator (z.B. Kategorie, Bundesland) innerhalb einer Gruppe. */
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Navigator {
         private String id;
         private String label;
-        private List<NavigatorValue> navigatorValue;
+        private List<GroupedPossibleValues> groupedPossibleValues;
+    }
+
+    /** Gruppe von Filterwerten innerhalb eines Navigators. */
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class GroupedPossibleValues {
+        private String label;
+        private List<PossibleValue> possibleValues;
     }
 
     /**
-     * Ein einzelner Filterwert im Navigator, z.B. eine Kategorie oder ein Bundesland.
-     * Enthält optional eine subNavigatorList für die nächste Ebene.
+     * Ein einzelner Filterwert (z.B. eine Kategorie oder ein Bundesland).
+     * Enthält URL-Parameter für die Filterung sowie optionale Eltern-Referenz.
      */
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class NavigatorValue {
+    public static class PossibleValue {
         private String label;
-        /** z.B. "ATTRIBUTE_TREE" für Kategorien, "areaId" für Standorte */
+        private List<UrlParamRepresentation> urlParamRepresentationForValue;
+        /** null bei Einträgen der obersten Ebene */
+        private String parentId;
+        private String parentLabel;
+
+        /** Liefert den ersten URL-Parameter-Namen, z.B. "ATTRIBUTE_TREE" oder "areaId". */
+        public String getUrlParameterName() {
+            if (urlParamRepresentationForValue == null || urlParamRepresentationForValue.isEmpty()) return null;
+            return urlParamRepresentationForValue.get(0).getUrlParameterName();
+        }
+
+        /** Liefert den ersten URL-Parameter-Wert, z.B. "6941" oder "1". */
+        public String getUrlParameterValue() {
+            if (urlParamRepresentationForValue == null || urlParamRepresentationForValue.isEmpty()) return null;
+            return urlParamRepresentationForValue.get(0).getValue();
+        }
+    }
+
+    /** URL-Parameter-Darstellung für einen Filterwert. */
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class UrlParamRepresentation {
         private String urlParameterName;
-        /** Der eigentliche ID-Wert, z.B. "5882" oder "900" */
-        private String urlParameterValue;
-        /** Nächste Ebene – null wenn kein Kindelement vorhanden */
-        private NavigatorList subNavigatorList;
+        private String value;
     }
 }

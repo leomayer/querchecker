@@ -56,7 +56,7 @@ public class WhLocationService {
 
     /**
      * Ruft den Standort-Navigator von Willhaben ab und aktualisiert die DB.
-     * Verarbeitet 2 Ebenen: Bundesland → Bezirk.
+     * Verarbeitet alle Einträge mit urlParameterName = "areaId".
      */
     @Transactional
     public void fetchAndUpsert() {
@@ -66,22 +66,28 @@ public class WhLocationService {
                 .get(URI.create(NAVIGATOR_URL), WhApiResponse.Root.class)
                 .getBody();
 
-            if (response == null || response.getNavigatorList() == null
-                    || response.getNavigatorList().getNavigator() == null) {
+            if (response == null || response.getNavigatorGroups() == null) {
                 log.warn("Kein Navigator in der Willhaben-Antwort – Abbruch");
                 return;
             }
 
-            // Standort-Navigator erkennen: NavigatorValues haben urlParameterName = "areaId"
-            response.getNavigatorList().getNavigator().stream()
-                .filter(n -> n.getNavigatorValue() != null)
-                .filter(n -> n.getNavigatorValue().stream()
-                    .anyMatch(v -> "areaId".equals(v.getUrlParameterName())))
-                .findFirst()
-                .ifPresentOrElse(
-                    nav -> processLevel(nav.getNavigatorValue(), null, 0),
-                    () -> log.warn("Kein areaId-Navigator gefunden")
-                );
+            List<WhApiResponse.PossibleValue> values = response.getNavigatorGroups()
+                .stream()
+                .filter(g -> g.getNavigatorList() != null)
+                .flatMap(g -> g.getNavigatorList().stream())
+                .filter(n -> n.getGroupedPossibleValues() != null)
+                .flatMap(n -> n.getGroupedPossibleValues().stream())
+                .filter(gpv -> gpv.getPossibleValues() != null)
+                .flatMap(gpv -> gpv.getPossibleValues().stream())
+                .filter(v -> "areaId".equals(v.getUrlParameterName()))
+                .toList();
+
+            if (values.isEmpty()) {
+                log.warn("Keine Standorte (areaId) in der Willhaben-Antwort gefunden");
+                return;
+            }
+
+            processValues(values);
 
             saveLastFetched();
             log.info("Standort-Aktualisierung abgeschlossen ({} Einträge)", whLocationRepository.count());
@@ -90,24 +96,17 @@ public class WhLocationService {
         }
     }
 
-    private void processLevel(List<WhApiResponse.NavigatorValue> values, WhLocation parent, int level) {
-        if (values == null || level > 1) return;
-        for (WhApiResponse.NavigatorValue val : values) {
+    private void processValues(List<WhApiResponse.PossibleValue> values) {
+        for (WhApiResponse.PossibleValue val : values) {
             Integer areaId = parseId(val.getUrlParameterValue());
             if (areaId == null || val.getLabel() == null) continue;
 
             WhLocation loc = whLocationRepository.findByAreaId(areaId)
                 .orElse(WhLocation.builder().areaId(areaId).build());
             loc.setName(val.getLabel());
-            loc.setLevel(level);
-            loc.setParent(parent);
-            WhLocation saved = whLocationRepository.save(loc);
-
-            if (val.getSubNavigatorList() != null && val.getSubNavigatorList().getNavigator() != null) {
-                for (WhApiResponse.Navigator subNav : val.getSubNavigatorList().getNavigator()) {
-                    processLevel(subNav.getNavigatorValue(), saved, level + 1);
-                }
-            }
+            loc.setLevel(0);
+            loc.setParent(null);
+            whLocationRepository.save(loc);
         }
     }
 
