@@ -1,0 +1,95 @@
+<div class="filter-section">
+  <h2 class="section-label">Willhaben Suche</h2>
+
+  <form class="search-form" (ngSubmit)="onSearch()">
+    <mat-form-field appearance="outline" class="keyword-field">
+      <mat-label>Suchbegriff</mat-label>
+      <input
+        matInput
+        [(ngModel)]="keyword"
+        name="keyword"
+        placeholder="z.B. RTX 4070"
+      />
+    </mat-form-field>
+
+    <div class="search-row">
+      <mat-form-field appearance="outline" class="price-field">
+        <mat-label>Preis von (€)</mat-label>
+        <input matInput type="number" [(ngModel)]="priceFrom" name="priceFrom" min="0" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="price-field">
+        <mat-label>Preis bis (€)</mat-label>
+        <input matInput type="number" [(ngModel)]="priceTo" name="priceTo" min="0" />
+      </mat-form-field>
+    </div>
+    <div class="search-row">
+      <mat-form-field appearance="outline" class="rows-field">
+        <mat-label>Ergebnisse</mat-label>
+        <mat-select [(ngModel)]="rows" name="rows">
+          @for (opt of rowOptions; track opt) {
+            <mat-option [value]="opt">{{ opt }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="!keyword.trim() || loading()"
+      class="search-btn"
+    >
+      <mat-icon>search</mat-icon>
+      Suchen
+    </button>
+  </form>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" />
+  }
+
+  @if (error()) {
+    <p class="error-message">{{ error() }}</p>
+  }
+</div>
+
+<div class="section-divider"></div>
+
+<div class="filter-section">
+  <h2 class="section-label">Sortierung</h2>
+
+  <mat-form-field appearance="outline" class="sort-field">
+    <mat-label>Sortieren nach</mat-label>
+    <mat-select
+      [ngModel]="sortColumn()"
+      (ngModelChange)="onSortFieldChange($event)"
+      name="sortColumn"
+    >
+      <mat-option value="">– keine –</mat-option>
+      @for (f of sortFields; track f.value) {
+        <mat-option [value]="f.value">{{ f.label }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  @if (sortColumn()) {
+    <mat-button-toggle-group
+      [ngModel]="sortDirection()"
+      (ngModelChange)="sortDirection.set($event)"
+      name="sortDirection"
+      class="direction-toggle"
+    >
+      <mat-button-toggle value="asc">
+        <mat-icon>arrow_upward</mat-icon>
+        Aufsteigend
+      </mat-button-toggle>
+      <mat-button-toggle value="desc">
+        <mat-icon>arrow_downward</mat-icon>
+        Absteigend
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+  }
+</div>
+

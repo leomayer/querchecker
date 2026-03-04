@@ -1,0 +1,38 @@
+:host {
+  display: block;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px var(--layout-gutter);
+  color: var(--mat-sys-on-surface-variant);
+  border-top: 1px solid var(--mat-sys-outline-variant);
+  // Diagonal split: Haggle Blue -> Gap -> Haggle Green
+  background: linear-gradient(
+    45deg,
+    var(--color-haggle-primary) 0%,
+    var(--color-haggle-primary) 59.75%,
+    var(--color-haggle-divider) 59.75%,
+    var(--color-haggle-divider) 60.25%,
+    var(--color-haggle-secondary) 60.25%,
+    var(--color-haggle-secondary) 100%
+  ) !important;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.brand-title {
+  font-family: var(--font-brand);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-on-haggle-primary);
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.version-label {
+  font-size: 0.75rem;
+  color: var(--color-on-haggle-primary);
+  opacity: 0.8;
+}

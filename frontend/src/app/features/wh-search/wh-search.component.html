@@ -1,0 +1,23 @@
+<app-zone-left>
+  <app-filter
+    [(sortColumn)]="sortColumn"
+    [(sortDirection)]="sortDirection"
+    [loading]="searchMode() && loading()"
+    [error]="searchMode() ? error() : null"
+    (search)="onSearch($event)"
+  />
+</app-zone-left>
+
+<app-zone-right>
+  <app-listings
+    [listings]="sortedListings()"
+    [loading]="loading()"
+    [error]="error()"
+    [searchMode]="searchMode()"
+    [count]="count()"
+    [(filterText)]="filterText"
+    [(freeOnly)]="freeOnly"
+    (delete)="deleteListing($event)"
+    (showAll)="showAllListings()"
+  />
+</app-zone-right>

@@ -1,0 +1,38 @@
+<div class="listing-card">
+  <div class="card-main">
+    <a [href]="listing().url" target="_blank" rel="noopener" class="listing-title">
+      {{ listing().title }}
+    </a>
+    <span class="listing-price">
+      @if (listing().price === 0) {
+        <span class="free-label">Gratis</span>
+      } @else if (listing().price != null) {
+        {{ listing().price | customCurrency }}
+      } @else {
+        –
+      }
+    </span>
+  </div>
+
+  <div class="card-meta">
+    <span class="meta-item">
+      <mat-icon>location_on</mat-icon>
+      {{ listing().location ?? '–' }}
+    </span>
+    <span class="meta-item">
+      <mat-icon>calendar_today</mat-icon>
+      {{ listing().listedAt | date: 'dd.MM.yyyy' }}
+    </span>
+    <span class="card-actions">
+      <button mat-icon-button matTooltip="Auf Willhaben öffnen" (click)="openOnWillhaben()">
+        <mat-icon>open_in_new</mat-icon>
+      </button>
+      <button mat-icon-button matTooltip="Auf Geizhals suchen" (click)="searchOnGeizhals()">
+        <mat-icon>compare_arrows</mat-icon>
+      </button>
+      <button mat-icon-button matTooltip="Löschen" color="warn" (click)="delete.emit(listing())">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </span>
+  </div>
+</div>

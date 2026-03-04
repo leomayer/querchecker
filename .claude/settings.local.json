@@ -39,7 +39,9 @@
       "Bash(git -C /home/leo/programming/github/querchecker push)",
       "Bash(export PATH=\"/usr/bin:/bin:/usr/local/bin:$PATH\")",
       "Bash(PROJECT_DIR=/home/leo/programming/github/querchecker bash /home/leo/programming/github/claude-leo-config/scripts/gh-push.sh \"WH - Kategorien hinzufügen\")",
-      "Bash(git add .gitignore .zed/prompts/project-knowledge.md)"
+      "Bash(git add .gitignore .zed/prompts/project-knowledge.md)",
+      "mcp__angular-cli__find_examples",
+      "mcp__angular-cli__search_documentation"
     ]
   }
 }

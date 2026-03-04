@@ -1,20 +1,13 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatIconModule } from '@angular/material/icon';
+import { AppHeaderComponent } from './shared/layout/app-header/app-header.component';
+import { AppFooterComponent } from './shared/layout/app-footer/app-footer.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, MatToolbarModule, MatIconModule],
+  imports: [RouterOutlet, AppHeaderComponent, AppFooterComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
-export class AppComponent {
-  darkMode = signal(false);
-
-  toggleTheme() {
-    this.darkMode.update((v) => !v);
-    document.body.classList.toggle('dark-theme', this.darkMode());
-  }
-}
+export class AppComponent {}

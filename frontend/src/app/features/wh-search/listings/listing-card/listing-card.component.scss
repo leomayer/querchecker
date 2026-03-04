@@ -1,0 +1,73 @@
+:host {
+  display: block;
+  border-radius: 8px;
+}
+
+.listing-card {
+  padding: 12px 16px;
+  border-radius: 8px;
+  background-color: inherit;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.10);
+}
+
+.card-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.listing-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.listing-price {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-haggle-primary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.free-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: var(--color-on-surface-variant);
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.card-actions {
+  margin-left: auto;
+  display: flex;
+  flex-shrink: 0;
+}

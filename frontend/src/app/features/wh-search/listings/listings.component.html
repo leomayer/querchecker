@@ -1,0 +1,50 @@
+<div class="listing-header">
+  <div class="header-row">
+    <h2 class="panel-title">Inserate</h2>
+    <span class="panel-subtitle">{{ count() }} Ergebnisse</span>
+    @if (searchMode()) {
+      <button mat-button (click)="showAll.emit()" class="show-all-btn">
+        <mat-icon>list</mat-icon>
+        Alle gespeicherten
+      </button>
+    }
+  </div>
+
+  <div class="header-controls">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="filter-field">
+      <mat-label>Filtern</mat-label>
+      <input
+        matInput
+        [ngModel]="filterText()"
+        (ngModelChange)="filterText.set($event)"
+        placeholder="Titel oder Standort..."
+      />
+      <mat-icon matSuffix>filter_list</mat-icon>
+    </mat-form-field>
+
+    <mat-slide-toggle
+      [checked]="freeOnly()"
+      (change)="freeOnly.set($event.checked)"
+      color="primary"
+      class="free-toggle"
+    >
+      Nur „Zu verschenken"
+    </mat-slide-toggle>
+  </div>
+</div>
+
+<div class="listing-list">
+  @if (loading()) {
+    <div class="spinner-container">
+      <mat-spinner diameter="48" />
+    </div>
+  } @else if (error()) {
+    <p class="error-message">{{ error() }}</p>
+  } @else {
+    @for (listing of listings(); track listing.id) {
+      <app-listing-card [listing]="listing" (delete)="delete.emit($event)" />
+    } @empty {
+      <p class="no-data">Keine Inserate gefunden.</p>
+    }
+  }
+</div>

@@ -17,6 +17,10 @@
 
   --font-brand: 'Dancing Script', cursive;
   --font-body: 'Source Sans 3', sans-serif;
+
+  /* Layout */
+  --layout-gutter: 24px;
+  --color-border: rgba(0, 0, 0, 0.14);
 }
 
 body.dark-theme {
@@ -30,6 +34,7 @@ body.dark-theme {
   --color-surface: #1e1e1e;
   --color-on-surface: #e0e0e0;
   --color-on-surface-variant: #9acaca; // Lighter teal for dark bg contrast
+  --color-border: rgba(255, 255, 255, 0.14);
 }
 
 * {
@@ -45,7 +50,6 @@ body {
 }
 
 .page-content {
-  padding: 24px;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -58,16 +62,6 @@ th[aria-sort='none'] {
     opacity: 0.3 !important;
     transform: translateY(0) !important;
   }
-}
-
-/* Apply to all Material Cards/Text globally */
-.mat-mdc-card {
-  background-color: var(--color-surface) !important;
-  color: var(--color-on-surface) !important;
-}
-
-.mat-mdc-card-title {
-  color: var(--color-on-surface) !important;
 }
 
 /* Corrected Anchor Logic */

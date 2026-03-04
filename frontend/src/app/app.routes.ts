@@ -4,7 +4,7 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./components/listings/listings.component').then((m) => m.ListingsComponent),
+      import('./features/wh-search/wh-search.component').then((m) => m.WhSearchComponent),
   },
   {
     path: '**',

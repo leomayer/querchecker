@@ -1,0 +1,69 @@
+.filter-section {
+  padding: 16px var(--layout-gutter);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.section-label {
+  margin: 0 0 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-haggle-primary);
+}
+
+.section-divider {
+  height: 1px;
+  background: var(--mat-sys-outline-variant);
+  margin-inline: var(--layout-gutter);
+}
+
+.search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.keyword-field {
+  width: 100%;
+}
+
+.search-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.rows-field {
+  flex: 0 1 100px;
+}
+
+.price-field {
+  flex: 1 1 100px;
+}
+
+.search-btn {
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+.error-message {
+  color: var(--mat-sys-error);
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+}
+
+.sort-field {
+  width: 100%;
+}
+
+.direction-toggle {
+  width: 100%;
+
+  mat-button-toggle {
+    flex: 1;
+  }
+}

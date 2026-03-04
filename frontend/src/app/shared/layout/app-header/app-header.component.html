@@ -1,0 +1,14 @@
+<mat-toolbar color="primary" class="header-toolbar">
+  <div class="toolbar-inner">
+    <h1 class="brand-title">Leo's Querchecker</h1>
+    <span class="spacer"></span>
+    <button
+      mat-icon-button
+      class="theme-toggle-btn"
+      (click)="toggleTheme()"
+      [attr.aria-label]="'Toggle dark mode'"
+    >
+      <mat-icon>{{ darkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
+  </div>
+</mat-toolbar>

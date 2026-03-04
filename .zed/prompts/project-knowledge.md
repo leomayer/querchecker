@@ -319,11 +319,28 @@ Bei Backend-Routen-Änderung → nur `api-urls.ts` anpassen.
 ┌─────────────────────────────────┐
 │         1 – Header              │  fix, always visible
 ├──────────────┬──────────────────┤
-│  2 – Left    │   3 – Right      │  Right: scrollable
-│  (fix)       │   (results)      │
+│  flex-row container             │
+│  ┌──────────┐ ┌───────────────┐ │ Zone 2 and Zone 3 are 
+│  │ Zone 2   │ │ Zone 3        │ │ scrollable
+│  │ overflow │ │ overflow      │ │
+│  │ -y: auto │ │ -y: auto      │ │
+│  │ (filter) │ │ (results)     │ │
+│  └──────────┘ └───────────────┘ │
 ├──────────────┴──────────────────┤
 │         4 – Footer              │  fix, always visible
 └─────────────────────────────────┘
+
+Zone 1 – Header (flex, fixed)
+┌─────────────────────────────────┐
+│  flex-row container             │
+│  ┌──────────┐ ┌───────────────┐ │
+│  │ Zone 2   │ │ Zone 3        │ │
+│  │ overflow │ │ overflow      │ │
+│  │ -y: auto │ │ -y: auto      │ │
+│  │ (filter) │ │ (results)     │ │
+│  └──────────┘ └───────────────┘ │
+└─────────────────────────────────┘
+Zone 4 – Footer (flex, fixed)
 ```
 
 | Zone | Inhalt |
