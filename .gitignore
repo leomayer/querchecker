@@ -12,7 +12,8 @@ frontend/.angular/
 .claude/
 
 # IDE
-.zed/
+.zed/settings.json
+.zed/tasks.json
 .idea/
 *.iml
 
