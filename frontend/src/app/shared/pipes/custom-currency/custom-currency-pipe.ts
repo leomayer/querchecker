@@ -1,17 +1,12 @@
-import { Pipe, PipeTransform, Inject, LOCALE_ID } from '@angular/core';
+import { inject, LOCALE_ID, Pipe, PipeTransform } from '@angular/core';
 import { CurrencyPipe, formatNumber } from '@angular/common';
 
 @Pipe({
   name: 'customCurrency',
-  standalone: true,
 })
 export class CustomCurrencyPipe implements PipeTransform {
-  private currencyPipe: CurrencyPipe;
-
-  constructor(@Inject(LOCALE_ID) private locale: string) {
-    // Manually create the instance
-    this.currencyPipe = new CurrencyPipe(this.locale);
-  }
+  private readonly locale = inject(LOCALE_ID);
+  private readonly currencyPipe = new CurrencyPipe(this.locale);
   transform(value: number | string | null | undefined, currencyCode: string = 'EUR'): string {
     if (value == null || value === '') return '';
 

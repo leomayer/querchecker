@@ -1,4 +1,4 @@
-import { Component, input, model, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, model, output } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,8 +10,8 @@ import { QuercheckerListingDto } from '../../../api/model/quercheckerListingDto'
 import { ListingCardComponent } from './listing-card/listing-card.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-listings',
-  standalone: true,
   imports: [
     MatFormFieldModule,
     MatInputModule,

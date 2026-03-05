@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 import { ListingService } from '../../core/listing.service';
 import { QuercheckerListingDto } from '../../api/model/quercheckerListingDto';
@@ -10,8 +10,8 @@ import { ZoneLeftComponent } from '../../shared/layout/zone-left/zone-left.compo
 import { ZoneRightComponent } from '../../shared/layout/zone-right/zone-right.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-wh-search',
-  standalone: true,
   imports: [ZoneLeftComponent, ZoneRightComponent, FilterComponent, ListingsComponent, LocationFilterComponent],
   templateUrl: './wh-search.component.html',
   styleUrl: './wh-search.component.scss',

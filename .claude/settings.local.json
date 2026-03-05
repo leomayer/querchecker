@@ -41,7 +41,10 @@
       "Bash(PROJECT_DIR=/home/leo/programming/github/querchecker bash /home/leo/programming/github/claude-leo-config/scripts/gh-push.sh \"WH - Kategorien hinzufügen\")",
       "Bash(git add .gitignore .zed/prompts/project-knowledge.md)",
       "mcp__angular-cli__find_examples",
-      "mcp__angular-cli__search_documentation"
+      "mcp__angular-cli__search_documentation",
+      "mcp__angular-cli__list_projects",
+      "Bash(ng version)",
+      "mcp__angular-cli__get_best_practices"
     ]
   }
 }

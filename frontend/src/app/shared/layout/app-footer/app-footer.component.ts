@@ -1,9 +1,8 @@
-import { Component } from '@angular/core';
-import { VERSION } from '@angular/core';
+import { ChangeDetectionStrategy, Component, VERSION } from '@angular/core';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-footer',
-  standalone: true,
   templateUrl: './app-footer.component.html',
   styleUrl: './app-footer.component.scss',
 })

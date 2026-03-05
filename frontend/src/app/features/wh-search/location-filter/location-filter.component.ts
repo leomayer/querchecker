@@ -1,14 +1,14 @@
-import { Component, model } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, model } from '@angular/core';
 import { httpResource } from '@angular/common/http';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { API_URLS } from '../../../core/api-urls';
 import { WhLocationDto } from '../../../core/model/wh-location.model';
+import { HierarchicalFilterComponent } from '../../../shared/components/hierarchical-filter-component/hierarchical-filter-component';
+import { FilterNode } from '../../../shared/components/hierarchical-filter-component/hierarchical-filter-component.model';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-location-filter',
-  standalone: true,
-  imports: [MatExpansionModule, MatCheckboxModule],
+  imports: [HierarchicalFilterComponent],
   templateUrl: './location-filter.component.html',
   styleUrl: './location-filter.component.scss',
 })
@@ -20,14 +20,22 @@ export class LocationFilterComponent {
     { defaultValue: [] },
   );
 
-  locations = this.locationsResource.value;
-  loading = this.locationsResource.isLoading;
+  filterNodes = computed<FilterNode[]>(() => {
+    const sorted = [...(this.locationsResource.value() ?? [])].sort((a, b) => a.areaId - b.areaId);
+    return this.toFilterNodes(sorted);
+  });
 
-  select(areaId: number): void {
-    this.locationAreaId.set(this.locationAreaId() === areaId ? undefined : areaId);
+  private toFilterNodes(dtos: WhLocationDto[], parentName?: string): FilterNode[] {
+    return dtos.map((dto) => ({
+      id: String(dto.areaId),
+      name: dto.name,
+      level: dto.level,
+      parentName,
+      children: dto.children?.length ? this.toFilterNodes(dto.children, dto.name) : undefined,
+    }));
   }
 
-  isSelected(areaId: number): boolean {
-    return this.locationAreaId() === areaId;
+  onSelectionChange(node: FilterNode | null): void {
+    this.locationAreaId.set(node ? parseInt(node.id, 10) : undefined);
   }
 }

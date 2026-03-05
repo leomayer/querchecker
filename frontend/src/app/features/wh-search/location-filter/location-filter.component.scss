@@ -13,43 +13,6 @@
   color: var(--color-haggle-primary);
 }
 
-.loading-hint,
-.no-bezirke {
-  font-size: 0.85rem;
-  color: var(--mat-sys-on-surface-variant);
-  margin: 0;
-}
-
-mat-accordion {
-  // Bleed to full width (outside the gutter padding)
-  margin-inline: calc(-1 * var(--layout-gutter));
-}
-
-mat-expansion-panel {
-  box-shadow: none !important;
-  background: transparent !important;
-  border-top: 1px solid var(--color-border);
-
-  &:last-of-type {
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  // Compact header height
-  --mat-expansion-header-collapsed-state-height: 40px;
-  --mat-expansion-header-expanded-state-height: 40px;
-}
-
-.bezirk-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 4px 0 8px 4px;
-
-  mat-checkbox {
-    font-size: 0.875rem;
-  }
-}
-
 .section-divider {
   height: 1px;
   background: var(--mat-sys-outline-variant);

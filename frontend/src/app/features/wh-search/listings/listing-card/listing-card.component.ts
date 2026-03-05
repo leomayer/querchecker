@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -7,8 +7,8 @@ import { QuercheckerListingDto } from '../../../../api/model/quercheckerListingD
 import { CustomCurrencyPipe } from '../../../../shared/pipes/custom-currency/custom-currency-pipe';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-listing-card',
-  standalone: true,
   imports: [MatButtonModule, MatIconModule, MatTooltipModule, DatePipe, CustomCurrencyPipe],
   templateUrl: './listing-card.component.html',
   styleUrl: './listing-card.component.scss',

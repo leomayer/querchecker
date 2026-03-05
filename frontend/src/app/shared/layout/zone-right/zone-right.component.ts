@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-zone-right',
-  standalone: true,
   template: `<ng-content />`,
   styleUrl: './zone-right.component.scss',
 })
