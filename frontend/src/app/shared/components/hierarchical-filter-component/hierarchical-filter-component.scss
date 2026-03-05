@@ -1,0 +1,121 @@
+.w-full {
+  width: 100%;
+}
+
+// Material MDC fix: primary-text muss full-width sein damit option-row (flex)
+// margin-left:auto nutzen kann. Scoped auf .hf-option via ::ng-deep.
+:host ::ng-deep .hf-option .mdc-list-item__primary-text {
+  width: 100%;
+}
+
+// ── Browse-Modus ─────────────────────────────────────────────────────────────
+
+.back-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 16px;
+  height: 48px;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--color-haggle-primary);
+  border-bottom: 1px solid var(--color-border);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    background: color-mix(in srgb, var(--color-haggle-primary) 8%, transparent);
+  }
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.check-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  flex-shrink: 0;
+  color: var(--color-haggle-primary);
+  visibility: hidden;
+
+  &.visible {
+    visibility: visible;
+  }
+}
+
+.option-name {
+  flex: 1;
+  min-width: 0;
+}
+
+// Expand-Zone: Trailing-Icon innerhalb der Option-Content-Bounds
+.expand-zone {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  padding: 0 6px;
+  height: 32px;
+  border-radius: 4px;
+  color: var(--color-haggle-primary);
+  background: color-mix(in srgb, var(--color-haggle-primary) 8%, transparent);
+  cursor: pointer;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: var(--color-haggle-primary);
+  }
+
+  &:hover {
+    background: color-mix(in srgb, var(--color-haggle-primary) 20%, transparent);
+  }
+}
+
+// ── Chips ─────────────────────────────────────────────────────────────────────
+
+.selection-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 0;
+}
+
+// ── Such-Modus ────────────────────────────────────────────────────────────────
+
+.search-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+
+  .result-name {
+    flex: 1;
+    min-width: 0;
+
+    // Bold-Highlight aus [innerHTML]
+    strong {
+      font-weight: 700;
+      color: var(--color-haggle-primary);
+    }
+  }
+
+  .path {
+    flex-shrink: 0;
+    font-size: 11px;
+    color: var(--color-on-surface-variant);
+    font-style: italic;
+  }
+}

@@ -1,0 +1,72 @@
+<mat-form-field appearance="outline" class="w-full" [subscriptSizing]="'dynamic'">
+  <mat-label>{{ label() }}</mat-label>
+  <input
+    #searchInput
+    matInput
+    [value]="searchQuery()"
+    (input)="onSearchInput($event)"
+    (focus)="onInputFocus()"
+    (blur)="handleBlur()"
+    [matAutocomplete]="auto"
+  />
+
+  @if (selectedPath().length || searchQuery()) {
+  <button mat-icon-button matSuffix type="button" (click)="clear()">
+    <mat-icon>close</mat-icon>
+  </button>
+  } @else {
+  <mat-icon matSuffix>search</mat-icon>
+  }
+
+  <mat-autocomplete
+    #auto="matAutocomplete"
+    [displayWith]="displayFn"
+    [autoActiveFirstOption]="true"
+    [hideSingleSelectionIndicator]="true"
+    (opened)="onPanelOpened()"
+    (optionSelected)="onSelect($event.option.value)"
+  >
+    @if (!searchQuery()) { @if (navStack().length) {
+    <div class="back-nav" (click)="goBack()">
+      <mat-icon>chevron_left</mat-icon>
+      <span>{{ currentParent()!.name }}</span>
+    </div>
+    } @for (node of currentNodes(); track node.id) {
+    <mat-option class="hf-option" [value]="node">
+      <div class="option-row">
+        <mat-icon class="check-icon" [class.visible]="isNodeSelected(node)">check</mat-icon>
+        <span class="option-name">{{ node.name }}</span>
+        @if (node.children?.length) {
+        <span
+          class="expand-zone"
+          (mousedown)="$event.stopPropagation()"
+          (click)="$event.stopPropagation(); expand(node)"
+        >
+          <mat-icon>chevron_right</mat-icon>
+        </span>
+        }
+      </div>
+    </mat-option>
+    } } @else { @for (res of filteredResults(); track res.id) {
+    <mat-option class="hf-option" [value]="res">
+      <div class="search-row">
+        <span class="result-name" [innerHTML]="highlight(res.name, searchQuery())"></span>
+        @if (res.parentName) {
+        <span class="path">{{ res.parentName }}</span>
+        }
+      </div>
+    </mat-option>
+    } }
+  </mat-autocomplete>
+</mat-form-field>
+
+@if (selectedPath().length) {
+<mat-chip-set class="selection-chips">
+  @for (node of selectedPath(); track node.id; let i = $index) {
+  <mat-chip (removed)="removeFromLevel(i)">
+    {{ node.name }}
+    <button matChipRemove><mat-icon>cancel</mat-icon></button>
+  </mat-chip>
+  }
+</mat-chip-set>
+}
