@@ -1,6 +1,7 @@
 package at.querchecker.wh;
 
 import at.querchecker.dto.QuercheckerListingDto;
+import at.querchecker.dto.WhSearchResultDto;
 import at.querchecker.entity.WhListing;
 import at.querchecker.repository.WhListingRepository;
 import at.querchecker.wh.api.WhApiResponse;
@@ -39,7 +40,7 @@ public class WhSearchService {
      * @param areaId        Willhaben areaId für Standort-Filter (optional)
      */
     @Transactional
-    public List<QuercheckerListingDto> search(
+    public WhSearchResultDto search(
         String keyword,
         int rows,
         Integer priceFrom,
@@ -68,13 +69,18 @@ public class WhSearchService {
         if (body == null
                 || body.getAdvertSummaryList() == null
                 || body.getAdvertSummaryList().getAdvertSummary() == null) {
-            return List.of();
+            return WhSearchResultDto.builder().totalCount(0).listings(List.of()).build();
         }
 
-        return body.getAdvertSummaryList().getAdvertSummary()
+        List<QuercheckerListingDto> listings = body.getAdvertSummaryList().getAdvertSummary()
             .stream()
             .map(this::upsertAndMap)
             .toList();
+
+        return WhSearchResultDto.builder()
+            .totalCount(body.getRowsFound())
+            .listings(listings)
+            .build();
     }
 
     private QuercheckerListingDto upsertAndMap(Advert advert) {
@@ -91,7 +97,27 @@ public class WhSearchService {
         // PUBLISHED_String liefert ISO-Datum; PUBLISHED liefert Epoch-Millisekunden
         listing.setListedAt(parseDateTime(advert.getAttribute("PUBLISHED_String")));
 
-        return toDto(whListingRepository.save(listing));
+        WhListing saved = whListingRepository.save(listing);
+
+        // thumbnailUrl wird nicht persistiert (URLs laufen ab), daher direkt aus dem Live-Response
+        return toDto(saved).toBuilder()
+            .thumbnailUrl(buildThumbnailUrl(advert))
+            .build();
+    }
+
+    private static final String WH_IMAGE_BASE = "https://cache.willhaben.at/mmo/";
+
+    /**
+     * Baut die Thumbnail-URL aus dem MMO-Attribut zusammen (primär).
+     * Falls nicht vorhanden, Fallback auf advertImageList.
+     * Muster: "https://cache.willhaben.at/mmo/{path}_thumb.jpg"
+     */
+    private static String buildThumbnailUrl(Advert advert) {
+        String mmo = advert.getAttribute("MMO");
+        if (mmo != null && mmo.endsWith(".jpg")) {
+            return WH_IMAGE_BASE + mmo.substring(0, mmo.length() - 4) + "_thumb.jpg";
+        }
+        return advert.getThumbnailUrl(); // fallback auf advertImageList
     }
 
     /**

@@ -1,7 +1,7 @@
 <div class="filter-section">
   <h2 class="section-label">Willhaben Suche</h2>
 
-  <form class="search-form" (ngSubmit)="onSearch()">
+  <form class="search-form" (submit)="$event.preventDefault(); onSearch()">
     <mat-form-field appearance="outline" class="keyword-field">
       <mat-label>Suchbegriff</mat-label>
       <input

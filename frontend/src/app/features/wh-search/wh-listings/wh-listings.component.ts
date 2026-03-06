@@ -29,6 +29,7 @@ export class WhListingsComponent {
   error = input<string | null>(null);
   searchMode = input(false);
   count = input(0);
+  whTotal = input<number | null>(null);
   filterText = model('');
   freeOnly = model(false);
 

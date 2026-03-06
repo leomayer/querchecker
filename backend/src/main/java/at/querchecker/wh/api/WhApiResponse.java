@@ -34,6 +34,8 @@ public final class WhApiResponse {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Root {
         private AdvertSummaryList advertSummaryList;
+        /** Gesamtanzahl der Treffer auf Willhaben (root-level). */
+        private Integer rowsFound;
         /** Seit 2026: Navigatoren sind nach Gruppen (z.B. "Kategorie", "Standort") gegliedert. */
         private List<NavigatorGroup> navigatorGroups;
     }
@@ -67,6 +69,8 @@ public final class WhApiResponse {
 
         private List<Link> links;
 
+        private AdvertImageList advertImageList;
+
         /**
          * Liest den ersten Wert eines benannten Attributs aus.
          *
@@ -94,6 +98,15 @@ public final class WhApiResponse {
                     .findFirst()
                     .map(Link::getHref)
                     .orElse(null);
+        }
+
+        /**
+         * Gibt die Thumbnail-URL des ersten Bildes zurück (aus advertImageList).
+         */
+        public String getThumbnailUrl() {
+            if (advertImageList == null || advertImageList.getAdvertImage() == null
+                    || advertImageList.getAdvertImage().isEmpty()) return null;
+            return advertImageList.getAdvertImage().get(0).getThumbnailImageUrl();
         }
     }
 
@@ -124,6 +137,22 @@ public final class WhApiResponse {
     public static class Link {
         private String rel;
         private String href;
+    }
+
+    // -------------------------------------------------------------------------
+    // AdvertImageList
+    // -------------------------------------------------------------------------
+
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class AdvertImageList {
+        private List<AdvertImage> advertImage;
+    }
+
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class AdvertImage {
+        private String thumbnailImageUrl;
     }
 
     // -------------------------------------------------------------------------

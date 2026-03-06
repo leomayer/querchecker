@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 public class QuercheckerListingDto {
 
     private Long id;
@@ -19,4 +19,6 @@ public class QuercheckerListingDto {
     private String url;
     private LocalDateTime listedAt;
     private LocalDateTime fetchedAt;
+    /** Thumbnail-URL aus dem Live-API-Response – nicht in der DB gespeichert. */
+    private String thumbnailUrl;
 }

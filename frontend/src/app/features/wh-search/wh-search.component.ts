@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@a
 import { httpResource } from '@angular/common/http';
 import { ListingService } from '../../core/listing.service';
 import { QuercheckerListingDto } from '../../api/model/quercheckerListingDto';
+import { WhSearchResultDto } from '../../api/model/whSearchResultDto';
 import { API_URLS } from '../../core/api-urls';
 import { WhFilterComponent, SearchParams } from './wh-filter/wh-filter.component';
 import { WhListingsComponent } from './wh-listings/wh-listings.component';
@@ -32,7 +33,7 @@ export class WhSearchComponent {
     { defaultValue: [] },
   );
 
-  private searchResource = httpResource<QuercheckerListingDto[]>(
+  private searchResource = httpResource<WhSearchResultDto>(
     () => {
       const p = this.searchParams();
       if (!p) return undefined;
@@ -40,9 +41,9 @@ export class WhSearchComponent {
       if (p.priceFrom != null) params['priceFrom'] = p.priceFrom;
       if (p.priceTo != null) params['priceTo'] = p.priceTo;
       if (p.locationAreaId != null) params['areaId'] = p.locationAreaId;
+      if (p.categoryWhId != null) params['attributeTree'] = p.categoryWhId;
       return { url: API_URLS.whSearch, params };
     },
-    { defaultValue: [] },
   );
 
   loading = computed(() =>
@@ -55,8 +56,10 @@ export class WhSearchComponent {
     return e instanceof Error ? e.message : 'Fehler beim Laden der Daten.';
   });
 
+  whTotal = computed(() => this.searchResource.value()?.totalCount ?? null);
+
   private rawListings = computed(
-    () => (this.searchMode() ? this.searchResource.value() : this.allResource.value()) ?? [],
+    () => (this.searchMode() ? (this.searchResource.value()?.listings ?? []) : this.allResource.value()) ?? [],
   );
 
   filteredListings = computed(() => {

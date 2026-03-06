@@ -17,6 +17,7 @@ model/quercheckerNoteDto.ts
 model/whCategoryDto.ts
 model/whLocationDto.ts
 model/whMetaStatusDto.ts
+model/whSearchResultDto.ts
 param.ts
 provide-api.ts
 query.params.ts

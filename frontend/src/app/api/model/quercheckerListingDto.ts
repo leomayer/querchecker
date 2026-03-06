@@ -19,5 +19,6 @@ export interface QuercheckerListingDto {
     url?: string;
     listedAt?: string;
     fetchedAt?: string;
+    thumbnailUrl?: string;
 }
 

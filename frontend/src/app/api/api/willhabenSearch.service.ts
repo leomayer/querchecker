@@ -17,7 +17,7 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { QuercheckerListingDto } from '../model/quercheckerListingDto';
+import { WhSearchResultDto } from '../model/whSearchResultDto';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -48,9 +48,9 @@ export class WillhabenSearchService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public search(keyword: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<Array<QuercheckerListingDto>>;
-    public search(keyword: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<QuercheckerListingDto>>>;
-    public search(keyword: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<QuercheckerListingDto>>>;
+    public search(keyword: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<WhSearchResultDto>;
+    public search(keyword: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<WhSearchResultDto>>;
+    public search(keyword: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<WhSearchResultDto>>;
     public search(keyword: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (keyword === null || keyword === undefined) {
             throw new Error('Required parameter keyword was null or undefined when calling search.');
@@ -139,7 +139,7 @@ export class WillhabenSearchService extends BaseService {
 
         let localVarPath = `/api/wh/search`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<QuercheckerListingDto>>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<WhSearchResultDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters.toHttpParams(),

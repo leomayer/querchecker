@@ -1,7 +1,13 @@
 <div class="listing-header">
   <div class="header-row">
     <h2 class="panel-title">Inserate</h2>
-    <span class="panel-subtitle">{{ count() }} Ergebnisse</span>
+    <span class="panel-subtitle">
+      @if (whTotal() !== null) {
+        {{ count() }} von {{ whTotal() }} Willhaben-Inseraten
+      } @else {
+        {{ count() }} Ergebnisse
+      }
+    </span>
     @if (searchMode()) {
       <button mat-button (click)="showAll.emit()" class="show-all-btn">
         <mat-icon>list</mat-icon>
