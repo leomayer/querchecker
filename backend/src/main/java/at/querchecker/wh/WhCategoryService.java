@@ -57,7 +57,7 @@ public class WhCategoryService {
 
     /**
      * Ruft den Kategorie-Navigator von Willhaben ab und aktualisiert die DB.
-     * Stufe 0: alle Top-Level-Kategorien; Stufe 1: Unterkategorien per Drill-Down.
+     * Stufe 0: alle Top-Level-Kategorien; Stufe 1: Unterkategorien; Stufe 2: Unter-Unterkategorien.
      */
     public void fetchAndUpsert() {
         log.info("Starte Kategorie-Aktualisierung...");
@@ -85,7 +85,11 @@ public class WhCategoryService {
             log.info("{} Top-Level-Kategorien gespeichert, starte Unterkategorie-Abruf...", topCategories.size());
 
             for (WhCategory parent : topCategories) {
-                fetchAndSaveSubcategories(parent);
+                List<WhCategory> subCategories = fetchAndSaveSubcategories(parent);
+                log.info("  {} Unterkategorien für '{}', starte Ebene-2-Abruf...", subCategories.size(), parent.getName());
+                for (WhCategory sub : subCategories) {
+                    fetchAndSaveSubSubcategories(parent, sub);
+                }
             }
 
             saveLastFetched();
@@ -115,9 +119,43 @@ public class WhCategoryService {
         return saved;
     }
 
-    private void fetchAndSaveSubcategories(WhCategory parent) {
+    private List<WhCategory> fetchAndSaveSubcategories(WhCategory parent) {
+        List<WhCategory> saved = new ArrayList<>();
         try {
             String url = NAVIGATOR_URL + "&ATTRIBUTE_TREE=" + parent.getWhId();
+            WhApiResponse.Root response = whApiClient
+                .get(URI.create(url), WhApiResponse.Root.class)
+                .getBody();
+
+            if (response == null || response.getNavigatorGroups() == null) return saved;
+
+            List<WhApiResponse.PossibleValue> subValues =
+                extractByParam(response, "ATTRIBUTE_TREE");
+
+            for (WhApiResponse.PossibleValue val : subValues) {
+                Integer whId = parseId(val.getUrlParameterValue());
+                if (whId == null || val.getLabel() == null || whId.equals(parent.getWhId())) continue;
+
+                WhCategory existing = whCategoryRepository.findByWhId(whId).orElse(null);
+                if (existing != null && existing.getLevel() < 1) continue; // nie Level-0 überschreiben
+                WhCategory cat = existing != null ? existing : WhCategory.builder().whId(whId).build();
+                cat.setName(val.getLabel());
+                cat.setLevel(1);
+                cat.setParent(parent);
+                saved.add(whCategoryRepository.save(cat));
+            }
+        } catch (Exception e) {
+            log.error("Fehler beim Abruf von Unterkategorien für {} ({})",
+                parent.getName(), parent.getWhId(), e);
+        }
+        return saved;
+    }
+
+    private void fetchAndSaveSubSubcategories(WhCategory topParent, WhCategory subParent) {
+        try {
+            String url = NAVIGATOR_URL
+                + "&ATTRIBUTE_TREE=" + topParent.getWhId()
+                + "&ATTRIBUTE_TREE=" + subParent.getWhId();
             WhApiResponse.Root response = whApiClient
                 .get(URI.create(url), WhApiResponse.Root.class)
                 .getBody();
@@ -129,19 +167,21 @@ public class WhCategoryService {
 
             for (WhApiResponse.PossibleValue val : subValues) {
                 Integer whId = parseId(val.getUrlParameterValue());
-                if (whId == null || val.getLabel() == null || whId.equals(parent.getWhId())) continue;
+                if (whId == null || val.getLabel() == null
+                    || whId.equals(topParent.getWhId())
+                    || whId.equals(subParent.getWhId())) continue;
 
-                WhCategory cat = whCategoryRepository
-                    .findByWhId(whId)
-                    .orElse(WhCategory.builder().whId(whId).build());
+                WhCategory existing = whCategoryRepository.findByWhId(whId).orElse(null);
+                if (existing != null && existing.getLevel() < 2) continue; // nie Level-0/1 überschreiben
+                WhCategory cat = existing != null ? existing : WhCategory.builder().whId(whId).build();
                 cat.setName(val.getLabel());
-                cat.setLevel(1);
-                cat.setParent(parent);
+                cat.setLevel(2);
+                cat.setParent(subParent);
                 whCategoryRepository.save(cat);
             }
         } catch (Exception e) {
-            log.error("Fehler beim Abruf von Unterkategorien für {} ({})",
-                parent.getName(), parent.getWhId(), e);
+            log.error("Fehler beim Abruf von Unter-Unterkategorien für {} > {} ({} > {})",
+                topParent.getName(), subParent.getName(), topParent.getWhId(), subParent.getWhId(), e);
         }
     }
 

@@ -42,6 +42,11 @@
       (locationAreaIdChange)="locationAreaId.set($event)"
     />
 
+    <app-category-filter
+      [categoryWhId]="categoryWhId()"
+      (categoryWhIdChange)="categoryWhId.set($event)"
+    />
+
     <button
       mat-raised-button
       color="primary"

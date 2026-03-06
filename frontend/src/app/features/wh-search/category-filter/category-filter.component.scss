@@ -1,0 +1,20 @@
+.filter-section {
+  padding: 16px 0 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.section-label {
+  margin: 0 0 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-haggle-primary);
+}
+
+.section-divider {
+  height: 1px;
+  background: var(--mat-sys-outline-variant);
+  margin-inline: var(--layout-gutter);
+}

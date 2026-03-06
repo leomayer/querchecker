@@ -1,35 +1,35 @@
 import { ChangeDetectionStrategy, Component, computed, model } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 import { API_URLS } from '../../../core/api-urls';
-import { WhLocationDto } from '../../../api/model/whLocationDto';
+import { WhCategoryDto } from '../../../api/model/whCategoryDto';
 import { HierarchicalFilterComponent } from '../../../shared/components/hierarchical-filter-component/hierarchical-filter-component';
 import { FilterNode } from '../../../shared/components/hierarchical-filter-component/hierarchical-filter-component.model';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: 'app-location-filter',
+  selector: 'app-category-filter',
   imports: [HierarchicalFilterComponent],
-  templateUrl: './location-filter.component.html',
-  styleUrl: './location-filter.component.scss',
+  templateUrl: './category-filter.component.html',
+  styleUrl: './category-filter.component.scss',
 })
-export class LocationFilterComponent {
-  locationAreaId = model<number | undefined>(undefined);
+export class CategoryFilterComponent {
+  categoryWhId = model<number | undefined>(undefined);
 
-  private locationsResource = httpResource<WhLocationDto[]>(
-    () => ({ url: API_URLS.whLocations }),
+  private categoriesResource = httpResource<WhCategoryDto[]>(
+    () => ({ url: API_URLS.whCategories }),
     { defaultValue: [] },
   );
 
   filterNodes = computed<FilterNode[]>(() => {
-    const sorted = [...(this.locationsResource.value() ?? [])].sort(
-      (a, b) => (a.areaId ?? 0) - (b.areaId ?? 0),
+    const sorted = [...(this.categoriesResource.value() ?? [])].sort((a, b) =>
+      (a.name ?? '').localeCompare(b.name ?? ''),
     );
     return this.toFilterNodes(sorted);
   });
 
-  private toFilterNodes(dtos: WhLocationDto[], parentName?: string): FilterNode[] {
+  private toFilterNodes(dtos: WhCategoryDto[], parentName?: string): FilterNode[] {
     return dtos.map((dto) => ({
-      id: String(dto.areaId ?? ''),
+      id: String(dto.whId ?? ''),
       name: dto.name ?? '',
       level: dto.level ?? 0,
       parentName,
@@ -38,6 +38,6 @@ export class LocationFilterComponent {
   }
 
   onSelectionChange(node: FilterNode | null): void {
-    this.locationAreaId.set(node ? parseInt(node.id, 10) : undefined);
+    this.categoryWhId.set(node ? parseInt(node.id, 10) : undefined);
   }
 }

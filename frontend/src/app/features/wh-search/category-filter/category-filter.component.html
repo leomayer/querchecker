@@ -1,0 +1,11 @@
+<div class="filter-section">
+  <h2 class="section-label">Kategorie</h2>
+
+  <app-hierarchical-filter
+    [data]="filterNodes()"
+    label="Kategorie wählen"
+    (selectionChange)="onSelectionChange($event)"
+  />
+</div>
+
+<div class="section-divider"></div>

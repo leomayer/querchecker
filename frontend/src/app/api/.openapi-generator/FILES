@@ -1,11 +1,11 @@
 .gitignore
-.openapi-generator-ignore
 README.md
 api.base.service.ts
 api.module.ts
 api/api.ts
 api/listings.service.ts
 api/notes.service.ts
+api/willhabenMeta.service.ts
 api/willhabenSearch.service.ts
 configuration.ts
 encoder.ts
@@ -14,6 +14,9 @@ index.ts
 model/models.ts
 model/quercheckerListingDto.ts
 model/quercheckerNoteDto.ts
+model/whCategoryDto.ts
+model/whLocationDto.ts
+model/whMetaStatusDto.ts
 param.ts
 provide-api.ts
 query.params.ts

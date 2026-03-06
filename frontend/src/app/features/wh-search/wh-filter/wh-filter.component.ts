@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { LocationFilterComponent } from '../location-filter/location-filter.component';
+import { CategoryFilterComponent } from '../category-filter/category-filter.component';
 
 export interface SearchParams {
   keyword: string;
@@ -13,6 +14,7 @@ export interface SearchParams {
   priceFrom?: number;
   priceTo?: number;
   locationAreaId?: number;
+  categoryWhId?: number;
 }
 
 @Component({
@@ -26,6 +28,7 @@ export interface SearchParams {
     MatIconModule,
     MatProgressBarModule,
     LocationFilterComponent,
+    CategoryFilterComponent,
   ],
   templateUrl: './wh-filter.component.html',
   styleUrl: './wh-filter.component.scss',
@@ -39,6 +42,7 @@ export class WhFilterComponent {
   priceFrom = signal<number | null>(null);
   priceTo = signal<number | null>(null);
   locationAreaId = signal<number | undefined>(undefined);
+  categoryWhId = signal<number | undefined>(undefined);
 
   readonly rowOptions = [50, 100, 250];
 
@@ -66,6 +70,7 @@ export class WhFilterComponent {
       priceFrom: this.priceFrom() ?? undefined,
       priceTo: this.priceTo() ?? undefined,
       locationAreaId: this.locationAreaId(),
+      categoryWhId: this.categoryWhId(),
     });
   }
 }
