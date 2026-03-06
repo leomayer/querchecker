@@ -79,8 +79,16 @@ frontend/src/app/
 ├── api/        ← generiert via openapi-generator-cli, nie manuell anfassen
 ├── core/
 │   └── api-urls.ts   ← hand-written, stabil, nicht überschreibbar
-├── features/   ← Feature-Komponenten (Listings, Cross-Search etc.)
+├── features/
+│   └── wh-search/
+│       ├── wh-filter/       ← Suchformular + location-filter (zone-left)
+│       ├── location-filter/ ← smart wrapper um hierarchical-filter
+│       ├── wh-listings/     ← Ergebnisliste + listing-card/
+│       ├── wh-sort/         ← Sortierung (zone-right, über wh-listings)
+│       └── wh-search.component.*
 └── shared/     ← Wiederverwendbare Komponenten/Pipes
+    └── components/
+        └── hierarchical-filter-component/
 ```
 
 ### URL-Management (`api-urls.ts`)
@@ -269,11 +277,34 @@ interface FilterNode {
 - **Output**: `selectionChange: FilterNode | null`
 - **UX**: Klick auf Namen = Select; Klick auf `›`-Button (expand-zone) = Drill-down in Kinder
 - **navStack**: Signal-Stack für N-Ebenen-Navigation; goBack() popt
+- **selectedPath**: `signal<FilterNode[]>([])` — vollständiger Pfad als farbige Chips dargestellt
 - **Mat-Autocomplete Besonderheiten**:
   - `[displayWith]="displayFn"` → verhindert `[object Object]` nach Selection
   - `[hideSingleSelectionIndicator]="true"` → eigenes Check-Icon links statt Material-Trailing-Indicator
   - `[autoActiveFirstOption]="true"` → Enter wählt ersten Eintrag direkt
 - **Highlight**: `highlight(text, query)` via `DomSanitizer.bypassSecurityTrustHtml()` für Bold-Treffer
+
+**Chip-Farbhierarchie** (Level 0 dunkel → Level 2 hell, Teal-Palette):
+```html
+<!-- [class.chip-level-X] addiert Klasse ohne Material-Klassen zu ersetzen -->
+<mat-chip [class.chip-level-0]="i === 0" [class.chip-level-1]="i === 1" ...>
+```
+```scss
+// Beide Token-Präfixe für AM-Versionskompatibilität
+// .mat-icon explizit weiß setzen — globale styles.scss-Regel überschreibt sonst
+:host ::ng-deep {
+  @each $level, $color in (0: var(--color-haggle-primary), 1: var(--color-haggle-secondary), 2: var(--color-tertiary)) {
+    .mat-mdc-chip.chip-level-#{$level} {
+      --mdc-chip-elevated-container-color: #{$color};
+      --mat-chip-elevated-container-color: #{$color};
+      --mdc-chip-label-text-color: var(--color-on-haggle-primary);
+      --mat-chip-label-text-color: var(--color-on-haggle-primary);
+      .mat-icon { color: var(--color-on-haggle-primary); }
+    }
+  }
+}
+```
+> **Achtung**: `styles.scss` setzt `.mat-icon { color: var(--color-on-surface-variant) }` global. Im Light Mode ist `--color-on-surface-variant = #5a8f8f` = identisch mit `--color-haggle-secondary` → Icon auf Level-1-Chip unsichtbar. Daher `.mat-icon` im Chip-Kontext immer überschreiben.
 
 ### `location-filter` (`features/wh-search/location-filter/`)
 Smart Component: fetcht `WhLocationDto[]`, konvertiert zu `FilterNode[]`, übergibst an `hierarchical-filter`.
