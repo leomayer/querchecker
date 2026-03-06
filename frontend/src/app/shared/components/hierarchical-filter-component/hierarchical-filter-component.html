@@ -63,7 +63,12 @@
 @if (selectedPath().length) {
 <mat-chip-set class="selection-chips">
   @for (node of selectedPath(); track node.id; let i = $index) {
-  <mat-chip (removed)="removeFromLevel(i)">
+  <mat-chip
+    [class.chip-level-0]="i === 0"
+    [class.chip-level-1]="i === 1"
+    [class.chip-level-2]="i === 2"
+    (removed)="removeFromLevel(i)"
+  >
     {{ node.name }}
     <button matChipRemove><mat-icon>cancel</mat-icon></button>
   </mat-chip>

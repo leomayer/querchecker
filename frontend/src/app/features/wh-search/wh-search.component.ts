@@ -3,33 +3,30 @@ import { httpResource } from '@angular/common/http';
 import { ListingService } from '../../core/listing.service';
 import { QuercheckerListingDto } from '../../api/model/quercheckerListingDto';
 import { API_URLS } from '../../core/api-urls';
-import { FilterComponent, SearchParams } from './filter/filter.component';
-import { ListingsComponent } from './listings/listings.component';
-import { LocationFilterComponent } from './location-filter/location-filter.component';
+import { WhFilterComponent, SearchParams } from './wh-filter/wh-filter.component';
+import { WhListingsComponent } from './wh-listings/wh-listings.component';
+import { WhSortComponent } from './wh-sort/wh-sort.component';
 import { ZoneLeftComponent } from '../../shared/layout/zone-left/zone-left.component';
 import { ZoneRightComponent } from '../../shared/layout/zone-right/zone-right.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-wh-search',
-  imports: [ZoneLeftComponent, ZoneRightComponent, FilterComponent, ListingsComponent, LocationFilterComponent],
+  imports: [ZoneLeftComponent, ZoneRightComponent, WhFilterComponent, WhListingsComponent, WhSortComponent],
   templateUrl: './wh-search.component.html',
   styleUrl: './wh-search.component.scss',
 })
 export class WhSearchComponent {
   private readonly listingService = inject(ListingService);
 
-  // ── Shared signals ────────────────────────────────────────────────────────
   searchParams = signal<SearchParams | null>(null);
   filterText = signal('');
   freeOnly = signal(false);
   sortColumn = signal('');
   sortDirection = signal<'asc' | 'desc' | ''>('');
-  locationAreaId = signal<number | undefined>(undefined);
 
   searchMode = computed(() => this.searchParams() !== null);
 
-  // ── HTTP resources ────────────────────────────────────────────────────────
   private allResource = httpResource<QuercheckerListingDto[]>(
     () => (!this.searchMode() ? { url: API_URLS.listings } : undefined),
     { defaultValue: [] },
@@ -48,7 +45,6 @@ export class WhSearchComponent {
     { defaultValue: [] },
   );
 
-  // ── Derived state ─────────────────────────────────────────────────────────
   loading = computed(() =>
     this.searchMode() ? this.searchResource.isLoading() : this.allResource.isLoading(),
   );
@@ -97,9 +93,8 @@ export class WhSearchComponent {
 
   count = computed(() => this.filteredListings().length);
 
-  // ── Event handlers ────────────────────────────────────────────────────────
   onSearch(params: SearchParams): void {
-    this.searchParams.set({ ...params, locationAreaId: this.locationAreaId() });
+    this.searchParams.set(params);
     this.filterText.set('');
     this.freeOnly.set(false);
   }

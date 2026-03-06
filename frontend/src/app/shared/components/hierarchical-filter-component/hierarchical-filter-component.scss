@@ -93,6 +93,26 @@
   padding: 0;
 }
 
+// Farbhierarchie: Level 0 = dunkel → Level 2 = hell
+// .mat-mdc-chip ist der MDC-Host-Klassen-Name auf dem Chip-Element.
+// Beide Token-Präfixe gesetzt (--mdc-chip-* + --mat-chip-*) für AM-Kompatibilität.
+:host ::ng-deep {
+  @each $level, $color in (0: var(--color-haggle-primary), 1: var(--color-haggle-secondary), 2: var(--color-tertiary)) {
+    .mat-mdc-chip.chip-level-#{$level} {
+      --mdc-chip-elevated-container-color: #{$color};
+      --mat-chip-elevated-container-color: #{$color};
+      --mdc-chip-label-text-color: var(--color-on-haggle-primary);
+      --mat-chip-label-text-color: var(--color-on-haggle-primary);
+      --mdc-chip-with-trailing-icon-trailing-icon-color: var(--color-on-haggle-primary);
+
+      // Globale .mat-icon-Regel überschreiben (styles.scss setzt on-surface-variant)
+      .mat-icon {
+        color: var(--color-on-haggle-primary);
+      }
+    }
+  }
+}
+
 // ── Such-Modus ────────────────────────────────────────────────────────────────
 
 .search-row {

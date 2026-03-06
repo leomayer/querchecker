@@ -23,6 +23,7 @@
         <input matInput type="number" [value]="priceTo() ?? ''" (input)="onPriceToInput($event)" min="0" />
       </mat-form-field>
     </div>
+
     <div class="search-row">
       <mat-form-field appearance="outline" class="rows-field">
         <mat-label>Ergebnisse</mat-label>
@@ -33,6 +34,13 @@
         </mat-select>
       </mat-form-field>
     </div>
+
+    <div class="section-divider"></div>
+
+    <app-location-filter
+      [locationAreaId]="locationAreaId()"
+      (locationAreaIdChange)="locationAreaId.set($event)"
+    />
 
     <button
       mat-raised-button
@@ -52,38 +60,5 @@
 
   @if (error()) {
     <p class="error-message">{{ error() }}</p>
-  }
-</div>
-
-<div class="section-divider"></div>
-
-<div class="filter-section">
-  <h2 class="section-label">Sortierung</h2>
-
-  <mat-form-field appearance="outline" class="sort-field">
-    <mat-label>Sortieren nach</mat-label>
-    <mat-select [value]="sortColumn()" (valueChange)="onSortFieldChange($event)">
-      <mat-option value="">– keine –</mat-option>
-      @for (f of sortFields; track f.value) {
-        <mat-option [value]="f.value">{{ f.label }}</mat-option>
-      }
-    </mat-select>
-  </mat-form-field>
-
-  @if (sortColumn()) {
-    <mat-button-toggle-group
-      [value]="sortDirection()"
-      (change)="sortDirection.set($event.value)"
-      class="direction-toggle"
-    >
-      <mat-button-toggle value="asc">
-        <mat-icon>arrow_upward</mat-icon>
-        Aufsteigend
-      </mat-button-toggle>
-      <mat-button-toggle value="desc">
-        <mat-icon>arrow_downward</mat-icon>
-        Absteigend
-      </mat-button-toggle>
-    </mat-button-toggle-group>
   }
 </div>

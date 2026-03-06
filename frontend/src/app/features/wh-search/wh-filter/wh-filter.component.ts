@@ -1,11 +1,11 @@
-import { ChangeDetectionStrategy, Component, input, model, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { LocationFilterComponent } from '../location-filter/location-filter.component';
 
 export interface SearchParams {
   keyword: string;
@@ -15,32 +15,22 @@ export interface SearchParams {
   locationAreaId?: number;
 }
 
-export const SORT_FIELDS = [
-  { value: 'title', label: 'Titel' },
-  { value: 'price', label: 'Preis' },
-  { value: 'location', label: 'Standort' },
-  { value: 'listedAt', label: 'Eingestellt' },
-] as const;
-
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: 'app-filter',
+  selector: 'app-wh-filter',
   imports: [
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatButtonToggleModule,
     MatIconModule,
     MatProgressBarModule,
+    LocationFilterComponent,
   ],
-  templateUrl: './filter.component.html',
-  styleUrl: './filter.component.scss',
+  templateUrl: './wh-filter.component.html',
+  styleUrl: './wh-filter.component.scss',
 })
-export class FilterComponent {
-  sortColumn = model('');
-  sortDirection = model<'asc' | 'desc' | ''>('');
-
+export class WhFilterComponent {
   loading = input(false);
   error = input<string | null>(null);
 
@@ -48,9 +38,9 @@ export class FilterComponent {
   rows = signal(50);
   priceFrom = signal<number | null>(null);
   priceTo = signal<number | null>(null);
+  locationAreaId = signal<number | undefined>(undefined);
 
   readonly rowOptions = [50, 100, 250];
-  readonly sortFields = SORT_FIELDS;
 
   search = output<SearchParams>();
 
@@ -75,16 +65,7 @@ export class FilterComponent {
       rows: this.rows(),
       priceFrom: this.priceFrom() ?? undefined,
       priceTo: this.priceTo() ?? undefined,
+      locationAreaId: this.locationAreaId(),
     });
-  }
-
-  onSortFieldChange(field: string): void {
-    this.sortColumn.set(field);
-    if (field && !this.sortDirection()) {
-      this.sortDirection.set('asc');
-    }
-    if (!field) {
-      this.sortDirection.set('');
-    }
   }
 }

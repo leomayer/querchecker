@@ -15,8 +15,8 @@
       <mat-label>Filtern</mat-label>
       <input
         matInput
-        [ngModel]="filterText()"
-        (ngModelChange)="filterText.set($event)"
+        [value]="filterText()"
+        (input)="onFilterInput($event)"
         placeholder="Titel oder Standort..."
       />
       <mat-icon matSuffix>filter_list</mat-icon>

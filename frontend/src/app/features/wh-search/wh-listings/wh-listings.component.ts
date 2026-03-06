@@ -5,13 +5,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { FormsModule } from '@angular/forms';
 import { QuercheckerListingDto } from '../../../api/model/quercheckerListingDto';
 import { ListingCardComponent } from './listing-card/listing-card.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: 'app-listings',
+  selector: 'app-wh-listings',
   imports: [
     MatFormFieldModule,
     MatInputModule,
@@ -19,13 +18,12 @@ import { ListingCardComponent } from './listing-card/listing-card.component';
     MatButtonModule,
     MatProgressSpinnerModule,
     MatSlideToggleModule,
-    FormsModule,
     ListingCardComponent,
   ],
-  templateUrl: './listings.component.html',
-  styleUrl: './listings.component.scss',
+  templateUrl: './wh-listings.component.html',
+  styleUrl: './wh-listings.component.scss',
 })
-export class ListingsComponent {
+export class WhListingsComponent {
   listings = input.required<QuercheckerListingDto[]>();
   loading = input.required<boolean>();
   error = input<string | null>(null);
@@ -36,4 +34,8 @@ export class ListingsComponent {
 
   delete = output<QuercheckerListingDto>();
   showAll = output<void>();
+
+  onFilterInput(e: Event): void {
+    this.filterText.set((e.target as HTMLInputElement).value);
+  }
 }

@@ -2,7 +2,6 @@
   padding: 16px var(--layout-gutter);
   display: flex;
   flex-direction: column;
-  gap: 8px;
 }
 
 .section-label {
@@ -16,8 +15,7 @@
 
 .section-divider {
   height: 1px;
-  background: var(--mat-sys-outline-variant);
-  margin-inline: var(--layout-gutter);
+  background: var(--color-border);
 }
 
 .search-form {
@@ -51,19 +49,7 @@
 }
 
 .error-message {
-  color: var(--mat-sys-error);
+  color: red;
   margin: 4px 0 0;
   font-size: 0.85rem;
-}
-
-.sort-field {
-  width: 100%;
-}
-
-.direction-toggle {
-  width: 100%;
-
-  mat-button-toggle {
-    flex: 1;
-  }
 }

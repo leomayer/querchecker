@@ -1,7 +1,8 @@
 .filter-section {
-  padding: 16px 0 8px;
+  padding: 16px var(--layout-gutter);
   display: flex;
   flex-direction: column;
+  gap: 8px;
 }
 
 .section-label {
@@ -13,8 +14,14 @@
   color: var(--color-haggle-primary);
 }
 
-.section-divider {
-  height: 1px;
-  background: var(--mat-sys-outline-variant);
-  margin-inline: var(--layout-gutter);
+.sort-field {
+  width: 100%;
+}
+
+.direction-toggle {
+  width: 100%;
+
+  mat-button-toggle {
+    flex: 1;
+  }
 }

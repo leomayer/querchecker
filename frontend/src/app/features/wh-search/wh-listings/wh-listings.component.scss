@@ -35,7 +35,7 @@
 
 .panel-subtitle {
   font-size: 0.85rem;
-  color: var(--mat-sys-on-surface-variant);
+  color: var(--color-on-surface-variant);
 }
 
 .header-controls {
@@ -72,14 +72,14 @@
 }
 
 .error-message {
-  color: var(--mat-sys-error);
+  color: red;
   padding: 16px 0;
 }
 
 .no-data {
   padding: 24px 0;
   text-align: center;
-  color: var(--mat-sys-on-surface-variant);
+  color: var(--color-on-surface-variant);
 }
 
 app-listing-card:nth-child(even) {

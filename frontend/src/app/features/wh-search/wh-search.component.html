@@ -1,16 +1,14 @@
 <app-zone-left>
-  <app-filter
-    [(sortColumn)]="sortColumn"
-    [(sortDirection)]="sortDirection"
+  <app-wh-filter
     [loading]="searchMode() && loading()"
     [error]="searchMode() ? error() : null"
     (search)="onSearch($event)"
   />
-  <app-location-filter [(locationAreaId)]="locationAreaId" />
 </app-zone-left>
 
 <app-zone-right>
-  <app-listings
+  <app-wh-sort [(sortColumn)]="sortColumn" [(sortDirection)]="sortDirection" />
+  <app-wh-listings
     [listings]="sortedListings()"
     [loading]="loading()"
     [error]="error()"
