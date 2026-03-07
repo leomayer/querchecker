@@ -2,11 +2,11 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { QuercheckerListingDto } from '../api/model/quercheckerListingDto';
-import { QuercheckerNoteDto } from '../api/model/quercheckerNoteDto';
+import { WhListingDetailDto } from '../api/model/whListingDetailDto';
 import { API_URLS } from './api-urls';
 
 export type { QuercheckerListingDto } from '../api/model/quercheckerListingDto';
-export type { QuercheckerNoteDto } from '../api/model/quercheckerNoteDto';
+export type { WhListingDetailDto } from '../api/model/whListingDetailDto';
 
 @Injectable({
   providedIn: 'root',
@@ -14,30 +14,34 @@ export type { QuercheckerNoteDto } from '../api/model/quercheckerNoteDto';
 export class ListingService {
   private readonly http = inject(HttpClient);
 
+  private readonly lastViewed = new Map<number, number>();
+
+  shouldRecordView(id: number): boolean {
+    const last = this.lastViewed.get(id);
+    if (!last || Date.now() - last > 60_000) {
+      this.lastViewed.set(id, Date.now());
+      return true;
+    }
+    return false;
+  }
+
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${API_URLS.listings}/${id}`);
   }
 
-  getNotes(listingId: number): Observable<QuercheckerNoteDto[]> {
-    return this.http.get<QuercheckerNoteDto[]>(`${API_URLS.listings}/${listingId}/notes`);
+  recordView(id: number): Observable<void> {
+    return this.http.post<void>(`${API_URLS.listings}/${id}/views`, {});
   }
 
-  createNote(listingId: number, note: QuercheckerNoteDto): Observable<QuercheckerNoteDto> {
-    return this.http.post<QuercheckerNoteDto>(`${API_URLS.listings}/${listingId}/notes`, note);
+  getDetail(id: number): Observable<WhListingDetailDto> {
+    return this.http.get<WhListingDetailDto>(`${API_URLS.listings}/${id}/detail`);
   }
 
-  updateNote(
-    listingId: number,
-    noteId: number,
-    note: QuercheckerNoteDto,
-  ): Observable<QuercheckerNoteDto> {
-    return this.http.put<QuercheckerNoteDto>(
-      `${API_URLS.listings}/${listingId}/notes/${noteId}`,
-      note,
-    );
+  updateNote(id: number, note: string): Observable<WhListingDetailDto> {
+    return this.http.put<WhListingDetailDto>(`${API_URLS.listings}/${id}/detail/note`, { note });
   }
 
-  deleteNote(listingId: number, noteId: number): Observable<void> {
-    return this.http.delete<void>(`${API_URLS.listings}/${listingId}/notes/${noteId}`);
+  updateRating(id: number, rating: 'UP' | 'DOWN' | null): Observable<WhListingDetailDto> {
+    return this.http.put<WhListingDetailDto>(`${API_URLS.listings}/${id}/detail/rating`, { rating });
   }
 }

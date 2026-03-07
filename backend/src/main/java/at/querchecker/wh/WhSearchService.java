@@ -100,11 +100,11 @@ public class WhSearchService {
         // PUBLISHED_String liefert ISO-Datum; PUBLISHED liefert Epoch-Millisekunden
         listing.setListedAt(parseDateTime(advert.getAttribute("PUBLISHED_String")));
 
+        listing.setThumbnailUrl(buildThumbnailUrl(advert));
         WhListing saved = whListingRepository.save(listing);
 
-        // thumbnailUrl wird nicht persistiert (URLs laufen ab), daher direkt aus dem Live-Response
         return toDto(saved).toBuilder()
-            .thumbnailUrl(buildThumbnailUrl(advert))
+            .thumbnailUrl(saved.getThumbnailUrl())
             .build();
     }
 

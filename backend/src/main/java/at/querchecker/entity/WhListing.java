@@ -41,4 +41,6 @@ public class WhListing {
 
     @Column(nullable = false)
     private LocalDateTime fetchedAt;
+
+    private String thumbnailUrl;
 }

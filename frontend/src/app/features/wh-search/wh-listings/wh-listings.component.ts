@@ -33,7 +33,8 @@ export class WhListingsComponent {
   filterText = model('');
   freeOnly = model(false);
 
-  delete = output<QuercheckerListingDto>();
+  cardClicked = output<QuercheckerListingDto>();
+  ratingChanged = output<void>();
   showAll = output<void>();
 
   onFilterInput(e: Event): void {

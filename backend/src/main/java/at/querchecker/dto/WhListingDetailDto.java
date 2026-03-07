@@ -7,11 +7,14 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class QuercheckerNoteDto {
+public class WhListingDetailDto {
 
     private Long id;
     private Long whListingId;
-    private String content;
+    private String note;
+    private int viewCount;
+    private LocalDateTime lastViewedAt;
+    private String rating;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

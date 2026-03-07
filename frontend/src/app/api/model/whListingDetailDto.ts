@@ -9,10 +9,13 @@
  */
 
 
-export interface QuercheckerNoteDto { 
+export interface WhListingDetailDto { 
     id?: number;
     whListingId?: number;
-    content?: string;
+    note?: string;
+    viewCount?: number;
+    lastViewedAt?: string;
+    rating?: string;
     createdAt?: string;
     updatedAt?: string;
 }

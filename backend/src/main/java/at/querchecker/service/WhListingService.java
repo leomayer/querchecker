@@ -2,6 +2,8 @@ package at.querchecker.service;
 
 import at.querchecker.dto.QuercheckerListingDto;
 import at.querchecker.entity.WhListing;
+import at.querchecker.repository.WhListingDetailRepository;
+import at.querchecker.repository.WhListingDetailRepository.WhListingDetailSummary;
 import at.querchecker.repository.WhListingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -9,24 +11,33 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class WhListingService {
 
     private final WhListingRepository whListingRepository;
+    private final WhListingDetailRepository whListingDetailRepository;
 
     @Transactional(readOnly = true)
     public List<QuercheckerListingDto> findAll() {
-        return whListingRepository.findAll().stream()
-                .map(this::toDto)
+        List<WhListing> listings = whListingRepository.findAll();
+
+        Map<Long, WhListingDetailSummary> detailMap = whListingDetailRepository.findAllSummaries()
+                .stream()
+                .collect(Collectors.toMap(WhListingDetailSummary::getListingId, s -> s));
+
+        return listings.stream()
+                .map(e -> toDto(e, detailMap.get(e.getId())))
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public Optional<QuercheckerListingDto> findById(Long id) {
-        return whListingRepository.findById(id).map(this::toDto);
+        return whListingRepository.findById(id).map(e -> toDto(e, null));
     }
 
     @Transactional
@@ -43,7 +54,7 @@ public class WhListingService {
         entity.setListedAt(dto.getListedAt());
         entity.setFetchedAt(LocalDateTime.now());
 
-        return toDto(whListingRepository.save(entity));
+        return toDto(whListingRepository.save(entity), null);
     }
 
     @Transactional
@@ -51,7 +62,7 @@ public class WhListingService {
         whListingRepository.deleteById(id);
     }
 
-    private QuercheckerListingDto toDto(WhListing entity) {
+    private QuercheckerListingDto toDto(WhListing entity, WhListingDetailSummary detail) {
         return QuercheckerListingDto.builder()
                 .id(entity.getId())
                 .whId(entity.getWhId())
@@ -62,6 +73,11 @@ public class WhListingService {
                 .url(entity.getUrl())
                 .listedAt(entity.getListedAt())
                 .fetchedAt(entity.getFetchedAt())
+                .thumbnailUrl(entity.getThumbnailUrl())
+                .hasNote(detail != null && detail.getNote() != null && !detail.getNote().isBlank())
+                .viewCount(detail != null ? detail.getViewCount() : 0)
+                .lastViewedAt(detail != null ? detail.getLastViewedAt() : null)
+                .rating(detail != null ? detail.getRating() : null)
                 .build();
     }
 }

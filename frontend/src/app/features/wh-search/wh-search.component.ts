@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
 import { httpResource } from '@angular/common/http';
+import { MatDialog } from '@angular/material/dialog';
 import { ListingService } from '../../core/listing.service';
 import { QuercheckerListingDto } from '../../api/model/quercheckerListingDto';
 import { WhSearchResultDto } from '../../api/model/whSearchResultDto';
@@ -9,6 +10,7 @@ import { WhListingsComponent } from './wh-listings/wh-listings.component';
 import { WhSortComponent } from './wh-sort/wh-sort.component';
 import { ZoneLeftComponent } from '../../shared/layout/zone-left/zone-left.component';
 import { ZoneRightComponent } from '../../shared/layout/zone-right/zone-right.component';
+import { ListingDetailDialogComponent } from './listing-detail-dialog/listing-detail-dialog.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,6 +21,7 @@ import { ZoneRightComponent } from '../../shared/layout/zone-right/zone-right.co
 })
 export class WhSearchComponent {
   private readonly listingService = inject(ListingService);
+  private readonly dialog = inject(MatDialog);
 
   searchParams = signal<SearchParams | null>(null);
   filterText = signal('');
@@ -107,13 +110,23 @@ export class WhSearchComponent {
     this.searchParams.set(null);
   }
 
-  deleteListing(listing: QuercheckerListingDto): void {
-    if (!listing.id) return;
-    this.listingService.delete(listing.id).subscribe({
-      next: () => {
+  reloadAfterRating(): void {
+    this.searchMode() ? this.searchResource.reload() : this.allResource.reload();
+  }
+
+  openDetail(listing: QuercheckerListingDto): void {
+    if (this.listingService.shouldRecordView(listing.id!)) {
+      this.listingService.recordView(listing.id!).subscribe();
+    }
+    const ref = this.dialog.open(ListingDetailDialogComponent, {
+      data: { listing },
+      width: '600px',
+      maxWidth: '95vw',
+    });
+    ref.afterClosed().subscribe((result) => {
+      if (result === 'deleted' || result === 'saved') {
         this.searchMode() ? this.searchResource.reload() : this.allResource.reload();
-      },
-      error: (err) => console.error('Fehler beim Löschen:', err),
+      }
     });
   }
 }

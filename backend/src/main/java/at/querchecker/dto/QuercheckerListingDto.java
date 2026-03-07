@@ -21,4 +21,11 @@ public class QuercheckerListingDto {
     private LocalDateTime fetchedAt;
     /** Thumbnail-URL aus dem Live-API-Response – nicht in der DB gespeichert. */
     private String thumbnailUrl;
+
+    // Aus wh_listing_detail – benutzereigene Daten
+    private boolean hasNote;
+    private int viewCount;
+    private LocalDateTime lastViewedAt;
+    /** null = kein Rating, "UP" = interessant, "DOWN" = nicht interessant */
+    private String rating;
 }

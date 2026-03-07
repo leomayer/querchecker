@@ -1,47 +1,65 @@
-@if (listing().thumbnailUrl) {
-  <img
-    class="thumbnail"
-    [src]="listing().thumbnailUrl"
-    [alt]="listing().title"
-    loading="lazy"
-  />
-}
+<div class="card-clickable" role="button" tabindex="0"
+  [class.rated-up]="listing().rating === 'UP'"
+  [class.rated-down]="listing().rating === 'DOWN'"
+  (click)="clicked.emit(listing())"
+  (keydown.enter)="clicked.emit(listing())"
+  (keydown.space)="clicked.emit(listing())">
 
-<div class="card-content">
-  <div class="card-main">
-    <a [href]="listing().url" target="_blank" rel="noopener" class="listing-title">
-      {{ listing().title }}
-    </a>
-    <span class="listing-price">
-      @if (listing().price === 0) {
-        <span class="free-label">Gratis</span>
-      } @else if (listing().price != null) {
-        {{ listing().price | customCurrency }}
-      } @else {
-        –
+  @if (listing().thumbnailUrl) {
+    <img
+      class="thumbnail"
+      [src]="listing().thumbnailUrl"
+      [alt]="listing().title"
+      loading="lazy"
+    />
+  }
+
+  <div class="card-content">
+    <div class="card-main">
+      <span class="listing-title">{{ listing().title }}</span>
+      <span class="listing-price">
+        @if (listing().price === 0) {
+          <span class="free-label">Gratis</span>
+        } @else if (listing().price != null) {
+          {{ listing().price | customCurrency }}
+        } @else {
+          –
+        }
+      </span>
+    </div>
+
+    <div class="card-meta">
+      <span class="meta-item">
+        <mat-icon>location_on</mat-icon>
+        {{ listing().location ?? '–' }}
+      </span>
+      <span class="meta-item">
+        <mat-icon>calendar_today</mat-icon>
+        {{ listing().listedAt | date: 'dd.MM.yyyy' }}
+      </span>
+    </div>
+
+    <div class="card-footer">
+      <span class="indicators">
+        <button mat-icon-button class="note-indicator" [class.has-note]="listing().hasNote"
+          (click)="$event.stopPropagation()">
+          <mat-icon>{{ listing().hasNote ? 'edit_note' : 'notes' }}</mat-icon>
+        </button>
+        <button mat-icon-button class="rating-btn rating-up" (click)="setRating('UP', $event)">
+          <mat-icon>thumb_up</mat-icon>
+        </button>
+        <button mat-icon-button class="rating-btn rating-down" (click)="setRating('DOWN', $event)">
+          <mat-icon>thumb_down</mat-icon>
+        </button>
+      </span>
+      @if (listing().viewCount) {
+        <span class="view-stats">
+          {{ listing().viewCount }}<span>x</span>
+          @if (listing().lastViewedAt) {
+            · {{ listing().lastViewedAt | date: 'dd.MM.' }}
+          }
+        </span>
       }
-    </span>
-  </div>
-
-  <div class="card-meta">
-    <span class="meta-item">
-      <mat-icon>location_on</mat-icon>
-      {{ listing().location ?? '–' }}
-    </span>
-    <span class="meta-item">
-      <mat-icon>calendar_today</mat-icon>
-      {{ listing().listedAt | date: 'dd.MM.yyyy' }}
-    </span>
-    <span class="card-actions">
-      <button mat-icon-button matTooltip="Auf Willhaben öffnen" (click)="openOnWillhaben()">
-        <mat-icon>open_in_new</mat-icon>
-      </button>
-      <button mat-icon-button matTooltip="Auf Geizhals suchen" (click)="searchOnGeizhals()">
-        <mat-icon>compare_arrows</mat-icon>
-      </button>
-      <button mat-icon-button matTooltip="Löschen" color="warn" (click)="delete.emit(listing())">
-        <mat-icon>delete</mat-icon>
-      </button>
-    </span>
+    </div>
   </div>
 </div>

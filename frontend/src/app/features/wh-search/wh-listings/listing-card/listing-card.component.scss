@@ -1,13 +1,36 @@
 :host {
+  display: block;
+}
+
+.card-clickable {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: flex-end;
   gap: 12px;
   padding: 12px 16px;
   border-radius: 8px;
   background-color: inherit;
   border: 1px solid var(--color-border);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.10);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: var(--mat-sys-surface-variant, rgba(0, 0, 0, 0.04));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  &.rated-up {
+    border-left: 3px solid var(--color-tertiary);
+  }
+
+  &.rated-down {
+    border-left: 3px solid #a06858;
+  }
 }
 
 .thumbnail {
@@ -80,8 +103,62 @@
   }
 }
 
-.card-actions {
-  margin-left: auto;
+.card-footer {
   display: flex;
-  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: -4px;
+}
+
+.indicators {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rating-btn,
+.note-indicator {
+  width: 28px;
+  height: 28px;
+  --mdc-icon-button-state-layer-size: 28px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.rating-btn {
+  &.rating-up mat-icon {
+    color: var(--color-tertiary);
+  }
+
+  &.rating-down mat-icon {
+    color: #a06858;
+  }
+}
+
+.note-indicator {
+  mat-icon {
+    color: var(--color-on-surface-variant);
+  }
+
+  &.has-note mat-icon {
+    color: var(--color-primary);
+  }
+}
+
+.view-stats {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.85rem;
+  color: var(--color-on-surface-variant);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
 }

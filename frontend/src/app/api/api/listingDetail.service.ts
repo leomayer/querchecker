@@ -17,7 +17,7 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { QuercheckerNoteDto } from '../model/quercheckerNoteDto';
+import { WhListingDetailDto } from '../model/whListingDetailDto';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -29,30 +29,82 @@ import { BaseService } from '../api.base.service';
 @Injectable({
   providedIn: 'root'
 })
-export class NotesService extends BaseService {
+export class ListingDetailService extends BaseService {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
     }
 
     /**
-     * Notiz löschen
-     * @endpoint delete /api/listings/{listingId}/notes/{noteId}
-     * @param listingId 
-     * @param noteId 
+     * Details zu einem Inserat abrufen
+     * @endpoint get /api/listings/{id}/detail
+     * @param id 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public _delete(listingId: number, noteId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public _delete(listingId: number, noteId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public _delete(listingId: number, noteId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public _delete(listingId: number, noteId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (listingId === null || listingId === undefined) {
-            throw new Error('Required parameter listingId was null or undefined when calling _delete.');
+    public getDetail(id: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<WhListingDetailDto>;
+    public getDetail(id: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<WhListingDetailDto>>;
+    public getDetail(id: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<WhListingDetailDto>>;
+    public getDetail(id: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling getDetail.');
         }
-        if (noteId === null || noteId === undefined) {
-            throw new Error('Required parameter noteId was null or undefined when calling _delete.');
+
+        let localVarHeaders = this.defaultHeaders;
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            '*/*'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/listings/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/detail`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<WhListingDetailDto>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Aufruf eines Inserats erfassen
+     * @endpoint post /api/listings/{id}/views
+     * @param id 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public recordView(id: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public recordView(id: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public recordView(id: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public recordView(id: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling recordView.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -79,9 +131,9 @@ export class NotesService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/listings/${this.configuration.encodeParam({name: "listingId", value: listingId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/notes/${this.configuration.encodeParam({name: "noteId", value: noteId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        let localVarPath = `/api/listings/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/views`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
+        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -95,23 +147,23 @@ export class NotesService extends BaseService {
     }
 
     /**
-     * Neue Notiz erstellen
-     * @endpoint post /api/listings/{listingId}/notes
-     * @param listingId 
-     * @param quercheckerNoteDto 
+     * Notiz zu einem Inserat speichern
+     * @endpoint put /api/listings/{id}/detail/note
+     * @param id 
+     * @param requestBody 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public create1(listingId: number, quercheckerNoteDto: QuercheckerNoteDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<QuercheckerNoteDto>;
-    public create1(listingId: number, quercheckerNoteDto: QuercheckerNoteDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuercheckerNoteDto>>;
-    public create1(listingId: number, quercheckerNoteDto: QuercheckerNoteDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuercheckerNoteDto>>;
-    public create1(listingId: number, quercheckerNoteDto: QuercheckerNoteDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (listingId === null || listingId === undefined) {
-            throw new Error('Required parameter listingId was null or undefined when calling create1.');
+    public updateNote(id: number, requestBody: { [key: string]: string; }, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<WhListingDetailDto>;
+    public updateNote(id: number, requestBody: { [key: string]: string; }, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<WhListingDetailDto>>;
+    public updateNote(id: number, requestBody: { [key: string]: string; }, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<WhListingDetailDto>>;
+    public updateNote(id: number, requestBody: { [key: string]: string; }, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling updateNote.');
         }
-        if (quercheckerNoteDto === null || quercheckerNoteDto === undefined) {
-            throw new Error('Required parameter quercheckerNoteDto was null or undefined when calling create1.');
+        if (requestBody === null || requestBody === undefined) {
+            throw new Error('Required parameter requestBody was null or undefined when calling updateNote.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -148,12 +200,12 @@ export class NotesService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/listings/${this.configuration.encodeParam({name: "listingId", value: listingId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/notes`;
+        let localVarPath = `/api/listings/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/detail/note`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuercheckerNoteDto>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<WhListingDetailDto>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: quercheckerNoteDto,
+                body: requestBody,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -165,83 +217,23 @@ export class NotesService extends BaseService {
     }
 
     /**
-     * Alle Notizen zu einem Inserat
-     * @endpoint get /api/listings/{listingId}/notes
-     * @param listingId 
+     * Bewertung eines Inserats speichern (UP/DOWN/null)
+     * @endpoint put /api/listings/{id}/detail/rating
+     * @param id 
+     * @param requestBody 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public findByListing(listingId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<Array<QuercheckerNoteDto>>;
-    public findByListing(listingId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<QuercheckerNoteDto>>>;
-    public findByListing(listingId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<QuercheckerNoteDto>>>;
-    public findByListing(listingId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (listingId === null || listingId === undefined) {
-            throw new Error('Required parameter listingId was null or undefined when calling findByListing.');
+    public updateRating(id: number, requestBody: { [key: string]: string; }, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<WhListingDetailDto>;
+    public updateRating(id: number, requestBody: { [key: string]: string; }, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<WhListingDetailDto>>;
+    public updateRating(id: number, requestBody: { [key: string]: string; }, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<WhListingDetailDto>>;
+    public updateRating(id: number, requestBody: { [key: string]: string; }, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling updateRating.');
         }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            '*/*'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/api/listings/${this.configuration.encodeParam({name: "listingId", value: listingId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/notes`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<QuercheckerNoteDto>>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Notiz aktualisieren
-     * @endpoint put /api/listings/{listingId}/notes/{noteId}
-     * @param listingId 
-     * @param noteId 
-     * @param quercheckerNoteDto 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public update(listingId: number, noteId: number, quercheckerNoteDto: QuercheckerNoteDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<QuercheckerNoteDto>;
-    public update(listingId: number, noteId: number, quercheckerNoteDto: QuercheckerNoteDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuercheckerNoteDto>>;
-    public update(listingId: number, noteId: number, quercheckerNoteDto: QuercheckerNoteDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuercheckerNoteDto>>;
-    public update(listingId: number, noteId: number, quercheckerNoteDto: QuercheckerNoteDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (listingId === null || listingId === undefined) {
-            throw new Error('Required parameter listingId was null or undefined when calling update.');
-        }
-        if (noteId === null || noteId === undefined) {
-            throw new Error('Required parameter noteId was null or undefined when calling update.');
-        }
-        if (quercheckerNoteDto === null || quercheckerNoteDto === undefined) {
-            throw new Error('Required parameter quercheckerNoteDto was null or undefined when calling update.');
+        if (requestBody === null || requestBody === undefined) {
+            throw new Error('Required parameter requestBody was null or undefined when calling updateRating.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -278,12 +270,12 @@ export class NotesService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/listings/${this.configuration.encodeParam({name: "listingId", value: listingId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/notes/${this.configuration.encodeParam({name: "noteId", value: noteId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        let localVarPath = `/api/listings/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/detail/rating`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuercheckerNoteDto>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<WhListingDetailDto>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: quercheckerNoteDto,
+                body: requestBody,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

@@ -48,7 +48,7 @@
     <p class="error-message">{{ error() }}</p>
   } @else {
     @for (listing of listings(); track listing.id) {
-      <app-listing-card [listing]="listing" (delete)="delete.emit($event)" />
+      <app-listing-card [listing]="listing" (clicked)="cardClicked.emit($event)" (ratingChanged)="ratingChanged.emit()" />
     } @empty {
       <p class="no-data">Keine Inserate gefunden.</p>
     }

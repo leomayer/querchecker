@@ -20,5 +20,9 @@ export interface QuercheckerListingDto {
     listedAt?: string;
     fetchedAt?: string;
     thumbnailUrl?: string;
+    hasNote?: boolean;
+    viewCount?: number;
+    lastViewedAt?: string;
+    rating?: string;
 }
 

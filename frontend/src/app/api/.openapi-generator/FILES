@@ -3,8 +3,8 @@ README.md
 api.base.service.ts
 api.module.ts
 api/api.ts
+api/listingDetail.service.ts
 api/listings.service.ts
-api/notes.service.ts
 api/willhabenMeta.service.ts
 api/willhabenSearch.service.ts
 configuration.ts
@@ -13,8 +13,8 @@ git_push.sh
 index.ts
 model/models.ts
 model/quercheckerListingDto.ts
-model/quercheckerNoteDto.ts
 model/whCategoryDto.ts
+model/whListingDetailDto.ts
 model/whLocationDto.ts
 model/whMetaStatusDto.ts
 model/whSearchResultDto.ts
