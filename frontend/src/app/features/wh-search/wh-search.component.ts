@@ -42,6 +42,7 @@ export class WhSearchComponent {
       if (p.priceTo != null) params['priceTo'] = p.priceTo;
       if (p.locationAreaId != null) params['areaId'] = p.locationAreaId;
       if (p.categoryWhId != null) params['attributeTree'] = p.categoryWhId;
+      if (p.paylivery) params['paylivery'] = 'true';
       return { url: API_URLS.whSearch, params };
     },
   );

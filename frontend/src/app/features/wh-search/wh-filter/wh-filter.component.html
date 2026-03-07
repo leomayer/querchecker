@@ -47,6 +47,10 @@
       (categoryWhIdChange)="categoryWhId.set($event)"
     />
 
+    <mat-checkbox [checked]="paylivery()" (change)="paylivery.set($event.checked)">
+      Nur Paylivery
+    </mat-checkbox>
+
     <button
       mat-raised-button
       color="primary"

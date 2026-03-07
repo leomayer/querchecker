@@ -38,6 +38,7 @@ public class WhSearchService {
      * @param priceTo       Höchstpreis in € (optional)
      * @param attributeTree Willhaben ATTRIBUTE_TREE-ID für Kategorie-Filter (optional)
      * @param areaId        Willhaben areaId für Standort-Filter (optional)
+     * @param paylivery     Nur Paylivery-Angebote (optional)
      */
     @Transactional
     public WhSearchResultDto search(
@@ -46,7 +47,8 @@ public class WhSearchService {
         Integer priceFrom,
         Integer priceTo,
         Integer attributeTree,
-        Integer areaId
+        Integer areaId,
+        Boolean paylivery
     ) {
         URI uri;
         try {
@@ -58,6 +60,7 @@ public class WhSearchService {
             if (priceTo != null)       query.append("&PRICE_TO=").append(priceTo);
             if (attributeTree != null) query.append("&ATTRIBUTE_TREE=").append(attributeTree);
             if (areaId != null)        query.append("&areaId=").append(areaId);
+            if (Boolean.TRUE.equals(paylivery)) query.append("&paylivery=true");
 
             uri = new URI("https", WH_HOST, WH_SEARCH_PATH, query.toString(), null);
         } catch (Exception e) {

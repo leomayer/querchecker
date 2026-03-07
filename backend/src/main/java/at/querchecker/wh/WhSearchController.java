@@ -23,6 +23,7 @@ public class WhSearchController {
      * @param rows          Anzahl der Ergebnisse (default: 30)
      * @param attributeTree Willhaben ATTRIBUTE_TREE-ID (Kategorie-Filter, optional)
      * @param areaId        Willhaben areaId (Standort-Filter, optional)
+     * @param paylivery     Nur Paylivery-Angebote (optional)
      */
     @GetMapping("/search")
     @Operation(summary = "Willhaben durchsuchen und Ergebnisse in DB speichern")
@@ -32,9 +33,10 @@ public class WhSearchController {
             @RequestParam(required = false) Integer priceFrom,
             @RequestParam(required = false) Integer priceTo,
             @RequestParam(required = false) Integer attributeTree,
-            @RequestParam(required = false) Integer areaId) {
+            @RequestParam(required = false) Integer areaId,
+            @RequestParam(required = false) Boolean paylivery) {
 
         return ResponseEntity.ok(
-            whSearchService.search(keyword, rows, priceFrom, priceTo, attributeTree, areaId));
+            whSearchService.search(keyword, rows, priceFrom, priceTo, attributeTree, areaId, paylivery));
     }
 }

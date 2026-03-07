@@ -44,14 +44,15 @@ export class WillhabenSearchService extends BaseService {
      * @param priceTo 
      * @param attributeTree 
      * @param areaId 
+     * @param paylivery 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public search(keyword: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<WhSearchResultDto>;
-    public search(keyword: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<WhSearchResultDto>>;
-    public search(keyword: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<WhSearchResultDto>>;
-    public search(keyword: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public search(keyword: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, paylivery?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<WhSearchResultDto>;
+    public search(keyword: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, paylivery?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<WhSearchResultDto>>;
+    public search(keyword: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, paylivery?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<WhSearchResultDto>>;
+    public search(keyword: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, paylivery?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (keyword === null || keyword === undefined) {
             throw new Error('Required parameter keyword was null or undefined when calling search.');
         }
@@ -107,6 +108,15 @@ export class WillhabenSearchService extends BaseService {
             localVarQueryParameters,
             'areaId',
             <any>areaId,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'paylivery',
+            <any>paylivery,
             QueryParamStyle.Form,
             true,
         );

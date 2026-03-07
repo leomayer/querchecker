@@ -5,6 +5,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { LocationFilterComponent } from '../location-filter/location-filter.component';
 import { CategoryFilterComponent } from '../category-filter/category-filter.component';
 
@@ -15,6 +16,7 @@ export interface SearchParams {
   priceTo?: number;
   locationAreaId?: number;
   categoryWhId?: number;
+  paylivery?: boolean;
 }
 
 @Component({
@@ -27,6 +29,7 @@ export interface SearchParams {
     MatButtonModule,
     MatIconModule,
     MatProgressBarModule,
+    MatCheckboxModule,
     LocationFilterComponent,
     CategoryFilterComponent,
   ],
@@ -43,6 +46,7 @@ export class WhFilterComponent {
   priceTo = signal<number | null>(null);
   locationAreaId = signal<number | undefined>(undefined);
   categoryWhId = signal<number | undefined>(undefined);
+  paylivery = signal(false);
 
   readonly rowOptions = [50, 100, 250];
 
@@ -71,6 +75,7 @@ export class WhFilterComponent {
       priceTo: this.priceTo() ?? undefined,
       locationAreaId: this.locationAreaId(),
       categoryWhId: this.categoryWhId(),
+      paylivery: this.paylivery() || undefined,
     });
   }
 }
