@@ -6,7 +6,8 @@ import { QuercheckerListingDto } from '../../api/model/quercheckerListingDto';
 import { WhSearchResultDto } from '../../api/model/whSearchResultDto';
 import { API_URLS } from '../../core/api-urls';
 import { WhFilterComponent, SearchParams } from './wh-filter/wh-filter.component';
-import { WhListingsComponent } from './wh-listings/wh-listings.component';
+import { WhListingsComponent, RatingFilter } from './wh-listings/wh-listings.component';
+import { RatingChangedEvent } from './wh-listings/listing-card/listing-card.component';
 import { WhSortComponent } from './wh-sort/wh-sort.component';
 import { ZoneLeftComponent } from '../../shared/layout/zone-left/zone-left.component';
 import { ZoneRightComponent } from '../../shared/layout/zone-right/zone-right.component';
@@ -26,13 +27,14 @@ export class WhSearchComponent {
   searchParams = signal<SearchParams | null>(null);
   filterText = signal('');
   freeOnly = signal(false);
+  ratingFilter = signal<RatingFilter>('UP_NULL');
   sortColumn = signal('');
   sortDirection = signal<'asc' | 'desc' | ''>('');
 
   searchMode = computed(() => this.searchParams() !== null);
 
   private allResource = httpResource<QuercheckerListingDto[]>(
-    () => (!this.searchMode() ? { url: API_URLS.listings } : undefined),
+    () => (!this.searchMode() ? { url: API_URLS.listings, params: { ratingFilter: this.ratingFilter() } } : undefined),
     { defaultValue: [] },
   );
 
@@ -50,6 +52,9 @@ export class WhSearchComponent {
     },
   );
 
+  // Lokale Patches für Such-Modus (Rating, View-Stats, etc.) – kein neuer WH-Request nötig
+  private searchPatches = signal<Record<number, Partial<QuercheckerListingDto>>>({});
+
   loading = computed(() =>
     this.searchMode() ? this.searchResource.isLoading() : this.allResource.isLoading(),
   );
@@ -62,14 +67,27 @@ export class WhSearchComponent {
 
   whTotal = computed(() => this.searchResource.value()?.totalCount ?? null);
 
-  private rawListings = computed(
-    () => (this.searchMode() ? (this.searchResource.value()?.listings ?? []) : this.allResource.value()) ?? [],
-  );
+  private rawListings = computed(() => {
+    const base = (this.searchMode() ? (this.searchResource.value()?.listings ?? []) : this.allResource.value()) ?? [];
+    if (!this.searchMode()) return base;
+    const patches = this.searchPatches();
+    if (!Object.keys(patches).length) return base;
+    return base.map(l => {
+      const patch = l.id != null ? patches[l.id] : undefined;
+      return patch ? ({ ...l, ...patch } as QuercheckerListingDto) : l;
+    });
+  });
 
   filteredListings = computed(() => {
     const filter = this.filterText().toLowerCase();
     const free = this.freeOnly();
+    const ratingF = this.ratingFilter();
     return this.rawListings().filter((l) => {
+      if (this.searchMode()) {
+        if (ratingF === 'UP' && l.rating !== 'UP') return false;
+        if (ratingF === 'UP_NULL' && l.rating !== 'UP' && l.rating != null) return false;
+        if (ratingF === 'DOWN' && l.rating !== 'DOWN') return false;
+      }
       if (free && l.price !== 0) return false;
       if (!filter) return true;
       return (
@@ -104,18 +122,27 @@ export class WhSearchComponent {
     this.searchParams.set(params);
     this.filterText.set('');
     this.freeOnly.set(false);
+    this.searchPatches.set({});
   }
 
   showAllListings(): void {
     this.searchParams.set(null);
   }
 
-  reloadAfterRating(): void {
-    this.searchMode() ? this.searchResource.reload() : this.allResource.reload();
+  reloadAfterRating(event: RatingChangedEvent): void {
+    if (this.searchMode()) {
+      this.searchPatches.update(p => ({
+        ...p,
+        [event.id]: { ...p[event.id], rating: event.newRating ?? undefined },
+      }));
+    } else {
+      this.allResource.reload();
+    }
   }
 
   openDetail(listing: QuercheckerListingDto): void {
-    if (this.listingService.shouldRecordView(listing.id!)) {
+    const viewRecorded = this.listingService.shouldRecordView(listing.id!);
+    if (viewRecorded) {
       this.listingService.recordView(listing.id!).subscribe();
     }
     const ref = this.dialog.open(ListingDetailDialogComponent, {
@@ -124,8 +151,28 @@ export class WhSearchComponent {
       maxWidth: '95vw',
     });
     ref.afterClosed().subscribe((result) => {
-      if (result === 'deleted' || result === 'saved') {
+      if (result === 'deleted') {
         this.searchMode() ? this.searchResource.reload() : this.allResource.reload();
+        return;
+      }
+      if (this.searchMode()) {
+        if (viewRecorded || result === 'saved') {
+          this.listingService.getDetail(listing.id!).subscribe(detail => {
+            this.searchPatches.update(p => ({
+              ...p,
+              [listing.id!]: {
+                ...p[listing.id!],
+                viewCount: detail.viewCount,
+                lastViewedAt: detail.lastViewedAt,
+                hasNote: !!(detail.note?.trim()),
+              },
+            }));
+          });
+        }
+      } else {
+        if (viewRecorded || result === 'saved') {
+          this.allResource.reload();
+        }
       }
     });
   }

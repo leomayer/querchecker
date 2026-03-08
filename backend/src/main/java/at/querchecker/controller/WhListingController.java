@@ -21,8 +21,9 @@ public class WhListingController {
 
     @GetMapping
     @Operation(summary = "Alle Inserate abrufen")
-    public List<QuercheckerListingDto> findAll() {
-        return whListingService.findAll();
+    public List<QuercheckerListingDto> findAll(
+            @RequestParam(defaultValue = "UP") String ratingFilter) {
+        return whListingService.findAll(ratingFilter);
     }
 
     @GetMapping("/{id}")

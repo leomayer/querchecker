@@ -23,16 +23,21 @@ public class WhListingService {
     private final WhListingDetailRepository whListingDetailRepository;
 
     @Transactional(readOnly = true)
-    public List<QuercheckerListingDto> findAll() {
+    public List<QuercheckerListingDto> findAll(String ratingFilter) {
         List<WhListing> listings = whListingRepository.findAll();
 
         Map<Long, WhListingDetailSummary> detailMap = whListingDetailRepository.findAllSummaries()
                 .stream()
                 .collect(Collectors.toMap(WhListingDetailSummary::getListingId, s -> s));
 
-        return listings.stream()
-                .map(e -> toDto(e, detailMap.get(e.getId())))
-                .toList();
+        var stream = listings.stream().map(e -> toDto(e, detailMap.get(e.getId())));
+
+        return switch (ratingFilter) {
+            case "UP" -> stream.filter(d -> "UP".equals(d.getRating())).toList();
+            case "UP_NULL" -> stream.filter(d -> d.getRating() == null || "UP".equals(d.getRating())).toList();
+            case "DOWN" -> stream.filter(d -> "DOWN".equals(d.getRating())).toList();
+            default -> stream.toList(); // "ALL"
+        };
     }
 
     @Transactional(readOnly = true)

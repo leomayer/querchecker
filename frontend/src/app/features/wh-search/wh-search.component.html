@@ -17,8 +17,9 @@
     [whTotal]="whTotal()"
     [(filterText)]="filterText"
     [(freeOnly)]="freeOnly"
+    [(ratingFilter)]="ratingFilter"
     (cardClicked)="openDetail($event)"
-    (ratingChanged)="reloadAfterRating()"
+    (ratingChanged)="reloadAfterRating($event)"
     (showAll)="showAllListings()"
   />
 </app-zone-right>

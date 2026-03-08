@@ -35,6 +35,7 @@ public class WhListing {
     private String location;
 
     // nullable – Self-Link fehlt gelegentlich
+    @Column(columnDefinition = "TEXT")
     private String url;
 
     private LocalDateTime listedAt;
@@ -42,5 +43,6 @@ public class WhListing {
     @Column(nullable = false)
     private LocalDateTime fetchedAt;
 
+    @Column(columnDefinition = "TEXT")
     private String thumbnailUrl;
 }

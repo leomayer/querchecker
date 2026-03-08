@@ -3,6 +3,8 @@ package at.querchecker.wh;
 import at.querchecker.dto.QuercheckerListingDto;
 import at.querchecker.dto.WhSearchResultDto;
 import at.querchecker.entity.WhListing;
+import at.querchecker.repository.WhListingDetailRepository;
+import at.querchecker.repository.WhListingDetailRepository.WhListingDetailSummary;
 import at.querchecker.repository.WhListingRepository;
 import at.querchecker.wh.api.WhApiResponse;
 import at.querchecker.wh.api.WhApiResponse.Advert;
@@ -11,6 +13,8 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +31,7 @@ public class WhSearchService {
 
     private final WhApiClient whApiClient;
     private final WhListingRepository whListingRepository;
+    private final WhListingDetailRepository whListingDetailRepository;
 
     /**
      * Sucht auf Willhaben nach dem angegebenen Keyword, upsertet alle Ergebnisse
@@ -75,9 +80,19 @@ public class WhSearchService {
             return WhSearchResultDto.builder().totalCount(0).listings(List.of()).build();
         }
 
-        List<QuercheckerListingDto> listings = body.getAdvertSummaryList().getAdvertSummary()
+        List<WhListing> savedListings = body.getAdvertSummaryList().getAdvertSummary()
             .stream()
-            .map(this::upsertAndMap)
+            .map(this::upsertListing)
+            .toList();
+
+        List<Long> ids = savedListings.stream().map(WhListing::getId).toList();
+        Map<Long, WhListingDetailSummary> detailMap = whListingDetailRepository.findAllSummaries()
+            .stream()
+            .filter(s -> ids.contains(s.getListingId()))
+            .collect(Collectors.toMap(WhListingDetailSummary::getListingId, s -> s));
+
+        List<QuercheckerListingDto> listings = savedListings.stream()
+            .map(l -> toDto(l, detailMap.get(l.getId())))
             .toList();
 
         return WhSearchResultDto.builder()
@@ -86,7 +101,7 @@ public class WhSearchService {
             .build();
     }
 
-    private QuercheckerListingDto upsertAndMap(Advert advert) {
+    private WhListing upsertListing(Advert advert) {
         WhListing listing = whListingRepository
             .findByWhId(advert.getId())
             .orElse(WhListing.builder().whId(advert.getId()).build());
@@ -99,13 +114,9 @@ public class WhSearchService {
         listing.setFetchedAt(LocalDateTime.now());
         // PUBLISHED_String liefert ISO-Datum; PUBLISHED liefert Epoch-Millisekunden
         listing.setListedAt(parseDateTime(advert.getAttribute("PUBLISHED_String")));
-
         listing.setThumbnailUrl(buildThumbnailUrl(advert));
-        WhListing saved = whListingRepository.save(listing);
 
-        return toDto(saved).toBuilder()
-            .thumbnailUrl(saved.getThumbnailUrl())
-            .build();
+        return whListingRepository.save(listing);
     }
 
     private static final String WH_IMAGE_BASE = "https://cache.willhaben.at/mmo/";
@@ -132,7 +143,7 @@ public class WhSearchService {
         return WH_LISTING_BASE + seoUrl;
     }
 
-    private QuercheckerListingDto toDto(WhListing entity) {
+    private QuercheckerListingDto toDto(WhListing entity, WhListingDetailSummary detail) {
         return QuercheckerListingDto.builder()
             .id(entity.getId())
             .whId(entity.getWhId())
@@ -143,6 +154,11 @@ public class WhSearchService {
             .url(entity.getUrl())
             .listedAt(entity.getListedAt())
             .fetchedAt(entity.getFetchedAt())
+            .thumbnailUrl(entity.getThumbnailUrl())
+            .hasNote(detail != null && detail.getNote() != null && !detail.getNote().isBlank())
+            .viewCount(detail != null ? detail.getViewCount() : 0)
+            .lastViewedAt(detail != null ? detail.getLastViewedAt() : null)
+            .rating(detail != null ? detail.getRating() : null)
             .build();
     }
 

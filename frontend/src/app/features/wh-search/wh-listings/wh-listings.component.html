@@ -16,6 +16,30 @@
     }
   </div>
 
+  <mat-button-toggle-group
+    class="rating-filter"
+    [value]="ratingFilter()"
+    (change)="ratingFilter.set($event.value)"
+    hideSingleSelectionIndicator
+  >
+    <mat-button-toggle value="UP_NULL">
+      <mat-icon>checklist</mat-icon>
+      Offen
+    </mat-button-toggle>
+    <mat-button-toggle value="UP">
+      <mat-icon>thumb_up</mat-icon>
+      Interessant
+    </mat-button-toggle>
+    <mat-button-toggle value="DOWN">
+      <mat-icon>thumb_down</mat-icon>
+      Abgelehnt
+    </mat-button-toggle>
+    <mat-button-toggle value="ALL">
+      <mat-icon>list</mat-icon>
+      Alle
+    </mat-button-toggle>
+  </mat-button-toggle-group>
+
   <div class="header-controls">
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="filter-field">
       <mat-label>Filtern</mat-label>
@@ -48,7 +72,9 @@
     <p class="error-message">{{ error() }}</p>
   } @else {
     @for (listing of listings(); track listing.id) {
-      <app-listing-card [listing]="listing" (clicked)="cardClicked.emit($event)" (ratingChanged)="ratingChanged.emit()" />
+      <div class="card-wrapper" [class.card-wrapper--removing]="removingIds().has(listing.id!)">
+        <app-listing-card [listing]="listing" (clicked)="cardClicked.emit($event)" (ratingChanged)="onCardRatingChanged($event)" />
+      </div>
     } @empty {
       <p class="no-data">Keine Inserate gefunden.</p>
     }
