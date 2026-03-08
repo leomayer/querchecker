@@ -1,0 +1,41 @@
+<app-zone-left
+  [@leftZone]="store.layoutState()"
+  [width]="store.layoutState() === LayoutState.DETAIL ? '420px' : '320px'"
+>
+  @if (store.layoutState() === LayoutState.DETAIL) {
+    <div class="zone-content">
+      <app-wh-listings (ratingChanged)="handleRatingChange($event)" />
+    </div>
+  } @else {
+    <div class="zone-content">
+      <app-wh-filter />
+    </div>
+  }
+</app-zone-left>
+
+<app-zone-right [@rightZone]="store.layoutState()">
+  @switch (store.layoutState()) {
+    @case (LayoutState.SEARCH) {
+      <div class="zone-content">
+        <app-placeholder />
+      </div>
+    }
+    @case (LayoutState.LISTINGS) {
+      <div class="zone-content">
+        <app-wh-sort />
+        <app-wh-listings (ratingChanged)="handleRatingChange($event)" />
+      </div>
+    }
+    @case (LayoutState.DETAIL) {
+      <div class="zone-content">
+        <div class="back-bar">
+          <button mat-button (click)="store.backToListings()">
+            <mat-icon>arrow_back</mat-icon>
+            Zurück zur Liste
+          </button>
+        </div>
+        <app-wh-detail />
+      </div>
+    }
+  }
+</app-zone-right>

@@ -31,6 +31,12 @@
   &.rated-down {
     border-left: 3px solid #a06858;
   }
+
+  &.selected {
+    background-color: color-mix(in srgb, var(--color-haggle-primary) 12%, transparent);
+    border-color: var(--color-haggle-primary);
+    border-left-width: 3px;
+  }
 }
 
 .thumbnail {

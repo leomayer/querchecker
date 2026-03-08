@@ -81,14 +81,21 @@ frontend/src/app/
 │   └── api-urls.ts   ← hand-written, stabil, nicht überschreibbar
 ├── features/
 │   └── wh-search/
-│       ├── wh-filter/       ← Suchformular + location-filter (zone-left)
-│       ├── location-filter/ ← smart wrapper um hierarchical-filter
-│       ├── wh-listings/     ← Ergebnisliste + listing-card/
-│       ├── wh-sort/         ← Sortierung (zone-right, über wh-listings)
-│       └── wh-search.component.*
+│       ├── main-layout/         ← Einzige Route-Komponente (Layout-Switching via Store)
+│       ├── wh-filter/           ← Suchformular, injiziert SearchStore
+│       ├── location-filter/     ← smart wrapper um hierarchical-filter
+│       ├── wh-listings/         ← Ergebnisliste + listing-card/, injiziert SearchStore
+│       ├── wh-sort/             ← Sortierung, injiziert SearchStore
+│       ├── wh-detail/           ← Detail-Panel (kein Dialog), injiziert SearchStore
+│       ├── search.store.ts      ← @ngrx/signals SignalStore
+│       ├── layout-state.enum.ts ← SEARCH | LISTINGS | DETAIL
+│       ├── search-query.model.ts ← SearchQuery interface
+│       ├── listings.guard.ts    ← Route Guard
+│       └── listing-detail-dialog/ ← behalten bis wh-detail vollständig
 └── shared/     ← Wiederverwendbare Komponenten/Pipes
     └── components/
-        └── hierarchical-filter-component/
+        ├── hierarchical-filter-component/
+        └── placeholder/         ← Placeholder mit Fade-in Animation
 ```
 
 ### URL-Management (`api-urls.ts`)
@@ -223,9 +230,22 @@ readonly listings = httpResource(() => ({
 `httpResource()` re-fetched automatisch bei jeder Signal-Änderung. Angular 21+ macht dies zum kanonischen Ansatz.
 
 ### State Management
-- **Kein NgRx, kein SignalStore** – wird zum jetzigen Zeitpunkt nicht benötigt
-- Filter-Signale leben flach in der Komponente oder einem minimalen Service
-- Bei wachsender Komplexität ist die Service-Schicht der natürliche Extraktionspunkt
+- **`@ngrx/signals` SignalStore** (`SearchStore`, `providedIn: 'root'`) für globalen App-State
+- Store-State: `layoutState`, `listings`, `selectedId`, `searchQuery`, `loading`, `error`, `whTotal`, `searchPatches`, `sortColumn`, `sortDirection`
+- Store-Methoden: `search()`, `selectListing()`, `backToListings()`, `clearSearch()`, `setSortColumn()`, `setSortDirection()`, `_setResourceState()`, `_applySearchPatch()`
+- `httpResource` lebt in `MainLayoutComponent` und synct via `effect()` in den Store
+- Komponenten injizieren `SearchStore` direkt – keine Inputs/Outputs für geteilten State mehr
+
+### Layout-States (`LayoutState` Enum)
+| State | zone-left | zone-right |
+|---|---|---|
+| `SEARCH` | `app-wh-filter` | `app-placeholder` |
+| `LISTINGS` | `app-wh-filter` | `app-wh-sort` + `app-wh-listings` |
+| `DETAIL` | `app-wh-listings` | `app-wh-detail` |
+
+- `MainLayoutComponent` ist die einzige Route-Komponente (Routen: `/`, `/wh-listings`, `/wh-listings/:id`)
+- Route Guard `listingsGuard`: redirect `/` wenn `store.listings()` leer
+- Router ↔ Store Sync via `withHooks`: **noch offen / TODO**
 
 ### Plattform-Abstraktion (Willhaben-first)
 - Willhaben ist der erste und aktuell einzige Provider

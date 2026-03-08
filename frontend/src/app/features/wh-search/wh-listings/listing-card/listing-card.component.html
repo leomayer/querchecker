@@ -1,6 +1,7 @@
 <div class="card-clickable" role="button" tabindex="0"
   [class.rated-up]="displayRating() === 'UP'"
   [class.rated-down]="displayRating() === 'DOWN'"
+  [class.selected]="selected()"
   (click)="clicked.emit(listing())"
   (keydown.enter)="clicked.emit(listing())"
   (keydown.space)="clicked.emit(listing())">

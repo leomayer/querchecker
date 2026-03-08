@@ -22,6 +22,7 @@ export class ListingCardComponent {
   private readonly listingService = inject(ListingService);
 
   listing = input.required<QuercheckerListingDto>();
+  selected = input(false);
   clicked = output<QuercheckerListingDto>();
   ratingChanged = output<RatingChangedEvent>();
 

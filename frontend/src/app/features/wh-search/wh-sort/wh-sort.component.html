@@ -3,7 +3,7 @@
 
   <mat-form-field appearance="outline" subscriptSizing="dynamic" class="sort-field">
     <mat-label>Sortieren nach</mat-label>
-    <mat-select [value]="sortColumn()" (valueChange)="onSortFieldChange($event)">
+    <mat-select [value]="store.sortColumn()" (valueChange)="onSortFieldChange($event)">
       <mat-option value="">– keine –</mat-option>
       @for (f of sortFields; track f.value) {
         <mat-option [value]="f.value">{{ f.label }}</mat-option>
@@ -11,10 +11,10 @@
     </mat-select>
   </mat-form-field>
 
-  @if (sortColumn()) {
+  @if (store.sortColumn()) {
     <mat-button-toggle-group
-      [value]="sortDirection()"
-      (change)="sortDirection.set($event.value)"
+      [value]="store.sortDirection()"
+      (change)="store.setSortDirection($event.value)"
       class="direction-toggle"
     >
       <mat-button-toggle value="asc">

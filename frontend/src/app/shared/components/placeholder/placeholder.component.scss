@@ -1,0 +1,44 @@
+:host {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 32px;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.placeholder-icon {
+  font-size: 56px;
+  width: 56px;
+  height: 56px;
+  opacity: 0.5;
+  color: var(--mat-sys-primary);
+}
+
+.placeholder-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 8px 0 4px;
+}
+
+.placeholder-steps {
+  text-align: left;
+  padding-left: 20px;
+  line-height: 2;
+  opacity: 0.8;
+}
+
+.placeholder-hint {
+  font-size: 0.85rem;
+  opacity: 0.6;
+  font-style: italic;
+  margin-top: 8px;
+}

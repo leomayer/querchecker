@@ -2,14 +2,14 @@
   <div class="header-row">
     <h2 class="panel-title">Inserate</h2>
     <span class="panel-subtitle">
-      @if (whTotal() !== null) {
-        {{ count() }} von {{ whTotal() }} Willhaben-Inseraten
+      @if (store.whTotal() !== null) {
+        {{ count() }} von {{ store.whTotal() }} Willhaben-Inseraten
       } @else {
         {{ count() }} Ergebnisse
       }
     </span>
-    @if (searchMode()) {
-      <button mat-button (click)="showAll.emit()" class="show-all-btn">
+    @if (store.searchMode()) {
+      <button mat-button (click)="store.clearSearch()" class="show-all-btn">
         <mat-icon>list</mat-icon>
         Alle gespeicherten
       </button>
@@ -64,16 +64,21 @@
 </div>
 
 <div class="listing-list">
-  @if (loading()) {
+  @if (store.loading()) {
     <div class="spinner-container">
       <mat-spinner diameter="48" />
     </div>
-  } @else if (error()) {
-    <p class="error-message">{{ error() }}</p>
+  } @else if (store.error()) {
+    <p class="error-message">{{ store.error() }}</p>
   } @else {
-    @for (listing of listings(); track listing.id) {
+    @for (listing of sortedListings(); track listing.id) {
       <div class="card-wrapper" [class.card-wrapper--removing]="removingIds().has(listing.id!)">
-        <app-listing-card [listing]="listing" (clicked)="cardClicked.emit($event)" (ratingChanged)="onCardRatingChanged($event)" />
+        <app-listing-card
+          [listing]="listing"
+          [selected]="store.selectedId() === listing.id?.toString()"
+          (clicked)="onCardClicked($event)"
+          (ratingChanged)="onCardRatingChanged($event)"
+        />
       </div>
     } @empty {
       <p class="no-data">Keine Inserate gefunden.</p>

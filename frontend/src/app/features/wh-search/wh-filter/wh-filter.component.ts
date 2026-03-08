@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -8,16 +8,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { LocationFilterComponent } from '../location-filter/location-filter.component';
 import { CategoryFilterComponent } from '../category-filter/category-filter.component';
-
-export interface SearchParams {
-  keyword: string;
-  rows: number;
-  priceFrom?: number;
-  priceTo?: number;
-  locationAreaId?: number;
-  categoryWhId?: number;
-  paylivery?: boolean;
-}
+import { SearchStore } from '../search.store';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,8 +28,10 @@ export interface SearchParams {
   styleUrl: './wh-filter.component.scss',
 })
 export class WhFilterComponent {
-  loading = input(false);
-  error = input<string | null>(null);
+  private readonly store = inject(SearchStore);
+
+  protected readonly loading = this.store.loading;
+  protected readonly error = this.store.error;
 
   keyword = signal('');
   rows = signal(50);
@@ -49,8 +42,6 @@ export class WhFilterComponent {
   paylivery = signal(false);
 
   readonly rowOptions = [50, 100, 250];
-
-  search = output<SearchParams>();
 
   onKeywordInput(e: Event): void {
     this.keyword.set((e.target as HTMLInputElement).value);
@@ -68,7 +59,7 @@ export class WhFilterComponent {
 
   onSearch(): void {
     if (!this.keyword().trim()) return;
-    this.search.emit({
+    this.store.search({
       keyword: this.keyword().trim(),
       rows: this.rows(),
       priceFrom: this.priceFrom() ?? undefined,

@@ -1,0 +1,28 @@
+:host {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  gap: 12px;
+  padding: 12px 0;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+}
+
+.zone-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.back-bar {
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  flex-shrink: 0;
+}
