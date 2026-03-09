@@ -1,15 +1,39 @@
 # Querchecker
 
-Preisvergleichs-App für Elektronik/Hardware. Willhaben-Suchen durchführen, Ergebnisse mit anderen Plattformen (Geizhals etc.) cross-referenzieren.
+Preisvergleichs-App für Elektronik/Hardware. Willhaben-Inserate durchsuchen, filtern, bewerten und mit Notizen versehen. Cross-Referenzierung mit anderen Plattformen (Geizhals etc.) geplant.
+
+## Vision
+
+Querchecker hilft beim Schnäppchenkauf: Man startet eine Suche auf Willhaben, sieht die Ergebnisse direkt in einer übersichtlichen Oberfläche, bewertet Inserate mit Daumen hoch/runter, schreibt Notizen, und kann so den Überblick behalten — insbesondere bei langen Suchen mit vielen Ergebnissen. Zukünftig soll der Preis jedes Inserats mit dem Marktpreis (Geizhals) verglichen werden, um einschätzen zu können, ob ein Angebot wirklich günstig ist.
+
+## Status
+
+Aktiv in Entwicklung (v0.0.1-SNAPSHOT). Grundfunktionen implementiert:
+
+- Willhaben-Suche mit Filtern (Stichwort, Standort, Kategorie, Preisspanne, Paylivery)
+- Förderband-UI: Dreistufige Navigation (Suchmaske → Ergebnisliste → Detailansicht) mit Animationen
+- Thumbnails in Listing-Cards
+- Notizen je Inserat
+- Rating (Daumen hoch/runter/neutral) + Filterung nach Rating
+- View-Counter mit Zeitstempel
+- Hierarchische Standort- und Kategoriefilter (Bundesland → Bezirk, Baumnavigation)
+
+## Geplante Features
+
+- [ ] Marktpreisvergleich via Geizhals-API
+- [ ] Mehrere Suchprofile / gespeicherte Suchen
+- [ ] Automatische Benachrichtigung bei neuen Inseraten
+- [ ] Mobile-optimiertes Layout
+- [ ] Mehr Plattformen (eBay Kleinanzeigen, Shpock…)
 
 ## Stack
 
-| Schicht     | Technologie                                       |
-| ----------- | ------------------------------------------------- |
-| Frontend    | Angular 21+, Angular Material V3                  |
-| Backend     | Spring Boot, Java 21, Lombok, SpotBugs            |
-| Datenbank   | PostgreSQL 16 (Docker)                            |
-| API-Codegen | openapi-generator-cli (devDependency im Frontend) |
+| Schicht   | Technologie                                    |
+| --------- | ---------------------------------------------- |
+| Frontend  | Angular 21+, Angular Material V3, @ngrx/signals |
+| Backend   | Spring Boot 3.3.4, Java 21                     |
+| Datenbank | PostgreSQL 16 (Docker)                         |
+| Prod      | Docker, nginx, Traefik (SSL via Let's Encrypt) |
 
 ## Ports
 
@@ -22,45 +46,25 @@ Preisvergleichs-App für Elektronik/Hardware. Willhaben-Suchen durchführen, Erg
 ## Quickstart (Dev)
 
 ```bash
-# 1. PostgreSQL starten
+# PostgreSQL starten
 docker compose up -d
 
-# 2. Backend starten (eigenes Terminal)
+# Backend starten (eigenes Terminal)
 cd backend && mvn spring-boot:run
 
-# 3. Frontend starten (eigenes Terminal)
+# Frontend starten (eigenes Terminal)
 cd frontend && npm start
-
-# 4. API-Client generieren (nach Backend-Änderungen)
-cd frontend && npm run generate-api
 ```
-
-> Alternativ: Zed Tasks (`ctrl+3` → "task: spawn")
 
 ## Struktur
 
 ```
 querchecker/
 ├── backend/                ← Spring Boot (Maven)
-│   └── src/main/java/at/querchecker/
 ├── frontend/               ← Angular 21+
-│   └── src/app/
-│       ├── api/            ← generiert (openapi-generator-cli)
-│       ├── core/           ← api-urls.ts (hand-written, stabil)
-│       ├── features/       ← Feature-Komponenten
-│       └── shared/         ← Wiederverwendbare Komponenten
 ├── docker-compose.yml      ← Dev: nur PostgreSQL
-├── docker-compose.prod.yml ← Prod: nginx + backend
-└── README.md
+└── docker-compose.prod.yml ← Prod: vollständiger Stack
 ```
-
-## Features
-
-- Suchmaske mit konfigurierbaren Filtern (Location, Kategorie, Gratis, Freitext)
-- Reaktives Filtering via Angular Signals + `httpResource`
-- Ergebnisliste mit Per-Zeile Kreuzsuche auf anderen Plattformen
-- Notizen je Inserat (PostgreSQL via `ListingNote`)
-- Marktpreisvergleich (günstig/teuer-Einschätzung)
 
 ## Deployment
 

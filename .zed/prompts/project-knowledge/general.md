@@ -1,44 +1,7 @@
-# Projektwissen: Querchecker
+# Projektwissen: Querchecker — Allgemein
 
 ## Ziel
-Angular-Web-App für Preisvergleiche (primär Elektronik/Hardware): Willhaben-Suchen durchführen, Ergebnisse mit anderen Plattformen (Geizhals etc.) cross-referenzieren, Marktpreisvergleich bieten.
-
----
-
-## Projektname
-
-**Querchecker** – eigenständiger Name, kein Markenkonflikt. Tool-Charakter („der Querchecker erledigt das für mich"), beschreibt das Kernfeature (Cross-Search zwischen Plattformen) direkt.
-
----
-
-## Naming-Konventionen
-
-### Abkürzungen
-| Abkürzung | Bedeutung |
-|---|---|
-| `wh` | Willhaben |
-
-### Allgemeine Regeln
-- **Tabellen-ID** einer Entität ist immer `id` (PK, intern)
-- **Fremdschlüssel** tragen den Entitätsnamen als Prefix: `whListingId`, nicht `listing` oder `id`
-- **Externe IDs** (IDs fremder Plattformen) tragen den Plattform-Prefix: `whId` = Willhaben-interne ID
-- **Entitäts-/Klassennamen** verwenden die Abkürzung: `WhListing`, `WhListingRepository`
-- **DTOs** Richtung Angular tragen den Querchecker-Prefix: `QuercheckerListingDto`, `QuercheckerNoteDto`
-
----
-
-## Monorepo-Struktur
-```
-querchecker/                ← Git-Root
-├── backend/                ← Spring Boot Projekt (Maven)
-├── frontend/               ← Angular Projekt
-├── docker-compose.yml      ← Dev: nur PostgreSQL
-├── docker-compose.prod.yml ← Prod: nginx + backend
-└── README.md               ← Einzige Dokumentation
-```
-
-- Kein Tooling-Overhead (kein Nx, kein Turborepo) – plain Monorepo
-- Zed öffnet den Root-Ordner als Workspace, erkennt beide Teilprojekte automatisch via jdtls (Java) und dem TypeScript-LSP (Angular)
+Preisvergleichs-App für Elektronik/Hardware. Willhaben-Inserate durchsuchen, filtern, bewerten, mit Notizen versehen. Cross-Referenzierung mit Geizhals (Marktpreisvergleich) geplant.
 
 ---
 
@@ -46,38 +9,90 @@ querchecker/                ← Git-Root
 
 | Schicht | Technologie |
 |---|---|
-| Frontend | Angular 21, Angular Material V3 |
-| Backend | Spring Boot (Java, Lombok, SpotBugs) |
-| Datenbank | PostgreSQL via Docker (Dev) |
-| API-Docs | springdoc-openapi (in Prod deaktiviert) |
-| API-Codegen | openapi-generator-cli als devDependency in Angular |
+| Frontend | Angular 21+, Angular Material V3, @ngrx/signals |
+| Backend | Spring Boot 3.3.4, Java 21, Lombok, SpotBugs |
+| Datenbank | PostgreSQL 16 via Docker |
+| API-Codegen | openapi-generator-cli (devDependency im Frontend) |
+| Prod | Docker, nginx, Traefik (SSL via Let's Encrypt) |
 
 ---
 
-## Features
-- Suchmaske mit konfigurierbarer Zielplattform (Willhaben, Geizhals, …)
-- Ergebnistabelle (Angular Material) mit lokalem Filtering
-- Notizen je Ergebnis – gespeichert in PostgreSQL via `ListingNote`-Entity
-- Per-Zeile Kreuzsuche auf anderen Plattformen
-- Marktpreisvergleich (günstig/teuer-Einschätzung)
+## Ports
+
+| Port | Service |
+|---|---|
+| `14070` | Spring Boot Backend |
+| `14071` | PostgreSQL (Docker, `14071:5432`) |
+| `14072` | Angular (ng serve) |
 
 ---
 
-## Entwicklungsumgebung
+## Naming-Konventionen
 
-**IDE:** Zed auf openSUSE Tumbleweed – öffnet Monorepo-Root als Workspace
+| Abkürzung | Bedeutung |
+|---|---|
+| `wh` | Willhaben |
 
-### Keybindings (Eclipse-Keymap)
-Eclipse-Keybindings importiert (`~/.config/zed/keymap.json`). Wichtiger Konflikt:
-- `ctrl+shift+p` ist **belegt** (`editor::MoveToEnclosingBracket`, Eclipse: Jump to matching bracket) – öffnet **nicht** die Command Palette wenn der Editor fokussiert ist
-- **Command Palette** stattdessen via `ctrl+3` (Eclipse: Ctrl+3)
-- **Task spawnen**: `ctrl+3` → "task: spawn"
-- **Letzten Task wiederholen**: `ctrl+f11` (Eclipse: Ctrl+F11)
+- **PK** immer `id` (intern)
+- **FK** trägt Entitätsnamen als Prefix: `whListingId` (nicht `listingId`)
+- **Externe IDs** mit Plattform-Prefix: `whId` = Willhaben-interne ID, `areaId` = Standort-ID
+- **Entitäts-/Klassennamen** mit Abkürzung: `WhListing`, `WhListingRepository`
+- **DTOs** mit Querchecker- oder Wh-Prefix: `QuercheckerListingDto`, `WhListingDetailDto`
 
 ---
 
-## Offene TODOs
-- [ ] Traefik-Konfiguration für Deployment finalisieren (Labels, Netzwerk, Domain)
-- [ ] DTOs definieren und API-Client via openapi-generator-cli generieren
-- [ ] Scraping-Strategie (Playwright angedacht, optional Claude API für Extraktion)
-- [ ] Geizhals: keine öffentliche API, nur Community-Wrapper – Lösung offen
+## Monorepo-Struktur
+
+```
+querchecker/
+├── backend/                ← Spring Boot (Maven)
+├── frontend/               ← Angular 21+
+├── docker-compose.yml      ← Dev: nur PostgreSQL
+├── docker-compose.prod.yml ← Prod: nginx + backend + postgres
+└── README.md
+```
+
+---
+
+## Implementierte Features
+
+- Willhaben-Suche mit Filtern (Stichwort, Standort, Kategorie, Preisspanne, Paylivery)
+- Förderband-UI: SEARCH → LISTINGS → DETAIL State-Machine mit Animationen
+- Thumbnails in Listing-Cards
+- Notizen je Inserat (WhListingDetail.note)
+- Rating UP/DOWN/null je Inserat + Filterung nach Rating (UP, UP_NULL, DOWN, ALL)
+- View-Counter (viewCount, lastViewedAt) mit 60s Throttle
+- Hierarchische Standort- und Kategoriefilter (multi-level Baumnavigation)
+- Sortierung der Ergebnisse
+
+## Geplante Features
+
+- [ ] Marktpreisvergleich via Geizhals
+- [ ] Mehrere Suchprofile / gespeicherte Suchen
+- [ ] Automatische Benachrichtigung bei neuen Inseraten
+- [ ] Mobile-optimiertes Layout
+- [ ] Mehr Plattformen (eBay Kleinanzeigen, Shpock…)
+
+---
+
+## Dev-Workflow
+
+```bash
+docker compose up -d              # PostgreSQL starten
+cd backend && mvn spring-boot:run # Backend (erstmaliger Start)
+cd frontend && npm start          # Frontend
+cd frontend && npm run generate-api  # nach Backend-API-Änderungen
+```
+
+**Source changes**: `mvn compile` → spring-boot-devtools startet Spring-Context neu.
+JVM muss nicht neu gestartet werden.
+
+---
+
+## Deployment
+
+```bash
+docker compose -f docker-compose.prod.yml up -d
+```
+
+Traefik-Labels in `docker-compose.prod.yml` anpassen (Domain, certresolver).
