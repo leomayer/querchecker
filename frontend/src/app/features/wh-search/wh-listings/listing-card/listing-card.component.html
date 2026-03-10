@@ -16,49 +16,51 @@
   }
 
   <div class="card-body">
-    <span class="listing-title">{{ listing().title }}</span>
-    <div class="card-meta">
-      <span class="meta-item meta-location">
-        <mat-icon>location_on</mat-icon>
-        <span class="meta-text">{{ listing().location ?? '–' }}</span>
-      </span>
-      <span class="meta-item meta-date">
-        <mat-icon>calendar_today</mat-icon>
-        {{ listing().listedAt | date: 'dd.MM.yyyy' }}
+    <div class="body-row">
+      <span class="listing-title">{{ listing().title }}</span>
+      <span class="listing-price">
+        @if (listing().price === 0) {
+          <span class="free-label">Gratis</span>
+        } @else if (listing().price != null) {
+          {{ listing().price | customCurrency }}
+        } @else {
+          –
+        }
       </span>
     </div>
-    @if (listing().description) {
-      <p class="card-description">{{ listing().description }}</p>
-    }
-  </div>
+<div class="body-row">
+    <span class="meta-item meta-location">
+      <mat-icon>location_on</mat-icon>
+      <span class="meta-text">{{ listing().location ?? '–' }}</span>
+    </span>
+    <span class="meta-item meta-date">
+      <mat-icon>calendar_today</mat-icon>
+      {{ listing().listedAt | date: 'dd.MM.yyyy' }}
+    </span>
+</div>
+<div class="body-row">
+  @if (listing().description) {
+    <p class="card-description">{{ listing().description }}</p>
+  }
 
-  <div class="card-right">
-    <span class="listing-price">
-      @if (listing().price === 0) {
-        <span class="free-label">Gratis</span>
-      } @else if (listing().price != null) {
-        {{ listing().price | customCurrency }}
-      } @else {
-        –
+  <div>
+  <div class="rating-buttons">
+    <button mat-icon-button class="rating-btn rating-up" (click)="setRating('UP', $event)">
+      <mat-icon>thumb_up</mat-icon>
+    </button>
+    <button mat-icon-button class="rating-btn rating-down" (click)="setRating('DOWN', $event)">
+      <mat-icon>thumb_down</mat-icon>
+    </button>
+  </div>
+  @if (listing().viewCount) {
+    <span class="view-stats">
+      {{ listing().viewCount }}<span>x</span>
+      @if (listing().lastViewedAt) {
+        · {{ listing().lastViewedAt | date: 'dd.MM.' }}
       }
     </span>
-    <div class="card-right-bottom">
-      <div class="rating-buttons">
-        <button mat-icon-button class="rating-btn rating-up" (click)="setRating('UP', $event)">
-          <mat-icon>thumb_up</mat-icon>
-        </button>
-        <button mat-icon-button class="rating-btn rating-down" (click)="setRating('DOWN', $event)">
-          <mat-icon>thumb_down</mat-icon>
-        </button>
-      </div>
-      @if (listing().viewCount) {
-        <span class="view-stats">
-          {{ listing().viewCount }}<span>x</span>
-          @if (listing().lastViewedAt) {
-            · {{ listing().lastViewedAt | date: 'dd.MM.' }}
-          }
-        </span>
-      }
-    </div>
+  }
+</div>
+  </div>
   </div>
 </div>

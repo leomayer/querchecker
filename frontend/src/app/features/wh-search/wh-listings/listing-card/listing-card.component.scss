@@ -19,14 +19,31 @@
   cursor: pointer;
   transition: background-color 0.15s ease;
 
-  &:hover { background-color: var(--mat-sys-surface-variant, rgba(0, 0, 0, 0.04)); }
-  &:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
-  &.rated-up { border-left: 3px solid var(--color-tertiary); }
-  &.rated-down { border-left: 3px solid var(--color-rating-down); }
+  &:hover {
+    background-color: var(--mat-sys-surface-variant, rgba(0, 0, 0, 0.04));
+  }
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+  &.rated-up {
+    border-left: 3px solid var(--color-tertiary);
+  }
+  &.rated-down {
+    border-left: 3px solid var(--color-rating-down);
+  }
   &.selected {
     background-color: color-mix(in srgb, var(--color-haggle-primary) 12%, transparent);
     border: 3px solid var(--color-haggle-primary);
-    &.rated-down { border-left-color: var(--color-rating-down); }
+    &.rated-down {
+      border-left-color: var(--color-rating-down);
+    }
+  }
+  & .body-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
   }
 }
 
@@ -69,7 +86,9 @@
   color: var(--color-on-surface-variant);
   white-space: nowrap;
 
-  mat-icon { @include icon-size(14px); }
+  mat-icon {
+    @include icon-size(14px);
+  }
 }
 
 .meta-location {
@@ -137,10 +156,17 @@
   width: 28px;
   height: 28px;
   --mdc-icon-button-state-layer-size: 28px;
+  line-height: 18px;
 
-  mat-icon { @include icon-size(18px); }
-  &.rating-up mat-icon { color: var(--color-tertiary); }
-  &.rating-down mat-icon { color: var(--color-rating-down); }
+  mat-icon {
+    @include icon-size(18px);
+  }
+  &.rating-up mat-icon {
+    color: var(--color-tertiary);
+  }
+  &.rating-down mat-icon {
+    color: var(--color-rating-down);
+  }
 }
 
 .view-stats {
@@ -149,6 +175,7 @@
   gap: 3px;
   font-size: 0.75rem;
   color: var(--color-on-surface-variant);
+  justify-content: flex-end;
 }
 
 @container listing-list (max-width: 400px) {
