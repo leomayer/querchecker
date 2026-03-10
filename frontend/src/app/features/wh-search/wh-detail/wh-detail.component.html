@@ -28,6 +28,10 @@
         Auf Willhaben öffnen
       </button>
 
+      @if (lst.description) {
+        <p class="listing-description">{{ lst.description }}</p>
+      }
+
       <mat-divider />
 
       <section class="note-section">

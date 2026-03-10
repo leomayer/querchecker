@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -28,45 +28,48 @@ import { SearchStore } from '../search.store';
   styleUrl: './wh-filter.component.scss',
 })
 export class WhFilterComponent {
-  private readonly store = inject(SearchStore);
+  protected readonly store = inject(SearchStore);
 
   protected readonly loading = this.store.loading;
   protected readonly error = this.store.error;
+  protected readonly searchMode = this.store.searchMode;
+  protected readonly clearSearch = () => this.store.clearSearch();
 
-  keyword = signal('');
-  rows = signal(50);
-  priceFrom = signal<number | null>(null);
-  priceTo = signal<number | null>(null);
-  locationAreaId = signal<number | undefined>(undefined);
-  categoryWhId = signal<number | undefined>(undefined);
-  paylivery = signal(false);
+  readonly keyword = this.store.filterDraft.keyword;
+  readonly rows = this.store.filterDraft.rows;
+  readonly priceFrom = this.store.filterDraft.priceFrom;
+  readonly priceTo = this.store.filterDraft.priceTo;
+  readonly locationAreaId = this.store.filterDraft.locationAreaId;
+  readonly categoryWhId = this.store.filterDraft.categoryWhId;
+  readonly paylivery = this.store.filterDraft.paylivery;
 
   readonly rowOptions = [50, 100, 250];
 
   onKeywordInput(e: Event): void {
-    this.keyword.set((e.target as HTMLInputElement).value);
+    this.store.setFilterDraft({ keyword: (e.target as HTMLInputElement).value });
   }
 
   onPriceFromInput(e: Event): void {
     const val = (e.target as HTMLInputElement).valueAsNumber;
-    this.priceFrom.set(isNaN(val) ? null : val);
+    this.store.setFilterDraft({ priceFrom: isNaN(val) ? null : val });
   }
 
   onPriceToInput(e: Event): void {
     const val = (e.target as HTMLInputElement).valueAsNumber;
-    this.priceTo.set(isNaN(val) ? null : val);
+    this.store.setFilterDraft({ priceTo: isNaN(val) ? null : val });
   }
 
   onSearch(): void {
-    if (!this.keyword().trim()) return;
+    const d = this.store.filterDraft();
+    if (!d.keyword.trim()) return;
     this.store.search({
-      keyword: this.keyword().trim(),
-      rows: this.rows(),
-      priceFrom: this.priceFrom() ?? undefined,
-      priceTo: this.priceTo() ?? undefined,
-      locationAreaId: this.locationAreaId(),
-      categoryWhId: this.categoryWhId(),
-      paylivery: this.paylivery() || undefined,
+      keyword: d.keyword.trim(),
+      rows: d.rows,
+      priceFrom: d.priceFrom ?? undefined,
+      priceTo: d.priceTo ?? undefined,
+      locationAreaId: d.locationAreaId,
+      categoryWhId: d.categoryWhId,
+      paylivery: d.paylivery || undefined,
     });
   }
 }

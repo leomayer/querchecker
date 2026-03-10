@@ -27,14 +27,11 @@
       </div>
     }
     @case (LayoutState.DETAIL) {
-      <div class="zone-content">
-        <div class="back-bar">
-          <button mat-button (click)="store.backToListings()">
-            <mat-icon>arrow_back</mat-icon>
-            Zurück zur Liste
-          </button>
-        </div>
+      <div class="zone-content detail-zone">
         <app-wh-detail />
+        <button mat-fab class="back-fab" (click)="store.backToListings()" matTooltip="Zurück zur Liste">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
       </div>
     }
   }

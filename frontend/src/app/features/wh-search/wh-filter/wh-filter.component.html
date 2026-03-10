@@ -9,6 +9,7 @@
         [value]="keyword()"
         (input)="onKeywordInput($event)"
         placeholder="z.B. RTX 4070"
+        maxlength="100"
       />
     </mat-form-field>
 
@@ -27,7 +28,7 @@
     <div class="search-row">
       <mat-form-field appearance="outline" class="rows-field">
         <mat-label>Ergebnisse</mat-label>
-        <mat-select [value]="rows()" (valueChange)="rows.set($event)">
+        <mat-select [value]="rows()" (valueChange)="store.setFilterDraft({ rows: $event })">
           @for (opt of rowOptions; track opt) {
             <mat-option [value]="opt">{{ opt }}</mat-option>
           }
@@ -39,35 +40,43 @@
 
     <app-location-filter
       [locationAreaId]="locationAreaId()"
-      (locationAreaIdChange)="locationAreaId.set($event)"
+      (locationAreaIdChange)="store.setFilterDraft({ locationAreaId: $event })"
     />
 
     <app-category-filter
       [categoryWhId]="categoryWhId()"
-      (categoryWhIdChange)="categoryWhId.set($event)"
+      (categoryWhIdChange)="store.setFilterDraft({ categoryWhId: $event })"
     />
 
-    <mat-checkbox [checked]="paylivery()" (change)="paylivery.set($event.checked)">
+    <mat-checkbox [checked]="paylivery()" (change)="store.setFilterDraft({ paylivery: $event.checked })">
       Nur Paylivery
     </mat-checkbox>
 
-    <button
-      mat-raised-button
-      color="primary"
-      type="submit"
-      [disabled]="!keyword().trim() || loading()"
-      class="search-btn"
-    >
-      <mat-icon>search</mat-icon>
-      Suchen
-    </button>
+    <div class="action-row">
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="!keyword().trim() || loading()"
+      >
+        <mat-icon>search</mat-icon>
+        Suchen
+      </button>
+
+      @if (searchMode()) {
+        <button mat-stroked-button type="button" class="reset-btn" (click)="clearSearch()">
+          <mat-icon>close</mat-icon>
+          Zurücksetzen
+        </button>
+      }
+    </div>
+
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" class="search-progress" />
+    }
+
+    @if (error()) {
+      <p class="error-message">{{ error() }}</p>
+    }
   </form>
-
-  @if (loading()) {
-    <mat-progress-bar mode="indeterminate" />
-  }
-
-  @if (error()) {
-    <p class="error-message">{{ error() }}</p>
-  }
 </div>

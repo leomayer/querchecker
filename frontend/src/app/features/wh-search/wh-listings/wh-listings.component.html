@@ -8,12 +8,6 @@
         {{ count() }} Ergebnisse
       }
     </span>
-    @if (store.searchMode()) {
-      <button mat-button (click)="store.clearSearch()" class="show-all-btn">
-        <mat-icon>list</mat-icon>
-        Alle gespeicherten
-      </button>
-    }
   </div>
 
   <mat-button-toggle-group

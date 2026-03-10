@@ -1,8 +1,10 @@
-import { inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { signalStore, withState, withComputed, withMethods, patchState } from '@ngrx/signals';
-import { computed } from '@angular/core';
+import { computed, inject } from '@angular/core';
+import { Location } from '@angular/common';
+import { NavigationEnd, Router } from '@angular/router';
+import { signalStore, withState, withComputed, withMethods, withHooks, patchState } from '@ngrx/signals';
+import { filter } from 'rxjs';
 import { QuercheckerListingDto } from '../../api/model/quercheckerListingDto';
+import { AppRoutePath } from '../../core/app-route-paths';
 import { SearchQuery } from './search-query.model';
 import { LayoutState } from './layout-state.enum';
 
@@ -19,6 +21,15 @@ export const SearchStore = signalStore(
     searchPatches: {} as Record<number, Partial<QuercheckerListingDto>>,
     sortColumn: '',
     sortDirection: '' as 'asc' | 'desc' | '',
+    filterDraft: {
+      keyword: '',
+      rows: 50,
+      priceFrom: null as number | null,
+      priceTo: null as number | null,
+      locationAreaId: undefined as number | undefined,
+      categoryWhId: undefined as number | undefined,
+      paylivery: false,
+    },
   }),
   withComputed((store) => ({
     searchMode: computed(() => store.searchQuery() !== null),
@@ -32,18 +43,29 @@ export const SearchStore = signalStore(
       });
     }),
   })),
-  withMethods((store, router = inject(Router)) => ({
+  withMethods((store, router = inject(Router), location = inject(Location)) => ({
     search(query: SearchQuery): void {
       patchState(store, { searchQuery: query, layoutState: LayoutState.LISTINGS, searchPatches: {} });
-      // TODO: router.navigate(['/wh-listings']);
+      router.navigate(['/', AppRoutePath.LISTINGS]);
     },
     selectListing(id: string): void {
       patchState(store, { selectedId: id, layoutState: LayoutState.DETAIL });
-      // TODO: router.navigate(['/wh-listings', id]);
+      router.navigate(['/', AppRoutePath.DETAIL]);
     },
     backToListings(): void {
       patchState(store, { selectedId: null, layoutState: LayoutState.LISTINGS });
-      // TODO: router.navigate(['/wh-listings']);
+      location.back();
+    },
+    setFilterDraft(patch: {
+      keyword?: string;
+      rows?: number;
+      priceFrom?: number | null;
+      priceTo?: number | null;
+      locationAreaId?: number | undefined;
+      categoryWhId?: number | undefined;
+      paylivery?: boolean;
+    }): void {
+      patchState(store, (s) => ({ filterDraft: { ...s.filterDraft, ...patch } }));
     },
     clearSearch(): void {
       patchState(store, {
@@ -53,8 +75,9 @@ export const SearchStore = signalStore(
         layoutState: LayoutState.SEARCH,
         whTotal: null,
         searchPatches: {},
+        filterDraft: { keyword: '', rows: 50, priceFrom: null, priceTo: null, locationAreaId: undefined, categoryWhId: undefined, paylivery: false },
       });
-      // TODO: router.navigate(['/']);
+      router.navigate(['/']);
     },
     setSortColumn(col: string): void {
       patchState(store, { sortColumn: col });
@@ -86,17 +109,38 @@ export const SearchStore = signalStore(
       for (let i = currentIdx + 1; i < listings.length; i++) {
         if (listings[i].rating !== 'DOWN') {
           patchState(store, { selectedId: listings[i].id!.toString() });
-          return;
+          return; // URL stays at /detail — no navigation needed
         }
       }
       for (let i = currentIdx - 1; i >= 0; i--) {
         if (listings[i].rating !== 'DOWN') {
           patchState(store, { selectedId: listings[i].id!.toString() });
-          return;
+          return; // URL stays at /detail — no navigation needed
         }
       }
       patchState(store, { selectedId: null, layoutState: LayoutState.LISTINGS });
+      router.navigate(['/', AppRoutePath.LISTINGS]);
     },
-    // TODO: withHooks for Router → Store sync (not part of this refactoring)
   })),
+  withHooks((store) => {
+    const router = inject(Router);
+    return {
+      onInit() {
+        // Sync Route → Store for browser back/forward navigation.
+        // Store → Route is handled by the methods above; this covers the reverse direction.
+        router.events
+          .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+          .subscribe((e) => {
+            const url = e.urlAfterRedirects;
+            if (url === `/${AppRoutePath.DETAIL}`) {
+              patchState(store, { layoutState: LayoutState.DETAIL });
+            } else if (url === `/${AppRoutePath.LISTINGS}`) {
+              patchState(store, { layoutState: LayoutState.LISTINGS, selectedId: null });
+            } else {
+              patchState(store, { layoutState: LayoutState.SEARCH });
+            }
+          });
+      },
+    };
+  }),
 );

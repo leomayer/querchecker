@@ -67,6 +67,14 @@
   align-self: flex-start;
 }
 
+.listing-description {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--mat-sys-on-surface-variant);
+  white-space: pre-line;
+  line-height: 1.5;
+}
+
 .note-section,
 .rating-section {
   h3 {
@@ -102,20 +110,12 @@
   }
 
   &.down mat-icon {
-    color: #a06858;
+    color: var(--color-rating-down);
   }
 
   &.active {
     background: color-mix(in srgb, var(--color-haggle-primary) 12%, transparent);
     border-color: var(--color-haggle-primary);
-  }
-
-  &.up.active mat-icon {
-    color: var(--color-tertiary);
-  }
-
-  &.down.active mat-icon {
-    color: #a06858;
   }
 }
 

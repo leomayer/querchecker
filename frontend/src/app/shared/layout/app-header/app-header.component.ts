@@ -11,7 +11,11 @@ import { MatButtonModule } from '@angular/material/button';
   styleUrl: './app-header.component.scss',
 })
 export class AppHeaderComponent {
-  darkMode = signal(false);
+  darkMode = signal(window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+  constructor() {
+    document.body.classList.toggle('dark-theme', this.darkMode());
+  }
 
   toggleTheme(): void {
     this.darkMode.update((v) => !v);

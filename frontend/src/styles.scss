@@ -15,6 +15,12 @@
   --color-on-haggle-primary: #ffffff;
   --color-on-surface-variant: #5a8f8f; // Icons in inputs/banners
 
+  --color-rating-down: #a06858;
+  --color-error: var(--mat-sys-error, #b3261e);
+
+  --color-nav-action: #39134c;          // FAB / navigation accent (violet)
+  --color-on-nav-action: #ffffff;
+
   --font-brand: 'Dancing Script', cursive;
   --font-body: 'Source Sans 3', sans-serif;
 
@@ -24,7 +30,7 @@
 }
 
 body.dark-theme {
-  --color-haggle-primary: #365162;
+  --color-haggle-primary: #6aacb0;
   --color-haggle-secondary: #42746b;
   --color-haggle-divider: #e0e0e0; // Muted teal gap for dark mode
 
@@ -35,6 +41,19 @@ body.dark-theme {
   --color-on-surface: #e0e0e0;
   --color-on-surface-variant: #9acaca; // Lighter teal for dark bg contrast
   --color-border: rgba(255, 255, 255, 0.14);
+  --color-nav-action: #c084d8;          // Lighter violet for dark backgrounds
+  --color-on-nav-action: #1a001f;
+
+  // Fix: Material MDC placeholder tokens are scoped to the host element and
+  // don't cascade reliably into ::placeholder from .dark-theme alone.
+  --mdc-outlined-text-field-input-text-placeholder-color: rgba(255, 255, 255, 0.38);
+  --mdc-filled-text-field-input-text-placeholder-color: rgba(255, 255, 255, 0.38);
+
+  // Fallback for any non-Material or native inputs with placeholder text.
+  input::placeholder,
+  textarea::placeholder {
+    color: rgba(255, 255, 255, 0.38);
+  }
 }
 
 * {
@@ -47,6 +66,7 @@ body {
   margin: 0;
   font-family: var(--font-body);
   background-color: var(--color-background);
+  color: var(--color-on-surface);
 }
 
 .page-content {
@@ -116,4 +136,14 @@ a {
 // Default icon color — overridden per-component where needed
 .mat-icon {
   color: var(--color-on-surface-variant);
+}
+
+// Let button types control their own icon color via inheritance
+.mat-mdc-raised-button .mat-icon,
+.mat-mdc-flat-button .mat-icon,
+.mat-mdc-stroked-button .mat-icon,
+.mat-mdc-button .mat-icon,
+.mat-mdc-fab .mat-icon,
+.mat-mdc-mini-fab .mat-icon {
+  color: inherit;
 }

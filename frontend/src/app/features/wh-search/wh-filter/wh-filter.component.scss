@@ -21,7 +21,6 @@
 .search-form {
   display: flex;
   flex-direction: column;
-  gap: 0;
 }
 
 .keyword-field {
@@ -43,13 +42,24 @@
   flex: 1 1 100px;
 }
 
-.search-btn {
-  align-self: flex-start;
+.action-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-top: 4px;
 }
 
+.search-progress {
+  margin-top: 8px;
+}
+
+.reset-btn {
+  color: var(--color-error);
+  border-color: var(--color-error);
+}
+
 .error-message {
-  color: red;
+  color: var(--color-error);
   margin: 4px 0 0;
   font-size: 0.85rem;
 }

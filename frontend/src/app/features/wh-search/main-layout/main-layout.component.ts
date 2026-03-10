@@ -3,6 +3,7 @@ import { httpResource } from '@angular/common/http';
 import { trigger, transition, style, animate, group, query } from '@angular/animations';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { QuercheckerListingDto } from '../../../api/model/quercheckerListingDto';
 import { WhSearchResultDto } from '../../../api/model/whSearchResultDto';
 import { API_URLS } from '../../../core/api-urls';
@@ -42,6 +43,7 @@ const FADE_IN = [
     PlaceholderComponent,
     MatButtonModule,
     MatIconModule,
+    MatTooltipModule,
   ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',

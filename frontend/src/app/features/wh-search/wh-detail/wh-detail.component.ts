@@ -66,13 +66,31 @@ export class WhDetailComponent {
 
   constructor() {
     effect(() => {
-      const listing = this.listing();
+      // Track only selectedId — NOT this.listing() — to avoid re-triggering when
+      // applySearchPatch() updates searchPatches (which recomputes patchedListings).
+      const selectedId = this.store.selectedId();
       this.detail.set(null);
       this.noteText = '';
-      if (!listing?.id) return;
-      this.listingService.getDetail(listing.id).subscribe((d) => {
+      if (!selectedId) return;
+      const id = +selectedId;
+      this.listingService.getDetail(id).subscribe((d) => {
         this.detail.set(d);
         this.noteText = d.note ?? '';
+        this.store.applySearchPatch(id, {
+          viewCount: d.viewCount,
+          lastViewedAt: d.lastViewedAt ?? undefined,
+        });
+        if (this.listingService.shouldRecordView(id)) {
+          this.listingService.recordView(id).subscribe(() => {
+            const newViewCount = (d.viewCount || 0) + 1;
+            const newLastViewedAt = new Date().toISOString();
+            this.store.applySearchPatch(id, {
+              viewCount: newViewCount,
+              lastViewedAt: newLastViewedAt,
+            });
+            this.detail.update((cur) => cur ? { ...cur, viewCount: newViewCount, lastViewedAt: newLastViewedAt } : cur);
+          });
+        }
       });
     });
   }

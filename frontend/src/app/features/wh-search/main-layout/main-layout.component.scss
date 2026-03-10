@@ -1,6 +1,5 @@
 :host {
   display: flex;
-  flex-direction: row;
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -21,8 +20,16 @@
   overflow: hidden;
 }
 
-.back-bar {
-  padding: 4px 8px;
-  border-bottom: 1px solid var(--mat-sys-outline-variant);
-  flex-shrink: 0;
+.detail-zone {
+  position: relative;
+}
+
+.back-fab {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  --mat-fab-container-color: var(--color-nav-action);
+  --mat-fab-foreground-color: var(--color-on-nav-action);
+  --mat-fab-state-layer-color: var(--color-on-nav-action);
 }

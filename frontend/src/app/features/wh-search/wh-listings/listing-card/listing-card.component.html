@@ -15,44 +15,42 @@
     />
   }
 
-  <div class="card-content">
-    <div class="card-main">
-      <span class="listing-title">{{ listing().title }}</span>
-      <span class="listing-price">
-        @if (listing().price === 0) {
-          <span class="free-label">Gratis</span>
-        } @else if (listing().price != null) {
-          {{ listing().price | customCurrency }}
-        } @else {
-          –
-        }
-      </span>
-    </div>
-
+  <div class="card-body">
+    <span class="listing-title">{{ listing().title }}</span>
     <div class="card-meta">
-      <span class="meta-item">
+      <span class="meta-item meta-location">
         <mat-icon>location_on</mat-icon>
-        {{ listing().location ?? '–' }}
+        <span class="meta-text">{{ listing().location ?? '–' }}</span>
       </span>
-      <span class="meta-item">
+      <span class="meta-item meta-date">
         <mat-icon>calendar_today</mat-icon>
         {{ listing().listedAt | date: 'dd.MM.yyyy' }}
       </span>
     </div>
+    @if (listing().description) {
+      <p class="card-description">{{ listing().description }}</p>
+    }
+  </div>
 
-    <div class="card-footer">
-      <span class="indicators">
-        <button mat-icon-button class="note-indicator" [class.has-note]="listing().hasNote"
-          (click)="$event.stopPropagation()">
-          <mat-icon>{{ listing().hasNote ? 'edit_note' : 'notes' }}</mat-icon>
-        </button>
+  <div class="card-right">
+    <span class="listing-price">
+      @if (listing().price === 0) {
+        <span class="free-label">Gratis</span>
+      } @else if (listing().price != null) {
+        {{ listing().price | customCurrency }}
+      } @else {
+        –
+      }
+    </span>
+    <div class="card-right-bottom">
+      <div class="rating-buttons">
         <button mat-icon-button class="rating-btn rating-up" (click)="setRating('UP', $event)">
           <mat-icon>thumb_up</mat-icon>
         </button>
         <button mat-icon-button class="rating-btn rating-down" (click)="setRating('DOWN', $event)">
           <mat-icon>thumb_down</mat-icon>
         </button>
-      </span>
+      </div>
       @if (listing().viewCount) {
         <span class="view-stats">
           {{ listing().viewCount }}<span>x</span>

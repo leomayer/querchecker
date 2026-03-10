@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -80,10 +81,29 @@ public class WhSearchService {
             return WhSearchResultDto.builder().totalCount(0).listings(List.of()).build();
         }
 
-        List<WhListing> savedListings = body.getAdvertSummaryList().getAdvertSummary()
+        // Deduplicate adverts by whId (Willhaben returns promoted listings twice).
+        // LinkedHashMap preserves insertion order so the result list stays stable.
+        List<Advert> adverts = body.getAdvertSummaryList().getAdvertSummary()
             .stream()
-            .map(this::upsertListing)
-            .toList();
+            .collect(Collectors.toMap(
+                Advert::getId,
+                a -> a,
+                (existing, duplicate) -> existing,
+                LinkedHashMap::new))
+            .values().stream().toList();
+
+        // Batch-load all existing listings in a single query, then save all at once.
+        Map<String, WhListing> existingByWhId = whListingRepository
+            .findAllByWhIdIn(adverts.stream().map(Advert::getId).toList())
+            .stream()
+            .collect(Collectors.toMap(WhListing::getWhId, l -> l));
+
+        List<WhListing> savedListings = whListingRepository.saveAll(
+            adverts.stream().map(advert -> applyAdvert(
+                existingByWhId.getOrDefault(advert.getId(),
+                    WhListing.builder().whId(advert.getId()).build()),
+                advert))
+            .toList());
 
         List<Long> ids = savedListings.stream().map(WhListing::getId).toList();
         Map<Long, WhListingDetailSummary> detailMap = whListingDetailRepository.findAllSummaries()
@@ -101,13 +121,9 @@ public class WhSearchService {
             .build();
     }
 
-    private WhListing upsertListing(Advert advert) {
-        WhListing listing = whListingRepository
-            .findByWhId(advert.getId())
-            .orElse(WhListing.builder().whId(advert.getId()).build());
-
+    private WhListing applyAdvert(WhListing listing, Advert advert) {
         listing.setTitle(advert.getAttribute("HEADING"));
-        listing.setDescription(advert.getDescription());
+        listing.setDescription(advert.getAttribute("BODY_DYN"));
         listing.setPrice(parsePrice(advert.getAttribute("PRICE")));
         listing.setLocation(advert.getAttribute("LOCATION"));
         listing.setUrl(buildListingUrl(advert));
@@ -115,8 +131,7 @@ public class WhSearchService {
         // PUBLISHED_String liefert ISO-Datum; PUBLISHED liefert Epoch-Millisekunden
         listing.setListedAt(parseDateTime(advert.getAttribute("PUBLISHED_String")));
         listing.setThumbnailUrl(buildThumbnailUrl(advert));
-
-        return whListingRepository.save(listing);
+        return listing;
     }
 
     private static final String WH_IMAGE_BASE = "https://cache.willhaben.at/mmo/";
