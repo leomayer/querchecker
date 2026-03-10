@@ -97,7 +97,7 @@ Generierte Service-Klassen werden **nicht** für HTTP-Calls verwendet — nur DT
 
 ## ListingService (`core/listing.service.ts`)
 
-`getDetail()`, `updateNote()`, `updateRating()`, `recordView()`, `delete()`
+`getDetail()`, `updateNote()`, `updateRating()`, `updateInterest()`, `updateTags()`, `recordView()`, `shouldRecordView()`, `delete()`
 `lastViewed`-Map throttelt `recordView` auf 60s pro Inserat.
 
 ---
@@ -135,18 +135,30 @@ Smart wrappers: fetchen `/api/wh/meta/locations` bzw. `/api/wh/meta/categories`,
 
 ## Theme: TealMist — CSS Custom Properties
 
-**Wichtig**: `--mat-sys-*` Tokens NICHT verwenden. Immer projekteigene `--color-*` Variablen!
+**Wichtig**: `--mat-sys-*` Tokens NICHT direkt verwenden. Immer projekteigene `--color-*` Variablen aus `styles.scss`!
 
-| Variable | Wert |
-|---|---|
-| `--color-haggle-primary` | `#4a7a8a` |
-| `--color-haggle-secondary` | `#5a8f8f` |
-| `--color-on-haggle-primary` | `#ffffff` |
-| `--color-on-surface-variant` | `#5a8f8f` |
-| `--color-border` | `rgba(0,0,0,0.14)` |
-| `--color-surface` | `#ffffff` |
-| `--color-background` | `#f5f5f5` |
-| `--layout-gutter` | `24px` |
+| Variable | Light | Dark | Verwendung |
+|---|---|---|---|
+| `--color-haggle-primary` | `#184d5c` | `#003542` | Primäre Brand-Farbe (deep teal) |
+| `--color-haggle-secondary` | `#346574` | `#184d5c` | Sekundär (medium teal) |
+| `--color-haggle-divider` | `#b9eafc` | `#9dcee0` | Diagonal-Akzent Header/Footer |
+| `--color-on-haggle-primary` | `#ffffff` | `#ffffff` | Text auf Primär-Hintergrund |
+| `--color-tertiary` | `#C8843A` | `#F0B97A` | Amber-Akzent — NUR für Hintergründe/Borders, **nicht als Textfarbe auf hellem Hintergrund** (Kontrast ~3:1) |
+| `--color-positive` | `#1D6B52` | `#81C784` | Grün für positive Aktionen (thumb_up, positive Tags) — 5.7:1 / 5.5:1 |
+| `--color-rating-down` | `#9E4C4C` | `#9E4C4C` | Rot für negative Bewertung — 5.56:1 |
+| `--color-nav-action` | `#C8843A` | `#F0B97A` | FAB / Nav-Buttons Hintergrund |
+| `--color-on-nav-action` | `#500808` | `#500808` | Icon-Farbe auf Nav-Action-Hintergrund |
+| `--color-background` | `#fcf8f8` | `#131313` | Seiten-Hintergrund |
+| `--color-surface` | `#fcf8f8` | `#131313` | Karten-Hintergrund |
+| `--color-on-surface` | `#1c1b1b` | `#e5e2e1` | Primärer Text |
+| `--color-on-surface-variant` | `#434749` | `#c4c7c9` | Sekundärer Text / Icons |
+| `--color-border` | `rgba(0,0,0,0.14)` | `rgba(255,255,255,0.14)` | Rahmen |
+| `--layout-gutter` | `24px` | — | Seitenabstand |
+
+**Kontrast-Hinweise:**
+- Amber `#C8843A` hat nur ~3:1 auf Weiß → nie als Textfarbe auf hellem Hintergrund. Als Hintergrund mit `--color-on-surface` als Text ist es korrekt.
+- Für Darkened-Amber (Text/Icons auf hellem Hintergrund): `color-mix(in srgb, var(--color-tertiary) 65%, var(--color-on-surface))` → ~4.77:1
+- Dark Mode hat kein Problem mit Amber (#F0B97A → 12.8:1 auf #131313)
 
 Fonts: `--font-brand` (Dancing Script), `--font-body` (Source Sans 3)
 
