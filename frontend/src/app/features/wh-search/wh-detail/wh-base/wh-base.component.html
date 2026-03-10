@@ -1,0 +1,31 @@
+<div class="listing-meta">
+  @if (listing().price === 0) {
+    <span class="price free">Gratis</span>
+  } @else if (listing().price != null) {
+    <span class="price">{{ listing().price | customCurrency }}</span>
+  }
+  @if (listing().paylivery) {
+    <span class="meta-item" matTooltip="Paylivery">
+      <mat-icon>local_shipping</mat-icon>
+    </span>
+  }
+  @if (listing().location) {
+    <span class="meta-item">
+      <mat-icon>location_on</mat-icon>{{ listing().location }}
+    </span>
+  }
+  @if (listing().listedAt) {
+    <span class="meta-item">
+      <mat-icon>calendar_today</mat-icon>{{ listing().listedAt | date: 'dd.MM.yyyy' }}
+    </span>
+  }
+</div>
+
+<button mat-stroked-button class="willhaben-btn" (click)="openOnWillhaben()">
+  <mat-icon>open_in_new</mat-icon>
+  Auf Willhaben öffnen
+</button>
+
+@if (listing().description) {
+  <p class="listing-description">{{ listing().description }}</p>
+}

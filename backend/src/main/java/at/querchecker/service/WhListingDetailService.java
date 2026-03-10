@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -52,6 +53,23 @@ public class WhListingDetailService {
         return toDto(whListingDetailRepository.save(detail));
     }
 
+    @Transactional
+    public WhListingDetailDto updateInterest(Long whListingId, String level) {
+        WhListingDetail detail = getOrCreate(whListingId);
+        detail.setInterestLevel(level);
+        detail.setUpdatedAt(LocalDateTime.now());
+        return toDto(whListingDetailRepository.save(detail));
+    }
+
+    @Transactional
+    public WhListingDetailDto updateTags(Long whListingId, List<String> tags) {
+        WhListingDetail detail = getOrCreate(whListingId);
+        detail.getTags().clear();
+        detail.getTags().addAll(tags);
+        detail.setUpdatedAt(LocalDateTime.now());
+        return toDto(whListingDetailRepository.save(detail));
+    }
+
     private WhListingDetail getOrCreate(Long whListingId) {
         return whListingDetailRepository.findByWhListingId(whListingId)
                 .orElseGet(() -> {
@@ -73,6 +91,8 @@ public class WhListingDetailService {
                 .viewCount(entity.getViewCount())
                 .lastViewedAt(entity.getLastViewedAt())
                 .rating(entity.getRating())
+                .interestLevel(entity.getInterestLevel())
+                .tags(entity.getTags())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();

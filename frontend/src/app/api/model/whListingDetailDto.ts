@@ -16,6 +16,8 @@ export interface WhListingDetailDto {
     viewCount?: number;
     lastViewedAt?: string;
     rating?: string;
+    interestLevel?: string;
+    tags?: Array<string>;
     createdAt?: string;
     updatedAt?: string;
 }

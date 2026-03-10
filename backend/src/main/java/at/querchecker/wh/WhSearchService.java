@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,9 +31,27 @@ public class WhSearchService {
     private static final String WH_LISTING_BASE =
         "https://www.willhaben.at/iad/";
 
+    // language=SQL
+    private static final String UPSERT_SQL = """
+        INSERT INTO wh_listing
+            (wh_id, title, description, price, location, url, listed_at, fetched_at, thumbnail_url, paylivery)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT (wh_id) DO UPDATE SET
+            title          = EXCLUDED.title,
+            description    = EXCLUDED.description,
+            price          = EXCLUDED.price,
+            location       = EXCLUDED.location,
+            url            = EXCLUDED.url,
+            listed_at      = EXCLUDED.listed_at,
+            fetched_at     = EXCLUDED.fetched_at,
+            thumbnail_url  = EXCLUDED.thumbnail_url,
+            paylivery      = EXCLUDED.paylivery
+        """;
+
     private final WhApiClient whApiClient;
     private final WhListingRepository whListingRepository;
     private final WhListingDetailRepository whListingDetailRepository;
+    private final JdbcTemplate jdbcTemplate;
 
     /**
      * Sucht auf Willhaben nach dem angegebenen Keyword, upsertet alle Ergebnisse
@@ -46,7 +65,6 @@ public class WhSearchService {
      * @param areaId        Willhaben areaId für Standort-Filter (optional)
      * @param paylivery     Nur Paylivery-Angebote (optional)
      */
-    @Transactional
     public WhSearchResultDto search(
         String keyword,
         int rows,
@@ -73,6 +91,7 @@ public class WhSearchService {
             throw new IllegalArgumentException("Ungültiger Suchbegriff: " + keyword, e);
         }
 
+        // HTTP call is intentionally outside the DB transaction
         WhApiResponse.Root body = whApiClient.get(uri, WhApiResponse.Root.class).getBody();
 
         if (body == null
@@ -92,18 +111,30 @@ public class WhSearchService {
                 LinkedHashMap::new))
             .values().stream().toList();
 
-        // Batch-load all existing listings in a single query, then save all at once.
-        Map<String, WhListing> existingByWhId = whListingRepository
-            .findAllByWhIdIn(adverts.stream().map(Advert::getId).toList())
-            .stream()
-            .collect(Collectors.toMap(WhListing::getWhId, l -> l));
+        return persistAndBuildResult(adverts, body.getRowsFound());
+    }
 
-        List<WhListing> savedListings = whListingRepository.saveAll(
-            adverts.stream().map(advert -> applyAdvert(
-                existingByWhId.getOrDefault(advert.getId(),
-                    WhListing.builder().whId(advert.getId()).build()),
-                advert))
-            .toList());
+    /**
+     * Upsertet die Ergebnisliste atomar (ON CONFLICT DO UPDATE) und baut die Antwort-DTOs.
+     * Läuft in einer eigenen Transaktion, ohne den vorherigen HTTP-Aufruf einzuschließen.
+     */
+    @Transactional
+    protected WhSearchResultDto persistAndBuildResult(List<Advert> adverts, Integer totalCount) {
+        List<WhListing> toUpsert = adverts.stream()
+            .map(a -> applyAdvert(WhListing.builder().whId(a.getId()).build(), a))
+            .toList();
+
+        // Atomic upsert via PostgreSQL ON CONFLICT — race-safe, no pre-load needed
+        for (WhListing l : toUpsert) {
+            jdbcTemplate.update(UPSERT_SQL,
+                l.getWhId(), l.getTitle(), l.getDescription(),
+                l.getPrice(), l.getLocation(), l.getUrl(),
+                l.getListedAt(), l.getFetchedAt(), l.getThumbnailUrl(), l.isPaylivery());
+        }
+
+        // Re-fetch to get DB-assigned IDs for DTO mapping
+        List<String> whIds = adverts.stream().map(Advert::getId).toList();
+        List<WhListing> savedListings = whListingRepository.findAllByWhIdIn(whIds);
 
         List<Long> ids = savedListings.stream().map(WhListing::getId).toList();
         Map<Long, WhListingDetailSummary> detailMap = whListingDetailRepository.findAllSummaries()
@@ -116,7 +147,7 @@ public class WhSearchService {
             .toList();
 
         return WhSearchResultDto.builder()
-            .totalCount(body.getRowsFound())
+            .totalCount(totalCount)
             .listings(listings)
             .build();
     }
@@ -131,6 +162,7 @@ public class WhSearchService {
         // PUBLISHED_String liefert ISO-Datum; PUBLISHED liefert Epoch-Millisekunden
         listing.setListedAt(parseDateTime(advert.getAttribute("PUBLISHED_String")));
         listing.setThumbnailUrl(buildThumbnailUrl(advert));
+        listing.setPaylivery("true".equalsIgnoreCase(advert.getAttribute("p2penabled")));
         return listing;
     }
 
@@ -174,6 +206,7 @@ public class WhSearchService {
             .viewCount(detail != null ? detail.getViewCount() : 0)
             .lastViewedAt(detail != null ? detail.getLastViewedAt() : null)
             .rating(detail != null ? detail.getRating() : null)
+            .paylivery(entity.isPaylivery())
             .build();
     }
 

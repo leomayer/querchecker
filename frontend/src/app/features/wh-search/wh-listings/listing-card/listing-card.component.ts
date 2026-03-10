@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { DatePipe } from '@angular/common';
 import { QuercheckerListingDto } from '../../../../api/model/quercheckerListingDto';
 import { CustomCurrencyPipe } from '../../../../shared/pipes/custom-currency/custom-currency-pipe';
@@ -14,7 +15,7 @@ export interface RatingChangedEvent {
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-listing-card',
-  imports: [MatIconModule, MatButtonModule, DatePipe, CustomCurrencyPipe],
+  imports: [MatIconModule, MatButtonModule, MatTooltipModule, DatePipe, CustomCurrencyPipe],
   templateUrl: './listing-card.component.html',
   styleUrl: './listing-card.component.scss',
 })

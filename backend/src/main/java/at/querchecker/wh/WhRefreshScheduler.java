@@ -1,5 +1,6 @@
 package at.querchecker.wh;
 
+import at.querchecker.repository.WhListingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,6 +9,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
@@ -17,6 +19,7 @@ public class WhRefreshScheduler {
 
     private final WhCategoryService whCategoryService;
     private final WhLocationService whLocationService;
+    private final WhListingRepository whListingRepository;
 
     @Value("${querchecker.wh.refresh.cron:0 0 3 * * MON}")
     private String refreshCron;
@@ -29,6 +32,13 @@ public class WhRefreshScheduler {
 
     public String getRefreshCron() {
         return refreshCron;
+    }
+
+    @Scheduled(cron = "0 0 3 * * *")
+    public void cleanupStaleListings() {
+        LocalDateTime cutoff = LocalDateTime.now().minusDays(3);
+        log.info("Cleanup veralteter Listings (älter als {})", cutoff);
+        whListingRepository.deleteStaleListings(cutoff);
     }
 
     /** Läuft nach dem konfigurierten Cron-Ausdruck (Standard: montags um 03:00). */

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -36,6 +37,20 @@ public class WhListingDetailController {
     public WhListingDetailDto updateRating(@PathVariable Long id,
                                           @RequestBody Map<String, String> body) {
         return whListingDetailService.updateRating(id, body.get("rating"));
+    }
+
+    @PutMapping("/detail/interest")
+    @Operation(summary = "Interesse-Level eines Inserats speichern (LOW/MEDIUM/HIGH/null)")
+    public WhListingDetailDto updateInterest(@PathVariable Long id,
+                                            @RequestBody Map<String, String> body) {
+        return whListingDetailService.updateInterest(id, body.get("level"));
+    }
+
+    @PutMapping("/detail/tags")
+    @Operation(summary = "Tags eines Inserats speichern")
+    public WhListingDetailDto updateTags(@PathVariable Long id,
+                                        @RequestBody Map<String, List<String>> body) {
+        return whListingDetailService.updateTags(id, body.getOrDefault("tags", List.of()));
     }
 
     @PostMapping("/views")

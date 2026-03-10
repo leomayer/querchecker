@@ -19,6 +19,9 @@
     <div class="body-row">
       <span class="listing-title">{{ listing().title }}</span>
       <span class="listing-price">
+        @if (listing().paylivery) {
+          <mat-icon class="paylivery-icon" matTooltip="Paylivery">local_shipping</mat-icon>
+        }
         @if (listing().price === 0) {
           <span class="free-label">Gratis</span>
         } @else if (listing().price != null) {
@@ -40,7 +43,7 @@
 </div>
 <div class="body-row">
   @if (listing().description) {
-    <p class="card-description">{{ listing().description }}</p>
+    <div class="card-description">{{ listing().description }}</div>
   }
 
   <div>

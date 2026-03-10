@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "wh_listing_detail")
@@ -35,6 +37,15 @@ public class WhListingDetail {
 
     /** null = kein Rating, "UP" = interessant, "DOWN" = nicht interessant */
     private String rating;
+
+    /** null = kein Level, "LOW" / "MEDIUM" / "HIGH" */
+    private String interestLevel;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "wh_listing_detail_tag", joinColumns = @JoinColumn(name = "detail_id"))
+    @Column(name = "tag")
+    @Builder.Default
+    private List<String> tags = new ArrayList<>();
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

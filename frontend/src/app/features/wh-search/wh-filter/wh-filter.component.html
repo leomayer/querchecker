@@ -2,7 +2,7 @@
   <h2 class="section-label">Willhaben Suche</h2>
 
   <form class="search-form" (submit)="$event.preventDefault(); onSearch()">
-    <mat-form-field appearance="outline" class="keyword-field">
+    <mat-form-field class="keyword-field">
       <mat-label>Suchbegriff</mat-label>
       <input
         matInput
@@ -14,19 +14,19 @@
     </mat-form-field>
 
     <div class="search-row">
-      <mat-form-field appearance="outline" class="price-field">
+      <mat-form-field class="price-field">
         <mat-label>Preis von (€)</mat-label>
         <input matInput type="number" [value]="priceFrom() ?? ''" (input)="onPriceFromInput($event)" min="0" />
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="price-field">
+      <mat-form-field class="price-field">
         <mat-label>Preis bis (€)</mat-label>
         <input matInput type="number" [value]="priceTo() ?? ''" (input)="onPriceToInput($event)" min="0" />
       </mat-form-field>
     </div>
 
     <div class="search-row">
-      <mat-form-field appearance="outline" class="rows-field">
+      <mat-form-field class="rows-field">
         <mat-label>Ergebnisse</mat-label>
         <mat-select [value]="rows()" (valueChange)="store.setFilterDraft({ rows: $event })">
           @for (opt of rowOptions; track opt) {
@@ -35,8 +35,6 @@
         </mat-select>
       </mat-form-field>
     </div>
-
-    <div class="section-divider"></div>
 
     <app-location-filter
       [locationAreaId]="locationAreaId()"

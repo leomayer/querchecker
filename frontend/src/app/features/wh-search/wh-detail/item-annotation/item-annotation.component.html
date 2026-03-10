@@ -1,0 +1,107 @@
+<div class="zone-b">
+
+  <!-- Left: Notizen | Right: controls (2 rows) -->
+  <div class="main-layout">
+
+    <!-- Left column: Notizen -->
+    <div class="notes-column">
+      <div class="notes-header">
+        <span class="control-label">Notizen</span>
+        @if (store.saveState() !== 'idle') {
+          <span class="save-indicator" [class]="'save-' + store.saveState()">
+            <span class="save-dot"></span>
+            @switch (store.saveState()) {
+              @case ('pending') { speichert… }
+              @case ('saved') { gespeichert }
+              @case ('error') { Fehler }
+            }
+          </span>
+        }
+      </div>
+      @if (detail() === null) {
+        <mat-spinner diameter="24" />
+      } @else {
+        <mat-form-field class="notes-field">
+          <mat-label>Notizen</mat-label>
+          <textarea matInput
+            cdkTextareaAutosize
+            cdkAutosizeMinRows="4"
+            cdkAutosizeMaxRows="10"
+            #notesRef="cdkTextareaAutosize"
+            [ngModel]="store.notes()"
+            (ngModelChange)="store.updateNotes($event)"
+            placeholder="Notizen zum Inserat…">
+          </textarea>
+        </mat-form-field>
+      }
+    </div>
+
+    <!-- Right column: row 1 + row 2 -->
+    <div class="controls-column">
+
+      <!-- Row 1: Entscheidung & Interesse -->
+      <div class="decision-row">
+        <div class="control-group">
+          <div class="control-label">Entscheidung</div>
+          <mat-button-toggle-group class="verdict-group" [value]="store.verdict()" hideSingleSelectionIndicator>
+            <mat-button-toggle value="UP" matTooltip="Weiter / Interessiert" (click)="onVerdict('UP')">
+              <mat-icon>thumb_up</mat-icon>
+            </mat-button-toggle>
+            <mat-button-toggle value="DOWN" matTooltip="Überspringen" (click)="onVerdict('DOWN')">
+              <mat-icon>thumb_down</mat-icon>
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+
+        <div class="control-group">
+          <div class="control-label">Interesse</div>
+          <mat-button-toggle-group class="interest-group" [value]="store.interestLevel()" hideSingleSelectionIndicator>
+            <mat-button-toggle value="LOW" matTooltip="Kaum interessant" (click)="onInterestClick('LOW')">
+              <mat-icon class="interest-low">local_fire_department</mat-icon>
+            </mat-button-toggle>
+            <mat-button-toggle value="MEDIUM" matTooltip="Interessant" (click)="onInterestClick('MEDIUM')">
+              <mat-icon class="interest-medium">local_fire_department</mat-icon>
+            </mat-button-toggle>
+            <mat-button-toggle value="HIGH" matTooltip="Sehr interessant" (click)="onInterestClick('HIGH')">
+              <mat-icon class="interest-high">local_fire_department</mat-icon>
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+      </div>
+
+      <!-- Row 2: Tags -->
+      <div class="tags-section">
+        <div class="control-label">Tags</div>
+        <div class="tags-container">
+          @for (tag of PREDEFINED_TAGS; track tag.label) {
+            <button class="tag-chip"
+              [class.positive]="tag.positive"
+              [class.negative]="!tag.positive"
+              [class.selected]="isTagSelected(tag.label)"
+              (click)="onToggleTag(tag.label)">
+              {{ tag.label }}
+            </button>
+          }
+          @for (tag of customTags(); track tag) {
+            <button class="tag-chip positive selected" (click)="onToggleTag(tag)">
+              {{ tag }}
+            </button>
+          }
+          <div class="tag-input-row">
+            <input class="tag-input" placeholder="Eigener Tag…"
+              [(ngModel)]="customTagInput"
+              (keyup.enter)="onAddCustomTag()"
+              maxlength="30" />
+            @if (customTagInput.trim()) {
+              <button mat-icon-button class="tag-add-btn" (click)="onAddCustomTag()">
+                <mat-icon>add</mat-icon>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

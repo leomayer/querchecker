@@ -1,7 +1,7 @@
 <div class="filter-section">
   <h2 class="section-label">Sortierung</h2>
 
-  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="sort-field">
+  <mat-form-field subscriptSizing="dynamic" class="sort-field">
     <mat-label>Sortieren nach</mat-label>
     <mat-select [value]="store.sortColumn()" (valueChange)="onSortFieldChange($event)">
       <mat-option value="">– keine –</mat-option>

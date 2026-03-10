@@ -35,6 +35,12 @@
   &.selected {
     background-color: color-mix(in srgb, var(--color-haggle-primary) 12%, transparent);
     border: 3px solid var(--color-haggle-primary);
+
+    // Boost price contrast on the teal-tinted background (~4.7:1 → ~6.6:1)
+    .listing-price {
+      color: var(--color-haggle-primary);
+    }
+
     &.rated-down {
       border-left-color: var(--color-rating-down);
     }
@@ -97,14 +103,14 @@
 }
 
 .card-description {
-  margin: 0;
-  margin-top: auto;
-  padding-left: 8px;
+  padding: 0 8px;
   max-width: 55ch;
   font-size: 0.8rem;
   line-height: 1.4;
   color: var(--color-on-surface-variant);
-  border-left: 2px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-on-surface-variant) 8%, transparent);
+  border-left: 3px solid var(--color-on-surface-variant);
+  border-radius: 0 4px 4px 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -112,10 +118,18 @@
 }
 
 .listing-price {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-weight: 700;
   font-size: 1rem;
-  color: var(--color-haggle-primary);
+  color: var(--mat-sys-primary);
   white-space: nowrap;
+}
+
+.paylivery-icon {
+  @include icon-size(16px);
+  color: var(--color-on-surface-variant);
 }
 
 .free-label {

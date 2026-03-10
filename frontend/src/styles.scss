@@ -1,25 +1,26 @@
 /* TealMist CSS Custom Properties */
 :root {
-  /* Brand Definitions */
-  --color-haggle-primary: #4a7a8a;
-  --color-haggle-secondary: #5a8f8f;
-  --color-haggle-divider: #ffffff; // Bright gap for light mode
+  /* Brand Definitions — TealMist palette */
+  --color-haggle-primary: #184d5c;   // on-primary-fixed-variant (deep teal)
+  --color-haggle-secondary: #346574; // primary (medium teal) — contrast with above
+  --color-haggle-divider: #b9eafc;   // primary-container (light teal gap)
 
   /* Functional Mapping */
   --color-primary: var(--color-haggle-primary);
-  --color-tertiary: #7ab0b0;
+  --color-tertiary: #C8843A;
 
-  --color-background: #f5f5f5;
-  --color-surface: #ffffff;
-  --color-on-surface: #202020;
+  --color-background: #fcf8f8;
+  --color-surface: #fcf8f8;
+  --color-on-surface: #1c1b1b;
   --color-on-haggle-primary: #ffffff;
-  --color-on-surface-variant: #5a8f8f; // Icons in inputs/banners
+  --color-on-surface-variant: #434749; // TealMist on-surface-variant
 
-  --color-rating-down: #a06858;
-  --color-error: var(--mat-sys-error, #b3261e);
+  --color-positive: #1D6B52;    // teal-green — 5.7:1 on light surface
+  --color-rating-down: #9E4C4C;
+  --color-error: var(--mat-sys-error, #9E4C4C);
 
-  --color-nav-action: #39134c;          // FAB / navigation accent (violet)
-  --color-on-nav-action: #ffffff;
+  --color-nav-action: #C8843A;          // amber accent
+  --color-on-nav-action: #500808;
 
   --font-brand: 'Dancing Script', cursive;
   --font-body: 'Source Sans 3', sans-serif;
@@ -30,19 +31,20 @@
 }
 
 body.dark-theme {
-  --color-haggle-primary: #6aacb0;
-  --color-haggle-secondary: #42746b;
-  --color-haggle-divider: #e0e0e0; // Muted teal gap for dark mode
+  --color-haggle-primary: #003542;   // on-primary dark (very deep teal)
+  --color-haggle-secondary: #184d5c; // primary-container dark (medium deep teal)
+  --color-haggle-divider: #9dcee0;   // primary dark (light teal gap)
 
-  --color-tertiary: #9acaca;
+  --color-tertiary: #F0B97A;
+  --color-positive: #81C784;    // light green — 5.5:1 on dark surface
 
-  --color-background: #121212;
-  --color-surface: #1e1e1e;
-  --color-on-surface: #e0e0e0;
-  --color-on-surface-variant: #9acaca; // Lighter teal for dark bg contrast
+  --color-background: #131313;
+  --color-surface: #131313;
+  --color-on-surface: #e5e2e1;
+  --color-on-surface-variant: #c4c7c9; // TealMist dark on-surface-variant
   --color-border: rgba(255, 255, 255, 0.14);
-  --color-nav-action: #c084d8;          // Lighter violet for dark backgrounds
-  --color-on-nav-action: #1a001f;
+  --color-nav-action: #F0B97A;          // soft gold amber accent
+  --color-on-nav-action: #500808;
 
   // Fix: Material MDC placeholder tokens are scoped to the host element and
   // don't cascade reliably into ::placeholder from .dark-theme alone.

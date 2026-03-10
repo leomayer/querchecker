@@ -45,4 +45,7 @@ public class WhListing {
 
     @Column(columnDefinition = "TEXT")
     private String thumbnailUrl;
+
+    @Column(columnDefinition = "boolean not null default false")
+    private boolean paylivery;
 }

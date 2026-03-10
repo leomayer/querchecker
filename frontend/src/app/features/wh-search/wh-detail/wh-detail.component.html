@@ -5,104 +5,11 @@
     </div>
 
     <div class="detail-content">
-      <div class="listing-meta">
-        @if (lst.price === 0) {
-          <span class="price free">Gratis</span>
-        } @else if (lst.price != null) {
-          <span class="price">{{ lst.price | customCurrency }}</span>
-        }
-        @if (lst.location) {
-          <span class="meta-item">
-            <mat-icon>location_on</mat-icon>{{ lst.location }}
-          </span>
-        }
-        @if (lst.listedAt) {
-          <span class="meta-item">
-            <mat-icon>calendar_today</mat-icon>{{ lst.listedAt | date: 'dd.MM.yyyy' }}
-          </span>
-        }
-      </div>
-
-      <button mat-stroked-button class="willhaben-btn" (click)="openOnWillhaben()">
-        <mat-icon>open_in_new</mat-icon>
-        Auf Willhaben öffnen
-      </button>
-
-      @if (lst.description) {
-        <p class="listing-description">{{ lst.description }}</p>
-      }
-
+      <app-wh-base [listing]="lst" />
       <mat-divider />
-
-      <section class="note-section">
-        <h3>
-          <mat-icon>edit_note</mat-icon>
-          Notiz
-        </h3>
-        @if (detail() === null) {
-          <mat-spinner diameter="24" />
-        } @else {
-          <mat-form-field appearance="outline" class="note-field">
-            <mat-label>Notiz</mat-label>
-            <textarea matInput [(ngModel)]="noteText" rows="4" placeholder="Deine Notiz..."></textarea>
-          </mat-form-field>
-        }
-      </section>
-
+      <app-item-annotation [listing]="lst" [detail]="detail()" />
       <mat-divider />
-
-      <section class="rating-section">
-        <h3>Bewertung</h3>
-        <div class="rating-buttons">
-          <button
-            mat-stroked-button
-            class="rating-btn up"
-            [class.active]="currentRating() === 'UP'"
-            (click)="setRating('UP')"
-          >
-            <mat-icon>thumb_up</mat-icon>
-            Interessant
-          </button>
-          <button
-            mat-stroked-button
-            class="rating-btn down"
-            [class.active]="currentRating() === 'DOWN'"
-            (click)="setRating('DOWN')"
-          >
-            <mat-icon>thumb_down</mat-icon>
-            Nicht interessant
-          </button>
-          @if (currentRating()) {
-            <button mat-icon-button matTooltip="Bewertung entfernen" (click)="setRating(null)">
-              <mat-icon>close</mat-icon>
-            </button>
-          }
-        </div>
-      </section>
-
-      <mat-divider />
-
-      <div class="view-stats">
-        <mat-icon>visibility</mat-icon>
-        @if (detail(); as d) {
-          {{ d.viewCount }} {{ d.viewCount === 1 ? 'Aufruf' : 'Aufrufe' }}
-          @if (d.lastViewedAt) {
-            · zuletzt {{ d.lastViewedAt | date: 'dd.MM.yyyy' }}
-          }
-        } @else {
-          –
-        }
-      </div>
-    </div>
-
-    <div class="detail-actions">
-      <button mat-button [disabled]="saving()" (click)="saveNote()">
-        @if (saving()) {
-          <mat-spinner diameter="16" />
-        } @else {
-          Speichern
-        }
-      </button>
+      <app-item-research />
     </div>
   </div>
 } @empty {

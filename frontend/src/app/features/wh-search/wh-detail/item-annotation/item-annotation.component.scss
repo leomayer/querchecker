@@ -1,0 +1,230 @@
+:host {
+  display: block;
+}
+
+.zone-b {
+  display: block;
+}
+
+.main-layout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.notes-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.controls-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.decision-row {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.control-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-on-surface-variant);
+}
+
+// ── 1. Entscheidung ──────────────────────────────────────────────────────────
+
+.verdict-group {
+  // Full color at all times — the toggle's checked background signals selection.
+  // Green = "yes/proceed" (5.8:1 light / 5.5:1 dark), red = "skip" (5.56:1 both)
+  mat-button-toggle[value='UP'] mat-icon {
+    color: var(--color-positive);
+  }
+  mat-button-toggle[value='DOWN'] mat-icon {
+    color: var(--color-rating-down);
+  }
+}
+
+// ── 2. Interesse ─────────────────────────────────────────────────────────────
+
+.interest-group {
+  // Heat-scale gradient: gray → amber → red reads as "none → some → a lot"
+  // Full color always — three distinct icons act as their own legend when unselected
+  .interest-low {
+    color: var(--mat-sys-outline);
+  }
+  .interest-medium {
+    color: color-mix(in srgb, var(--color-tertiary) 65%, var(--color-on-surface));
+  }
+  .interest-high {
+    color: var(--color-rating-down);
+  }
+}
+
+// ── 3. Tags ───────────────────────────────────────────────────────────────────
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border: 1px solid var(--mat-sys-outline-variant);
+  background: color-mix(in srgb, var(--color-on-surface) 6%, transparent);
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+
+  &.positive {
+    // Green tint — clearly distinct from negative red in both light and dark
+    color: var(--color-on-surface);
+    border-color: color-mix(in srgb, var(--color-positive) 55%, transparent);
+    background: color-mix(in srgb, var(--color-positive) 12%, transparent);
+
+    &.selected {
+      background: color-mix(in srgb, var(--color-positive) 28%, transparent);
+      border-color: var(--color-positive);
+    }
+
+    &:hover:not(.selected) {
+      background: color-mix(in srgb, var(--color-positive) 18%, transparent);
+    }
+  }
+
+  &.negative {
+    // Dark text on red tint — always passes, red shows via bg + border
+    color: var(--color-on-surface);
+    border-color: color-mix(in srgb, var(--color-rating-down) 55%, transparent);
+    background: color-mix(in srgb, var(--color-rating-down) 12%, transparent);
+
+    &.selected {
+      background: color-mix(in srgb, var(--color-rating-down) 28%, transparent);
+      border-color: var(--color-rating-down);
+    }
+
+    &:hover:not(.selected) {
+      background: color-mix(in srgb, var(--color-rating-down) 18%, transparent);
+    }
+  }
+}
+
+.tag-input-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.tag-input {
+  height: 28px;
+  padding: 0 8px;
+  font-size: 0.8rem;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 14px;
+  background: transparent;
+  color: inherit;
+  outline: none;
+  width: 130px;
+  transition: border-color 0.15s;
+
+  &::placeholder {
+    color: var(--mat-sys-outline);
+    opacity: 0.7;
+  }
+
+  &:focus {
+    border-color: var(--mat-sys-primary);
+  }
+}
+
+.tag-add-btn {
+  width: 28px !important;
+  height: 28px !important;
+  line-height: 28px !important;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// ── 4. Notizen ────────────────────────────────────────────────────────────────
+
+.notes-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.save-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+
+  .save-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  &.save-pending {
+    color: var(--mat-sys-outline);
+    .save-dot {
+      background: var(--mat-sys-outline);
+      animation: pulse 1s infinite;
+    }
+  }
+
+  &.save-saved {
+    color: var(--color-tertiary);
+    .save-dot {
+      background: var(--color-tertiary);
+    }
+  }
+
+  &.save-error {
+    color: var(--mat-sys-error);
+    .save-dot {
+      background: var(--mat-sys-error);
+    }
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.notes-field {
+  width: 100%;
+}
