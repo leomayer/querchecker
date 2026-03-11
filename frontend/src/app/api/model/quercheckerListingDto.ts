@@ -24,6 +24,7 @@ export interface QuercheckerListingDto {
     viewCount?: number;
     lastViewedAt?: string;
     rating?: string;
+    interestLevel?: string;
     paylivery?: boolean;
 }
 

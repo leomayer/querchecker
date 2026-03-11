@@ -46,13 +46,8 @@ export class ItemAnnotationComponent {
 
   readonly PREDEFINED_TAGS: PredefinedTag[] = [
     { label: 'Guter Preis',       positive: true  },
-    { label: 'Neuwertig',         positive: true  },
-    { label: 'Schnelle Lieferung',positive: true  },
-    { label: 'Gepflegt',          positive: true  },
-    { label: 'OVP',               positive: true  },
+    { label: 'Überlegenswert',    positive: true  },
     { label: 'Zu teuer',          positive: false },
-    { label: 'Beschädigt',        positive: false },
-    { label: 'Zu weit',           positive: false },
     { label: 'Schlechte Fotos',   positive: false },
   ];
 

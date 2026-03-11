@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, model, output, signal } from '@angular/core';
-import { RatingChangedEvent } from './listing-card/listing-card.component';
+import { InterestLevelChangedEvent, RatingChangedEvent } from './listing-card/listing-card.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
@@ -95,6 +95,12 @@ export class WhListingsComponent {
       case 'DOWN':    return newRating !== 'DOWN';
       case 'UP_NULL': return newRating === 'DOWN';
       default:        return false; // 'ALL': Karte bleibt immer
+    }
+  }
+
+  onCardInterestLevelChanged(event: InterestLevelChangedEvent): void {
+    if (this.store.searchMode()) {
+      this.store.applySearchPatch(event.id, { interestLevel: event.newLevel ?? undefined });
     }
   }
 

@@ -27,18 +27,17 @@
     outline-offset: 2px;
   }
   &.rated-up {
-    border-left: 3px solid var(--color-tertiary);
+    border-left: 3px solid var(--color-positive);
   }
   &.rated-down {
     border-left: 3px solid var(--color-rating-down);
   }
   &.selected {
     background-color: color-mix(in srgb, var(--color-haggle-primary) 12%, transparent);
-    border: 3px solid var(--color-haggle-primary);
+    border: 3px solid var(--color-haggle-secondary);
 
-    // Boost price contrast on the teal-tinted background (~4.7:1 → ~6.6:1)
-    .listing-price {
-      color: var(--color-haggle-primary);
+    .listing-price, .free-label {
+      color: var(--mat-sys-primary);
     }
 
     &.rated-down {
@@ -132,6 +131,23 @@
   color: var(--color-on-surface-variant);
 }
 
+.favorite-icon {
+  @include icon-size(14px);
+  color: var(--mat-sys-outline-variant); // null: faint, acts as click affordance
+  cursor: pointer;
+  margin-left: -4px; // reduce gap before icon from 12px to 8px
+
+  &.interest-low {
+    color: var(--mat-sys-outline);
+  }
+  &.interest-medium {
+    color: color-mix(in srgb, var(--color-tertiary) 65%, var(--color-on-surface));
+  }
+  &.interest-high {
+    color: var(--color-rating-down);
+  }
+}
+
 .free-label {
   font-size: 0.85rem;
   font-weight: 600;
@@ -154,7 +170,7 @@
     @include icon-size(18px);
   }
   &.rating-up mat-icon {
-    color: var(--color-tertiary);
+    color: var(--color-positive);
   }
   &.rating-down mat-icon {
     color: var(--color-rating-down);

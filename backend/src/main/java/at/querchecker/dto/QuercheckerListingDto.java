@@ -28,5 +28,7 @@ public class QuercheckerListingDto {
     private LocalDateTime lastViewedAt;
     /** null = kein Rating, "UP" = interessant, "DOWN" = nicht interessant */
     private String rating;
+    /** null = kein Level, "LOW" / "MEDIUM" / "HIGH" */
+    private String interestLevel;
     private boolean paylivery;
 }

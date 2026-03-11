@@ -39,6 +39,10 @@
     <span class="meta-item meta-date">
       <mat-icon>calendar_today</mat-icon>
       {{ listing().listedAt | date: 'dd.MM.yyyy' }}
+      &nbsp;
+      <mat-icon
+        [class]="'favorite-icon' + (displayInterestLevel() ? ' interest-' + displayInterestLevel()!.toLowerCase() : '')"
+        (click)="cycleInterestLevel($event)">whatshot</mat-icon>
     </span>
 </div>
 <div class="body-row">

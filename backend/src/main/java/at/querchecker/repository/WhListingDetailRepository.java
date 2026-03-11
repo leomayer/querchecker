@@ -14,7 +14,7 @@ public interface WhListingDetailRepository extends JpaRepository<WhListingDetail
 
     Optional<WhListingDetail> findByWhListingId(Long whListingId);
 
-    @Query("SELECT d.whListing.id AS listingId, d.note AS note, d.viewCount AS viewCount, d.lastViewedAt AS lastViewedAt, d.rating AS rating FROM WhListingDetail d")
+    @Query("SELECT d.whListing.id AS listingId, d.note AS note, d.viewCount AS viewCount, d.lastViewedAt AS lastViewedAt, d.rating AS rating, d.interestLevel AS interestLevel FROM WhListingDetail d")
     List<WhListingDetailSummary> findAllSummaries();
 
     interface WhListingDetailSummary {
@@ -23,5 +23,6 @@ public interface WhListingDetailRepository extends JpaRepository<WhListingDetail
         int getViewCount();
         LocalDateTime getLastViewedAt();
         String getRating();
+        String getInterestLevel();
     }
 }

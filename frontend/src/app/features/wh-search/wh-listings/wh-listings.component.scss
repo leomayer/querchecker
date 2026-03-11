@@ -117,4 +117,11 @@
     vertical-align: middle;
     margin-right: 4px;
   }
+
+  mat-button-toggle[value="UP"] mat-icon {
+    color: var(--color-positive);
+  }
+  mat-button-toggle[value="DOWN"] mat-icon {
+    color: var(--color-rating-down);
+  }
 }

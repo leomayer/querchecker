@@ -206,6 +206,7 @@ public class WhSearchService {
             .viewCount(detail != null ? detail.getViewCount() : 0)
             .lastViewedAt(detail != null ? detail.getLastViewedAt() : null)
             .rating(detail != null ? detail.getRating() : null)
+            .interestLevel(detail != null ? detail.getInterestLevel() : null)
             .paylivery(entity.isPaylivery())
             .build();
     }
