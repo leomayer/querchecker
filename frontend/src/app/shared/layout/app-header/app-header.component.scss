@@ -41,6 +41,16 @@
   flex: 1;
 }
 
+.header-action-btn {
+  color: var(--color-on-haggle-primary);
+  opacity: 0.8;
+  margin-right: 8px;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
 .theme-toggle-btn {
   width: 72px !important;
   background: var(--color-tertiary);

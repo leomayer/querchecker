@@ -100,6 +100,12 @@ export const SearchStore = signalStore(
         searchPatches: { ...s.searchPatches, [id]: { ...s.searchPatches[id], ...patch } },
       }));
     },
+    removeListing(id: number): void {
+      patchState(store, (s) => ({
+        listings: s.listings.filter((l) => l.id !== id),
+        searchPatches: (() => { const { [id]: _, ...rest } = s.searchPatches; return rest; })(),
+      }));
+    },
     advanceToNext(): void {
       const listings = store.patchedListings();
       const currentId = store.selectedId();

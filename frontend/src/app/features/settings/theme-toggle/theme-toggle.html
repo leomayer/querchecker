@@ -1,0 +1,27 @@
+<!--    <button
+      mat-icon-button
+      class="theme-toggle-btn"
+      (click)="toggleTheme()"
+      [attr.aria-label]="'Toggle dark mode'"
+    >
+      <mat-icon>{{ darkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
+-->
+
+    <mat-card class="theme-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="section-icon">palette</mat-icon>
+        <mat-card-title>Design</mat-card-title>
+        <mat-card-subtitle>Thema wechseln</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="theme-description">
+          Wechsle zwischen Hell- und Dunkelmodus.
+        </p>
+        <mat-slide-toggle
+          [checked]="theme.darkMode()"
+          (change)="theme.setDarkTheme($event.checked)">
+          Dunkelmodus aktivieren
+        </mat-slide-toggle>
+      </mat-card-content>
+    </mat-card>

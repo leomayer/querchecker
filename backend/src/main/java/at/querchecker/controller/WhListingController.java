@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/listings")
@@ -46,5 +47,14 @@ public class WhListingController {
     @Operation(summary = "Inserat löschen")
     public void delete(@PathVariable Long id) {
         whListingService.deleteById(id);
+    }
+
+    @DeleteMapping("/cleanup")
+    @Operation(summary = "Inserate nach Rating und Alter löschen")
+    public Map<String, Integer> cleanup(
+            @RequestParam String rating,
+            @RequestParam(defaultValue = "30") int olderThanDays) {
+        int deleted = whListingService.cleanupByRating(rating, olderThanDays);
+        return Map.of("deleted", deleted);
     }
 }

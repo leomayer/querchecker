@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,14 +12,9 @@ import { MatButtonModule } from '@angular/material/button';
   styleUrl: './app-header.component.scss',
 })
 export class AppHeaderComponent {
-  darkMode = signal(window.matchMedia('(prefers-color-scheme: dark)').matches);
+  private readonly router = inject(Router);
 
-  constructor() {
-    document.body.classList.toggle('dark-theme', this.darkMode());
-  }
-
-  toggleTheme(): void {
-    this.darkMode.update((v) => !v);
-    document.body.classList.toggle('dark-theme', this.darkMode());
+  navigateSettings(): void {
+    this.router.navigate(['/settings']);
   }
 }

@@ -67,6 +67,20 @@ public class WhListingService {
         whListingRepository.deleteById(id);
     }
 
+    @Transactional
+    public int cleanupByRating(String rating, int olderThanDays) {
+        LocalDateTime cutoff = LocalDateTime.now().minusDays(olderThanDays);
+        List<Long> listingIds = whListingDetailRepository.findListingIdsByRatingAndCreatedBefore(rating, cutoff);
+        if (listingIds.isEmpty()) return 0;
+        // Delete via entity lifecycle so @ElementCollection (tags) cascades correctly
+        whListingDetailRepository.deleteAllById(
+                whListingDetailRepository.findAllByWhListingIdIn(listingIds).stream()
+                        .map(d -> d.getId()).toList()
+        );
+        whListingRepository.deleteAllById(listingIds);
+        return listingIds.size();
+    }
+
     private QuercheckerListingDto toDto(WhListing entity, WhListingDetailSummary detail) {
         return QuercheckerListingDto.builder()
                 .id(entity.getId())

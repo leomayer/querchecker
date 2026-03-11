@@ -1,0 +1,30 @@
+    <mat-card class="cleanup-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="section-icon">delete_sweep</mat-icon>
+        <mat-card-title>Aufräumen</mat-card-title>
+        <mat-card-subtitle>Abgelehnte Inserate entfernen</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="cleanup-description">
+          Lösche alle Inserate mit Bewertung
+          <strong>„Abgelehnt"</strong>, die älter als
+          <strong>{{ daysLabel() }}</strong> sind.
+        </p>
+        <div class="slider-row">
+          <mat-icon>schedule</mat-icon>
+          <mat-slider min="1" max="90" step="1" discrete>
+            <input matSliderThumb [value]="olderThanDays()" (valueChange)="olderThanDays.set($event)" />
+          </mat-slider>
+          <span class="days-value">{{ daysLabel() }}</span>
+        </div>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-flat-button color="warn" [disabled]="deleting()" (click)="cleanupDownRated()">
+          <mat-icon  class="warn-icon">delete_sweep</mat-icon>
+          Abgelehnte löschen
+        </button>
+        @if (deleteResult()) {
+          <span class="result-message">{{ deleteResult() }}</span>
+        }
+      </mat-card-actions>
+    </mat-card>

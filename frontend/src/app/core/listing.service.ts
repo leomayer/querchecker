@@ -42,14 +42,27 @@ export class ListingService {
   }
 
   updateRating(id: number, rating: 'UP' | 'DOWN' | null): Observable<WhListingDetailDto> {
-    return this.http.put<WhListingDetailDto>(`${API_URLS.listings}/${id}/detail/rating`, { rating });
+    return this.http.put<WhListingDetailDto>(`${API_URLS.listings}/${id}/detail/rating`, {
+      rating,
+    });
   }
 
-  updateInterest(id: number, level: 'LOW' | 'MEDIUM' | 'HIGH' | null): Observable<WhListingDetailDto> {
-    return this.http.put<WhListingDetailDto>(`${API_URLS.listings}/${id}/detail/interest`, { level });
+  updateInterest(
+    id: number,
+    level: 'LOW' | 'MEDIUM' | 'HIGH' | null,
+  ): Observable<WhListingDetailDto> {
+    return this.http.put<WhListingDetailDto>(`${API_URLS.listings}/${id}/detail/interest`, {
+      level,
+    });
   }
 
   updateTags(id: number, tags: string[]): Observable<WhListingDetailDto> {
     return this.http.put<WhListingDetailDto>(`${API_URLS.listings}/${id}/detail/tags`, { tags });
+  }
+
+  cleanupByRating(rating: string, olderThanDays: number): Observable<{ deleted: number }> {
+    return this.http.delete<{ deleted: number }>(`${API_URLS.listings}/cleanup`, {
+      params: { rating, olderThanDays: olderThanDays.toString() },
+    });
   }
 }

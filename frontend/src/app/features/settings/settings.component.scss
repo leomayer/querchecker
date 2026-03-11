@@ -1,0 +1,65 @@
+.settings-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px var(--layout-gutter);
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+
+  h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 500;
+  }
+}
+
+.settings-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section-icon {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.cleanup-description {
+  margin: 8px 0 16px;
+  color: var(--mat-sys-on-surface-variant);
+  line-height: 1.5;
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  mat-icon {
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  mat-slider {
+    flex: 1;
+  }
+
+  .days-value {
+    min-width: 56px;
+    text-align: right;
+    font-weight: 500;
+  }
+}
+
+mat-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.result-message {
+  font-size: 0.85rem;
+  color: var(--color-positive);
+}

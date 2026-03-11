@@ -27,6 +27,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: AppRoutePath.SETTINGS,
+    loadComponent: () =>
+      import('./features/settings/settings.component').then(
+        (m) => m.SettingsComponent,
+      ),
+  },
+  {
     path: '**',
     redirectTo: AppRoutePath.SEARCH,
   },
