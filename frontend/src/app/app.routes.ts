@@ -19,7 +19,7 @@ export const routes: Routes = [
       ),
   },
   {
-    path: AppRoutePath.DETAIL,
+    path: `${AppRoutePath.DETAIL}/:id`,
     canActivate: [listingsGuard],
     loadComponent: () =>
       import('./features/wh-search/main-layout/main-layout.component').then(

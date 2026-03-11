@@ -49,11 +49,9 @@ export const SearchStore = signalStore(
       router.navigate(['/', AppRoutePath.LISTINGS]);
     },
     selectListing(id: string): void {
-      patchState(store, { selectedId: id, layoutState: LayoutState.DETAIL });
-      router.navigate(['/', AppRoutePath.DETAIL]);
+      router.navigate(['/', AppRoutePath.DETAIL, id]);
     },
     backToListings(): void {
-      patchState(store, { selectedId: null, layoutState: LayoutState.LISTINGS });
       location.back();
     },
     setFilterDraft(patch: {
@@ -108,17 +106,16 @@ export const SearchStore = signalStore(
       const currentIdx = listings.findIndex((l) => l.id?.toString() === currentId);
       for (let i = currentIdx + 1; i < listings.length; i++) {
         if (listings[i].rating !== 'DOWN') {
-          patchState(store, { selectedId: listings[i].id!.toString() });
-          return; // URL stays at /detail — no navigation needed
+          router.navigate(['/', AppRoutePath.DETAIL, listings[i].id!.toString()], { replaceUrl: true });
+          return;
         }
       }
       for (let i = currentIdx - 1; i >= 0; i--) {
         if (listings[i].rating !== 'DOWN') {
-          patchState(store, { selectedId: listings[i].id!.toString() });
-          return; // URL stays at /detail — no navigation needed
+          router.navigate(['/', AppRoutePath.DETAIL, listings[i].id!.toString()], { replaceUrl: true });
+          return;
         }
       }
-      patchState(store, { selectedId: null, layoutState: LayoutState.LISTINGS });
       router.navigate(['/', AppRoutePath.LISTINGS]);
     },
   })),
@@ -126,18 +123,20 @@ export const SearchStore = signalStore(
     const router = inject(Router);
     return {
       onInit() {
-        // Sync Route → Store for browser back/forward navigation.
-        // Store → Route is handled by the methods above; this covers the reverse direction.
+        // URL is the single source of truth for selectedId.
+        // Store → Route is handled by the methods above; this covers Route → Store.
+        const detailPrefix = `/${AppRoutePath.DETAIL}/`;
         router.events
           .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
           .subscribe((e) => {
             const url = e.urlAfterRedirects;
-            if (url === `/${AppRoutePath.DETAIL}`) {
-              patchState(store, { layoutState: LayoutState.DETAIL });
+            if (url.startsWith(detailPrefix)) {
+              const id = decodeURIComponent(url.slice(detailPrefix.length));
+              patchState(store, { layoutState: LayoutState.DETAIL, selectedId: id });
             } else if (url === `/${AppRoutePath.LISTINGS}`) {
               patchState(store, { layoutState: LayoutState.LISTINGS, selectedId: null });
             } else {
-              patchState(store, { layoutState: LayoutState.SEARCH });
+              patchState(store, { layoutState: LayoutState.SEARCH, selectedId: null });
             }
           });
       },
