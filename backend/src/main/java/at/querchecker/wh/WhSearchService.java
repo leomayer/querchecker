@@ -13,15 +13,18 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class WhSearchService {
@@ -195,7 +198,8 @@ public class WhSearchService {
      */
     private static List<String> buildImagePaths(Advert advert) {
         return advert.getAttributeValues("ALL_IMAGE_URLS").stream()
-            .filter(v -> v != null && v.endsWith(".jpg"))
+            .flatMap(v -> Arrays.stream(v.split(";")))
+            .filter(v -> v != null && !v.isBlank() && v.endsWith(".jpg"))
             .map(v -> v.substring(0, v.length() - 4))
             .collect(Collectors.toCollection(ArrayList::new));
     }
@@ -223,6 +227,25 @@ public class WhSearchService {
             .interestLevel(detail != null ? detail.getInterestLevel() : null)
             .paylivery(entity.isPaylivery())
             .build();
+    }
+
+    /**
+     * Ruft ein einzelnes Inserat von der WH-API ab (vollständige Beschreibung, alle Bilder).
+     * Gibt null zurück wenn der Abruf fehlschlägt (z.B. Inserat gelöscht).
+     */
+    public Advert fetchListingDetail(String seoUrl) {
+        if (seoUrl == null) return null;
+        try {
+            log.info("Fetching WH detail for seoUrl={}", seoUrl);
+            WhApiResponse.NextDataRoot body =
+                whApiClient.getNextData(seoUrl, WhApiResponse.NextDataRoot.class).getBody();
+            return body != null && body.getPageProps() != null
+                ? body.getPageProps().getAdvertDetails()
+                : null;
+        } catch (Exception e) {
+            log.error("WH detail fetch failed for seoUrl={}", seoUrl, e);
+            return null;
+        }
     }
 
     // -------------------------------------------------------------------------

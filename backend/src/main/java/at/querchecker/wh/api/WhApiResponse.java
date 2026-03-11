@@ -164,7 +164,27 @@ public final class WhApiResponse {
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class AdvertImage {
+        private String mainImageUrl;
         private String thumbnailImageUrl;
+        /** Original full-resolution image (no suffix, e.g. "…/1234_-5678.jpg"). */
+        private String referenceImageUrl;
+    }
+
+    // -------------------------------------------------------------------------
+    // Next.js data endpoint response  (_next/data/{buildId}/iad/{seoUrl}.json)
+    // Top-level: { pageProps: { advertDetails: Advert } }
+    // -------------------------------------------------------------------------
+
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class NextDataRoot {
+        private NextDataPageProps pageProps;
+    }
+
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class NextDataPageProps {
+        private Advert advertDetails;
     }
 
     // -------------------------------------------------------------------------
