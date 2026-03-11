@@ -12,8 +12,8 @@ encoder.ts
 git_push.sh
 index.ts
 model/models.ts
-model/quercheckerListingDto.ts
 model/whCategoryDto.ts
+model/whItemDto.ts
 model/whListingDetailDto.ts
 model/whLocationDto.ts
 model/whMetaStatusDto.ts

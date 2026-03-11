@@ -1,10 +1,11 @@
 package at.querchecker.service;
 
-import at.querchecker.dto.QuercheckerListingDto;
+import at.querchecker.dto.WhItemDto;
 import at.querchecker.entity.WhListing;
-import at.querchecker.repository.WhListingDetailRepository;
-import at.querchecker.repository.WhListingDetailRepository.WhListingDetailSummary;
+import at.querchecker.repository.WhItemRepository;
+import at.querchecker.repository.WhItemRepository.WhItemSummary;
 import at.querchecker.repository.WhListingRepository;
+import at.querchecker.wh.WhConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,15 +21,15 @@ import java.util.stream.Collectors;
 public class WhListingService {
 
     private final WhListingRepository whListingRepository;
-    private final WhListingDetailRepository whListingDetailRepository;
+    private final WhItemRepository whItemRepository;
 
     @Transactional(readOnly = true)
-    public List<QuercheckerListingDto> findAll(String ratingFilter) {
+    public List<WhItemDto> findAll(String ratingFilter) {
         List<WhListing> listings = whListingRepository.findAll();
 
-        Map<Long, WhListingDetailSummary> detailMap = whListingDetailRepository.findAllSummaries()
+        Map<Long, WhItemSummary> detailMap = whItemRepository.findAllSummaries()
                 .stream()
-                .collect(Collectors.toMap(WhListingDetailSummary::getListingId, s -> s));
+                .collect(Collectors.toMap(WhItemSummary::getListingId, s -> s));
 
         var stream = listings.stream().map(e -> toDto(e, detailMap.get(e.getId())));
 
@@ -41,12 +42,12 @@ public class WhListingService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<QuercheckerListingDto> findById(Long id) {
+    public Optional<WhItemDto> findById(Long id) {
         return whListingRepository.findById(id).map(e -> toDto(e, null));
     }
 
     @Transactional
-    public QuercheckerListingDto save(QuercheckerListingDto dto) {
+    public WhItemDto save(WhItemDto dto) {
         WhListing entity = whListingRepository.findByWhId(dto.getWhId())
                 .orElse(WhListing.builder().build());
 
@@ -70,29 +71,43 @@ public class WhListingService {
     @Transactional
     public int cleanupByRating(String rating, int olderThanDays) {
         LocalDateTime cutoff = LocalDateTime.now().minusDays(olderThanDays);
-        List<Long> listingIds = whListingDetailRepository.findListingIdsByRatingAndCreatedBefore(rating, cutoff);
+        List<Long> listingIds = whItemRepository.findListingIdsByRatingAndCreatedBefore(rating, cutoff);
         if (listingIds.isEmpty()) return 0;
-        // Delete via entity lifecycle so @ElementCollection (tags) cascades correctly
-        whListingDetailRepository.deleteAllById(
-                whListingDetailRepository.findAllByWhListingIdIn(listingIds).stream()
+        whItemRepository.deleteAllById(
+                whItemRepository.findAllByWhListingIdIn(listingIds).stream()
                         .map(d -> d.getId()).toList()
         );
         whListingRepository.deleteAllById(listingIds);
         return listingIds.size();
     }
 
-    private QuercheckerListingDto toDto(WhListing entity, WhListingDetailSummary detail) {
-        return QuercheckerListingDto.builder()
+    private WhItemDto toDto(WhListing entity, WhItemSummary detail) {
+        String thumbnailPath = entity.getThumbnailUrl();
+        String fullThumbnailUrl = thumbnailPath != null
+            ? WhConstants.WH_IMAGE_BASE + thumbnailPath + "_thumb.jpg"
+            : null;
+
+        String urlPath = entity.getUrl();
+        String fullUrl = urlPath != null
+            ? WhConstants.WH_LISTING_BASE + urlPath
+            : null;
+
+        List<String> imageUrls = entity.getImagePaths().stream()
+            .map(p -> WhConstants.WH_IMAGE_BASE + p + ".jpg")
+            .toList();
+
+        return WhItemDto.builder()
                 .id(entity.getId())
                 .whId(entity.getWhId())
                 .title(entity.getTitle())
                 .description(entity.getDescription())
                 .price(entity.getPrice())
                 .location(entity.getLocation())
-                .url(entity.getUrl())
+                .url(fullUrl)
                 .listedAt(entity.getListedAt())
                 .fetchedAt(entity.getFetchedAt())
-                .thumbnailUrl(entity.getThumbnailUrl())
+                .thumbnailUrl(fullThumbnailUrl)
+                .imageUrls(imageUrls)
                 .hasNote(detail != null && detail.getNote() != null && !detail.getNote().isBlank())
                 .viewCount(detail != null ? detail.getViewCount() : 0)
                 .lastViewedAt(detail != null ? detail.getLastViewedAt() : null)

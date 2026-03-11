@@ -12,7 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
 import { take } from 'rxjs/operators';
-import { QuercheckerListingDto } from '../../../../api/model/quercheckerListingDto';
+import { WhItemDto } from '../../../../api/model/whItemDto';
 import { WhListingDetailDto } from '../../../../api/model/whListingDetailDto';
 import { ListingService } from '../../../../core/listing.service';
 import { SearchStore } from '../../search.store';
@@ -34,7 +34,7 @@ interface PredefinedTag { label: string; positive: boolean; }
   styleUrl: './item-annotation.component.scss',
 })
 export class ItemAnnotationComponent {
-  readonly listing = input.required<QuercheckerListingDto>();
+  readonly listing = input.required<WhItemDto>();
   readonly detail = input<WhListingDetailDto | null>(null);
 
   protected readonly store = inject(ItemDetailStore);

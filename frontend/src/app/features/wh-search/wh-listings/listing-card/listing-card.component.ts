@@ -3,7 +3,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DatePipe } from '@angular/common';
-import { QuercheckerListingDto } from '../../../../api/model/quercheckerListingDto';
+import { WhItemDto } from '../../../../api/model/whItemDto';
 import { CustomCurrencyPipe } from '../../../../shared/pipes/custom-currency/custom-currency-pipe';
 import { ListingService } from '../../../../core/listing.service';
 
@@ -27,9 +27,9 @@ export interface InterestLevelChangedEvent {
 export class ListingCardComponent {
   private readonly listingService = inject(ListingService);
 
-  listing = input.required<QuercheckerListingDto>();
+  listing = input.required<WhItemDto>();
   selected = input(false);
-  clicked = output<QuercheckerListingDto>();
+  clicked = output<WhItemDto>();
   ratingChanged = output<RatingChangedEvent>();
   interestLevelChanged = output<InterestLevelChangedEvent>();
 

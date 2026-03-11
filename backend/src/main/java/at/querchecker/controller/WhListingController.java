@@ -1,6 +1,6 @@
 package at.querchecker.controller;
 
-import at.querchecker.dto.QuercheckerListingDto;
+import at.querchecker.dto.WhItemDto;
 import at.querchecker.service.WhListingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,14 +22,14 @@ public class WhListingController {
 
     @GetMapping
     @Operation(summary = "Alle Inserate abrufen")
-    public List<QuercheckerListingDto> findAll(
+    public List<WhItemDto> findAll(
             @RequestParam(defaultValue = "UP") String ratingFilter) {
         return whListingService.findAll(ratingFilter);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Inserat nach ID abrufen")
-    public ResponseEntity<QuercheckerListingDto> findById(@PathVariable Long id) {
+    public ResponseEntity<WhItemDto> findById(@PathVariable Long id) {
         return whListingService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -38,7 +38,7 @@ public class WhListingController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Neues Inserat speichern")
-    public QuercheckerListingDto create(@RequestBody QuercheckerListingDto dto) {
+    public WhItemDto create(@RequestBody WhItemDto dto) {
         return whListingService.save(dto);
     }
 

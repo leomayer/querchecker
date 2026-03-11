@@ -1,10 +1,10 @@
 package at.querchecker.wh;
 
-import at.querchecker.dto.QuercheckerListingDto;
+import at.querchecker.dto.WhItemDto;
 import at.querchecker.dto.WhSearchResultDto;
 import at.querchecker.entity.WhListing;
-import at.querchecker.repository.WhListingDetailRepository;
-import at.querchecker.repository.WhListingDetailRepository.WhListingDetailSummary;
+import at.querchecker.repository.WhItemRepository;
+import at.querchecker.repository.WhItemRepository.WhItemSummary;
 import at.querchecker.repository.WhListingRepository;
 import at.querchecker.wh.api.WhApiResponse;
 import at.querchecker.wh.api.WhApiResponse.Advert;
@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,11 +26,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class WhSearchService {
 
+    private static final String WH_IMAGE_BASE   = WhConstants.WH_IMAGE_BASE;
+    private static final String WH_LISTING_BASE = WhConstants.WH_LISTING_BASE;
+
     private static final String WH_HOST = "www.willhaben.at";
     private static final String WH_SEARCH_PATH =
         "/webapi/iad/search/atz/seo/kaufen-und-verkaufen/marktplatz";
-    private static final String WH_LISTING_BASE =
-        "https://www.willhaben.at/iad/";
 
     // language=SQL
     private static final String UPSERT_SQL = """
@@ -50,20 +52,12 @@ public class WhSearchService {
 
     private final WhApiClient whApiClient;
     private final WhListingRepository whListingRepository;
-    private final WhListingDetailRepository whListingDetailRepository;
+    private final WhItemRepository whItemRepository;
     private final JdbcTemplate jdbcTemplate;
 
     /**
      * Sucht auf Willhaben nach dem angegebenen Keyword, upsertet alle Ergebnisse
      * in die DB (Anker: whId) und gibt sie als DTOs zurück.
-     *
-     * @param keyword       Suchbegriff, z.B. "rtx 4070"
-     * @param rows          Anzahl der Ergebnisse (default 30, Willhaben-seitig max ~100)
-     * @param priceFrom     Mindestpreis in € (optional)
-     * @param priceTo       Höchstpreis in € (optional)
-     * @param attributeTree Willhaben ATTRIBUTE_TREE-ID für Kategorie-Filter (optional)
-     * @param areaId        Willhaben areaId für Standort-Filter (optional)
-     * @param paylivery     Nur Paylivery-Angebote (optional)
      */
     public WhSearchResultDto search(
         String keyword,
@@ -91,7 +85,6 @@ public class WhSearchService {
             throw new IllegalArgumentException("Ungültiger Suchbegriff: " + keyword, e);
         }
 
-        // HTTP call is intentionally outside the DB transaction
         WhApiResponse.Root body = whApiClient.get(uri, WhApiResponse.Root.class).getBody();
 
         if (body == null
@@ -100,8 +93,6 @@ public class WhSearchService {
             return WhSearchResultDto.builder().totalCount(0).listings(List.of()).build();
         }
 
-        // Deduplicate adverts by whId (Willhaben returns promoted listings twice).
-        // LinkedHashMap preserves insertion order so the result list stays stable.
         List<Advert> adverts = body.getAdvertSummaryList().getAdvertSummary()
             .stream()
             .collect(Collectors.toMap(
@@ -114,17 +105,13 @@ public class WhSearchService {
         return persistAndBuildResult(adverts, body.getRowsFound());
     }
 
-    /**
-     * Upsertet die Ergebnisliste atomar (ON CONFLICT DO UPDATE) und baut die Antwort-DTOs.
-     * Läuft in einer eigenen Transaktion, ohne den vorherigen HTTP-Aufruf einzuschließen.
-     */
     @Transactional
     protected WhSearchResultDto persistAndBuildResult(List<Advert> adverts, Integer totalCount) {
         List<WhListing> toUpsert = adverts.stream()
             .map(a -> applyAdvert(WhListing.builder().whId(a.getId()).build(), a))
             .toList();
 
-        // Atomic upsert via PostgreSQL ON CONFLICT — race-safe, no pre-load needed
+        // Upsert main listing data via raw SQL (atomic, race-safe)
         for (WhListing l : toUpsert) {
             jdbcTemplate.update(UPSERT_SQL,
                 l.getWhId(), l.getTitle(), l.getDescription(),
@@ -132,17 +119,29 @@ public class WhSearchService {
                 l.getListedAt(), l.getFetchedAt(), l.getThumbnailUrl(), l.isPaylivery());
         }
 
-        // Re-fetch to get DB-assigned IDs for DTO mapping
+        // Re-fetch to get DB-assigned IDs
         List<String> whIds = adverts.stream().map(Advert::getId).toList();
         List<WhListing> savedListings = whListingRepository.findAllByWhIdIn(whIds);
 
+        // Build a map of whId → imagePaths from the in-memory adverts
+        Map<String, List<String>> imagePathsByWhId = toUpsert.stream()
+            .collect(Collectors.toMap(WhListing::getWhId, WhListing::getImagePaths));
+
+        // Save image paths via JPA (replaces previous list)
+        for (WhListing saved : savedListings) {
+            List<String> paths = imagePathsByWhId.getOrDefault(saved.getWhId(), List.of());
+            saved.getImagePaths().clear();
+            saved.getImagePaths().addAll(paths);
+            whListingRepository.save(saved);
+        }
+
         List<Long> ids = savedListings.stream().map(WhListing::getId).toList();
-        Map<Long, WhListingDetailSummary> detailMap = whListingDetailRepository.findAllSummaries()
+        Map<Long, WhItemSummary> detailMap = whItemRepository.findAllSummaries()
             .stream()
             .filter(s -> ids.contains(s.getListingId()))
-            .collect(Collectors.toMap(WhListingDetailSummary::getListingId, s -> s));
+            .collect(Collectors.toMap(WhItemSummary::getListingId, s -> s));
 
-        List<QuercheckerListingDto> listings = savedListings.stream()
+        List<WhItemDto> listings = savedListings.stream()
             .map(l -> toDto(l, detailMap.get(l.getId())))
             .toList();
 
@@ -157,51 +156,66 @@ public class WhSearchService {
         listing.setDescription(advert.getAttribute("BODY_DYN"));
         listing.setPrice(parsePrice(advert.getAttribute("PRICE")));
         listing.setLocation(advert.getAttribute("LOCATION"));
-        listing.setUrl(buildListingUrl(advert));
+        listing.setUrl(buildListingPath(advert));
         listing.setFetchedAt(LocalDateTime.now());
-        // PUBLISHED_String liefert ISO-Datum; PUBLISHED liefert Epoch-Millisekunden
         listing.setListedAt(parseDateTime(advert.getAttribute("PUBLISHED_String")));
-        listing.setThumbnailUrl(buildThumbnailUrl(advert));
+        listing.setThumbnailUrl(buildThumbnailPath(advert));
         listing.setPaylivery("true".equalsIgnoreCase(advert.getAttribute("p2penabled")));
+        listing.setImagePaths(buildImagePaths(advert));
         return listing;
     }
 
-    private static final String WH_IMAGE_BASE = "https://cache.willhaben.at/mmo/";
-
     /**
-     * Baut die Thumbnail-URL aus dem MMO-Attribut zusammen (primär).
-     * Falls nicht vorhanden, Fallback auf advertImageList.
-     * Muster: "https://cache.willhaben.at/mmo/{path}_thumb.jpg"
+     * Relativer Pfad-Stem des Thumbnails (ohne Prefix und ohne _thumb.jpg).
+     * Muster gespeichert: "1234/5678/9012"
+     * Rekonstruktion: WH_IMAGE_BASE + stem + "_thumb.jpg"
      */
-    private static String buildThumbnailUrl(Advert advert) {
+    private static String buildThumbnailPath(Advert advert) {
         String mmo = advert.getAttribute("MMO");
         if (mmo != null && mmo.endsWith(".jpg")) {
-            return WH_IMAGE_BASE + mmo.substring(0, mmo.length() - 4) + "_thumb.jpg";
+            return mmo.substring(0, mmo.length() - 4);
         }
-        return advert.getThumbnailUrl(); // fallback auf advertImageList
+        // Fallback: advertImageList Thumbnail — strip prefix if present
+        String fallback = advert.getThumbnailUrl();
+        if (fallback == null) return null;
+        return fallback.startsWith(WH_IMAGE_BASE)
+            ? stripThumbSuffix(fallback.substring(WH_IMAGE_BASE.length()))
+            : fallback;
     }
 
     /**
-     * Baut die nutzerseitige Willhaben-URL aus dem SEO_URL-Attribut zusammen.
+     * Relativer SEO-Pfad (ohne https://www.willhaben.at/iad/ Prefix).
      */
-    private static String buildListingUrl(Advert advert) {
-        String seoUrl = advert.getAttribute("SEO_URL");
-        if (seoUrl == null) return null;
-        return WH_LISTING_BASE + seoUrl;
+    private static String buildListingPath(Advert advert) {
+        return advert.getAttribute("SEO_URL");
     }
 
-    private QuercheckerListingDto toDto(WhListing entity, WhListingDetailSummary detail) {
-        return QuercheckerListingDto.builder()
+    /**
+     * Alle Bild-Pfad-Stems aus ALL_IMAGE_URLS (ohne Prefix, ohne .jpg).
+     */
+    private static List<String> buildImagePaths(Advert advert) {
+        return advert.getAttributeValues("ALL_IMAGE_URLS").stream()
+            .filter(v -> v != null && v.endsWith(".jpg"))
+            .map(v -> v.substring(0, v.length() - 4))
+            .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private WhItemDto toDto(WhListing entity, WhItemSummary detail) {
+        return WhItemDto.builder()
             .id(entity.getId())
             .whId(entity.getWhId())
             .title(entity.getTitle())
             .description(entity.getDescription())
             .price(entity.getPrice())
             .location(entity.getLocation())
-            .url(entity.getUrl())
+            .url(entity.getUrl() != null ? WH_LISTING_BASE + entity.getUrl() : null)
             .listedAt(entity.getListedAt())
             .fetchedAt(entity.getFetchedAt())
-            .thumbnailUrl(entity.getThumbnailUrl())
+            .thumbnailUrl(entity.getThumbnailUrl() != null
+                ? WH_IMAGE_BASE + entity.getThumbnailUrl() + "_thumb.jpg" : null)
+            .imageUrls(entity.getImagePaths().stream()
+                .map(p -> WH_IMAGE_BASE + p + ".jpg")
+                .toList())
             .hasNote(detail != null && detail.getNote() != null && !detail.getNote().isBlank())
             .viewCount(detail != null ? detail.getViewCount() : 0)
             .lastViewedAt(detail != null ? detail.getLastViewedAt() : null)
@@ -214,6 +228,17 @@ public class WhSearchService {
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
+
+    /** Entfernt _thumb Suffix falls vorhanden (z.B. "1234/5678_thumb" → "1234/5678"). */
+    private static String stripThumbSuffix(String path) {
+        if (path != null && path.endsWith("_thumb.jpg")) {
+            return path.substring(0, path.length() - 10);
+        }
+        if (path != null && path.endsWith(".jpg")) {
+            return path.substring(0, path.length() - 4);
+        }
+        return path;
+    }
 
     private static BigDecimal parsePrice(String raw) {
         if (raw == null || raw.isBlank()) return null;

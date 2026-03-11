@@ -3,7 +3,7 @@ import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { QuercheckerListingDto } from '../../../../api/model/quercheckerListingDto';
+import { WhItemDto } from '../../../../api/model/whItemDto';
 import { CustomCurrencyPipe } from '../../../../shared/pipes/custom-currency/custom-currency-pipe';
 
 @Component({
@@ -14,7 +14,7 @@ import { CustomCurrencyPipe } from '../../../../shared/pipes/custom-currency/cus
   styleUrl: './wh-base.component.scss',
 })
 export class WhBaseComponent {
-  readonly listing = input.required<QuercheckerListingDto>();
+  readonly listing = input.required<WhItemDto>();
 
   openOnWillhaben(): void {
     const url = this.listing().url;

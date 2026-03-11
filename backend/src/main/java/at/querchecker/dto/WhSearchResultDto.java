@@ -9,5 +9,5 @@ import lombok.Data;
 public class WhSearchResultDto {
     /** Gesamtanzahl der Treffer laut Willhaben (kann größer sein als die abgerufene Seitenanzahl). */
     private Integer totalCount;
-    private List<QuercheckerListingDto> listings;
+    private List<WhItemDto> listings;
 }

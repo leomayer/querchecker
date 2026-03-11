@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { QuercheckerListingDto } from '../../../api/model/quercheckerListingDto';
+import { WhItemDto } from '../../../api/model/whItemDto';
 import { ListingCardComponent } from './listing-card/listing-card.component';
 import { SearchStore } from '../search.store';
 
@@ -62,7 +62,7 @@ export class WhListingsComponent {
 
   sortedListings = computed(() => {
     const data = this.filteredListings();
-    const col = this.store.sortColumn() as keyof QuercheckerListingDto;
+    const col = this.store.sortColumn() as keyof WhItemDto;
     const dir = this.store.sortDirection();
     if (!col || !dir) return data;
     return [...data].sort((a, b) => {
@@ -85,7 +85,7 @@ export class WhListingsComponent {
     this.filterText.set((e.target as HTMLInputElement).value);
   }
 
-  onCardClicked(listing: QuercheckerListingDto): void {
+  onCardClicked(listing: WhItemDto): void {
     this.store.selectListing(listing.id!.toString());
   }
 

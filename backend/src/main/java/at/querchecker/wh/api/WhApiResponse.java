@@ -89,6 +89,18 @@ public final class WhApiResponse {
         }
 
         /**
+         * Gibt alle Werte eines benannten Attributs zurück (z.B. ALL_IMAGE_URLS).
+         */
+        public List<String> getAttributeValues(String name) {
+            if (attributes == null || attributes.getAttribute() == null) return List.of();
+            return attributes.getAttribute().stream()
+                    .filter(a -> name.equals(a.getName()))
+                    .findFirst()
+                    .map(a -> a.getValues() != null ? a.getValues() : List.<String>of())
+                    .orElse(List.of());
+        }
+
+        /**
          * Gibt den Self-Link des Inserats zurück (direkte URL auf willhaben.at).
          */
         public String getSelfLink() {

@@ -26,7 +26,7 @@ public interface WhListingRepository extends JpaRepository<WhListing, Long> {
         DELETE FROM WhListing l
         WHERE l.fetchedAt < :cutoff
         AND NOT EXISTS (
-            SELECT 1 FROM WhListingDetail d WHERE d.whListing = l
+            SELECT 1 FROM WhItem d WHERE d.whListing = l
         )
     """)
     void deleteStaleListings(@Param("cutoff") LocalDateTime cutoff);

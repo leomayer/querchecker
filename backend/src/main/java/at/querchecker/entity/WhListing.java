@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "wh_listing")
@@ -34,7 +36,7 @@ public class WhListing {
 
     private String location;
 
-    // nullable – Self-Link fehlt gelegentlich
+    /** Relativer SEO-Pfad (ohne https://www.willhaben.at/iad/ Prefix). */
     @Column(columnDefinition = "TEXT")
     private String url;
 
@@ -43,9 +45,17 @@ public class WhListing {
     @Column(nullable = false)
     private LocalDateTime fetchedAt;
 
+    /** Relativer Bildpfad-Stem (ohne Prefix und ohne _thumb.jpg Suffix). */
     @Column(columnDefinition = "TEXT")
     private String thumbnailUrl;
 
     @Column(columnDefinition = "boolean not null default false")
     private boolean paylivery;
+
+    /** Alle Bildpfad-Stems (ohne Prefix und ohne .jpg Suffix). */
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "wh_listing_image", joinColumns = @JoinColumn(name = "listing_id"))
+    @Column(name = "image_path", columnDefinition = "TEXT")
+    @Builder.Default
+    private List<String> imagePaths = new ArrayList<>();
 }

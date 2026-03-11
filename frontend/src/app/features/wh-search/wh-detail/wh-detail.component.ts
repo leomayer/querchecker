@@ -50,20 +50,12 @@ export class WhDetailComponent {
       this.detail.set(null);
       if (!selectedId) return;
       const id = +selectedId;
-      this.listingService.getDetail(id).subscribe((d) => {
+      this.listingService.openDetail(id).subscribe((d) => {
         this.detail.set(d);
         this.store.applySearchPatch(id, {
           viewCount: d.viewCount,
           lastViewedAt: d.lastViewedAt ?? undefined,
         });
-        if (this.listingService.shouldRecordView(id)) {
-          this.listingService.recordView(id).subscribe(() => {
-            const newViewCount = (d.viewCount || 0) + 1;
-            const newLastViewedAt = new Date().toISOString();
-            this.store.applySearchPatch(id, { viewCount: newViewCount, lastViewedAt: newLastViewedAt });
-            this.detail.update((cur) => cur ? { ...cur, viewCount: newViewCount, lastViewedAt: newLastViewedAt } : cur);
-          });
-        }
       });
     });
   }

@@ -7,9 +7,11 @@
     color: var(--mat-sys-on-surface-variant);
   }
 
-  mat-icon.warn-icon {
-    color: yellow;
+  // delete-sweep.component.scss
+  .warn-icon {
+    color: var(--color-rating-down) !important;
   }
+
   mat-slider {
     flex: 1;
   }

@@ -7,11 +7,11 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { QuercheckerListingDto } from './quercheckerListingDto';
+import { WhItemDto } from './whItemDto';
 
 
 export interface WhSearchResultDto { 
     totalCount?: number;
-    listings?: Array<QuercheckerListingDto>;
+    listings?: Array<WhItemDto>;
 }
 

@@ -1,9 +1,9 @@
 package at.querchecker.service;
 
 import at.querchecker.dto.WhListingDetailDto;
+import at.querchecker.entity.WhItem;
 import at.querchecker.entity.WhListing;
-import at.querchecker.entity.WhListingDetail;
-import at.querchecker.repository.WhListingDetailRepository;
+import at.querchecker.repository.WhItemRepository;
 import at.querchecker.repository.WhListingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,74 +16,72 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class WhListingDetailService {
+public class WhItemService {
 
-    private final WhListingDetailRepository whListingDetailRepository;
+    private final WhItemRepository whItemRepository;
     private final WhListingRepository whListingRepository;
 
-    @Transactional(readOnly = true)
-    public WhListingDetailDto getDetail(Long whListingId) {
-        return whListingDetailRepository.findByWhListingId(whListingId)
-                .map(this::toDto)
-                .orElse(emptyDto(whListingId));
-    }
-
     @Transactional
-    public void recordView(Long whListingId) {
-        WhListingDetail detail = getOrCreate(whListingId);
-        detail.setViewCount(detail.getViewCount() + 1);
-        detail.setLastViewedAt(LocalDateTime.now());
-        detail.setUpdatedAt(LocalDateTime.now());
-        whListingDetailRepository.save(detail);
+    public WhListingDetailDto openDetail(Long whListingId) {
+        WhItem item = getOrCreate(whListingId);
+        LocalDateTime now = LocalDateTime.now();
+        if (item.getLastViewedAt() == null ||
+                java.time.Duration.between(item.getLastViewedAt(), now).getSeconds() > 60) {
+            item.setViewCount(item.getViewCount() + 1);
+            item.setLastViewedAt(now);
+            item.setUpdatedAt(now);
+            whItemRepository.save(item);
+        }
+        return toDto(item);
     }
 
     @Transactional
     public WhListingDetailDto updateRating(Long whListingId, String rating) {
-        WhListingDetail detail = getOrCreate(whListingId);
-        detail.setRating(rating);
-        detail.setUpdatedAt(LocalDateTime.now());
-        return toDto(whListingDetailRepository.save(detail));
+        WhItem item = getOrCreate(whListingId);
+        item.setRating(rating);
+        item.setUpdatedAt(LocalDateTime.now());
+        return toDto(whItemRepository.save(item));
     }
 
     @Transactional
     public WhListingDetailDto updateNote(Long whListingId, String note) {
-        WhListingDetail detail = getOrCreate(whListingId);
-        detail.setNote(note);
-        detail.setUpdatedAt(LocalDateTime.now());
-        return toDto(whListingDetailRepository.save(detail));
+        WhItem item = getOrCreate(whListingId);
+        item.setNote(note);
+        item.setUpdatedAt(LocalDateTime.now());
+        return toDto(whItemRepository.save(item));
     }
 
     @Transactional
     public WhListingDetailDto updateInterest(Long whListingId, String level) {
-        WhListingDetail detail = getOrCreate(whListingId);
-        detail.setInterestLevel(level);
-        detail.setUpdatedAt(LocalDateTime.now());
-        return toDto(whListingDetailRepository.save(detail));
+        WhItem item = getOrCreate(whListingId);
+        item.setInterestLevel(level);
+        item.setUpdatedAt(LocalDateTime.now());
+        return toDto(whItemRepository.save(item));
     }
 
     @Transactional
     public WhListingDetailDto updateTags(Long whListingId, List<String> tags) {
-        WhListingDetail detail = getOrCreate(whListingId);
-        detail.getTags().clear();
-        detail.getTags().addAll(tags);
-        detail.setUpdatedAt(LocalDateTime.now());
-        return toDto(whListingDetailRepository.save(detail));
+        WhItem item = getOrCreate(whListingId);
+        item.getTags().clear();
+        item.getTags().addAll(tags);
+        item.setUpdatedAt(LocalDateTime.now());
+        return toDto(whItemRepository.save(item));
     }
 
-    private WhListingDetail getOrCreate(Long whListingId) {
-        return whListingDetailRepository.findByWhListingId(whListingId)
+    private WhItem getOrCreate(Long whListingId) {
+        return whItemRepository.findByWhListingId(whListingId)
                 .orElseGet(() -> {
                     WhListing listing = whListingRepository.findById(whListingId)
                             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                                     "WhListing not found: " + whListingId));
-                    return whListingDetailRepository.save(WhListingDetail.builder()
+                    return whItemRepository.save(WhItem.builder()
                             .whListing(listing)
                             .createdAt(LocalDateTime.now())
                             .build());
                 });
     }
 
-    private WhListingDetailDto toDto(WhListingDetail entity) {
+    private WhListingDetailDto toDto(WhItem entity) {
         return WhListingDetailDto.builder()
                 .id(entity.getId())
                 .whListingId(entity.getWhListing().getId())

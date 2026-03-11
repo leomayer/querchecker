@@ -3,7 +3,7 @@ import { Location } from '@angular/common';
 import { NavigationEnd, Router } from '@angular/router';
 import { signalStore, withState, withComputed, withMethods, withHooks, patchState } from '@ngrx/signals';
 import { filter } from 'rxjs';
-import { QuercheckerListingDto } from '../../api/model/quercheckerListingDto';
+import { WhItemDto } from '../../api/model/whItemDto';
 import { AppRoutePath } from '../../core/app-route-paths';
 import { SearchQuery } from './search-query.model';
 import { LayoutState } from './layout-state.enum';
@@ -12,13 +12,13 @@ export const SearchStore = signalStore(
   { providedIn: 'root' },
   withState({
     layoutState: LayoutState.SEARCH,
-    listings: [] as QuercheckerListingDto[],
+    listings: [] as WhItemDto[],
     selectedId: null as string | null,
     searchQuery: null as SearchQuery | null,
     loading: false,
     error: null as string | null,
     whTotal: null as number | null,
-    searchPatches: {} as Record<number, Partial<QuercheckerListingDto>>,
+    searchPatches: {} as Record<number, Partial<WhItemDto>>,
     sortColumn: '',
     sortDirection: '' as 'asc' | 'desc' | '',
     filterDraft: {
@@ -39,7 +39,7 @@ export const SearchStore = signalStore(
       if (!Object.keys(patches).length) return base;
       return base.map((l) => {
         const patch = l.id != null ? patches[l.id] : undefined;
-        return patch ? ({ ...l, ...patch } as QuercheckerListingDto) : l;
+        return patch ? ({ ...l, ...patch } as WhItemDto) : l;
       });
     }),
   })),
@@ -87,7 +87,7 @@ export const SearchStore = signalStore(
     },
     // Internal: called by MainLayoutComponent to sync httpResource state
     setResourceState(state: {
-      listings?: QuercheckerListingDto[];
+      listings?: WhItemDto[];
       loading?: boolean;
       error?: string | null;
       whTotal?: number | null;
@@ -95,7 +95,7 @@ export const SearchStore = signalStore(
       patchState(store, state);
     },
     // Internal: apply a patch to a single listing (rating/view updates in search mode)
-    applySearchPatch(id: number, patch: Partial<QuercheckerListingDto>): void {
+    applySearchPatch(id: number, patch: Partial<WhItemDto>): void {
       patchState(store, (s) => ({
         searchPatches: { ...s.searchPatches, [id]: { ...s.searchPatches[id], ...patch } },
       }));

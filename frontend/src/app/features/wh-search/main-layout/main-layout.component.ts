@@ -4,7 +4,7 @@ import { trigger, transition, style, animate, group, query } from '@angular/anim
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { QuercheckerListingDto } from '../../../api/model/quercheckerListingDto';
+import { WhItemDto } from '../../../api/model/whItemDto';
 import { WhSearchResultDto } from '../../../api/model/whSearchResultDto';
 import { API_URLS } from '../../../core/api-urls';
 import { SearchStore } from '../search.store';
@@ -93,7 +93,7 @@ export class MainLayoutComponent {
   protected readonly store = inject(SearchStore);
   protected readonly LayoutState = LayoutState;
 
-  private readonly allResource = httpResource<QuercheckerListingDto[]>(
+  private readonly allResource = httpResource<WhItemDto[]>(
     () =>
       !this.store.searchMode()
         ? { url: API_URLS.listings, params: { ratingFilter: 'UP_NULL' } }
