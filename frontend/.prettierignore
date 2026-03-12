@@ -1,0 +1,11 @@
+# Ignore directories
+.angular/
+dist/
+node_modules/
+coverage/
+api/
+
+# Ignore specific files
+*.min.js
+*.spec.ts.snap
+angular.json

@@ -1,5 +1,5 @@
 export enum LayoutState {
-  SEARCH   = 'search',
+  SEARCH = 'search',
   LISTINGS = 'listings',
-  DETAIL   = 'detail',
+  DETAIL = 'detail',
 }

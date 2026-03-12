@@ -15,10 +15,9 @@ import { FilterNode } from '../../../shared/components/hierarchical-filter-compo
 export class LocationFilterComponent {
   locationAreaId = model<number | undefined>(undefined);
 
-  private locationsResource = httpResource<WhLocationDto[]>(
-    () => ({ url: API_URLS.whLocations }),
-    { defaultValue: [] },
-  );
+  private locationsResource = httpResource<WhLocationDto[]>(() => ({ url: API_URLS.whLocations }), {
+    defaultValue: [],
+  });
 
   filterNodes = computed<FilterNode[]>(() => {
     const sorted = [...(this.locationsResource.value() ?? [])].sort(

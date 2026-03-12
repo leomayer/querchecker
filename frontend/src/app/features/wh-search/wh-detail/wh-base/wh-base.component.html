@@ -1,5 +1,5 @@
 @if (previews().length) {
-    <app-image-gallery [images]="previews()" />
+  <app-image-gallery [images]="previews()" />
 } @else if (listing().imageUrls?.length) {
   <div class="gallery-wrapper gallery-wrapper--static">
     <img [src]="listing().imageUrls![0]" [alt]="listing().title" class="static-image" />
@@ -18,9 +18,7 @@
     </span>
   }
   @if (listing().location) {
-    <span class="meta-item">
-      <mat-icon>location_on</mat-icon>{{ listing().location }}
-    </span>
+    <span class="meta-item"> <mat-icon>location_on</mat-icon>{{ listing().location }} </span>
   }
   @if (listing().listedAt) {
     <span class="meta-item" matTooltip="Erstellt am">

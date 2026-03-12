@@ -1,8 +1,6 @@
 <div class="zone-b">
-
   <!-- Left: Notizen | Right: controls (2 rows) -->
   <div class="main-layout">
-
     <!-- Left column: Notizen -->
     <div class="notes-column">
       <div class="notes-header">
@@ -11,9 +9,15 @@
           <span class="save-indicator" [class]="'save-' + store.saveState()">
             <span class="save-dot"></span>
             @switch (store.saveState()) {
-              @case ('pending') { speichert… }
-              @case ('saved') { gespeichert }
-              @case ('error') { Fehler }
+              @case ('pending') {
+                speichert…
+              }
+              @case ('saved') {
+                gespeichert
+              }
+              @case ('error') {
+                Fehler
+              }
             }
           </span>
         }
@@ -23,7 +27,8 @@
       } @else {
         <mat-form-field class="notes-field">
           <mat-label>Notizen</mat-label>
-          <textarea matInput
+          <textarea
+            matInput
             cdkTextareaAutosize
             cdkAutosizeMinRows="4"
             cdkAutosizeMaxRows="10"
@@ -38,13 +43,18 @@
 
     <!-- Right column: row 1 + row 2 -->
     <div class="controls-column">
-
       <!-- Row 1: Entscheidung & Interesse -->
       <div class="decision-row">
         <div class="control-group">
           <div class="control-label">Entscheidung</div>
-          <mat-button-toggle-group class="verdict-group" [value]="store.verdict()" hideSingleSelectionIndicator>
-            <mat-button-toggle value="UP" matTooltip="Weiter / Interessiert" (click)="onVerdict('UP')">
+          <mat-button-toggle-group
+            class="verdict-group"
+            [value]="store.verdict()"
+            hideSingleSelectionIndicator>
+            <mat-button-toggle
+              value="UP"
+              matTooltip="Weiter / Interessiert"
+              (click)="onVerdict('UP')">
               <mat-icon>thumb_up</mat-icon>
             </mat-button-toggle>
             <mat-button-toggle value="DOWN" matTooltip="Überspringen" (click)="onVerdict('DOWN')">
@@ -55,14 +65,26 @@
 
         <div class="control-group">
           <div class="control-label">Interesse</div>
-          <mat-button-toggle-group class="interest-group" [value]="store.interestLevel()" hideSingleSelectionIndicator>
-            <mat-button-toggle value="LOW" matTooltip="Kaum interessant" (click)="onInterestClick('LOW')">
+          <mat-button-toggle-group
+            class="interest-group"
+            [value]="store.interestLevel()"
+            hideSingleSelectionIndicator>
+            <mat-button-toggle
+              value="LOW"
+              matTooltip="Kaum interessant"
+              (click)="onInterestClick('LOW')">
               <mat-icon class="interest-low">local_fire_department</mat-icon>
             </mat-button-toggle>
-            <mat-button-toggle value="MEDIUM" matTooltip="Interessant" (click)="onInterestClick('MEDIUM')">
+            <mat-button-toggle
+              value="MEDIUM"
+              matTooltip="Interessant"
+              (click)="onInterestClick('MEDIUM')">
               <mat-icon class="interest-medium">local_fire_department</mat-icon>
             </mat-button-toggle>
-            <mat-button-toggle value="HIGH" matTooltip="Sehr interessant" (click)="onInterestClick('HIGH')">
+            <mat-button-toggle
+              value="HIGH"
+              matTooltip="Sehr interessant"
+              (click)="onInterestClick('HIGH')">
               <mat-icon class="interest-high">local_fire_department</mat-icon>
             </mat-button-toggle>
           </mat-button-toggle-group>
@@ -74,7 +96,8 @@
         <div class="control-label">Tags</div>
         <div class="tags-container">
           @for (tag of PREDEFINED_TAGS; track tag.label) {
-            <button class="tag-chip"
+            <button
+              class="tag-chip"
               [class.positive]="tag.positive"
               [class.negative]="!tag.positive"
               [class.selected]="isTagSelected(tag.label)"
@@ -88,7 +111,9 @@
             </button>
           }
           <div class="tag-input-row">
-            <input class="tag-input" placeholder="Eigener Tag…"
+            <input
+              class="tag-input"
+              placeholder="Eigener Tag…"
               [(ngModel)]="customTagInput"
               (keyup.enter)="onAddCustomTag()"
               maxlength="30" />
@@ -100,8 +125,6 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
-
 </div>

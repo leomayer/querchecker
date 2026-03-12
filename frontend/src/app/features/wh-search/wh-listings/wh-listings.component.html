@@ -14,8 +14,7 @@
     class="rating-filter"
     [value]="ratingFilter()"
     (change)="ratingFilter.set($event.value)"
-    hideSingleSelectionIndicator
-  >
+    hideSingleSelectionIndicator>
     <mat-button-toggle value="UP_NULL">
       <mat-icon>checklist</mat-icon>
       Offen
@@ -41,8 +40,7 @@
         matInput
         [value]="filterText()"
         (input)="onFilterInput($event)"
-        placeholder="Titel oder Standort..."
-      />
+        placeholder="Titel oder Standort..." />
       <mat-icon matSuffix>filter_list</mat-icon>
     </mat-form-field>
 
@@ -50,8 +48,7 @@
       [checked]="freeOnly()"
       (change)="freeOnly.set($event.checked)"
       color="primary"
-      class="free-toggle"
-    >
+      class="free-toggle">
       Nur „Zu verschenken"
     </mat-slide-toggle>
   </div>
@@ -72,8 +69,7 @@
           [selected]="store.selectedId() === listing.id?.toString()"
           (clicked)="onCardClicked($event)"
           (ratingChanged)="onCardRatingChanged($event)"
-          (interestLevelChanged)="onCardInterestLevelChanged($event)"
-        />
+          (interestLevelChanged)="onCardInterestLevelChanged($event)" />
       </div>
     } @empty {
       <p class="no-data">Keine Inserate gefunden.</p>

@@ -25,10 +25,7 @@ const SLIDE_IN_RIGHT = [
 const SLIDE_OUT_LEFT = [
   animate('200ms ease-in', style({ transform: 'translateX(-40px)', opacity: 0 })),
 ];
-const FADE_IN = [
-  style({ opacity: 0 }),
-  animate('300ms ease-in', style({ opacity: 1 })),
-];
+const FADE_IN = [style({ opacity: 0 }), animate('300ms ease-in', style({ opacity: 1 }))];
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -63,19 +60,23 @@ const FADE_IN = [
       // Back to listings: slide in from left
       transition(`${LayoutState.DETAIL} => ${LayoutState.LISTINGS}`, [
         group([
-          query(':enter', [
-            style({ transform: 'translateX(-40px)', opacity: 0 }),
-            animate('280ms ease-out', style({ transform: 'none', opacity: 1 })),
-          ], { optional: true }),
-          query(':leave', [
-            animate('200ms ease-in', style({ transform: 'translateX(40px)', opacity: 0 })),
-          ], { optional: true }),
+          query(
+            ':enter',
+            [
+              style({ transform: 'translateX(-40px)', opacity: 0 }),
+              animate('280ms ease-out', style({ transform: 'none', opacity: 1 })),
+            ],
+            { optional: true },
+          ),
+          query(
+            ':leave',
+            [animate('200ms ease-in', style({ transform: 'translateX(40px)', opacity: 0 }))],
+            { optional: true },
+          ),
         ]),
       ]),
       // Clear search: fade in placeholder
-      transition(`* => ${LayoutState.SEARCH}`, [
-        query(':enter', FADE_IN, { optional: true }),
-      ]),
+      transition(`* => ${LayoutState.SEARCH}`, [query(':enter', FADE_IN, { optional: true })]),
     ]),
     trigger('leftZone', [
       // Switch to detail: listings slide in from right in left zone

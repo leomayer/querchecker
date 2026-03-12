@@ -87,7 +87,9 @@
 .card-wrapper {
   display: grid;
   grid-template-rows: 1fr;
-  transition: grid-template-rows 0.35s ease, opacity 0.35s ease;
+  transition:
+    grid-template-rows 0.35s ease,
+    opacity 0.35s ease;
 
   > app-listing-card {
     overflow: hidden;
@@ -118,10 +120,10 @@
     margin-right: 4px;
   }
 
-  mat-button-toggle[value="UP"] mat-icon {
+  mat-button-toggle[value='UP'] mat-icon {
     color: var(--color-positive);
   }
-  mat-button-toggle[value="DOWN"] mat-icon {
+  mat-button-toggle[value='DOWN'] mat-icon {
     color: var(--color-rating-down);
   }
 }

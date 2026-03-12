@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,12 +25,16 @@ import { ItemResearchComponent } from './item-research/item-research.component';
         style({ transform: 'translateY(100%)' }),
         animate('280ms ease-out', style({ transform: 'translateY(0)' })),
       ]),
-      transition(':leave', [
-        animate('280ms ease-in', style({ transform: 'translateY(-100%)' })),
-      ]),
+      transition(':leave', [animate('280ms ease-in', style({ transform: 'translateY(-100%)' }))]),
     ]),
   ],
-  imports: [MatDividerModule, MatIconModule, WhBaseComponent, ItemAnnotationComponent, ItemResearchComponent],
+  imports: [
+    MatDividerModule,
+    MatIconModule,
+    WhBaseComponent,
+    ItemAnnotationComponent,
+    ItemResearchComponent,
+  ],
   templateUrl: './wh-detail.component.html',
   styleUrl: './wh-detail.component.scss',
 })

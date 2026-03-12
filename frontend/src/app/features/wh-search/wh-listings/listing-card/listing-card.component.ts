@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  untracked,
+} from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -43,7 +53,9 @@ export class ListingCardComponent {
 
   displayInterestLevel = computed(() => {
     const temp = this._tempInterestLevel();
-    return temp !== undefined ? temp : ((this.listing().interestLevel as 'LOW' | 'MEDIUM' | 'HIGH' | null) ?? null);
+    return temp !== undefined
+      ? temp
+      : ((this.listing().interestLevel as 'LOW' | 'MEDIUM' | 'HIGH' | null) ?? null);
   });
 
   constructor() {

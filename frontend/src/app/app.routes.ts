@@ -29,9 +29,7 @@ export const routes: Routes = [
   {
     path: AppRoutePath.SETTINGS,
     loadComponent: () =>
-      import('./features/settings/settings.component').then(
-        (m) => m.SettingsComponent,
-      ),
+      import('./features/settings/settings.component').then((m) => m.SettingsComponent),
   },
   {
     path: '**',

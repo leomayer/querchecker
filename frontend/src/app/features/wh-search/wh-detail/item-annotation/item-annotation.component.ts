@@ -1,6 +1,13 @@
 import {
-  ChangeDetectionStrategy, Component, NgZone,
-  ViewChild, computed, effect, inject, input, untracked,
+  ChangeDetectionStrategy,
+  Component,
+  NgZone,
+  ViewChild,
+  computed,
+  effect,
+  inject,
+  input,
+  untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,7 +25,10 @@ import { ListingService } from '../../../../core/listing.service';
 import { SearchStore } from '../../search.store';
 import { ItemDetailStore } from './item-detail.store';
 
-interface PredefinedTag { label: string; positive: boolean; }
+interface PredefinedTag {
+  label: string;
+  positive: boolean;
+}
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,8 +36,13 @@ interface PredefinedTag { label: string; positive: boolean; }
   providers: [ItemDetailStore],
   imports: [
     FormsModule,
-    MatButtonModule, MatButtonToggleModule, MatFormFieldModule,
-    MatIconModule, MatInputModule, MatProgressSpinnerModule, MatTooltipModule,
+    MatButtonModule,
+    MatButtonToggleModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule,
     TextFieldModule,
   ],
   templateUrl: './item-annotation.component.html',
@@ -45,10 +60,10 @@ export class ItemAnnotationComponent {
   @ViewChild('notesRef') notesRef!: CdkTextareaAutosize;
 
   readonly PREDEFINED_TAGS: PredefinedTag[] = [
-    { label: 'Guter Preis',       positive: true  },
-    { label: 'Überlegenswert',    positive: true  },
-    { label: 'Zu teuer',          positive: false },
-    { label: 'Schlechte Fotos',   positive: false },
+    { label: 'Guter Preis', positive: true },
+    { label: 'Überlegenswert', positive: true },
+    { label: 'Zu teuer', positive: false },
+    { label: 'Schlechte Fotos', positive: false },
   ];
 
   readonly customTags = computed(() =>
@@ -91,9 +106,7 @@ export class ItemAnnotationComponent {
 
   onToggleTag(label: string): void {
     const current = this.store.tags();
-    const next = current.includes(label)
-      ? current.filter((t) => t !== label)
-      : [...current, label];
+    const next = current.includes(label) ? current.filter((t) => t !== label) : [...current, label];
     this.store.setTags(next);
     this.listingService.updateTags(this.listing().id!, next).subscribe();
   }

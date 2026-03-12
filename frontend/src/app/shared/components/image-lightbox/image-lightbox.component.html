@@ -3,9 +3,7 @@
   (wheel)="onWheel($event)"
   (mousemove)="onMouseMove($event)"
   (mouseup)="onMouseUp()"
-  (mouseleave)="onMouseUp()"
->
-
+  (mouseleave)="onMouseUp()">
   <!-- Close -->
   <button mat-icon-button class="ctrl-btn close-btn" (click)="close()" aria-label="Schließen">
     <mat-icon>close</mat-icon>
@@ -18,8 +16,7 @@
   <div
     class="img-wrapper"
     [style.cursor]="scale() > 1 ? 'grab' : 'default'"
-    (mousedown)="onMouseDown($event)"
-  >
+    (mousedown)="onMouseDown($event)">
     @if (activeImage(); as img) {
       <img
         #imgEl
@@ -27,34 +24,39 @@
         [src]="img.fullUrl"
         [alt]="'Bild ' + (activeIndex() + 1)"
         [style.transform]="transform()"
-        draggable="false"
-      />
+        draggable="false" />
     }
   </div>
 
   <!-- Nav -->
   @if (total() > 1) {
-    <button mat-icon-button class="ctrl-btn nav-btn nav-prev" (click)="prev()" aria-label="Vorheriges">
+    <button
+      mat-icon-button
+      class="ctrl-btn nav-btn nav-prev"
+      (click)="prev()"
+      aria-label="Vorheriges">
       <mat-icon>chevron_left</mat-icon>
     </button>
-    <button mat-icon-button class="ctrl-btn nav-btn nav-next" (click)="next()" aria-label="Nächstes">
+    <button
+      mat-icon-button
+      class="ctrl-btn nav-btn nav-next"
+      (click)="next()"
+      aria-label="Nächstes">
       <mat-icon>chevron_right</mat-icon>
     </button>
   }
 
   <!-- Thumbnail strip -->
   @if (total() > 1) {
-    <div class="thumb-strip" (wheel)="onThumbWheel($event)" style="touch-action: none;">
+    <div class="thumb-strip" (wheel)="onThumbWheel($event)" style="touch-action: none">
       @for (img of images; track $index) {
         <button
           class="thumb-btn"
           [class.active]="$index === activeIndex()"
-          (click)="select($index)"
-        >
+          (click)="select($index)">
           <img class="thumb-img" [src]="img.thumbUrl" [alt]="'Vorschau ' + ($index + 1)" />
         </button>
       }
     </div>
   }
-
 </div>

@@ -1,7 +1,6 @@
 <app-zone-left
   [@leftZone]="store.layoutState()"
-  [width]="store.layoutState() === LayoutState.DETAIL ? '420px' : '320px'"
->
+  [width]="store.layoutState() === LayoutState.DETAIL ? '420px' : '320px'">
   @if (store.layoutState() === LayoutState.DETAIL) {
     <div class="zone-content">
       <app-wh-listings (ratingChanged)="handleRatingChange($event)" />
@@ -29,7 +28,11 @@
     @case (LayoutState.DETAIL) {
       <div class="zone-content detail-zone">
         <app-wh-detail />
-        <button mat-fab class="back-fab" (click)="store.backToListings()" matTooltip="Zurück zur Liste">
+        <button
+          mat-fab
+          class="back-fab"
+          (click)="store.backToListings()"
+          matTooltip="Zurück zur Liste">
           <mat-icon>arrow_back</mat-icon>
         </button>
       </div>

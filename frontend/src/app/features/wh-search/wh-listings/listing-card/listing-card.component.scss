@@ -36,7 +36,8 @@
     background-color: color-mix(in srgb, var(--color-haggle-primary) 12%, transparent);
     border: 3px solid var(--color-haggle-secondary);
 
-    .listing-price, .free-label {
+    .listing-price,
+    .free-label {
       color: var(--mat-sys-primary);
     }
 

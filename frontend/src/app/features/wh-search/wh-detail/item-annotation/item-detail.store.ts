@@ -1,7 +1,15 @@
 import { inject } from '@angular/core';
 import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
 import { EMPTY, Subject } from 'rxjs';
-import { catchError, debounceTime, delay, distinctUntilChanged, switchMap, takeUntil, tap } from 'rxjs/operators';
+import {
+  catchError,
+  debounceTime,
+  delay,
+  distinctUntilChanged,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs/operators';
 import { WhListingDetailDto } from '../../../../api/model/whListingDetailDto';
 import { ListingService } from '../../../../core/listing.service';
 
@@ -34,23 +42,25 @@ export const ItemDetailStore = signalStore(
 
     return {
       _startPipeline(): void {
-        notes$.pipe(
-          debounceTime(900),
-          distinctUntilChanged(),
-          tap(() => patchState(store, { saveState: 'pending' })),
-          switchMap((text) =>
-            listingService.updateNote(store.itemId()!, text).pipe(
-              tap(() => patchState(store, { saveState: 'saved' })),
-              delay(2000),
-              tap(() => patchState(store, { saveState: 'idle' })),
-              catchError(() => {
-                patchState(store, { saveState: 'error' });
-                return EMPTY;
-              }),
+        notes$
+          .pipe(
+            debounceTime(900),
+            distinctUntilChanged(),
+            tap(() => patchState(store, { saveState: 'pending' })),
+            switchMap((text) =>
+              listingService.updateNote(store.itemId()!, text).pipe(
+                tap(() => patchState(store, { saveState: 'saved' })),
+                delay(2000),
+                tap(() => patchState(store, { saveState: 'idle' })),
+                catchError(() => {
+                  patchState(store, { saveState: 'error' });
+                  return EMPTY;
+                }),
+              ),
             ),
-          ),
-          takeUntil(destroy$),
-        ).subscribe();
+            takeUntil(destroy$),
+          )
+          .subscribe();
       },
 
       _flush(): void {
@@ -96,7 +106,12 @@ export const ItemDetailStore = signalStore(
     };
   }),
   withHooks({
-    onInit(store) { store._startPipeline(); },
-    onDestroy(store) { store._flush(); store._teardown(); },
+    onInit(store) {
+      store._startPipeline();
+    },
+    onDestroy(store) {
+      store._flush();
+      store._teardown();
+    },
   }),
 );

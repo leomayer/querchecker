@@ -1,19 +1,21 @@
 <div class="gallery">
-
   <!-- Main image -->
-  <div class="main-frame" (wheel)="onWheel($event)" style="touch-action: none;">
+  <div class="main-frame" (wheel)="onWheel($event)" style="touch-action: none">
     @if (activeImage(); as img) {
       <img
         class="main-img"
         [src]="img.fullUrl"
         [alt]="'Bild ' + (activeIndex() + 1)"
-        (click)="openLightbox()"
-      />
+        (click)="openLightbox()" />
     }
 
     <!-- Nav arrows -->
     @if (total() > 1) {
-      <button mat-icon-button class="nav-btn nav-prev" (click)="prev()" aria-label="Vorheriges Bild">
+      <button
+        mat-icon-button
+        class="nav-btn nav-prev"
+        (click)="prev()"
+        aria-label="Vorheriges Bild">
         <mat-icon>chevron_left</mat-icon>
       </button>
       <button mat-icon-button class="nav-btn nav-next" (click)="next()" aria-label="Nächstes Bild">
@@ -32,22 +34,16 @@
 
   <!-- Thumbnail strip -->
   @if (total() > 1) {
-    <div class="thumb-strip" (wheel)="onWheel($event)" style="touch-action: none;">
+    <div class="thumb-strip" (wheel)="onWheel($event)" style="touch-action: none">
       @for (img of images(); track $index) {
         <button
           class="thumb-btn"
           [class.active]="$index === activeIndex()"
           (click)="select($index)"
-          [attr.aria-label]="'Bild ' + ($index + 1)"
-        >
-          <img
-            class="thumb-img"
-            [src]="img.thumbUrl"
-            [alt]="'Vorschau ' + ($index + 1)"
-          />
+          [attr.aria-label]="'Bild ' + ($index + 1)">
+          <img class="thumb-img" [src]="img.thumbUrl" [alt]="'Vorschau ' + ($index + 1)" />
         </button>
       }
     </div>
   }
-
 </div>

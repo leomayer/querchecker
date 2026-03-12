@@ -77,8 +77,12 @@
   transform: translateY(-50%);
   z-index: 10;
 
-  &.nav-prev { left: 16px; }
-  &.nav-next { right: 16px; }
+  &.nav-prev {
+    left: 16px;
+  }
+  &.nav-next {
+    right: 16px;
+  }
 }
 
 // ── Thumbnail strip ───────────────────────────────────────────────────────────
@@ -92,11 +96,13 @@
   max-width: 100%;
   scroll-snap-type: x mandatory;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.2) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 
-  &::-webkit-scrollbar { height: 4px; }
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
   &::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 2px;
   }
 }
@@ -110,7 +116,9 @@
   cursor: pointer;
   scroll-snap-align: center;
   opacity: 0.45;
-  transition: border-color 0.15s ease, opacity 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    opacity 0.15s ease;
 
   &.active {
     border-color: var(--color-haggle-primary, #4a7a8a);

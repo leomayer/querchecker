@@ -1,6 +1,6 @@
 export enum AppRoutePath {
-  SEARCH   = '',
+  SEARCH = '',
   LISTINGS = 'listings',
-  DETAIL   = 'detail',
+  DETAIL = 'detail',
   SETTINGS = 'settings',
 }

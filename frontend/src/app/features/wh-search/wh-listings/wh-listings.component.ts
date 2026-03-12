@@ -1,5 +1,16 @@
-import { ChangeDetectionStrategy, Component, computed, inject, model, output, signal } from '@angular/core';
-import { InterestLevelChangedEvent, RatingChangedEvent } from './listing-card/listing-card.component';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  model,
+  output,
+  signal,
+} from '@angular/core';
+import {
+  InterestLevelChangedEvent,
+  RatingChangedEvent,
+} from './listing-card/listing-card.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
@@ -91,10 +102,14 @@ export class WhListingsComponent {
 
   private cardLeavesView(newRating: string | null): boolean {
     switch (this.ratingFilter()) {
-      case 'UP':      return newRating !== 'UP';
-      case 'DOWN':    return newRating !== 'DOWN';
-      case 'UP_NULL': return newRating === 'DOWN';
-      default:        return false; // 'ALL': Karte bleibt immer
+      case 'UP':
+        return newRating !== 'UP';
+      case 'DOWN':
+        return newRating !== 'DOWN';
+      case 'UP_NULL':
+        return newRating === 'DOWN';
+      default:
+        return false; // 'ALL': Karte bleibt immer
     }
   }
 

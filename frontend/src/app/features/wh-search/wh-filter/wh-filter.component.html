@@ -9,19 +9,28 @@
         [value]="keyword()"
         (input)="onKeywordInput($event)"
         placeholder="z.B. RTX 4070"
-        maxlength="100"
-      />
+        maxlength="100" />
     </mat-form-field>
 
     <div class="search-row">
       <mat-form-field class="price-field">
         <mat-label>Preis von (€)</mat-label>
-        <input matInput type="number" [value]="priceFrom() ?? ''" (input)="onPriceFromInput($event)" min="0" />
+        <input
+          matInput
+          type="number"
+          [value]="priceFrom() ?? ''"
+          (input)="onPriceFromInput($event)"
+          min="0" />
       </mat-form-field>
 
       <mat-form-field class="price-field">
         <mat-label>Preis bis (€)</mat-label>
-        <input matInput type="number" [value]="priceTo() ?? ''" (input)="onPriceToInput($event)" min="0" />
+        <input
+          matInput
+          type="number"
+          [value]="priceTo() ?? ''"
+          (input)="onPriceToInput($event)"
+          min="0" />
       </mat-form-field>
     </div>
 
@@ -38,15 +47,15 @@
 
     <app-location-filter
       [locationAreaId]="locationAreaId()"
-      (locationAreaIdChange)="store.setFilterDraft({ locationAreaId: $event })"
-    />
+      (locationAreaIdChange)="store.setFilterDraft({ locationAreaId: $event })" />
 
     <app-category-filter
       [categoryWhId]="categoryWhId()"
-      (categoryWhIdChange)="store.setFilterDraft({ categoryWhId: $event })"
-    />
+      (categoryWhIdChange)="store.setFilterDraft({ categoryWhId: $event })" />
 
-    <mat-checkbox [checked]="paylivery()" (change)="store.setFilterDraft({ paylivery: $event.checked })">
+    <mat-checkbox
+      [checked]="paylivery()"
+      (change)="store.setFilterDraft({ paylivery: $event.checked })">
       Nur Paylivery
     </mat-checkbox>
 
@@ -55,8 +64,7 @@
         mat-raised-button
         color="primary"
         type="submit"
-        [disabled]="!keyword().trim() || loading()"
-      >
+        [disabled]="!keyword().trim() || loading()">
         <mat-icon>search</mat-icon>
         Suchen
       </button>

@@ -1,4 +1,16 @@
-import { ChangeDetectionStrategy, Component, ElementRef, inject, input, output, signal, computed, viewChild, effect, untracked } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  input,
+  output,
+  signal,
+  computed,
+  viewChild,
+  effect,
+  untracked,
+} from '@angular/core';
 import { MatAutocompleteModule, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,7 +23,14 @@ import { FilterNode } from './hierarchical-filter-component.model';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-hierarchical-filter',
-  imports: [MatAutocompleteModule, MatInputModule, MatIconModule, MatFormFieldModule, MatButtonModule, MatChipsModule],
+  imports: [
+    MatAutocompleteModule,
+    MatInputModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatButtonModule,
+    MatChipsModule,
+  ],
   templateUrl: './hierarchical-filter-component.html',
   styleUrl: './hierarchical-filter-component.scss',
 })

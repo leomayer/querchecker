@@ -8,20 +8,16 @@
     </button>
 -->
 
-    <mat-card class="theme-card">
-      <mat-card-header>
-        <mat-icon mat-card-avatar class="section-icon">palette</mat-icon>
-        <mat-card-title>Design</mat-card-title>
-        <mat-card-subtitle>Thema wechseln</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <p class="theme-description">
-          Wechsle zwischen Hell- und Dunkelmodus.
-        </p>
-        <mat-slide-toggle
-          [checked]="theme.darkMode()"
-          (change)="theme.setDarkTheme($event.checked)">
-          Dunkelmodus aktivieren
-        </mat-slide-toggle>
-      </mat-card-content>
-    </mat-card>
+<mat-card class="theme-card">
+  <mat-card-header>
+    <mat-icon mat-card-avatar class="section-icon">palette</mat-icon>
+    <mat-card-title>Design</mat-card-title>
+    <mat-card-subtitle>Thema wechseln</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <p class="theme-description"> Wechsle zwischen Hell- und Dunkelmodus. </p>
+    <mat-slide-toggle [checked]="theme.darkMode()" (change)="theme.setDarkTheme($event.checked)">
+      Dunkelmodus aktivieren
+    </mat-slide-toggle>
+  </mat-card-content>
+</mat-card>

@@ -1,7 +1,14 @@
 import { computed, inject } from '@angular/core';
 import { Location } from '@angular/common';
 import { NavigationEnd, Router } from '@angular/router';
-import { signalStore, withState, withComputed, withMethods, withHooks, patchState } from '@ngrx/signals';
+import {
+  signalStore,
+  withState,
+  withComputed,
+  withMethods,
+  withHooks,
+  patchState,
+} from '@ngrx/signals';
 import { filter } from 'rxjs';
 import { WhItemDto } from '../../api/model/whItemDto';
 import { AppRoutePath } from '../../core/app-route-paths';
@@ -46,7 +53,11 @@ export const SearchStore = signalStore(
   })),
   withMethods((store, router = inject(Router), location = inject(Location)) => ({
     search(query: SearchQuery): void {
-      patchState(store, { searchQuery: query, layoutState: LayoutState.LISTINGS, searchPatches: {} });
+      patchState(store, {
+        searchQuery: query,
+        layoutState: LayoutState.LISTINGS,
+        searchPatches: {},
+      });
       persistSearch(store.filterDraft());
       router.navigate(['/', AppRoutePath.LISTINGS]);
     },
@@ -75,7 +86,15 @@ export const SearchStore = signalStore(
         layoutState: LayoutState.SEARCH,
         whTotal: null,
         searchPatches: {},
-        filterDraft: { keyword: '', rows: 50, priceFrom: null, priceTo: null, locationAreaId: undefined, categoryWhId: undefined, paylivery: false },
+        filterDraft: {
+          keyword: '',
+          rows: 50,
+          priceFrom: null,
+          priceTo: null,
+          locationAreaId: undefined,
+          categoryWhId: undefined,
+          paylivery: false,
+        },
       });
       router.navigate(['/']);
     },
@@ -105,7 +124,10 @@ export const SearchStore = signalStore(
     removeListing(id: number): void {
       patchState(store, (s) => ({
         listings: s.listings.filter((l) => l.id !== id),
-        searchPatches: (() => { const { [id]: _, ...rest } = s.searchPatches; return rest; })(),
+        searchPatches: (() => {
+          const { [id]: _, ...rest } = s.searchPatches;
+          return rest;
+        })(),
       }));
     },
     advanceToNext(): void {
@@ -114,13 +136,17 @@ export const SearchStore = signalStore(
       const currentIdx = listings.findIndex((l) => l.id?.toString() === currentId);
       for (let i = currentIdx + 1; i < listings.length; i++) {
         if (listings[i].rating !== 'DOWN') {
-          router.navigate(['/', AppRoutePath.DETAIL, listings[i].id!.toString()], { replaceUrl: true });
+          router.navigate(['/', AppRoutePath.DETAIL, listings[i].id!.toString()], {
+            replaceUrl: true,
+          });
           return;
         }
       }
       for (let i = currentIdx - 1; i >= 0; i--) {
         if (listings[i].rating !== 'DOWN') {
-          router.navigate(['/', AppRoutePath.DETAIL, listings[i].id!.toString()], { replaceUrl: true });
+          router.navigate(['/', AppRoutePath.DETAIL, listings[i].id!.toString()], {
+            replaceUrl: true,
+          });
           return;
         }
       }

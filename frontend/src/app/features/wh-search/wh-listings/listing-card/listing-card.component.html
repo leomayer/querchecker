@@ -1,18 +1,15 @@
-<div class="card-clickable" role="button" tabindex="0"
+<div
+  class="card-clickable"
+  role="button"
+  tabindex="0"
   [class.rated-up]="displayRating() === 'UP'"
   [class.rated-down]="displayRating() === 'DOWN'"
   [class.selected]="selected()"
   (click)="clicked.emit(listing())"
   (keydown.enter)="clicked.emit(listing())"
   (keydown.space)="clicked.emit(listing())">
-
   @if (listing().thumbnailUrl) {
-    <img
-      class="thumbnail"
-      [src]="listing().thumbnailUrl"
-      [alt]="listing().title"
-      loading="lazy"
-    />
+    <img class="thumbnail" [src]="listing().thumbnailUrl" [alt]="listing().title" loading="lazy" />
   }
 
   <div class="card-body">
@@ -31,43 +28,51 @@
         }
       </span>
     </div>
-<div class="body-row">
-    <span class="meta-item meta-location">
-      <mat-icon>location_on</mat-icon>
-      <span class="meta-text">{{ listing().location ?? '–' }}</span>
-    </span>
-    <span class="meta-item meta-date">
-      <mat-icon>calendar_today</mat-icon>
-      {{ listing().listedAt | date: 'dd.MM.yyyy' }}
-      &nbsp;
-      <mat-icon
-        [class]="'favorite-icon' + (displayInterestLevel() ? ' interest-' + displayInterestLevel()!.toLowerCase() : '')"
-        (click)="cycleInterestLevel($event)">whatshot</mat-icon>
-    </span>
-</div>
-<div class="body-row">
-  @if (listing().description) {
-    <div class="card-description">{{ listing().description }}</div>
-  }
-
-  <div>
-  <div class="rating-buttons">
-    <button mat-icon-button class="rating-btn rating-up" (click)="setRating('UP', $event)">
-      <mat-icon>thumb_up</mat-icon>
-    </button>
-    <button mat-icon-button class="rating-btn rating-down" (click)="setRating('DOWN', $event)">
-      <mat-icon>thumb_down</mat-icon>
-    </button>
-  </div>
-  @if (listing().viewCount) {
-    <span class="view-stats">
-      {{ listing().viewCount }}<span>x</span>
-      @if (listing().lastViewedAt) {
-        · {{ listing().lastViewedAt | date: 'dd.MM.' }}
+    <div class="body-row">
+      <span class="meta-item meta-location">
+        <mat-icon>location_on</mat-icon>
+        <span class="meta-text">{{ listing().location ?? '–' }}</span>
+      </span>
+      <span class="meta-item meta-date">
+        <mat-icon>calendar_today</mat-icon>
+        {{ listing().listedAt | date: 'dd.MM.yyyy' }}
+        &nbsp;
+        <mat-icon
+          [class]="
+            'favorite-icon' +
+            (displayInterestLevel() ? ' interest-' + displayInterestLevel()!.toLowerCase() : '')
+          "
+          (click)="cycleInterestLevel($event)"
+          >whatshot</mat-icon
+        >
+      </span>
+    </div>
+    <div class="body-row">
+      @if (listing().description) {
+        <div class="card-description">{{ listing().description }}</div>
       }
-    </span>
-  }
-</div>
-  </div>
+
+      <div>
+        <div class="rating-buttons">
+          <button mat-icon-button class="rating-btn rating-up" (click)="setRating('UP', $event)">
+            <mat-icon>thumb_up</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            class="rating-btn rating-down"
+            (click)="setRating('DOWN', $event)">
+            <mat-icon>thumb_down</mat-icon>
+          </button>
+        </div>
+        @if (listing().viewCount) {
+          <span class="view-stats">
+            {{ listing().viewCount }}<span>x</span>
+            @if (listing().lastViewedAt) {
+              · {{ listing().lastViewedAt | date: 'dd.MM.' }}
+            }
+          </span>
+        }
+      </div>
+    </div>
   </div>
 </div>
