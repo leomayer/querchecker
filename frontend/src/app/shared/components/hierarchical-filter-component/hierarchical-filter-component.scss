@@ -18,7 +18,7 @@
   height: 48px;
   cursor: pointer;
   font-weight: 500;
-  color: var(--color-haggle-primary);
+  color: var(--color-ui-teal);
   border-bottom: 1px solid var(--color-border);
 
   mat-icon {
@@ -28,7 +28,7 @@
   }
 
   &:hover {
-    background: color-mix(in srgb, var(--color-haggle-primary) 8%, transparent);
+    background: color-mix(in srgb, var(--color-ui-teal) 8%, transparent);
   }
 }
 
@@ -44,7 +44,7 @@
   height: 16px;
   margin-right: 6px;
   flex-shrink: 0;
-  color: var(--color-haggle-primary);
+  color: var(--color-ui-teal);
   visibility: hidden;
 
   &.visible {
@@ -67,19 +67,19 @@
   padding: 0 6px;
   height: 32px;
   border-radius: 4px;
-  color: var(--color-haggle-primary);
-  background: color-mix(in srgb, var(--color-haggle-primary) 8%, transparent);
+  color: var(--color-ui-teal);
+  background: color-mix(in srgb, var(--color-ui-teal) 8%, transparent);
   cursor: pointer;
 
   mat-icon {
     font-size: 20px;
     width: 20px;
     height: 20px;
-    color: var(--color-haggle-primary);
+    color: var(--color-ui-teal);
   }
 
   &:hover {
-    background: color-mix(in srgb, var(--color-haggle-primary) 20%, transparent);
+    background: color-mix(in srgb, var(--color-ui-teal) 20%, transparent);
   }
 }
 
@@ -93,15 +93,20 @@
   padding: 0;
 }
 
-// Farbhierarchie: Level 0 = dunkel → Level 2 = hell
+// Farbhierarchie: Level 0 = dunkel → Level 2 = hell, Level 3 = mat-sys-primary
 // .mat-mdc-chip ist der MDC-Host-Klassen-Name auf dem Chip-Element.
 // Beide Token-Präfixe gesetzt (--mdc-chip-* + --mat-chip-*) für AM-Kompatibilität.
 :host ::ng-deep {
-  @each $level, $color in (0: var(--color-haggle-primary), 1: var(--color-haggle-secondary), 2: var(--color-tertiary)) {
+  @each $level,
+    $color
+      in (
+        0: var(--color-haggle-primary),
+        1: var(--color-haggle-secondary),
+        2: var(--color-tertiary)
+      )
+  {
     .mat-mdc-chip.chip-level-#{$level} {
-      --mdc-chip-elevated-container-color: #{$color};
       --mat-chip-elevated-container-color: #{$color};
-      --mdc-chip-label-text-color: var(--color-on-haggle-primary);
       --mat-chip-label-text-color: var(--color-on-haggle-primary);
       --mdc-chip-with-trailing-icon-trailing-icon-color: var(--color-on-haggle-primary);
 
@@ -109,6 +114,16 @@
       .mat-icon {
         color: var(--color-on-haggle-primary);
       }
+    }
+  }
+
+  .mat-mdc-chip.chip-level-2 {
+    --mat-chip-elevated-container-color: var(--mat-sys-primary);
+    --mat-chip-label-text-color: var(--mat-sys-on-primary);
+    --mdc-chip-with-trailing-icon-trailing-icon-color: var(--mat-sys-on-primary);
+
+    .mat-icon {
+      color: var(--mat-sys-on-primary);
     }
   }
 }
@@ -128,7 +143,7 @@
     // Bold-Highlight aus [innerHTML]
     strong {
       font-weight: 700;
-      color: var(--color-haggle-primary);
+      color: var(--color-ui-teal);
     }
   }
 

@@ -7,11 +7,14 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { WhPreviewDto } from './whPreviewDto';
 
 
 export interface WhListingDetailDto { 
     id?: number;
     whListingId?: number;
+    description?: string;
+    previews?: Array<WhPreviewDto>;
     note?: string;
     viewCount?: number;
     lastViewedAt?: string;

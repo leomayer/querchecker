@@ -58,12 +58,15 @@ querchecker/
 
 - Willhaben-Suche mit Filtern (Stichwort, Standort, Kategorie, Preisspanne, Paylivery)
 - Förderband-UI: SEARCH → LISTINGS → DETAIL State-Machine mit Animationen
-- Thumbnails in Listing-Cards
-- Notizen je Inserat (WhListingDetail.note)
+- Thumbnails in Listing-Cards + vollständige Bildergalerie in Detailansicht
+- Notizen je Inserat (WhListingDetail.note, Autosave)
 - Rating UP/DOWN/null je Inserat + Filterung nach Rating (UP, UP_NULL, DOWN, ALL)
+- Interesse-Level (LOW/MEDIUM/HIGH) + Tags je Inserat
 - View-Counter (viewCount, lastViewedAt) mit 60s Throttle
 - Hierarchische Standort- und Kategoriefilter (multi-level Baumnavigation)
+- Letzte Suche im localStorage gespeichert (inkl. Standort/Kategorie, 3 Tage TTL)
 - Sortierung der Ergebnisse
+- Settings-Route (/settings): Theme-Toggle, Datenbereinigung
 
 ## Geplante Features
 

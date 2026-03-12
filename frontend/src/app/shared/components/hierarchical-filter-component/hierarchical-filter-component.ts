@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, inject, input, output, signal, computed, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, input, output, signal, computed, viewChild, effect, untracked } from '@angular/core';
 import { MatAutocompleteModule, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,6 +18,7 @@ import { FilterNode } from './hierarchical-filter-component.model';
 export class HierarchicalFilterComponent {
   data = input.required<FilterNode[]>();
   label = input<string>('Auswahl');
+  selectedId = input<string | undefined>(undefined);
 
   selectionChange = output<FilterNode | null>();
 
@@ -29,6 +30,26 @@ export class HierarchicalFilterComponent {
   searchQuery = signal('');
   selectedPath = signal<FilterNode[]>([]);
   navStack = signal<FilterNode[]>([]);
+
+  constructor() {
+    // Restore selection from persisted id once data has loaded.
+    // untracked() prevents selectedPath reads from being tracked (avoids loop).
+    effect(() => {
+      const id = this.selectedId();
+      const nodes = this.flatNodes();
+      untracked(() => {
+        if (!id) {
+          if (this.selectedPath().length) this.selectedPath.set([]);
+          return;
+        }
+        if (!nodes.length || this.selectedPath().some((n) => n.id === id)) return;
+        const node = nodes.find((n) => n.id === id);
+        if (node) {
+          this.selectedPath.set([...(this.ancestorMap().get(node.id) ?? []), node]);
+        }
+      });
+    });
+  }
 
   currentParent = computed(() => this.navStack().at(-1) ?? null);
   currentNodes = computed(() => this.currentParent()?.children ?? this.data());

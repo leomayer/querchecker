@@ -52,16 +52,19 @@ frontend/src/app/
 
 **State:**
 - `layoutState: LayoutState` (SEARCH | LISTINGS | DETAIL)
-- `listings: QuercheckerListingDto[]`
-- `selectedId: number | null`
+- `listings: WhItemDto[]`
+- `selectedId: string | null` — ID als String (aus URL-Segment)
 - `searchQuery: SearchQuery | null`
 - `loading`, `error`, `whTotal`
-- `sort: { column, direction }`
-- `searchPatches` — client-side optimistische Patches (z.B. Rating)
+- `sortColumn`, `sortDirection`
+- `searchPatches` — client-side optimistische Patches (Rating, viewCount)
+- `filterDraft: { keyword, rows, priceFrom, priceTo, locationAreaId, categoryWhId, paylivery }` — Formular-State; beim `search()` nach localStorage gespeichert
 
 **Computed:** `searchMode`, `patchedListings`
 
-**Methoden:** `search()`, `selectListing()`, `backToListings()`, `clearSearch()`, `setSortColumn/Direction()`, `setResourceState()`, `applySearchPatch()`, `advanceToNext()`
+**Methoden:** `search()`, `selectListing()`, `backToListings()`, `clearSearch()`, `setFilterDraft()`, `setSortColumn/Direction()`, `setResourceState()`, `applySearchPatch()`, `removeListing()`, `advanceToNext()`
+
+**Routing:** `backToListings()` → `router.navigate(['/listings'])` (explizit, kein `location.back()`). Settings-Backbutton → `location.back()`.
 
 ---
 
@@ -116,7 +119,7 @@ interface FilterNode {
 }
 ```
 
-- **Inputs**: `data: FilterNode[]` (required), `label: string`
+- **Inputs**: `data: FilterNode[]` (required), `label: string`, `selectedId?: string` — stellt Auswahl aus gespeicherter ID wieder her (reaktiv, wartet auf Datenladen)
 - **Output**: `selectionChange: FilterNode | null`
 - Klick auf Namen = Select; Klick auf `›` = Drill-down; `navStack` Signal für N-Ebenen
 - `selectedPath` als farbige Chips dargestellt
@@ -128,7 +131,8 @@ interface FilterNode {
 
 ### `location-filter` / `category-filter`
 Smart wrappers: fetchen `/api/wh/meta/locations` bzw. `/api/wh/meta/categories`, konvertieren zu `FilterNode[]`.
-- `locationAreaId = model<number | undefined>()` / `categoryWhId = model<string | undefined>()`
+- `locationAreaId = model<number | undefined>()` / `categoryWhId = model<number | undefined>()`
+- Übergeben `[selectedId]="locationAreaId()?.toString()"` an `app-hierarchical-filter` für Restore nach Reload
 - Location: numerisches Sort nach `areaId` (Bundesländer 1–8, Wien=900, Andere=22000)
 
 ---
@@ -139,8 +143,9 @@ Smart wrappers: fetchen `/api/wh/meta/locations` bzw. `/api/wh/meta/categories`,
 
 | Variable | Light | Dark | Verwendung |
 |---|---|---|---|
-| `--color-haggle-primary` | `#184d5c` | `#003542` | Primäre Brand-Farbe (deep teal) |
-| `--color-haggle-secondary` | `#346574` | `#184d5c` | Sekundär (medium teal) |
+| `--color-haggle-primary` | `#184d5c` | `#003542` | **Nur** Header/Footer-Gradient — nie für UI-Elemente in dark |
+| `--color-haggle-secondary` | `#346574` | `#184d5c` | **Nur** Header/Footer-Gradient + Chip Level 1 |
+| `--color-ui-teal` | `#184d5c` | `#9dcee0` | UI-Elemente (Icons, Borders, Expand-Zones) — adaptiert automatisch |
 | `--color-haggle-divider` | `#b9eafc` | `#9dcee0` | Diagonal-Akzent Header/Footer |
 | `--color-on-haggle-primary` | `#ffffff` | `#ffffff` | Text auf Primär-Hintergrund |
 | `--color-tertiary` | `#C8843A` | `#F0B97A` | Amber-Akzent — NUR für Hintergründe/Borders, **nicht als Textfarbe auf hellem Hintergrund** (Kontrast ~3:1) |

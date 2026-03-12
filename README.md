@@ -12,17 +12,19 @@ Aktiv in Entwicklung (v0.0.1-SNAPSHOT). Grundfunktionen implementiert:
 
 - Willhaben-Suche mit Filtern (Stichwort, Standort, Kategorie, Preisspanne, Paylivery)
 - Förderband-UI: Dreistufige Navigation (Suchmaske → Ergebnisliste → Detailansicht) mit Animationen
-- Thumbnails in Listing-Cards
-- Notizen je Inserat
+- Thumbnails in Listing-Cards + vollständige Bildergalerie in Detailansicht
+- Notizen je Inserat (Autosave)
 - Rating (Daumen hoch/runter/neutral) + Filterung nach Rating
-- View-Counter mit Zeitstempel
+- Interesse-Level (LOW/MEDIUM/HIGH) + Tags je Inserat
+- View-Counter mit Zeitstempel (60s Throttle)
 - Hierarchische Standort- und Kategoriefilter (Bundesland → Bezirk, Baumnavigation)
+- Letzte Suche wird im Browser gespeichert (localStorage, 3 Tage gültig)
+- Settings-Seite (Theme-Toggle, Datenbereinigung)
 
 ## Geplante Features
 
 - [ ] Marktpreisvergleich via Geizhals-API
 - [ ] Mehrere Suchprofile / gespeicherte Suchen
-- [ ] Automatische Benachrichtigung bei neuen Inseraten
 - [ ] Mobile-optimiertes Layout
 - [ ] Mehr Plattformen (eBay Kleinanzeigen, Shpock…)
 

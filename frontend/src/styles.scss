@@ -1,13 +1,14 @@
 /* TealMist CSS Custom Properties */
 :root {
   /* Brand Definitions — TealMist palette */
-  --color-haggle-primary: #184d5c;   // on-primary-fixed-variant (deep teal)
+  --color-haggle-primary: #184d5c; // on-primary-fixed-variant (deep teal)
   --color-haggle-secondary: #346574; // primary (medium teal) — contrast with above
-  --color-haggle-divider: #b9eafc;   // primary-container (light teal gap)
+  --color-haggle-divider: #b9eafc; // primary-container (light teal gap)
 
   /* Functional Mapping */
   --color-primary: var(--color-haggle-primary);
-  --color-tertiary: #C8843A;
+  --color-ui-teal: #184d5c; // same as haggle-primary in light — adapts in dark
+  --color-tertiary: #c8843a;
 
   --color-background: #fcf8f8;
   --color-surface: #fcf8f8;
@@ -15,11 +16,11 @@
   --color-on-haggle-primary: #ffffff;
   --color-on-surface-variant: #434749; // TealMist on-surface-variant
 
-  --color-positive: #1D6B52;    // teal-green — 5.7:1 on light surface
-  --color-rating-down: #9E4C4C;
-  --color-error: var(--mat-sys-error, #9E4C4C);
+  --color-positive: #1d6b52; // teal-green — 5.7:1 on light surface
+  --color-rating-down: #9e4c4c;
+  --color-error: var(--mat-sys-error, #9e4c4c);
 
-  --color-nav-action: #C8843A;          // amber accent
+  --color-nav-action: #c8843a; // amber accent
   --color-on-nav-action: #500808;
 
   --font-brand: 'Dancing Script', cursive;
@@ -31,19 +32,21 @@
 }
 
 body.dark-theme {
-  --color-haggle-primary: #003542;   // on-primary dark (very deep teal)
+  --color-haggle-primary: #003542; // on-primary dark (very deep teal)
   --color-haggle-secondary: #184d5c; // primary-container dark (medium deep teal)
-  --color-haggle-divider: #9dcee0;   // primary dark (light teal gap)
+  --color-haggle-divider: #9dcee0; // primary dark (light teal gap)
 
-  --color-tertiary: #F0B97A;
-  --color-positive: #81C784;    // light green — 5.5:1 on dark surface
+  --color-ui-teal: #9dcee0; // visible teal for UI elements (icons, borders) in dark mode
+
+  --color-tertiary: #f0b97a;
+  --color-positive: #81c784; // light green — 5.5:1 on dark surface
 
   --color-background: #131313;
   --color-surface: #131313;
   --color-on-surface: #e5e2e1;
   --color-on-surface-variant: #c4c7c9; // TealMist dark on-surface-variant
   --color-border: rgba(255, 255, 255, 0.14);
-  --color-nav-action: #F0B97A;          // soft gold amber accent
+  --color-nav-action: #f0b97a; // soft gold amber accent
   --color-on-nav-action: #500808;
 
   // Fix: Material MDC placeholder tokens are scoped to the host element and
@@ -148,4 +151,17 @@ a {
 .mat-mdc-fab .mat-icon,
 .mat-mdc-mini-fab .mat-icon {
   color: inherit;
+}
+// Lightbox Dialog Styles - previews for image gallery
+.lightbox-dialog {
+  .mat-mdc-dialog-container {
+    padding: 0 !important;
+    border-radius: 0 !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+  }
+
+  .mdc-dialog__surface {
+    border-radius: 0 !important;
+  }
 }

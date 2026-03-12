@@ -1,3 +1,11 @@
+@if (previews().length) {
+    <app-image-gallery [images]="previews()" />
+} @else if (listing().imageUrls?.length) {
+  <div class="gallery-wrapper gallery-wrapper--static">
+    <img [src]="listing().imageUrls![0]" [alt]="listing().title" class="static-image" />
+  </div>
+}
+
 <div class="listing-meta">
   @if (listing().price === 0) {
     <span class="price free">Gratis</span>
@@ -15,8 +23,18 @@
     </span>
   }
   @if (listing().listedAt) {
-    <span class="meta-item">
+    <span class="meta-item" matTooltip="Erstellt am">
       <mat-icon>calendar_today</mat-icon>{{ listing().listedAt | date: 'dd.MM.yyyy' }}
+    </span>
+  }
+  @if (listing().viewCount) {
+    <span class="meta-item" matTooltip="Aufrufe">
+      <mat-icon>visibility</mat-icon>{{ listing().viewCount }}
+    </span>
+  }
+  @if (listing().fetchedAt) {
+    <span class="meta-item" matTooltip="Zuletzt abgerufen">
+      <mat-icon>update</mat-icon>{{ listing().fetchedAt | date: 'dd.MM.yyyy' }}
     </span>
   }
 </div>
@@ -26,6 +44,6 @@
   Auf Willhaben öffnen
 </button>
 
-@if (listing().description) {
-  <p class="listing-description">{{ listing().description }}</p>
+@if (detail()?.description) {
+  <div class="listing-description" [innerHTML]="detail()!.description"></div>
 }

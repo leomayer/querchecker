@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -14,9 +14,9 @@ import { DeleteSweep } from './delete-sweep/delete-sweep';
   styleUrl: './settings.component.scss',
 })
 export class SettingsComponent {
-  private readonly router = inject(Router);
+  private readonly location = inject(Location);
 
   goBack(): void {
-    this.router.navigate(['/']);
+    this.location.back();
   }
 }

@@ -2,6 +2,30 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  overflow: auto;
+}
+
+.gallery-wrapper {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+  overflow: hidden;
+
+  gallery {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.gallery-wrapper--static {
+  background: var(--mat-sys-surface-variant);
+
+  .static-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
 
 .listing-meta {
@@ -35,7 +59,10 @@
 
 .listing-description {
   margin: 0;
+  max-height: 240px;
+  overflow-y: auto;
   color: var(--mat-sys-on-surface-variant);
   white-space: pre-line;
   line-height: 1.5;
+  padding-right: 4px;
 }

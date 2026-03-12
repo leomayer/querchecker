@@ -1,0 +1,131 @@
+.lightbox {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+}
+
+// ── Main image wrapper ────────────────────────────────────────────────────────
+
+.img-wrapper {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  overflow: hidden;
+}
+
+.main-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.05s linear;
+  will-change: transform;
+}
+
+// ── Controls (shared) ─────────────────────────────────────────────────────────
+
+.ctrl-btn {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+  transition: background 0.15s ease;
+
+  mat-icon {
+    color: #fff !important;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.22) !important;
+  }
+}
+
+// ── Close ─────────────────────────────────────────────────────────────────────
+
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+}
+
+// ── Counter ───────────────────────────────────────────────────────────────────
+
+.counter {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 13px;
+  font-family: var(--font-body, sans-serif);
+  letter-spacing: 0.04em;
+  pointer-events: none;
+}
+
+// ── Nav arrows ────────────────────────────────────────────────────────────────
+
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+
+  &.nav-prev { left: 16px; }
+  &.nav-next { right: 16px; }
+}
+
+// ── Thumbnail strip ───────────────────────────────────────────────────────────
+
+.thumb-strip {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 6px;
+  padding: 10px 16px;
+  overflow-x: auto;
+  max-width: 100%;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.2) transparent;
+
+  &::-webkit-scrollbar { height: 4px; }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+  }
+}
+
+.thumb-btn {
+  flex: 0 0 auto;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+  scroll-snap-align: center;
+  opacity: 0.45;
+  transition: border-color 0.15s ease, opacity 0.15s ease;
+
+  &.active {
+    border-color: var(--color-haggle-primary, #4a7a8a);
+    opacity: 1;
+  }
+
+  &:not(.active):hover {
+    opacity: 0.8;
+  }
+}
+
+.thumb-img {
+  display: block;
+  width: 80px;
+  height: 58px;
+  object-fit: cover;
+  border-radius: 2px;
+}

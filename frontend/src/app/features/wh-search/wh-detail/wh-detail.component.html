@@ -5,7 +5,7 @@
     </div>
 
     <div class="detail-content">
-      <app-wh-base [listing]="lst" />
+      <app-wh-base [listing]="lst" [previews]="detail()?.previews ?? []" [detail]="detail()" />
       <mat-divider />
       <app-item-annotation [listing]="lst" [detail]="detail()" />
       <mat-divider />

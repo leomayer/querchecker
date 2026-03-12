@@ -4,6 +4,7 @@
   <app-hierarchical-filter
     [data]="filterNodes()"
     label="Kategorie wählen"
+    [selectedId]="categoryWhId()?.toString()"
     (selectionChange)="onSelectionChange($event)"
   />
 </div>

@@ -5,6 +5,7 @@ import { signalStore, withState, withComputed, withMethods, withHooks, patchStat
 import { filter } from 'rxjs';
 import { WhItemDto } from '../../api/model/whItemDto';
 import { AppRoutePath } from '../../core/app-route-paths';
+import { persistSearch, loadPersistedSearch } from '../../core/search-persistence';
 import { SearchQuery } from './search-query.model';
 import { LayoutState } from './layout-state.enum';
 
@@ -46,13 +47,14 @@ export const SearchStore = signalStore(
   withMethods((store, router = inject(Router), location = inject(Location)) => ({
     search(query: SearchQuery): void {
       patchState(store, { searchQuery: query, layoutState: LayoutState.LISTINGS, searchPatches: {} });
+      persistSearch(store.filterDraft());
       router.navigate(['/', AppRoutePath.LISTINGS]);
     },
     selectListing(id: string): void {
       router.navigate(['/', AppRoutePath.DETAIL, id]);
     },
     backToListings(): void {
-      location.back();
+      router.navigate(['/', AppRoutePath.LISTINGS]);
     },
     setFilterDraft(patch: {
       keyword?: string;
@@ -129,6 +131,15 @@ export const SearchStore = signalStore(
     const router = inject(Router);
     return {
       onInit() {
+        const saved = loadPersistedSearch();
+        if (saved) {
+          // Ensure locationAreaId/categoryWhId keys exist — JSON strips undefined values,
+          // which would break ngrx/signals deep signal proxies for those keys.
+          patchState(store, {
+            filterDraft: { locationAreaId: undefined, categoryWhId: undefined, ...saved },
+          });
+        }
+
         // URL is the single source of truth for selectedId.
         // Store → Route is handled by the methods above; this covers Route → Store.
         const detailPrefix = `/${AppRoutePath.DETAIL}/`;

@@ -4,6 +4,7 @@
   <app-hierarchical-filter
     [data]="filterNodes()"
     label="Ort oder Bundesland"
+    [selectedId]="locationAreaId()?.toString()"
     (selectionChange)="onSelectionChange($event)"
   />
 </div>
