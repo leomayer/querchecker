@@ -3,6 +3,8 @@
   flex-direction: column;
   gap: 12px;
   overflow: auto;
+  height: 100%;
+  min-height: 0;
 }
 
 .gallery-wrapper {
@@ -33,6 +35,11 @@
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
+  justify-content: space-between;
+  &.no-break-line {
+    flex-wrap: nowrap;
+    min-width: max-content;
+  }
 }
 
 .price {
@@ -57,6 +64,18 @@
     width: 16px;
     height: 16px;
   }
+  .icon-text-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0; // Kein Abstand zwischen Icon und Text
+  }
+  &.location-text {
+    max-width: 10ch;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    display: inline-block;
+  }
 }
 
 .willhaben-btn {
@@ -64,11 +83,27 @@
 }
 
 .listing-description {
-  margin: 0;
   max-height: 240px;
+  flex: 1 1 auto;
   overflow-y: auto;
   color: var(--mat-sys-on-surface-variant);
   white-space: pre-line;
   line-height: 1.5;
-  padding-right: 4px;
+  padding: 4px;
+  border-radius: 4px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  background: color-mix(in srgb, var(--color-on-surface) 6%, transparent);
+}
+
+.bottom {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
+.zone-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: max-content;
 }

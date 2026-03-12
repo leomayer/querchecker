@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,6 +8,8 @@ import { WhPreviewDto } from '../../../../api/model/whPreviewDto';
 import { WhListingDetailDto } from '../../../../api/model/whListingDetailDto';
 import { CustomCurrencyPipe } from '../../../../shared/pipes/custom-currency/custom-currency-pipe';
 import { ImageGalleryComponent } from '../image-gallery/image-gallery.component';
+import { inject } from '@angular/core/primitives/di';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,6 +30,11 @@ export class WhBaseComponent {
   readonly previews = input<WhPreviewDto[]>([]);
   readonly detail = input<WhListingDetailDto | null>(null);
 
+  constructor(private sanitizer: DomSanitizer) {}
+
+  descriptionHtml = computed(() => {
+    return this.sanitizer.bypassSecurityTrustHtml(this.detail()?.description ?? '');
+  });
   openOnWillhaben(): void {
     const url = this.listing().url;
     if (url) window.open(url, '_blank', 'noopener');

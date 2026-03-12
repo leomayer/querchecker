@@ -1,0 +1,85 @@
+// Reset für typische HTML-Block-Elemente in [innerHTML]-Containern
+// ===============================================================
+
+// Mixin für konsistente Abstände
+@mixin html-content-cleanup {
+  // Standard-Reset für alle Block-Elemente
+  p,
+  ul,
+  ol,
+  pre,
+  blockquote,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  figure,
+  dl,
+  address {
+    margin-block-start: 0.5em; // Reduzierter Abstand (Standard: ~1em)
+    margin-block-end: 0.5em;
+  }
+
+  // Entferne Margins für erste/letzte Kinder
+  > *:first-child {
+    margin-block-start: 0 !important;
+  }
+  > *:last-child {
+    margin-block-end: 0 !important;
+  }
+
+  // Spezifische Anpassungen für Listen
+  ul,
+  ol {
+    padding-inline-start: 1.2em; // Standard-Einrückung beibehalten
+  }
+
+  // Bilder und iframes: Keine unnötigen Abstände
+  img,
+  iframe {
+    max-width: 100%;
+    height: auto;
+    display: block; // Verhindert unschöne Abstände unter Bildern
+    margin: 0.5em 0;
+  }
+
+  // Tabellen: Standard-Styling entfernen
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0.5em 0;
+  }
+
+  code,
+  kbd,
+  samp {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.9em;
+    background: color-mix(in srgb, var(--color-on-surface) 6%, transparent);
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+  }
+}
+
+// Klasse für manuelle Anwendung (z. B. <div class="html-content" [innerHTML]="...">)
+.html-content {
+  @include html-content-cleanup;
+
+  // Optional: Standard-Schrift und Zeilenhöhe
+  font-family: inherit;
+  line-height: 1.5;
+  color: inherit;
+
+  // Scrollbar für lange Inhalte
+  overflow-y: auto;
+  padding: 0.5em;
+}
+
+// Globaler Reset für ALLE [innerHTML]-Container (falls gewünscht)
+// ===============================================================
+// ACHTUNG: Nur aktivieren, wenn wirklich alle [innerHTML]-Inhalte betroffen sein sollen!
+[innerHTML] {
+  @include html-content-cleanup;
+}

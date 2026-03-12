@@ -3,6 +3,7 @@
   container-type: inline-size;
   display: block;
   width: 100%;
+  flex: 0 0 auto;
 }
 
 // ── Base layout (schmal: gestapelt, Thumbnails unten) ────────────────────────
@@ -12,6 +13,7 @@
   flex-direction: column;
   gap: 8px;
   width: 100%;
+  max-height: inherit;
 }
 
 // ── Breites Layout (≥ 500px): Thumbnails links, Hauptbild rechts ─────────────
@@ -47,6 +49,7 @@
 // ── Main frame ────────────────────────────────────────────────────────────────
 
 .main-frame {
+  max-height: inherit;
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
