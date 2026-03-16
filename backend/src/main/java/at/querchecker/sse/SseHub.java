@@ -39,6 +39,7 @@ public class SseHub {
             } catch (IOException e) {
                 log.debug("SSE send failed for client {}, removing", id);
                 emitters.remove(id);
+                emitter.complete();
             }
         });
     }

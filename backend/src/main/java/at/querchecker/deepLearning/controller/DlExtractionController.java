@@ -38,8 +38,17 @@ public class DlExtractionController {
 
     @EventListener
     public void onExtractionCompleted(DlExtractionCompletedEvent event) {
+        List<DlExtractionTermDto> terms = termRepo.findByItemTextId(event.getItemTextId()).stream()
+            .map(t -> DlExtractionTermDto.builder()
+                .modelName(t.getRun().getModelConfig().getModelName())
+                .term(t.getTerm())
+                .confidence(t.getConfidence())
+                .build())
+            .toList();
+
         sseHub.broadcast("dl-extract", DlExtractionDonePayload.builder()
             .itemTextId(event.getItemTextId())
+            .terms(terms)
             .build());
     }
 }

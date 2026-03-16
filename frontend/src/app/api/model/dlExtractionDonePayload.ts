@@ -9,7 +9,10 @@
  */
 
 
-export interface DlExtractionDonePayload { 
+import { DlExtractionTermDto } from './dlExtractionTermDto';
+
+export interface DlExtractionDonePayload {
     itemTextId?: number;
+    terms?: Array<DlExtractionTermDto>;
 }
 

@@ -91,6 +91,12 @@ public class DlOrchestrationService {
             .toList();
 
         log.debug("Waiting for {} futures to complete", futures.size());
+        if (futures.isEmpty()) {
+            log.debug("All models already done for itemText={}, broadcasting immediately", itemText.getId());
+            eventPublisher.publishEvent(new DlExtractionCompletedEvent(itemText.getId()));
+            return;
+        }
+
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
             .thenRun(() -> {
                 log.debug("All {} extractions finished for itemText={}",

@@ -10,7 +10,6 @@ import {
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { DlExtractionTermDto } from '../../../../api/model/dlExtractionTermDto';
 import { WhDetailDto } from '../../../../api/model/whDetailDto';
 import { DlExtractionService } from '../../../../core/dl-extraction.service';
@@ -25,7 +24,7 @@ interface TermGroup {
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-item-research',
-  imports: [MatIconModule, MatProgressSpinnerModule, MatTooltipModule],
+  imports: [MatIconModule, MatProgressSpinnerModule],
   templateUrl: './item-research.component.html',
   styleUrl: './item-research.component.scss',
 })
@@ -44,12 +43,10 @@ export class ItemResearchComponent implements OnInit {
 
   private readonly onDone = (payload: DlExtractionDonePayload): void => {
     const currentId = this.detail().itemTextId;
-    if (payload?.itemTextId !== currentId) return;
+    if (payload?.itemTextId == null || payload.itemTextId !== currentId) return;
 
-    this.dlService.getTerms(payload.itemTextId).subscribe((terms) => {
-      this.termGroups.set(this.groupByModel(terms));
-      this.state.set('done');
-    });
+    this.termGroups.set(this.groupByModel(payload.terms ?? []));
+    this.state.set('done');
   };
 
   constructor() {
@@ -65,6 +62,18 @@ export class ItemResearchComponent implements OnInit {
     this.destroyRef.onDestroy(() => {
       this.sseService.deleteEventListener('dl-extract', this.onDone);
     });
+
+    // Fetch existing terms immediately — handles the race where the SSE event
+    // fires before this component mounts (afterCommit() on the POST /detail response)
+    const itemTextId = this.detail().itemTextId;
+    if (itemTextId != null) {
+      this.dlService.getTerms(itemTextId).subscribe((terms) => {
+        if (terms.length > 0 && this.state() === 'loading') {
+          this.termGroups.set(this.groupByModel(terms));
+          this.state.set('done');
+        }
+      });
+    }
   }
 
   private groupByModel(terms: DlExtractionTermDto[]): TermGroup[] {
@@ -80,5 +89,12 @@ export class ItemResearchComponent implements OnInit {
   protected confidencePct(confidence: number | undefined): string {
     if (confidence == null) return '';
     return Math.round(confidence * 100) + '%';
+  }
+
+  protected confidenceClass(confidence: number | undefined): string {
+    if (confidence == null) return '';
+    if (confidence >= 0.7) return 'conf-high';
+    if (confidence >= 0.4) return 'conf-mid';
+    return 'conf-low';
   }
 }

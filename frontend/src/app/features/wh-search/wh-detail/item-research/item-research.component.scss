@@ -38,6 +38,12 @@
   gap: 6px;
 }
 
+.term-entry {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
 .term-chip {
   display: inline-block;
   padding: 3px 10px;
@@ -47,4 +53,28 @@
   background: color-mix(in srgb, var(--mat-sys-primary) 12%, transparent);
   color: var(--mat-sys-primary);
   cursor: default;
+}
+
+.conf-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 8px;
+  line-height: 1.4;
+
+  &.conf-high {
+    background: color-mix(in srgb, var(--color-positive) 15%, transparent);
+    color: var(--color-positive);
+  }
+
+  &.conf-mid {
+    // amber text fails contrast on light — use solid amber bg with dark-maroon text
+    background: var(--color-tertiary);
+    color: var(--color-on-nav-action);
+  }
+
+  &.conf-low {
+    background: color-mix(in srgb, var(--color-rating-down) 15%, transparent);
+    color: var(--color-rating-down);
+  }
 }

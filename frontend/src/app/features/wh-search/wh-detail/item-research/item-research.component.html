@@ -13,11 +13,11 @@
         <div class="model-group">
           <span class="model-name">{{ group.modelName }}</span>
           <div class="term-list">
-            @for (t of group.terms; track t.runId) {
-              <span
-                class="term-chip"
-                [matTooltip]="'Konfidenz: ' + confidencePct(t.confidence)"
-              >{{ t.term }}</span>
+            @for (t of group.terms; track t.term) {
+              <span class="term-entry">
+                <span class="term-chip">{{ t.term }}</span>
+                <span class="conf-badge" [class]="confidenceClass(t.confidence)">{{ confidencePct(t.confidence) }}</span>
+              </span>
             }
           </div>
         </div>
