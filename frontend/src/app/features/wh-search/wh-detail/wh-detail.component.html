@@ -1,18 +1,18 @@
-@for (lst of currentListingArr(); track lst.id) {
+@if (detail(); as d) {
   <div class="detail-panel" [@detailSlide]>
     <div class="detail-header">
-      <h2 class="detail-title">{{ lst.title }}</h2>
+      <h2 class="detail-title">{{ d.title }}</h2>
     </div>
 
     <div class="detail-content">
-      <app-wh-base [listing]="lst" [previews]="detail()?.previews ?? []" [detail]="detail()" />
+      <app-wh-base [detail]="d" />
       <mat-divider />
-      <app-item-annotation [listing]="lst" [detail]="detail()" />
+      <app-item-annotation [detail]="d" />
       <mat-divider />
-      <app-item-research />
+      <app-item-research [detail]="d" />
     </div>
   </div>
-} @empty {
+} @else {
   <div class="detail-empty">
     <mat-icon>info</mat-icon>
     <p>Kein Inserat ausgewählt.</p>

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -45,6 +45,25 @@ export class WhFilterComponent {
 
   readonly rowOptions = [50, 100, 250];
 
+  /** At least one search criterion is filled → Suchen enabled. */
+  readonly canSearch = computed(
+    () =>
+      !!this.keyword().trim() ||
+      this.categoryWhId() != null ||
+      this.locationAreaId() != null,
+  );
+
+  /** Any non-default filter value → show Zurücksetzen even before first search. */
+  readonly hasDraft = computed(
+    () =>
+      !!this.keyword().trim() ||
+      this.categoryWhId() != null ||
+      this.locationAreaId() != null ||
+      this.priceFrom() != null ||
+      this.priceTo() != null ||
+      !!this.paylivery(),
+  );
+
   onKeywordInput(e: Event): void {
     this.store.setFilterDraft({ keyword: (e.target as HTMLInputElement).value });
   }
@@ -61,7 +80,7 @@ export class WhFilterComponent {
 
   onSearch(): void {
     const d = this.store.filterDraft();
-    if (!d.keyword.trim()) return;
+    if (!d.keyword.trim() && !d.categoryWhId && !d.locationAreaId) return;
     this.store.search({
       keyword: d.keyword.trim(),
       rows: d.rows,

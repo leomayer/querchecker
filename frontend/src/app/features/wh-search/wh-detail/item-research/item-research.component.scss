@@ -1,0 +1,50 @@
+.state-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.state-label {
+  font-size: 0.8rem;
+  color: var(--color-on-surface-variant);
+  margin: 0;
+
+  &.empty {
+    font-style: italic;
+  }
+}
+
+.model-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  & + & {
+    margin-top: 10px;
+  }
+}
+
+.model-name {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-on-surface-variant);
+}
+
+.term-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.term-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  background: color-mix(in srgb, var(--mat-sys-primary) 12%, transparent);
+  color: var(--mat-sys-primary);
+  cursor: default;
+}

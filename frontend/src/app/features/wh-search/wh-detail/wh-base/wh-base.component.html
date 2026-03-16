@@ -1,46 +1,42 @@
-@if (previews().length) {
-  <app-image-gallery [images]="previews()" />
-} @else if (listing().imageUrls?.length) {
-  <div class="gallery-wrapper gallery-wrapper--static">
-    <img [src]="listing().imageUrls![0]" [alt]="listing().title" class="static-image" />
-  </div>
+@if (detail().previews?.length) {
+  <app-image-gallery [images]="detail().previews!" />
 }
 
 <div class="bottom">
 <div class="zone-left">
   <div class="listing-meta">
-    @if (listing().price === 0) {
+    @if (detail().price === 0) {
       <span class="price free">Gratis</span>
-    } @else if (listing().price != null) {
-      <span class="price">{{ listing().price | customCurrency }}</span>
+    } @else if (detail().price != null) {
+      <span class="price">{{ detail().price | customCurrency }}</span>
     }
-    @if (listing().paylivery) {
+    @if (detail().paylivery) {
       <span class="meta-item" matTooltip="Paylivery">
         <mat-icon>local_shipping</mat-icon>
       </span>
     }
-    @if (listing().location) {
+    @if (detail().location) {
      <span class="icon-text-group">
      <mat-icon>location_on</mat-icon>
-       <span class="meta-item location-text" matTooltip="{{ listing().location??'' }}">{{ listing().location }} </span>
+       <span class="meta-item location-text" matTooltip="{{ detail().location??'' }}">{{ detail().location }} </span>
      </span>
     }
     </div>
     <div class="listing-meta no-break-line">
 
-    @if (listing().listedAt) {
+    @if (detail().listedAt) {
       <span class="meta-item" matTooltip="Erstellt am">
-        <mat-icon>calendar_today</mat-icon>{{ listing().listedAt | date: 'dd.MM.yyyy' }}
+        <mat-icon>calendar_today</mat-icon>{{ detail().listedAt | date: 'dd.MM.yyyy' }}
       </span>
     }
-    @if (listing().viewCount) {
+    @if (detail().viewCount) {
       <span class="meta-item" matTooltip="Aufrufe">
-        <mat-icon>visibility</mat-icon>{{ listing().viewCount }}
+        <mat-icon>visibility</mat-icon>{{ detail().viewCount }}
       </span>
     }
-    @if (listing().fetchedAt) {
+    @if (detail().fetchedAt) {
       <span class="meta-item" matTooltip="Zuletzt abgerufen">
-        <mat-icon>update</mat-icon>{{ listing().fetchedAt | date: 'dd.MM.yyyy' }}
+        <mat-icon>update</mat-icon>{{ detail().fetchedAt | date: 'dd.MM.yyyy' }}
       </span>
     }
 </div>
@@ -50,6 +46,13 @@
       Auf Willhaben öffnen
     </button>
   </div>
+  @if (detail().categoryPath?.length) {
+    <mat-chip-set class="category-chips">
+      @for (cat of detail().categoryPath!; track cat.whId; let i = $index) {
+        <mat-chip [class]="'chip-level-' + i" disableRipple [matTooltip]="cat.name!">{{ cat.name }}</mat-chip>
+      }
+    </mat-chip-set>
+  }
 </div>
   <div class="listing-description zone-right html-content" [innerHTML]="descriptionHtml()"></div>
 </div>

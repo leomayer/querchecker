@@ -7,6 +7,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { WhCategoryDto } from './whCategoryDto';
 
 
 export interface WhItemDto { 
@@ -27,5 +28,6 @@ export interface WhItemDto {
     rating?: string;
     interestLevel?: string;
     paylivery?: boolean;
+    categoryPath?: Array<WhCategoryDto>;
 }
 

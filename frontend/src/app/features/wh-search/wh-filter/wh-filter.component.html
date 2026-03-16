@@ -61,15 +61,15 @@
 
     <div class="action-row">
       <button
-        mat-raised-button
-        color="primary"
+        mat-flat-button
+        class="search-btn"
         type="submit"
-        [disabled]="!keyword().trim() || loading()">
+        [disabled]="!canSearch() || loading()">
         <mat-icon>search</mat-icon>
         Suchen
       </button>
 
-      @if (searchMode()) {
+      @if (searchMode() || hasDraft()) {
         <button mat-stroked-button type="button" class="reset-btn" (click)="clearSearch()">
           <mat-icon>close</mat-icon>
           Zurücksetzen

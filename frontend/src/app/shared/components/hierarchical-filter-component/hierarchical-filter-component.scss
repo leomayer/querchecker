@@ -126,6 +126,16 @@
       color: var(--mat-sys-on-primary);
     }
   }
+
+  .mat-mdc-chip.chip-level-3 {
+    --mat-chip-elevated-container-color: var(--mat-sys-secondary);
+    --mat-chip-label-text-color: var(--mat-sys-on-secondary);
+    --mdc-chip-with-trailing-icon-trailing-icon-color: var(--mat-sys-on-secondary);
+
+    .mat-icon {
+      color: var(--mat-sys-on-secondary);
+    }
+  }
 }
 
 // ── Such-Modus ────────────────────────────────────────────────────────────────

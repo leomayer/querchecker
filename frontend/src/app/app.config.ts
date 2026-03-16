@@ -11,6 +11,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { routes } from './app.routes';
 import { Theme } from './features/settings/theme';
+import { EventSourceServerService } from './shared/utils/event-source-server';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -22,6 +23,7 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => {
       const theme = inject(Theme);
       theme.darkMode(); // Trigger initialization
+      inject(EventSourceServerService); // Open SSE connection eagerly at startup
     }),
   ],
 };

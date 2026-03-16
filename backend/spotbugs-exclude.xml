@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+  <!-- JPA entities with mutable object references (false positives) -->
+  <Match>
+    <Class name="~at\.querchecker\.deepLearning\.entity\..*" />
+    <Bug code="EI_EXPOSE_REP,EI_EXPOSE_REP2" />
+  </Match>
+
+  <!-- Existing entities also have similar patterns -->
+  <Match>
+    <Class name="~at\.querchecker\.entity\..*" />
+    <Bug code="EI_EXPOSE_REP,EI_EXPOSE_REP2" />
+  </Match>
+
+  <!-- Controllers and services with dependency injection (false positives) -->
+  <Match>
+    <Class name="~at\.querchecker\.(controller|service|willHaben)\..*" />
+    <Bug code="EI_EXPOSE_REP2" />
+  </Match>
+</FindBugsFilter>

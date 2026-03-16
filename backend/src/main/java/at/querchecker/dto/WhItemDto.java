@@ -35,4 +35,5 @@ public class WhItemDto {
     /** null = kein Level, "LOW" / "MEDIUM" / "HIGH" */
     private String interestLevel;
     private boolean paylivery;
+    private List<WhCategoryDto> categoryPath;
 }

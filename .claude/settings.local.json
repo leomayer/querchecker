@@ -58,7 +58,10 @@
       "Bash(npm run build)",
       "Bash(docker ps --format '{{.Names}}')",
       "Bash(docker exec querchecker-postgres-1 env)",
-      "Bash(docker exec -i querchecker-postgres-1 psql -U myuser -d mydb -c \"ALTER TABLE wh_listing_image ALTER COLUMN image_path TYPE TEXT;\")"
+      "Bash(docker exec -i querchecker-postgres-1 psql -U myuser -d mydb -c \"ALTER TABLE wh_listing_image ALTER COLUMN image_path TYPE TEXT;\")",
+      "Bash(BASE=/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/dl)",
+      "Bash(mkdir -p $BASE/entity $BASE/repository $BASE/service $BASE/controller)",
+      "Bash(touch $BASE/entity/.gitkeep $BASE/repository/.gitkeep $BASE/service/.gitkeep $BASE/controller/.gitkeep)"
     ]
   }
 }

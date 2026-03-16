@@ -19,8 +19,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
 import { take } from 'rxjs/operators';
-import { WhItemDto } from '../../../../api/model/whItemDto';
-import { WhListingDetailDto } from '../../../../api/model/whListingDetailDto';
+import { WhDetailDto } from '../../../../api/model/whDetailDto';
 import { ListingService } from '../../../../core/listing.service';
 import { SearchStore } from '../../search.store';
 import { ItemDetailStore } from './item-detail.store';
@@ -49,8 +48,7 @@ interface PredefinedTag {
   styleUrl: './item-annotation.component.scss',
 })
 export class ItemAnnotationComponent {
-  readonly listing = input.required<WhItemDto>();
-  readonly detail = input<WhListingDetailDto | null>(null);
+  readonly detail = input.required<WhDetailDto>();
 
   protected readonly store = inject(ItemDetailStore);
   private readonly searchStore = inject(SearchStore);
@@ -74,10 +72,8 @@ export class ItemAnnotationComponent {
 
   constructor() {
     effect(() => {
-      const id = this.listing().id!;
-      const detail = this.detail();
-      untracked(() => this.store.load(id, detail));
-      // Resize textarea after Angular has stabilised (CDK autosize)
+      const d = this.detail();
+      untracked(() => this.store.load(d.id!, d));
       this.ngZone.onStable.pipe(take(1)).subscribe(() => this.notesRef?.resizeToFitContent(true));
     });
   }
@@ -89,7 +85,7 @@ export class ItemAnnotationComponent {
   onVerdict(rating: 'UP' | 'DOWN' | null): void {
     const next = this.store.verdict() === rating ? null : rating;
     this.store.setVerdict(next);
-    const id = this.listing().id!;
+    const id = this.detail().id!;
     this.listingService.updateRating(id, next).subscribe((d) => {
       this.searchStore.applySearchPatch(id, { rating: d.rating ?? undefined });
       if (d.rating === 'DOWN' || d.rating === 'UP') {
@@ -101,14 +97,14 @@ export class ItemAnnotationComponent {
   onInterestClick(level: 'LOW' | 'MEDIUM' | 'HIGH'): void {
     const next = this.store.interestLevel() === level ? null : level;
     this.store.setInterestLevel(next);
-    this.listingService.updateInterest(this.listing().id!, next).subscribe();
+    this.listingService.updateInterest(this.detail().id!, next).subscribe();
   }
 
   onToggleTag(label: string): void {
     const current = this.store.tags();
     const next = current.includes(label) ? current.filter((t) => t !== label) : [...current, label];
     this.store.setTags(next);
-    this.listingService.updateTags(this.listing().id!, next).subscribe();
+    this.listingService.updateTags(this.detail().id!, next).subscribe();
   }
 
   onAddCustomTag(): void {
@@ -117,6 +113,6 @@ export class ItemAnnotationComponent {
     const next = [...this.store.tags(), tag];
     this.store.setTags(next);
     this.customTagInput = '';
-    this.listingService.updateTags(this.listing().id!, next).subscribe();
+    this.listingService.updateTags(this.detail().id!, next).subscribe();
   }
 }

@@ -1,6 +1,6 @@
 package at.querchecker.controller;
 
-import at.querchecker.dto.WhListingDetailDto;
+import at.querchecker.dto.WhDetailDto;
 import at.querchecker.service.WhItemService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,34 +20,34 @@ public class WhListingDetailController {
 
     @PostMapping("/detail")
     @Operation(summary = "Details zu einem Inserat abrufen und Aufruf erfassen")
-    public WhListingDetailDto openDetail(@PathVariable Long id) {
+    public WhDetailDto openDetail(@PathVariable Long id) {
         return whItemService.openDetail(id);
     }
 
     @PutMapping("/detail/note")
     @Operation(summary = "Notiz zu einem Inserat speichern")
-    public WhListingDetailDto updateNote(@PathVariable Long id,
+    public WhDetailDto updateNote(@PathVariable Long id,
                                         @RequestBody Map<String, String> body) {
         return whItemService.updateNote(id, body.get("note"));
     }
 
     @PutMapping("/detail/rating")
     @Operation(summary = "Bewertung eines Inserats speichern (UP/DOWN/null)")
-    public WhListingDetailDto updateRating(@PathVariable Long id,
+    public WhDetailDto updateRating(@PathVariable Long id,
                                           @RequestBody Map<String, String> body) {
         return whItemService.updateRating(id, body.get("rating"));
     }
 
     @PutMapping("/detail/interest")
     @Operation(summary = "Interesse-Level eines Inserats speichern (LOW/MEDIUM/HIGH/null)")
-    public WhListingDetailDto updateInterest(@PathVariable Long id,
+    public WhDetailDto updateInterest(@PathVariable Long id,
                                             @RequestBody Map<String, String> body) {
         return whItemService.updateInterest(id, body.get("level"));
     }
 
     @PutMapping("/detail/tags")
     @Operation(summary = "Tags eines Inserats speichern")
-    public WhListingDetailDto updateTags(@PathVariable Long id,
+    public WhDetailDto updateTags(@PathVariable Long id,
                                         @RequestBody Map<String, List<String>> body) {
         return whItemService.updateTags(id, body.getOrDefault("tags", List.of()));
     }

@@ -49,6 +49,15 @@
   margin-top: 4px;
 }
 
+.search-btn {
+  background-color: var(--mat-sys-tertiary) !important;
+  color: var(--mat-sys-on-tertiary) !important;
+
+  mat-icon {
+    color: var(--mat-sys-on-tertiary);
+  }
+}
+
 .search-progress {
   margin-top: 8px;
 }

@@ -18,7 +18,7 @@
     </div>
   </mat-card-content>
   <mat-card-actions>
-    <button mat-flat-button color="warn" [disabled]="deleting()" (click)="cleanupDownRated()">
+    <button mat-flat-button class="delete-btn" [disabled]="deleting()" (click)="cleanupDownRated()">
       <mat-icon class="warn-icon">delete_sweep</mat-icon>
       Abgelehnte löschen
     </button>

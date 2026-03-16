@@ -25,7 +25,7 @@ public class WhCategory {
     @Column(nullable = false)
     private String name;
 
-    /** 0 = Hauptkategorie, 1 = Unterkategorie, 2 = Unter-Unterkategorie */
+    /** 0 = Hauptkategorie, 1 = Unterkategorie, 2 = Unter-Unterkategorie, 3 = Tiefste Ebene */
     @Column(nullable = false)
     private Integer level;
 

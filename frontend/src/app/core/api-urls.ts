@@ -3,4 +3,6 @@ export const API_URLS = {
   whSearch: '/api/wh/search',
   whLocations: '/api/wh/meta/locations',
   whCategories: '/api/wh/meta/categories',
+  sse: (eventSourceId: string) => `/api/sse?eventSourceId=${eventSourceId}`,
+  dlExtractionTerms: (itemTextId: number) => `/api/dl/extraction/${itemTextId}/terms`,
 } as const;

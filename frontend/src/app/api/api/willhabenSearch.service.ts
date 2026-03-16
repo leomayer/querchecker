@@ -49,13 +49,10 @@ export class WillhabenSearchService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public search(keyword: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, paylivery?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<WhSearchResultDto>;
-    public search(keyword: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, paylivery?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<WhSearchResultDto>>;
-    public search(keyword: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, paylivery?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<WhSearchResultDto>>;
-    public search(keyword: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, paylivery?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (keyword === null || keyword === undefined) {
-            throw new Error('Required parameter keyword was null or undefined when calling search.');
-        }
+    public search(keyword?: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, paylivery?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<WhSearchResultDto>;
+    public search(keyword?: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, paylivery?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<WhSearchResultDto>>;
+    public search(keyword?: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, paylivery?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<WhSearchResultDto>>;
+    public search(keyword?: string, rows?: number, priceFrom?: number, priceTo?: number, attributeTree?: number, areaId?: number, paylivery?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 

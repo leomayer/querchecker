@@ -1,15 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { WhItemDto } from '../../../../api/model/whItemDto';
-import { WhPreviewDto } from '../../../../api/model/whPreviewDto';
-import { WhListingDetailDto } from '../../../../api/model/whListingDetailDto';
+import { DomSanitizer } from '@angular/platform-browser';
+import { WhDetailDto } from '../../../../api/model/whDetailDto';
 import { CustomCurrencyPipe } from '../../../../shared/pipes/custom-currency/custom-currency-pipe';
 import { ImageGalleryComponent } from '../image-gallery/image-gallery.component';
-import { inject } from '@angular/core/primitives/di';
-import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,6 +15,7 @@ import { DomSanitizer } from '@angular/platform-browser';
   imports: [
     DatePipe,
     MatButtonModule,
+    MatChipsModule,
     MatIconModule,
     MatTooltipModule,
     CustomCurrencyPipe,
@@ -26,17 +25,16 @@ import { DomSanitizer } from '@angular/platform-browser';
   styleUrl: './wh-base.component.scss',
 })
 export class WhBaseComponent {
-  readonly listing = input.required<WhItemDto>();
-  readonly previews = input<WhPreviewDto[]>([]);
-  readonly detail = input<WhListingDetailDto | null>(null);
+  readonly detail = input.required<WhDetailDto>();
 
-  constructor(private sanitizer: DomSanitizer) {}
+  private readonly sanitizer = inject(DomSanitizer);
 
-  descriptionHtml = computed(() => {
-    return this.sanitizer.bypassSecurityTrustHtml(this.detail()?.description ?? '');
-  });
+  readonly descriptionHtml = computed(() =>
+    this.sanitizer.bypassSecurityTrustHtml(this.detail().description ?? ''),
+  );
+
   openOnWillhaben(): void {
-    const url = this.listing().url;
+    const url = this.detail().url;
     if (url) window.open(url, '_blank', 'noopener');
   }
 }

@@ -52,6 +52,10 @@ public class WhListing {
     @Column(columnDefinition = "boolean not null default false")
     private boolean paylivery;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "wh_category_id")
+    private WhCategory whCategory;
+
     /** Alle Bildpfad-Stems (ohne Prefix und ohne .jpg Suffix). */
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "wh_listing_image", joinColumns = @JoinColumn(name = "listing_id"))

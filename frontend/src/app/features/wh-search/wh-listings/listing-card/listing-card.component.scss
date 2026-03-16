@@ -41,6 +41,9 @@
       color: var(--mat-sys-primary);
     }
 
+    &.rated-up {
+      border-left-color: var(--color-positive);
+    }
     &.rated-down {
       border-left-color: var(--color-rating-down);
     }

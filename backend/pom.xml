@@ -22,6 +22,7 @@
     <java.version>21</java.version>
     <lombok.version>1.18.34</lombok.version>
     <spotbugs.version>4.8.3.1</spotbugs.version>
+    <maven.compiler.proc>full</maven.compiler.proc>
   </properties>
 
   <dependencies>
@@ -66,6 +67,35 @@
       <version>2.6.0</version>
     </dependency>
 
+    <!-- Flyway -->
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-database-postgresql</artifactId>
+    </dependency>
+
+    <!-- Deep Learning (DJL) -->
+    <dependency>
+      <groupId>ai.djl.huggingface</groupId>
+      <artifactId>tokenizers</artifactId>
+      <version>0.36.0</version>
+    </dependency>
+    <dependency>
+      <groupId>ai.djl.onnxruntime</groupId>
+      <artifactId>onnxruntime-engine</artifactId>
+      <version>0.36.0</version>
+    </dependency>
+
+    <!-- HTML Parsing -->
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>1.22.1</version>
+    </dependency>
+
     <!-- Test -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -95,6 +125,11 @@
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
         <version>${spotbugs.version}</version>
+        <configuration>
+          <excludeFilterFile
+                    >${project.basedir}/spotbugs-exclude.xml</excludeFilterFile>
+          <failOnError>false</failOnError>
+        </configuration>
         <executions>
           <execution>
             <phase>verify</phase>

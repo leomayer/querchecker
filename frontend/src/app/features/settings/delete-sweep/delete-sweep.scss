@@ -27,3 +27,12 @@
   font-size: 0.85rem;
   color: var(--color-positive);
 }
+
+.delete-btn {
+  background-color: var(--mat-sys-error) !important;
+  color: var(--mat-sys-on-error) !important;
+
+  mat-icon {
+    color: var(--mat-sys-on-error);
+  }
+}

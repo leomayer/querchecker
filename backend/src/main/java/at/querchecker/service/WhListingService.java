@@ -1,11 +1,13 @@
 package at.querchecker.service;
 
+import at.querchecker.dto.WhCategoryDto;
 import at.querchecker.dto.WhItemDto;
+import at.querchecker.entity.WhCategory;
 import at.querchecker.entity.WhListing;
 import at.querchecker.repository.WhItemRepository;
 import at.querchecker.repository.WhItemRepository.WhItemSummary;
 import at.querchecker.repository.WhListingRepository;
-import at.querchecker.wh.WhConstants;
+import at.querchecker.willHaben.WhConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,6 +83,21 @@ public class WhListingService {
         return listingIds.size();
     }
 
+    private static List<WhCategoryDto> buildCategoryPath(WhCategory category) {
+        if (category == null) return List.of();
+        List<WhCategoryDto> path = new java.util.ArrayList<>();
+        WhCategory current = category;
+        while (current != null) {
+            path.add(0, WhCategoryDto.builder()
+                .whId(current.getWhId())
+                .name(current.getName())
+                .level(current.getLevel())
+                .build());
+            current = current.getParent();
+        }
+        return path;
+    }
+
     private WhItemDto toDto(WhListing entity, WhItemSummary detail) {
         String thumbnailPath = entity.getThumbnailUrl();
         String fullThumbnailUrl = thumbnailPath != null
@@ -113,6 +130,7 @@ public class WhListingService {
                 .lastViewedAt(detail != null ? detail.getLastViewedAt() : null)
                 .rating(detail != null ? detail.getRating() : null)
                 .interestLevel(detail != null ? detail.getInterestLevel() : null)
+                .categoryPath(buildCategoryPath(entity.getWhCategory()))
                 .build();
     }
 }

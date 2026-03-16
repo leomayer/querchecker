@@ -10,7 +10,7 @@ import {
   takeUntil,
   tap,
 } from 'rxjs/operators';
-import { WhListingDetailDto } from '../../../../api/model/whListingDetailDto';
+import { WhDetailDto } from '../../../../api/model/whDetailDto';
 import { ListingService } from '../../../../core/listing.service';
 
 interface ItemDetailState {
@@ -75,7 +75,7 @@ export const ItemDetailStore = signalStore(
         destroy$.complete();
       },
 
-      load(id: number, detail: WhListingDetailDto | null): void {
+      load(id: number, detail: WhDetailDto | null): void {
         patchState(store, {
           itemId: id,
           verdict: (detail?.rating as 'UP' | 'DOWN' | null) ?? null,

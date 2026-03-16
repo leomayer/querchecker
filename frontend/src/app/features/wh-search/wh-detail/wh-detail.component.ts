@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   effect,
   inject,
   signal,
@@ -9,7 +8,7 @@ import {
 import { animate, style, transition, trigger } from '@angular/animations';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
-import { WhListingDetailDto } from '../../../api/model/whListingDetailDto';
+import { WhDetailDto } from '../../../api/model/whDetailDto';
 import { ListingService } from '../../../core/listing.service';
 import { SearchStore } from '../search.store';
 import { WhBaseComponent } from './wh-base/wh-base.component';
@@ -42,18 +41,7 @@ export class WhDetailComponent {
   protected readonly store = inject(SearchStore);
   private readonly listingService = inject(ListingService);
 
-  readonly listing = computed(() => {
-    const id = this.store.selectedId();
-    if (!id) return null;
-    return this.store.patchedListings().find((l) => l.id?.toString() === id) ?? null;
-  });
-
-  readonly currentListingArr = computed(() => {
-    const lst = this.listing();
-    return lst ? [lst] : [];
-  });
-
-  detail = signal<WhListingDetailDto | null>(null);
+  readonly detail = signal<WhDetailDto | null>(null);
 
   constructor() {
     effect(() => {

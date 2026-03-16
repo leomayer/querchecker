@@ -2,11 +2,11 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { WhItemDto } from '../api/model/whItemDto';
-import { WhListingDetailDto } from '../api/model/whListingDetailDto';
+import { WhDetailDto } from '../api/model/whDetailDto';
 import { API_URLS } from './api-urls';
 
 export type { WhItemDto } from '../api/model/whItemDto';
-export type { WhListingDetailDto } from '../api/model/whListingDetailDto';
+export type { WhDetailDto } from '../api/model/whDetailDto';
 
 @Injectable({
   providedIn: 'root',
@@ -18,31 +18,27 @@ export class ListingService {
     return this.http.delete<void>(`${API_URLS.listings}/${id}`);
   }
 
-  openDetail(id: number): Observable<WhListingDetailDto> {
-    return this.http.post<WhListingDetailDto>(`${API_URLS.listings}/${id}/detail`, {});
+  openDetail(id: number): Observable<WhDetailDto> {
+    return this.http.post<WhDetailDto>(`${API_URLS.listings}/${id}/detail`, {});
   }
 
-  updateNote(id: number, note: string): Observable<WhListingDetailDto> {
-    return this.http.put<WhListingDetailDto>(`${API_URLS.listings}/${id}/detail/note`, { note });
+  updateNote(id: number, note: string): Observable<WhDetailDto> {
+    return this.http.put<WhDetailDto>(`${API_URLS.listings}/${id}/detail/note`, { note });
   }
 
-  updateRating(id: number, rating: 'UP' | 'DOWN' | null): Observable<WhListingDetailDto> {
-    return this.http.put<WhListingDetailDto>(`${API_URLS.listings}/${id}/detail/rating`, {
-      rating,
-    });
+  updateRating(id: number, rating: 'UP' | 'DOWN' | null): Observable<WhDetailDto> {
+    return this.http.put<WhDetailDto>(`${API_URLS.listings}/${id}/detail/rating`, { rating });
   }
 
   updateInterest(
     id: number,
     level: 'LOW' | 'MEDIUM' | 'HIGH' | null,
-  ): Observable<WhListingDetailDto> {
-    return this.http.put<WhListingDetailDto>(`${API_URLS.listings}/${id}/detail/interest`, {
-      level,
-    });
+  ): Observable<WhDetailDto> {
+    return this.http.put<WhDetailDto>(`${API_URLS.listings}/${id}/detail/interest`, { level });
   }
 
-  updateTags(id: number, tags: string[]): Observable<WhListingDetailDto> {
-    return this.http.put<WhListingDetailDto>(`${API_URLS.listings}/${id}/detail/tags`, { tags });
+  updateTags(id: number, tags: string[]): Observable<WhDetailDto> {
+    return this.http.put<WhDetailDto>(`${API_URLS.listings}/${id}/detail/tags`, { tags });
   }
 
   cleanupByRating(rating: string, olderThanDays: number): Observable<{ deleted: number }> {

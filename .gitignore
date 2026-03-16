@@ -23,3 +23,10 @@ Thumbs.db
 
 # Docker volumes
 postgres-data/
+
+# keyBERT test
+test_keybert/
+
+# DL models (large binaries – download via docs/dl-feature.md)
+backend/src/main/resources/models/**/*.onnx
+backend/src/main/resources/models/.venv/

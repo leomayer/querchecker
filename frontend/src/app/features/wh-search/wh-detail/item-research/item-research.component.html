@@ -1,0 +1,30 @@
+@switch (state()) {
+  @case ('loading') {
+    <div class="state-row">
+      <mat-spinner diameter="16" />
+      <span class="state-label">Produktname wird extrahiert…</span>
+    </div>
+  }
+  @case ('done') {
+    @if (termGroups().length === 0) {
+      <p class="state-label empty">Kein Produktname erkannt.</p>
+    } @else {
+      @for (group of termGroups(); track group.modelName) {
+        <div class="model-group">
+          <span class="model-name">{{ group.modelName }}</span>
+          <div class="term-list">
+            @for (t of group.terms; track t.runId) {
+              <span
+                class="term-chip"
+                [matTooltip]="'Konfidenz: ' + confidencePct(t.confidence)"
+              >{{ t.term }}</span>
+            }
+          </div>
+        </div>
+      }
+    }
+  }
+  @default {
+    <p class="state-label empty">Keine Extraktion verfügbar.</p>
+  }
+}
