@@ -18,4 +18,13 @@ public interface DlExtractionTermRepository extends JpaRepository<DlExtractionTe
         ORDER BY t.confidence DESC
         """)
     List<DlExtractionTerm> findByItemTextId(@Param("itemTextId") Long itemTextId);
+
+    @Query("""
+        SELECT t FROM DlExtractionTerm t
+        JOIN FETCH t.run r JOIN FETCH r.modelConfig mc
+        WHERE r.itemText.id = :itemTextId AND mc.modelName = :modelName
+        """)
+    List<DlExtractionTerm> findByItemTextIdAndModelName(
+        @Param("itemTextId") Long itemTextId,
+        @Param("modelName") String modelName);
 }

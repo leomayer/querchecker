@@ -112,31 +112,6 @@
 
 // contain: inline-size excludes the chip-set from zone-left's intrinsic width
 // calculation — zone-left stays sized by the dates row, chips fill that width.
-.category-chips {
+app-hierarchical-filter {
   contain: inline-size;
-}
-
-:host ::ng-deep {
-  @each $level, $color in (0: var(--color-haggle-primary), 1: var(--color-haggle-secondary)) {
-    .mat-mdc-chip.chip-level-#{$level} {
-      --mat-chip-elevated-container-color: #{$color};
-      --mat-chip-label-text-color: var(--color-on-haggle-primary);
-    }
-  }
-  .mat-mdc-chip.chip-level-2 {
-    --mat-chip-elevated-container-color: var(--mat-sys-primary);
-    --mat-chip-label-text-color: var(--mat-sys-on-primary);
-  }
-  .mat-mdc-chip.chip-level-3 {
-    --mat-chip-elevated-container-color: var(--mat-sys-secondary);
-    --mat-chip-label-text-color: var(--mat-sys-on-secondary);
-  }
-
-  .category-chips .mdc-evolution-chip__text-label {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 160px;
-    direction: rtl;
-  }
 }

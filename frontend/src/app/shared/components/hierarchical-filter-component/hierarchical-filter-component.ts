@@ -17,6 +17,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { FilterNode } from './hierarchical-filter-component.model';
 
@@ -30,19 +31,22 @@ import { FilterNode } from './hierarchical-filter-component.model';
     MatFormFieldModule,
     MatButtonModule,
     MatChipsModule,
+    MatTooltipModule,
   ],
   templateUrl: './hierarchical-filter-component.html',
   styleUrl: './hierarchical-filter-component.scss',
 })
 export class HierarchicalFilterComponent {
-  data = input.required<FilterNode[]>();
+  data = input<FilterNode[]>([]);
   label = input<string>('Auswahl');
   selectedId = input<string | undefined>(undefined);
+  displayOnly = input<boolean>(false);
+  displayPath = input<FilterNode[]>([]);
 
   selectionChange = output<FilterNode | null>();
 
-  private autoTrigger = viewChild.required(MatAutocompleteTrigger);
-  private searchInput = viewChild.required<ElementRef<HTMLInputElement>>('searchInput');
+  private autoTrigger = viewChild(MatAutocompleteTrigger);
+  private searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
 
   private sanitizer = inject(DomSanitizer);
 
@@ -130,7 +134,7 @@ export class HierarchicalFilterComponent {
     this.navStack.set([]);
     this.searchQuery.set('');
     this.selectionChange.emit(node);
-    setTimeout(() => this.searchInput().nativeElement.blur(), 0);
+    setTimeout(() => this.searchInput()?.nativeElement.blur(), 0);
   }
 
   // Entfernt ab Index (inkl.) – Vorfahren bleiben, Blatt wird abgewählt
@@ -144,13 +148,13 @@ export class HierarchicalFilterComponent {
   expand(node: FilterNode): void {
     this.navStack.update((stack) => [...stack, node]);
     this.searchQuery.set('');
-    setTimeout(() => this.autoTrigger().openPanel(), 0);
+    setTimeout(() => this.autoTrigger()?.openPanel(), 0);
   }
 
   goBack(): void {
     this.navStack.update((stack) => stack.slice(0, -1));
     this.searchQuery.set('');
-    setTimeout(() => this.autoTrigger().openPanel(), 0);
+    setTimeout(() => this.autoTrigger()?.openPanel(), 0);
   }
 
   // Vor dem Panel-Öffnen: Nav-Level aus selectedPath wiederherstellen.
@@ -170,7 +174,7 @@ export class HierarchicalFilterComponent {
   onPanelOpened(): void {
     // Zur selektierten Option scrollen – innerhalb dieses Panels (nicht global)
     setTimeout(() => {
-      const panel = this.autoTrigger().autocomplete.panel?.nativeElement as HTMLElement | undefined;
+      const panel = this.autoTrigger()?.autocomplete.panel?.nativeElement as HTMLElement | undefined;
       panel
         ?.querySelector('.check-icon.visible')
         ?.closest('mat-option')
@@ -181,7 +185,7 @@ export class HierarchicalFilterComponent {
   handleBlur(): void {
     // Wenn das Panel noch offen ist, wurde der Blur durch einen Option-Klick
     // ausgelöst. In dem Fall nichts löschen – onSelect() räumt danach auf.
-    if (this.autoTrigger().panelOpen) return;
+    if (this.autoTrigger()?.panelOpen) return;
     this.searchQuery.set('');
     this.navStack.set([]);
   }

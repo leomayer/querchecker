@@ -25,6 +25,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://querchecker-db:5432/mydb
       SPRING_DATASOURCE_USERNAME: myuser
       SPRING_DATASOURCE_PASSWORD: mypassword
+      # GPU acceleration for LLM extraction models (llama.cpp).
+      # Default in prod profile: 999 (offload all layers — llama.cpp clamps to actual model layer count).
+      # Set to 0 to force CPU-only inference on this host.
+      # QUERCHECKER_DL_GPU_LAYERS: 0
     networks:
       - traefik-network
       - internal

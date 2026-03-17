@@ -1,11 +1,38 @@
+:host {
+  overflow: auto;
+}
 .w-full {
   width: 100%;
 }
 
-// Material MDC fix: primary-text muss full-width sein damit option-row (flex)
-// margin-left:auto nutzen kann. Scoped auf .hf-option via ::ng-deep.
-:host ::ng-deep .hf-option .mdc-list-item__primary-text {
-  width: 100%;
+:host ::ng-deep {
+  // Mat internal: make option content full-width for flex layout.
+  .hf-option .mdc-list-item__primary-text {
+    width: 100%;
+  }
+
+  // Fix: global mat-icon rule in styles.scss overrides the chip cancel-icon color.
+  // Custom properties alone can't fix this because the global rule targets the element
+  // directly — ::ng-deep is the only way to reach inside mat-chip's template.
+  .mat-mdc-chip.chip-level-0 .mat-icon,
+  .mat-mdc-chip.chip-level-1 .mat-icon {
+    color: var(--color-on-haggle-primary);
+  }
+  .mat-mdc-chip.chip-level-2 .mat-icon {
+    color: var(--mat-sys-on-primary);
+  }
+  .mat-mdc-chip.chip-level-3 .mat-icon {
+    color: var(--mat-sys-on-secondary);
+  }
+
+  // Truncate long labels in display-only chips (mdc-evolution-chip__text-label is internal).
+  .selection-chips--display .mdc-evolution-chip__text-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 160px;
+    direction: rtl;
+  }
 }
 
 // ── Browse-Modus ─────────────────────────────────────────────────────────────
@@ -91,51 +118,33 @@
   gap: 4px;
   margin-top: 4px;
   padding: 0;
+  overflow: auto;
 }
 
-// Farbhierarchie: Level 0 = dunkel → Level 2 = hell, Level 3 = mat-sys-primary
-// .mat-mdc-chip ist der MDC-Host-Klassen-Name auf dem Chip-Element.
-// Beide Token-Präfixe gesetzt (--mdc-chip-* + --mat-chip-*) für AM-Kompatibilität.
-:host ::ng-deep {
-  @each $level,
-    $color
-      in (
-        0: var(--color-haggle-primary),
-        1: var(--color-haggle-secondary),
-        2: var(--color-tertiary)
-      )
-  {
-    .mat-mdc-chip.chip-level-#{$level} {
-      --mat-chip-elevated-container-color: #{$color};
-      --mat-chip-label-text-color: var(--color-on-haggle-primary);
-      --mdc-chip-with-trailing-icon-trailing-icon-color: var(--color-on-haggle-primary);
+// CSS custom properties cascade through component boundaries — no ::ng-deep needed.
+// mat-chip is in our template so Angular adds [_ngcontent-*] to its host element.
+mat-chip.chip-level-0 {
+  --mat-chip-elevated-container-color: var(--color-haggle-primary);
+  --mat-chip-label-text-color: var(--color-on-haggle-primary);
+  --mdc-chip-with-trailing-icon-trailing-icon-color: var(--color-on-haggle-primary);
+}
 
-      // Globale .mat-icon-Regel überschreiben (styles.scss setzt on-surface-variant)
-      .mat-icon {
-        color: var(--color-on-haggle-primary);
-      }
-    }
-  }
+mat-chip.chip-level-1 {
+  --mat-chip-elevated-container-color: var(--color-haggle-secondary);
+  --mat-chip-label-text-color: var(--color-on-haggle-primary);
+  --mdc-chip-with-trailing-icon-trailing-icon-color: var(--color-on-haggle-primary);
+}
 
-  .mat-mdc-chip.chip-level-2 {
-    --mat-chip-elevated-container-color: var(--mat-sys-primary);
-    --mat-chip-label-text-color: var(--mat-sys-on-primary);
-    --mdc-chip-with-trailing-icon-trailing-icon-color: var(--mat-sys-on-primary);
+mat-chip.chip-level-2 {
+  --mat-chip-elevated-container-color: var(--mat-sys-primary);
+  --mat-chip-label-text-color: var(--mat-sys-on-primary);
+  --mdc-chip-with-trailing-icon-trailing-icon-color: var(--mat-sys-on-primary);
+}
 
-    .mat-icon {
-      color: var(--mat-sys-on-primary);
-    }
-  }
-
-  .mat-mdc-chip.chip-level-3 {
-    --mat-chip-elevated-container-color: var(--mat-sys-secondary);
-    --mat-chip-label-text-color: var(--mat-sys-on-secondary);
-    --mdc-chip-with-trailing-icon-trailing-icon-color: var(--mat-sys-on-secondary);
-
-    .mat-icon {
-      color: var(--mat-sys-on-secondary);
-    }
-  }
+mat-chip.chip-level-3 {
+  --mat-chip-elevated-container-color: var(--mat-sys-secondary);
+  --mat-chip-label-text-color: var(--mat-sys-on-secondary);
+  --mdc-chip-with-trailing-icon-trailing-icon-color: var(--mat-sys-on-secondary);
 }
 
 // ── Such-Modus ────────────────────────────────────────────────────────────────

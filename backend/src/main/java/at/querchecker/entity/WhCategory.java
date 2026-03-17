@@ -29,7 +29,7 @@ public class WhCategory {
     @Column(nullable = false)
     private Integer level;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "parent_id")
     private WhCategory parent;
 }

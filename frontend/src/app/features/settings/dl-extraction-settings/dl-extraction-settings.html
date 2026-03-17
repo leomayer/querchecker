@@ -1,0 +1,29 @@
+<mat-card class="dl-settings-card">
+  <mat-card-header>
+    <mat-icon mat-card-avatar class="section-icon">token</mat-icon>
+    <mat-card-title>KI-Extraktion</mat-card-title>
+    <mat-card-subtitle>Kontext-Token-Limit</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <p class="dl-settings-description">
+      Maximale Tokenanzahl des Inseratstexts, der an alle AI-Modelle übergeben wird.
+      Aktuell: <strong>{{ contextMaxTokens() }} Token</strong>
+    </p>
+    <div class="slider-row">
+      <mat-icon>compress</mat-icon>
+      <mat-slider min="128" max="1024" step="128" discrete>
+        <input matSliderThumb [value]="contextMaxTokens()" (valueChange)="contextMaxTokens.set($event)" />
+      </mat-slider>
+      <span class="token-value">{{ contextMaxTokens() }}</span>
+    </div>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-flat-button [disabled]="saving()" (click)="save()">
+      <mat-icon>save</mat-icon>
+      Speichern
+    </button>
+    @if (saveResult()) {
+      <span class="result-message">{{ saveResult() }}</span>
+    }
+  </mat-card-actions>
+</mat-card>

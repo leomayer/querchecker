@@ -6,10 +6,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSliderModule } from '@angular/material/slider';
 import { ThemeToggle } from './theme-toggle/theme-toggle';
 import { DeleteSweep } from './delete-sweep/delete-sweep';
+import { DlExtractionSettings } from './dl-extraction-settings/dl-extraction-settings';
 
 @Component({
   selector: 'app-settings',
-  imports: [MatButtonModule, MatIconModule, MatCardModule, ThemeToggle, DeleteSweep],
+  imports: [MatButtonModule, MatIconModule, MatCardModule, ThemeToggle, DeleteSweep, DlExtractionSettings],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
 })

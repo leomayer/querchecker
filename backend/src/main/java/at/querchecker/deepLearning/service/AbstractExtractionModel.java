@@ -7,8 +7,10 @@ import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
 import at.querchecker.deepLearning.ExtractionResult;
 import at.querchecker.deepLearning.entity.ItemText;
+import at.querchecker.service.AppConfigService;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -24,6 +26,9 @@ public abstract class AbstractExtractionModel implements ExtractionModel {
     protected volatile OrtSession session;
     protected volatile OrtEnvironment env;
 
+    @Autowired
+    private AppConfigService appConfigService;
+
     protected abstract Path getModelDir();
 
     protected void initTokenizer() throws IOException {
@@ -38,7 +43,8 @@ public abstract class AbstractExtractionModel implements ExtractionModel {
     }
 
     protected String buildContext(ItemText input) {
-        return "Titel: " + input.getTitle() + "\n\n" + input.getDescription();
+        return truncate("Titel: " + input.getTitle() + "\n\n" + input.getDescription(),
+            appConfigService.getDlContextMaxTokens());
     }
 
     protected String truncate(String text, int maxTokens) {

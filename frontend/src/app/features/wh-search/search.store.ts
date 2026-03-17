@@ -1,6 +1,7 @@
 import { computed, inject } from '@angular/core';
 import { Location } from '@angular/common';
 import { NavigationEnd, Router } from '@angular/router';
+import { ExtractionStore } from './extraction.store';
 import {
   signalStore,
   withState,
@@ -51,13 +52,14 @@ export const SearchStore = signalStore(
       });
     }),
   })),
-  withMethods((store, router = inject(Router), location = inject(Location)) => ({
+  withMethods((store, router = inject(Router), location = inject(Location), extractionStore = inject(ExtractionStore)) => ({
     search(query: SearchQuery): void {
       patchState(store, {
         searchQuery: query,
         layoutState: LayoutState.LISTINGS,
         searchPatches: {},
       });
+      extractionStore.clear();
       persistSearch(store.filterDraft());
       router.navigate(['/', AppRoutePath.LISTINGS]);
     },
@@ -96,6 +98,7 @@ export const SearchStore = signalStore(
           paylivery: false,
         },
       });
+      extractionStore.clear();
       router.navigate(['/']);
     },
     setSortColumn(col: string): void {

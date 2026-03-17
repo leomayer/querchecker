@@ -1,20 +1,9 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  OnInit,
-  effect,
-  inject,
-  input,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DlExtractionTermDto } from '../../../../api/model/dlExtractionTermDto';
 import { WhDetailDto } from '../../../../api/model/whDetailDto';
-import { DlExtractionService } from '../../../../core/dl-extraction.service';
-import { AppSseEventName, DlExtractionDonePayload } from '../../../../core/sse-events';
-import { EventSourceServerService } from '../../../../shared/utils/event-source-server';
+import { ExtractionStore } from '../../extraction.store';
 
 interface TermGroup {
   modelName: string;
@@ -28,53 +17,22 @@ interface TermGroup {
   templateUrl: './item-research.component.html',
   styleUrl: './item-research.component.scss',
 })
-export class ItemResearchComponent implements OnInit {
+export class ItemResearchComponent {
   readonly detail = input.required<WhDetailDto>();
 
-  protected readonly state = signal<'idle' | 'loading' | 'done'>('idle');
-  protected readonly termGroups = signal<TermGroup[]>([]);
+  private readonly extractionStore = inject(ExtractionStore);
 
-  private readonly dlService = inject(DlExtractionService);
-  private readonly destroyRef = inject(DestroyRef);
-  // Cast to typed event service — single shared SSE connection
-  private readonly sseService = inject(
-    EventSourceServerService,
-  ) as EventSourceServerService<AppSseEventName, DlExtractionDonePayload>;
+  protected readonly state = computed<'idle' | 'loading' | 'done'>(() => {
+    const id = this.detail().itemTextId;
+    if (id == null) return 'idle';
+    return id in this.extractionStore.results() ? 'done' : 'loading';
+  });
 
-  private readonly onDone = (payload: DlExtractionDonePayload): void => {
-    const currentId = this.detail().itemTextId;
-    if (payload?.itemTextId == null || payload.itemTextId !== currentId) return;
-
-    this.termGroups.set(this.groupByModel(payload.terms ?? []));
-    this.state.set('done');
-  };
-
-  constructor() {
-    effect(() => {
-      const itemTextId = this.detail().itemTextId;
-      this.termGroups.set([]);
-      this.state.set(itemTextId ? 'loading' : 'idle');
-    });
-  }
-
-  ngOnInit(): void {
-    this.sseService.addEventListener('dl-extract', this.onDone);
-    this.destroyRef.onDestroy(() => {
-      this.sseService.deleteEventListener('dl-extract', this.onDone);
-    });
-
-    // Fetch existing terms immediately — handles the race where the SSE event
-    // fires before this component mounts (afterCommit() on the POST /detail response)
-    const itemTextId = this.detail().itemTextId;
-    if (itemTextId != null) {
-      this.dlService.getTerms(itemTextId).subscribe((terms) => {
-        if (terms.length > 0 && this.state() === 'loading') {
-          this.termGroups.set(this.groupByModel(terms));
-          this.state.set('done');
-        }
-      });
-    }
-  }
+  protected readonly termGroups = computed<TermGroup[]>(() => {
+    const id = this.detail().itemTextId;
+    if (id == null) return [];
+    return this.groupByModel(this.extractionStore.results()[id] ?? []);
+  });
 
   private groupByModel(terms: DlExtractionTermDto[]): TermGroup[] {
     const map = new Map<string, DlExtractionTermDto[]>();

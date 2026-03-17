@@ -135,25 +135,37 @@ public class WhSearchService {
             log.debug("Category parse: whId={} → deepestCatId={}", a.getId(), catId);
             if (catId != null) rootCategoryByWhId.put(a.getId(), catId);
         });
-        log.info("Category map for {} adverts: {}", adverts.size(), rootCategoryByWhId);
+        log.debug("Category map for {} adverts: {}", adverts.size(), rootCategoryByWhId);
 
-        // Save image paths + category via JPA (replaces previous list)
+        // Listings that still need a category assigned (first time seen)
+        List<WhListing> uncategorized = savedListings.stream()
+            .filter(l -> l.getWhCategory() == null && rootCategoryByWhId.containsKey(l.getWhId()))
+            .toList();
+
+        if (!uncategorized.isEmpty()) {
+            // Batch-load only the required categories in one query
+            List<Integer> neededCatIds = uncategorized.stream()
+                .map(l -> rootCategoryByWhId.get(l.getWhId()))
+                .distinct().toList();
+            Map<Integer, WhCategory> categoryMap = whCategoryRepository
+                .findByWhIdIn(neededCatIds)
+                .stream()
+                .collect(Collectors.toMap(WhCategory::getWhId, c -> c));
+            log.debug("Category batch lookup: {} unique catIds → {} found", neededCatIds.size(), categoryMap.size());
+
+            uncategorized.forEach(l -> {
+                WhCategory cat = categoryMap.get(rootCategoryByWhId.get(l.getWhId()));
+                if (cat != null) l.setWhCategory(cat);
+            });
+        }
+
+        // Save image paths via JPA (replaces previous list)
         for (WhListing saved : savedListings) {
             List<String> paths = imagePathsByWhId.getOrDefault(saved.getWhId(), List.of());
             saved.getImagePaths().clear();
             saved.getImagePaths().addAll(paths);
-
-            Integer rootWhId = rootCategoryByWhId.get(saved.getWhId());
-            if (rootWhId != null) {
-                var found = whCategoryRepository.findByWhId(rootWhId);
-                log.info("Category lookup: whId={} catId={} → found={}", saved.getWhId(), rootWhId, found.map(c -> c.getName() + " (level=" + c.getLevel() + ")").orElse("NOT FOUND"));
-                found.ifPresent(saved::setWhCategory);
-            } else {
-                log.debug("No category for listing whId={}", saved.getWhId());
-            }
-
-            whListingRepository.save(saved);
         }
+        whListingRepository.saveAll(savedListings);
 
         List<Long> ids = savedListings.stream().map(WhListing::getId).toList();
         Map<Long, WhItemSummary> detailMap = whItemRepository.findAllSummaries()
@@ -290,7 +302,7 @@ public class WhSearchService {
      * Primär: category_level_max + category_level_id_{N} (z.B. category_level_id_4=5421).
      * Fallback: categorytreeids (z.B. "5824;5828;5833" → 5833).
      */
-    private static Integer parseDeepestCategoryWhId(Advert advert) {
+    public static Integer parseDeepestCategoryWhId(Advert advert) {
         // Primary: use category_level_max to find the deepest level ID
         String maxStr = advert.getAttribute("category_level_max");
         log.debug("category_level_max={} for whId={}", maxStr, advert.getId());

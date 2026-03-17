@@ -7,4 +7,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class DlExtractionCompletedEvent {
     private final Long itemTextId;
+    private final String modelName;
 }

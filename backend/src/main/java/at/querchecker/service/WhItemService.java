@@ -9,6 +9,7 @@ import at.querchecker.dto.WhPreviewDto;
 import at.querchecker.entity.WhCategory;
 import at.querchecker.entity.WhItem;
 import at.querchecker.entity.WhListing;
+import at.querchecker.repository.WhCategoryRepository;
 import at.querchecker.repository.WhItemRepository;
 import at.querchecker.repository.WhListingRepository;
 import at.querchecker.willHaben.WhConstants;
@@ -36,6 +37,7 @@ public class WhItemService {
 
     private final WhItemRepository whItemRepository;
     private final WhListingRepository whListingRepository;
+    private final WhCategoryRepository whCategoryRepository;
     private final WhSearchService whSearchService;
     private final ItemTextService itemTextService;
     private final DlOrchestrationService dlOrchestrationService;
@@ -97,6 +99,18 @@ public class WhItemService {
                     listing.getImagePaths().addAll(freshPaths);
                     whListingRepository.save(listing);
                 }
+            }
+        }
+
+        // Lazy category assignment — covers listings that had no category set during search
+        if (listing.getWhCategory() == null && advert != null) {
+            Integer catWhId = WhSearchService.parseDeepestCategoryWhId(advert);
+            if (catWhId != null) {
+                whCategoryRepository.findByWhId(catWhId).ifPresent(cat -> {
+                    listing.setWhCategory(cat);
+                    whListingRepository.save(listing);
+                    log.debug("Lazy category assigned: listingWhId={} → {}", listing.getWhId(), cat.getName());
+                });
             }
         }
 

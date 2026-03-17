@@ -5,4 +5,5 @@ export const API_URLS = {
   whCategories: '/api/wh/meta/categories',
   sse: (eventSourceId: string) => `/api/sse?eventSourceId=${eventSourceId}`,
   dlExtractionTerms: (itemTextId: number) => `/api/dl/extraction/${itemTextId}/terms`,
+  dlSettings: '/api/dl/settings',
 } as const;

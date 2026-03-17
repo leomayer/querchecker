@@ -1,3 +1,7 @@
+querchecker:
+  dl:
+    gpu-layers: 999           # Offload all layers to GPU; llama.cpp clamps to actual model layer count
+
 springdoc:
   api-docs:
     enabled: false

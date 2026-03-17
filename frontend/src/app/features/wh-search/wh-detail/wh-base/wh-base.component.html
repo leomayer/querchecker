@@ -46,13 +46,7 @@
       Auf Willhaben öffnen
     </button>
   </div>
-  @if (detail().categoryPath?.length) {
-    <mat-chip-set class="category-chips">
-      @for (cat of detail().categoryPath!; track cat.whId; let i = $index) {
-        <mat-chip [class]="'chip-level-' + i" disableRipple [matTooltip]="cat.name!">{{ cat.name }}</mat-chip>
-      }
-    </mat-chip-set>
-  }
+  <app-hierarchical-filter [displayOnly]="true" [displayPath]="categoryChips()" />
 </div>
   <div class="listing-description zone-right html-content" [innerHTML]="descriptionHtml()"></div>
 </div>

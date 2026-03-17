@@ -2,6 +2,7 @@ package at.querchecker.repository;
 
 import at.querchecker.entity.WhListing;
 import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -15,6 +16,16 @@ import java.util.Optional;
 
 @Repository
 public interface WhListingRepository extends JpaRepository<WhListing, Long> {
+
+    // Loads all listings + full category ancestor chain in one SQL (4 self-joins on wh_category).
+    // WhCategory.parent is EAGER so the chain is included automatically once whCategory is joined.
+    @EntityGraph(attributePaths = {
+        "whCategory",
+        "whCategory.parent",
+        "whCategory.parent.parent",
+        "whCategory.parent.parent.parent"
+    })
+    List<WhListing> findAll();
 
     Optional<WhListing> findByWhId(String whId);
 

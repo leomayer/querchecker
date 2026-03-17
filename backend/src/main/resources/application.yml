@@ -25,6 +25,7 @@ querchecker:
   dl:
     min-confidence: 0.0       # Evaluierungsphase: alle Ergebnisse speichern
     top-k: 5                  # Filter VOR DB-Insert
+    gpu-layers: 0             # 0 = CPU-only; set to 999 in GPU environments (llama.cpp clamps to model layer count)
     item-text-cleanup:
       retention-days: 10      # ältere ItemText-Records löschen (nicht neuester + kein userCorrectedTerm)
       cron: "0 0 3 * * *"     # täglich um 3 Uhr nachts

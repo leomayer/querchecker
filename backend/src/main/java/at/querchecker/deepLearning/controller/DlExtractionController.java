@@ -6,6 +6,7 @@ import at.querchecker.dto.DlExtractionDonePayload;
 import at.querchecker.dto.DlExtractionTermDto;
 import at.querchecker.sse.SseHub;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/dl")
 @RequiredArgsConstructor
@@ -38,17 +40,26 @@ public class DlExtractionController {
 
     @EventListener
     public void onExtractionCompleted(DlExtractionCompletedEvent event) {
-        List<DlExtractionTermDto> terms = termRepo.findByItemTextId(event.getItemTextId()).stream()
-            .map(t -> DlExtractionTermDto.builder()
-                .modelName(t.getRun().getModelConfig().getModelName())
-                .term(t.getTerm())
-                .confidence(t.getConfidence())
-                .build())
-            .toList();
+        try {
+            List<DlExtractionTermDto> terms = termRepo
+                .findByItemTextIdAndModelName(event.getItemTextId(), event.getModelName()).stream()
+                .map(t -> DlExtractionTermDto.builder()
+                    .modelName(t.getRun().getModelConfig().getModelName())
+                    .term(t.getTerm())
+                    .confidence(t.getConfidence())
+                    .build())
+                .toList();
 
-        sseHub.broadcast("dl-extract", DlExtractionDonePayload.builder()
-            .itemTextId(event.getItemTextId())
-            .terms(terms)
-            .build());
+            log.debug("Broadcasting dl-extract: itemTextId={}, model={}, terms={}",
+                event.getItemTextId(), event.getModelName(), terms.size());
+
+            sseHub.broadcast("dl-extract", DlExtractionDonePayload.builder()
+                .itemTextId(event.getItemTextId())
+                .terms(terms)
+                .build());
+        } catch (Exception e) {
+            log.error("Failed to broadcast dl-extract for itemTextId={}, model={}",
+                event.getItemTextId(), event.getModelName(), e);
+        }
     }
 }

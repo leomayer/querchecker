@@ -27,6 +27,7 @@ postgres-data/
 # keyBERT test
 test_keybert/
 
-# DL models (large binaries – download via docs/dl-feature.md)
+# DL models (large binaries – download via models/download_*.py scripts)
 backend/src/main/resources/models/**/*.onnx
+backend/src/main/resources/models/**/*.gguf
 backend/src/main/resources/models/.venv/

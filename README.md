@@ -75,3 +75,32 @@ docker compose -f docker-compose.prod.yml up -d
 ```
 
 Traefik-Labels in `docker-compose.prod.yml` anpassen (Domain, certresolver).
+
+### GPU-Beschleunigung (LLM-Extraktionsmodelle)
+
+Die KI-Extraktionsmodelle laufen über llama.cpp. Im Prod-Profil ist `gpu-layers: 999` gesetzt — llama.cpp lädt automatisch so viele Schichten auf die GPU wie das Modell hat.
+
+**Kein GPU vorhanden → CPU erzwingen** (in `docker-compose.prod.yml`):
+
+```yaml
+environment:
+  QUERCHECKER_DL_GPU_LAYERS: 0
+```
+
+Voraussetzungen für GPU-Betrieb:
+- NVIDIA GPU mit CUDA-Unterstützung
+- CUDA Toolkit auf dem Host installiert
+- Die in der JAR enthaltene java-llama.cpp-Native-Bibliothek unterstützt CUDA auf Linux x86_64 out of the box
+
+Falls kein kompatibles GPU erkannt wird, fällt llama.cpp beim Start automatisch auf CPU zurück (Hinweis im Log).
+
+### Modell-Dateien
+
+Die GGUF-Modelldateien sind **nicht** im Docker-Image enthalten. Download-Skripte einmalig ausführen:
+
+```bash
+# Im laufenden Backend-Container:
+python3 src/main/resources/models/download_nuextract.py
+python3 src/main/resources/models/download_nuextract15.py
+python3 src/main/resources/models/download_qwen25.py
+```

@@ -14,7 +14,7 @@ export class EventSourceServerService<T, V> {
     return this.#eventSourceId;
   }
 
-  private readonly eventSource: EventSource;
+  private eventSource!: EventSource;
   /* although the handling of the Types is not "clean" during runtime its clear at compiler time since one needs to inject
    * the proper type for the listing (which is a Literal Type)
    */
@@ -23,9 +23,47 @@ export class EventSourceServerService<T, V> {
   readonly #nativeListeners = new Map<EventHandler<V>, EventListener>();
   // ID for the EventSource for this stream
   readonly #eventSourceId: string = crypto.randomUUID();
+  #serverToken: string | null = null;
+  #stalenessTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
+    this.#connect();
+  }
+
+  #connect(): void {
     this.eventSource = new EventSource(API_URLS.sse(this.#eventSourceId));
+    this.eventSource.addEventListener('server-hello', (e: Event) => this.#handleServerToken(e));
+    this.eventSource.addEventListener('keepalive', (e: Event) => this.#handleServerToken(e));
+    // Re-attach consumer listeners onto the new EventSource
+    for (const [event, handlers] of this.#eventListeners) {
+      for (const handler of handlers) {
+        const native = this.#nativeListeners.get(handler);
+        if (native) this.#attachNative(event, native);
+      }
+    }
+  }
+
+  #attachNative(event: T, native: EventListener): void {
+    this.eventSource.addEventListener(event as string, native);
+  }
+
+  #handleServerToken(event: Event): void {
+    const token = (event as MessageEvent<string>).data?.trim();
+    if (!token) return;
+    if (this.#serverToken === null) {
+      this.#serverToken = token;
+    } else if (this.#serverToken !== token) {
+      // Server restarted — full page reload to pick up new state
+      window.location.reload();
+      return;
+    }
+    // Reset stale-connection watchdog: reconnect if no keepalive within 40 s.
+    // The reconnect triggers a new server-hello; only then reload if the token changed.
+    if (this.#stalenessTimer !== null) clearTimeout(this.#stalenessTimer);
+    this.#stalenessTimer = setTimeout(() => {
+      this.eventSource.close();
+      this.#connect();
+    }, 40_000);
   }
 
   addEventListener(event: T, consumer: EventHandler<V>): void {
@@ -53,7 +91,7 @@ export class EventSourceServerService<T, V> {
       consumer(ret);
     };
     this.#nativeListeners.set(consumer, nativeListener);
-    this.eventSource.addEventListener(event as string, nativeListener);
+    this.#attachNative(event, nativeListener);
   }
 
   deleteEventListener(event: T, consumer: EventHandler<V>): void {
@@ -69,7 +107,7 @@ export class EventSourceServerService<T, V> {
         }
         const nativeListener = this.#nativeListeners.get(consumer);
         if (nativeListener) {
-          this.eventSource.removeEventListener(event as string, nativeListener);
+          this.eventSource.removeEventListener(event as string, nativeListener); // no #detachNative needed — only called when intentionally unsubscribing
           this.#nativeListeners.delete(consumer);
         }
       } else {
