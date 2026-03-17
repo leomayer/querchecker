@@ -6,6 +6,7 @@ spring:
     enabled: true
     locations: classpath:db/migration
     baselineOnMigrate: true
+    out-of-order: true
   datasource:
     url: jdbc:postgresql://localhost:14071/mydb
     username: myuser
