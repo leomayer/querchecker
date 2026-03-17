@@ -97,7 +97,7 @@ export class MainLayoutComponent {
   private readonly allResource = httpResource<WhItemDto[]>(
     () =>
       !this.store.searchMode()
-        ? { url: API_URLS.listings, params: { ratingFilter: 'UP_NULL' } }
+        ? { url: API_URLS.listings, params: { ratingFilter: 'KEEP' } }
         : undefined,
     { defaultValue: [] },
   );

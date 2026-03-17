@@ -55,7 +55,8 @@ public class Llama32ExtractionModel extends AbstractLlamaExtractionModel {
 
     @Override
     protected String buildPrompt(ItemText input, String question) {
-        return "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n"
+        // No <|begin_of_text|> here — llama.cpp adds the BOS token automatically.
+        return "<|start_header_id|>system<|end_header_id|>\n"
             + "You extract product names from German classified listings. "
             + "Return ONLY valid JSON with no other text: {\"term\": \"product name\", \"confidence\": 0.85}\n"
             + "<|eot_id|><|start_header_id|>user<|end_header_id|>\n"

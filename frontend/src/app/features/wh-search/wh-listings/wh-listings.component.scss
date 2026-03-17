@@ -120,10 +120,10 @@
     margin-right: 4px;
   }
 
-  mat-button-toggle[value='UP'] mat-icon {
+  mat-button-toggle[value='LIKE'] mat-icon {
     color: var(--color-positive);
   }
-  mat-button-toggle[value='DOWN'] mat-icon {
+  mat-button-toggle[value='DISLIKE'] mat-icon {
     color: var(--color-rating-down);
   }
 }

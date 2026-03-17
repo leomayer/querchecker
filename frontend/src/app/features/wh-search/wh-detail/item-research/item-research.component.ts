@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DlExtractionTermDto } from '../../../../api/model/dlExtractionTermDto';
@@ -21,6 +21,16 @@ export class ItemResearchComponent {
   readonly detail = input.required<WhDetailDto>();
 
   private readonly extractionStore = inject(ExtractionStore);
+
+  constructor() {
+    // Load existing extraction terms when detail changes
+    effect(() => {
+      const id = this.detail().itemTextId;
+      if (id != null) {
+        this.extractionStore.loadExistingTerms(id);
+      }
+    });
+  }
 
   protected readonly state = computed<'idle' | 'loading' | 'done'>(() => {
     const id = this.detail().itemTextId;

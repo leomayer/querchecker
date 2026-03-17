@@ -36,9 +36,9 @@ public class WhListingService {
         var stream = listings.stream().map(e -> toDto(e, detailMap.get(e.getId())));
 
         return switch (ratingFilter) {
-            case "UP" -> stream.filter(d -> "UP".equals(d.getRating())).toList();
-            case "UP_NULL" -> stream.filter(d -> d.getRating() == null || "UP".equals(d.getRating())).toList();
-            case "DOWN" -> stream.filter(d -> "DOWN".equals(d.getRating())).toList();
+            case "LIKE" -> stream.filter(d -> "UP".equals(d.getRating())).toList();
+            case "KEEP" -> stream.filter(d -> d.getRating() == null || "UP".equals(d.getRating())).toList();
+            case "DISLIKE" -> stream.filter(d -> "DOWN".equals(d.getRating())).toList();
             default -> stream.toList(); // "ALL"
         };
     }

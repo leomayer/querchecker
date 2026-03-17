@@ -22,7 +22,7 @@ import { WhItemDto } from '../../../api/model/whItemDto';
 import { ListingCardComponent } from './listing-card/listing-card.component';
 import { SearchStore } from '../search.store';
 
-export type RatingFilter = 'UP' | 'UP_NULL' | 'DOWN' | 'ALL';
+export type RatingFilter = 'LIKE' | 'KEEP' | 'DISLIKE' | 'ALL';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -45,7 +45,7 @@ export class WhListingsComponent {
 
   filterText = model('');
   freeOnly = model(false);
-  ratingFilter = model<RatingFilter>('UP_NULL');
+  ratingFilter = model<RatingFilter>('KEEP');
 
   removingIds = signal<Set<number>>(new Set());
 
@@ -58,9 +58,9 @@ export class WhListingsComponent {
     const searchMode = this.store.searchMode();
     return this.store.patchedListings().filter((l) => {
       if (searchMode) {
-        if (ratingF === 'UP' && l.rating !== 'UP') return false;
-        if (ratingF === 'UP_NULL' && l.rating !== 'UP' && l.rating != null) return false;
-        if (ratingF === 'DOWN' && l.rating !== 'DOWN') return false;
+        if (ratingF === 'LIKE' && l.rating !== 'UP') return false;
+        if (ratingF === 'KEEP' && l.rating !== 'UP' && l.rating != null) return false;
+        if (ratingF === 'DISLIKE' && l.rating !== 'DOWN') return false;
       }
       if (free && l.price !== 0) return false;
       if (!filter) return true;
@@ -102,11 +102,11 @@ export class WhListingsComponent {
 
   private cardLeavesView(newRating: string | null): boolean {
     switch (this.ratingFilter()) {
-      case 'UP':
+      case 'LIKE':
         return newRating !== 'UP';
-      case 'DOWN':
+      case 'DISLIKE':
         return newRating !== 'DOWN';
-      case 'UP_NULL':
+      case 'KEEP':
         return newRating === 'DOWN';
       default:
         return false; // 'ALL': Karte bleibt immer

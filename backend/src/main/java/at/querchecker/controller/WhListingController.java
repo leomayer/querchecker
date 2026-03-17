@@ -23,7 +23,7 @@ public class WhListingController {
     @GetMapping
     @Operation(summary = "Alle Inserate abrufen")
     public List<WhItemDto> findAll(
-            @RequestParam(defaultValue = "UP") String ratingFilter) {
+            @RequestParam(defaultValue = "LIKE") String ratingFilter) {
         return whListingService.findAll(ratingFilter);
     }
 

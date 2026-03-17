@@ -3,6 +3,7 @@ import { patchState, signalStore, withHooks, withMethods, withState } from '@ngr
 import { DlExtractionTermDto } from '../../api/model/dlExtractionTermDto';
 import { AppSseEventName, DlExtractionDonePayload } from '../../core/sse-events';
 import { EventSourceServerService } from '../../shared/utils/event-source-server';
+import { DlExtractionService } from '../../core/dl-extraction.service';
 
 interface ExtractionState {
   results: Record<number, DlExtractionTermDto[]>;
@@ -11,17 +12,32 @@ interface ExtractionState {
 export const ExtractionStore = signalStore(
   { providedIn: 'root' },
   withState<ExtractionState>({ results: {} }),
-  withMethods((store) => ({
-    remove(itemTextId: number): void {
-      patchState(store, (s) => {
-        const { [itemTextId]: _, ...rest } = s.results;
-        return { results: rest };
-      });
-    },
-    clear(): void {
-      patchState(store, { results: {} });
-    },
-  })),
+  withMethods((store) => {
+    const dlService = inject(DlExtractionService);
+    return {
+      remove(itemTextId: number): void {
+        patchState(store, (s) => {
+          const { [itemTextId]: _, ...rest } = s.results;
+          return { results: rest };
+        });
+      },
+      clear(): void {
+        patchState(store, { results: {} });
+      },
+      loadExistingTerms(itemTextId: number): void {
+        dlService.getTerms(itemTextId).subscribe((terms) => {
+          if (terms && terms.length > 0) {
+            patchState(store, (s) => ({
+              results: {
+                ...s.results,
+                [itemTextId]: terms,
+              },
+            }));
+          }
+        });
+      },
+    };
+  }),
   withHooks((store) => {
     const sseService = inject(
       EventSourceServerService,

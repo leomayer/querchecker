@@ -27,9 +27,9 @@ public class SseHub {
     public SseEmitter register(String eventSourceId) {
         SseEmitter emitter = new SseEmitter(300_000L); // 5 min
         emitters.put(eventSourceId, emitter);
-        emitter.onCompletion(() -> emitters.remove(eventSourceId));
-        emitter.onTimeout(() -> emitters.remove(eventSourceId));
-        emitter.onError(e -> emitters.remove(eventSourceId));
+        emitter.onCompletion(() -> emitters.remove(eventSourceId, emitter));
+        emitter.onTimeout(() -> emitters.remove(eventSourceId, emitter));
+        emitter.onError(e -> emitters.remove(eventSourceId, emitter));
         log.debug("SSE client registered: {}, active={}", eventSourceId, emitters.size());
         try {
             emitter.send(SseEmitter.event()
