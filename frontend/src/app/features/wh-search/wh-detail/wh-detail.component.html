@@ -1,15 +1,15 @@
-@if (detail(); as d) {
+@if (detail(); as listing) {
   <div class="detail-panel" [@detailSlide]>
     <div class="detail-header">
-      <h2 class="detail-title">{{ d.title }}</h2>
+      <h2 class="detail-title">{{ listing.title }}</h2>
     </div>
 
-    <div class="detail-content">
-      <app-wh-base [detail]="d" />
-      <mat-divider />
-      <app-item-annotation [detail]="d" />
-      <mat-divider />
-      <app-item-research [detail]="d" />
+    <div class="detail-content" [class.dragging]="dragging !== null">
+      <app-wh-base [detail]="listing" />
+      <div class="pane-divider" (mousedown)="onDividerMousedown($event, 'top')"></div>
+      <app-item-annotation [detail]="listing" />
+      <div class="pane-divider" (mousedown)="onDividerMousedown($event, 'middle')"></div>
+      <app-item-research [detail]="listing" />
     </div>
   </div>
 } @else {

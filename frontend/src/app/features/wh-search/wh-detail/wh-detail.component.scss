@@ -3,6 +3,10 @@
   flex: 1;
   overflow: hidden;
   position: relative;
+
+  // Defaults — overridden by inline style when user drags or localStorage restores
+  --top-height: 480px;
+  --middle-height: 220px;
 }
 
 .detail-panel {
@@ -25,11 +29,40 @@
 
 .detail-content {
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden;
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0;
+
+  &.dragging {
+    user-select: none;
+
+    .pane-divider::after { opacity: 1; }
+  }
+}
+
+app-wh-base         { flex: 0 0 var(--top-height);    min-height: 200px; overflow-y: auto; }
+app-item-annotation { flex: 0 0 var(--middle-height); min-height: 100px; overflow-y: auto; }
+app-item-research   { flex: 1 1 0; min-height: 80px;                     overflow-y: auto; }
+
+.pane-divider {
+  flex-shrink: 0;
+  height: 9px;
+  cursor: row-resize;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 4px 0;
+    border-radius: 2px;
+    background: var(--mat-sys-outline-variant);
+    opacity: 0.35;
+    transition: opacity 120ms;
+  }
+
+  &:hover::after { opacity: 1; }
 }
 
 .detail-empty {
