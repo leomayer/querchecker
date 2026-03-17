@@ -8,7 +8,7 @@ Querchecker hilft beim Schnäppchenkauf: Man startet eine Suche auf Willhaben, s
 
 ## Status
 
-Aktiv in Entwicklung (v0.0.1-SNAPSHOT). Grundfunktionen implementiert:
+Aktiv in Entwicklung (v0.1.0-SNAPSHOT). Grundfunktionen implementiert:
 
 - Willhaben-Suche mit Filtern (Stichwort, Standort, Kategorie, Preisspanne, Paylivery)
 - Förderband-UI: Dreistufige Navigation (Suchmaske → Ergebnisliste → Detailansicht) mit Animationen
