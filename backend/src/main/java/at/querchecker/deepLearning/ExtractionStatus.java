@@ -6,5 +6,6 @@ public enum ExtractionStatus {
     DONE,
     FAILED,
     NO_IMPLEMENTATION,
-    RE_EVALUATE
+    RE_EVALUATE,
+    CANCELLED
 }

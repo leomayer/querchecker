@@ -3,35 +3,37 @@ import { patchState, signalStore, withHooks, withMethods, withState } from '@ngr
 import { DlExtractionTermDto } from '../../api/model/dlExtractionTermDto';
 import { AppSseEventName, DlExtractionDonePayload } from '../../core/sse-events';
 import { EventSourceServerService } from '../../shared/utils/event-source-server';
-import { DlExtractionService } from '../../core/dl-extraction.service';
+import { DlExtractionService, DlExtractionStatusResponse } from '../../core/dl-extraction.service';
 
 interface ExtractionState {
   results: Record<number, DlExtractionTermDto[]>;
+  extractionStatus: Record<number, DlExtractionStatusResponse['extractionStatus']>;
 }
 
 export const ExtractionStore = signalStore(
   { providedIn: 'root' },
-  withState<ExtractionState>({ results: {} }),
+  withState<ExtractionState>({ results: {}, extractionStatus: {} }),
   withMethods((store) => {
     const dlService = inject(DlExtractionService);
     return {
       remove(whItemId: number): void {
         patchState(store, (s) => {
-          const { [whItemId]: _, ...rest } = s.results;
-          return { results: rest };
+          const { [whItemId]: _r, ...restResults } = s.results;
+          const { [whItemId]: _s, ...restStatus } = s.extractionStatus;
+          return { results: restResults, extractionStatus: restStatus };
         });
       },
       clear(): void {
-        patchState(store, { results: {} });
+        patchState(store, { results: {}, extractionStatus: {} });
       },
       loadExistingTerms(whItemId: number): void {
-        dlService.getTerms(whItemId).subscribe((terms) => {
-          if (terms && terms.length > 0) {
+        dlService.getTerms(whItemId).subscribe((response) => {
+          patchState(store, (s) => ({
+            extractionStatus: { ...s.extractionStatus, [whItemId]: response.extractionStatus },
+          }));
+          if (response.terms && response.terms.length > 0) {
             patchState(store, (s) => ({
-              results: {
-                ...s.results,
-                [whItemId]: terms,
-              },
+              results: { ...s.results, [whItemId]: response.terms },
             }));
           }
         });
@@ -57,6 +59,7 @@ export const ExtractionStore = signalStore(
             ...incoming,
           ],
         },
+        extractionStatus: { ...s.extractionStatus, [whItemId]: 'DONE' as const },
       }));
     };
 

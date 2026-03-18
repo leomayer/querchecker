@@ -1,4 +1,5 @@
 export * from './dlExtractionDonePayload';
+export * from './dlExtractionStatusResponse';
 export * from './dlExtractionTermDto';
 export * from './dlSettingsDto';
 export * from './whCategoryDto';

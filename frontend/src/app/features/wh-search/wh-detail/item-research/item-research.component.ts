@@ -25,7 +25,6 @@ export class ItemResearchComponent {
   private readonly extractionStore = inject(ExtractionStore);
 
   constructor() {
-    // Load existing extraction terms when detail changes
     effect(() => {
       const id = this.detail().whItemId;
       if (id != null) {

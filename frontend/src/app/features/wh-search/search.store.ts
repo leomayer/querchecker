@@ -52,7 +52,10 @@ export const SearchStore = signalStore(
       });
     }),
   })),
-  withMethods((store, router = inject(Router), location = inject(Location), extractionStore = inject(ExtractionStore)) => ({
+  withMethods((store, router = inject(Router), location = inject(Location), extractionStore = inject(ExtractionStore)) => {
+    let extractionDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+    return {
     search(query: SearchQuery): void {
       patchState(store, {
         searchQuery: query,
@@ -64,7 +67,16 @@ export const SearchStore = signalStore(
       router.navigate(['/', AppRoutePath.LISTINGS]);
     },
     selectListing(id: string): void {
+      // Navigation and detail panel are immediate
       router.navigate(['/', AppRoutePath.DETAIL, id]);
+
+      // Debounce extraction scheduling: prevent queue spam from rapid detail clicks
+      if (extractionDebounceTimer) clearTimeout(extractionDebounceTimer);
+      extractionDebounceTimer = setTimeout(() => {
+        // Opening detail already calls scheduleExtraction() via openDetail().
+        // This debounce ensures rapid clicks don't create multiple extraction runs.
+        extractionDebounceTimer = null;
+      }, 400);
     },
     backToListings(): void {
       router.navigate(['/', AppRoutePath.LISTINGS]);
@@ -155,7 +167,8 @@ export const SearchStore = signalStore(
       }
       router.navigate(['/', AppRoutePath.LISTINGS]);
     },
-  })),
+  };
+  }),
   withHooks((store) => {
     const router = inject(Router);
     return {

@@ -15,6 +15,7 @@ encoder.ts
 git_push.sh
 index.ts
 model/dlExtractionDonePayload.ts
+model/dlExtractionStatusResponse.ts
 model/dlExtractionTermDto.ts
 model/dlSettingsDto.ts
 model/models.ts

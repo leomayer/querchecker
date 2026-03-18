@@ -8,10 +8,18 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface ItemTextRepository extends JpaRepository<ItemText, Long> {
     Optional<ItemText> findFirstByWhListingOrderByFetchedAtDesc(WhListing listing);
+
+    @Query("""
+        SELECT it FROM ItemText it
+        WHERE it.whListing.id = (SELECT wi.whListing.id FROM WhItem wi WHERE wi.id = :whItemId)
+        ORDER BY it.fetchedAt DESC
+        """)
+    List<ItemText> findByWhItemIdOrderByFetchedAtDesc(@Param("whItemId") Long whItemId);
 
     @Modifying
     @Query("""

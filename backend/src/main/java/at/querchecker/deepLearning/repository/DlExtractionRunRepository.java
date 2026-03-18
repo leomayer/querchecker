@@ -15,6 +15,10 @@ public interface DlExtractionRunRepository extends JpaRepository<DlExtractionRun
     List<DlExtractionRun> findByItemText(ItemText itemText);
     List<DlExtractionRun> findByItemTextId(Long itemTextId);
     boolean existsByItemTextAndModelConfigAndStatus(ItemText itemText, DlModelConfig modelConfig, ExtractionStatus status);
+    boolean existsByItemTextAndModelConfigAndStatusIn(ItemText itemText, DlModelConfig modelConfig, List<ExtractionStatus> statuses);
+
+    @Query("SELECT r.status FROM DlExtractionRun r WHERE r.itemText.whListing.id = (SELECT wi.whListing.id FROM WhItem wi WHERE wi.id = :whItemId)")
+    List<ExtractionStatus> findStatusesByWhItemId(@Param("whItemId") Long whItemId);
 
     @Query("SELECT r FROM DlExtractionRun r JOIN FETCH r.itemText JOIN FETCH r.modelConfig WHERE r.status = :status AND r.createdAt < :before")
     List<DlExtractionRun> findByStatusAndCreatedAtBeforeEager(@Param("status") ExtractionStatus status, @Param("before") LocalDateTime before);

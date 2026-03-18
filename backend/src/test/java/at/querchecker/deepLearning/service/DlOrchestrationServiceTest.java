@@ -8,6 +8,7 @@ import at.querchecker.deepLearning.repository.DlExtractionRunRepository;
 import at.querchecker.deepLearning.repository.DlExtractionTermRepository;
 import at.querchecker.deepLearning.repository.DlModelConfigRepository;
 import at.querchecker.repository.AppConfigRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,6 +20,7 @@ import java.util.List;
 
 import static at.querchecker.deepLearning.ExtractionStatus.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -34,17 +36,24 @@ class DlOrchestrationServiceTest {
     @Mock AppConfigRepository appConfigRepository;
     @InjectMocks DlOrchestrationService service;
 
+    @BeforeEach
+    void setUp() {
+        when(promptResolver.resolve(any())).thenReturn("prompt");
+        when(runRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        service.init();
+    }
+
     @Test
     void scheduleExtraction_setsNoImplementation_whenComponentMissing() {
         DlModelConfig mc = modelConfig("unknown-model");
         when(modelConfigRepo.findByActiveTrueOrderByExecutionOrderAsc()).thenReturn(List.of(mc));
-        when(runRepo.existsByItemTextAndModelConfigAndStatus(any(), any(), any()))
+        when(runRepo.existsByItemTextAndModelConfigAndStatus(any(), any(), eq(DONE)))
             .thenReturn(false);
-        when(promptResolver.resolve(any())).thenReturn("prompt");
-        when(runRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(runRepo.existsByItemTextAndModelConfigAndStatusIn(any(), any(), anyList()))
+            .thenReturn(false);
         service.models = List.of(); // no @Component registered
 
-        service.scheduleExtraction(new ItemText());
+        service.scheduleExtraction(itemText());
 
         verify(runRepo).save(argThat(run ->
             run.getStatus() == NO_IMPLEMENTATION));
@@ -56,10 +65,9 @@ class DlOrchestrationServiceTest {
         when(modelConfigRepo.findByActiveTrueOrderByExecutionOrderAsc()).thenReturn(List.of(mc));
         when(runRepo.existsByItemTextAndModelConfigAndStatus(any(), eq(mc), eq(DONE)))
             .thenReturn(true);
-        when(promptResolver.resolve(any())).thenReturn("prompt");
         service.models = List.of();
 
-        service.scheduleExtraction(new ItemText());
+        service.scheduleExtraction(itemText());
 
         verify(runRepo, never()).save(any());
     }
@@ -68,13 +76,13 @@ class DlOrchestrationServiceTest {
     void scheduleExtraction_doesNotCreateRun_beforeComponentCheck() {
         DlModelConfig mc = modelConfig("missing-model");
         when(modelConfigRepo.findByActiveTrueOrderByExecutionOrderAsc()).thenReturn(List.of(mc));
-        when(runRepo.existsByItemTextAndModelConfigAndStatus(any(), any(), any()))
+        when(runRepo.existsByItemTextAndModelConfigAndStatus(any(), any(), eq(DONE)))
             .thenReturn(false);
-        when(promptResolver.resolve(any())).thenReturn("prompt");
-        when(runRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(runRepo.existsByItemTextAndModelConfigAndStatusIn(any(), any(), anyList()))
+            .thenReturn(false);
         service.models = List.of(); // no @Component
 
-        service.scheduleExtraction(new ItemText());
+        service.scheduleExtraction(itemText());
 
         verify(runRepo).save(argThat(run ->
             run.getStatus() != INIT));
@@ -88,12 +96,12 @@ class DlOrchestrationServiceTest {
 
         DlModelConfig mc = modelConfig("gelectra-large-germanquad");
         when(modelConfigRepo.findByActiveTrueOrderByExecutionOrderAsc()).thenReturn(List.of(mc));
-        when(runRepo.existsByItemTextAndModelConfigAndStatus(any(), any(), any()))
+        when(runRepo.existsByItemTextAndModelConfigAndStatus(any(), any(), eq(DONE)))
             .thenReturn(false);
-        when(promptResolver.resolve(any())).thenReturn("prompt");
-        when(runRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(runRepo.existsByItemTextAndModelConfigAndStatusIn(any(), any(), anyList()))
+            .thenReturn(false);
 
-        service.scheduleExtraction(new ItemText());
+        service.scheduleExtraction(itemText());
 
         verify(runRepo).save(argThat(run ->
             run.getStatus() == INIT));
@@ -101,5 +109,13 @@ class DlOrchestrationServiceTest {
 
     private DlModelConfig modelConfig(String name) {
         return DlModelConfig.builder().modelName(name).active(true).executionOrder(10).build();
+    }
+
+    private ItemText itemText() {
+        ItemText it = new ItemText();
+        it.setId(1L);
+        it.setTitle("title");
+        it.setDescription("desc");
+        return it;
     }
 }

@@ -1,9 +1,14 @@
 package at.querchecker.deepLearning.controller;
 
 import at.querchecker.deepLearning.DlExtractionCompletedEvent;
+import at.querchecker.deepLearning.ExtractionStatus;
 import at.querchecker.deepLearning.entity.DlExtractionTerm;
+import at.querchecker.deepLearning.repository.DlExtractionRunRepository;
 import at.querchecker.deepLearning.repository.DlExtractionTermRepository;
+import at.querchecker.deepLearning.repository.ItemTextRepository;
+import at.querchecker.deepLearning.service.DlOrchestrationService;
 import at.querchecker.dto.DlExtractionDonePayload;
+import at.querchecker.dto.DlExtractionStatusResponse;
 import at.querchecker.dto.DlExtractionTermDto;
 import at.querchecker.repository.WhItemRepository;
 import at.querchecker.sse.SseHub;
@@ -24,15 +29,34 @@ import java.util.List;
 public class DlExtractionController {
 
     private final DlExtractionTermRepository termRepo;
+    private final DlExtractionRunRepository runRepo;
+    private final ItemTextRepository itemTextRepository;
     private final WhItemRepository whItemRepository;
+    private final DlOrchestrationService dlOrchestrationService;
     private final SseHub sseHub;
 
     /**
-     * Returns all extraction terms for a whItemId, sorted by confidence descending.
+     * Returns extraction terms + overall status for a whItemId.
+     * Auto-retries if the only existing runs are CANCELLED (queue overflow scenario).
      */
     @GetMapping("/extraction/{whItemId}/terms")
-    public List<DlExtractionTermDto> getTerms(@PathVariable Long whItemId) {
-        return toDto(termRepo.findByWhItemId(whItemId));
+    public DlExtractionStatusResponse getTerms(@PathVariable Long whItemId) {
+        List<DlExtractionTermDto> terms = toDto(termRepo.findByWhItemId(whItemId));
+        List<ExtractionStatus> runStatuses = runRepo.findStatusesByWhItemId(whItemId);
+        String extractionStatus = deriveStatus(runStatuses, terms);
+
+        if ("CANCELLED".equals(extractionStatus)) {
+            log.debug("Auto-retrying CANCELLED extraction for whItemId={}", whItemId);
+            itemTextRepository.findByWhItemIdOrderByFetchedAtDesc(whItemId).stream()
+                .findFirst()
+                .ifPresent(dlOrchestrationService::scheduleExtraction);
+            extractionStatus = "PENDING";
+        }
+
+        return DlExtractionStatusResponse.builder()
+            .extractionStatus(extractionStatus)
+            .terms(terms)
+            .build();
     }
 
     @EventListener
@@ -59,6 +83,15 @@ public class DlExtractionController {
             log.error("Failed to broadcast dl-extract for itemTextId={}, model={}",
                 event.getItemTextId(), event.getModelName(), e);
         }
+    }
+
+    private String deriveStatus(List<ExtractionStatus> statuses, List<DlExtractionTermDto> terms) {
+        if (!terms.isEmpty()) return "DONE";
+        if (statuses.isEmpty()) return "NONE";
+        if (statuses.stream().anyMatch(s -> s == ExtractionStatus.DONE)) return "DONE";
+        if (statuses.stream().anyMatch(s -> s == ExtractionStatus.INIT || s == ExtractionStatus.PENDING)) return "PENDING";
+        if (statuses.stream().anyMatch(s -> s == ExtractionStatus.CANCELLED)) return "CANCELLED";
+        return "NONE";
     }
 
     private List<DlExtractionTermDto> toDto(List<DlExtractionTerm> terms) {
