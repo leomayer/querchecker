@@ -53,7 +53,8 @@ DlModelConfig
 ├── maxTokens     Integer  ← BERT=512, LLaMA=4096+ – aus DB, nicht hardcodiert in Java
 ├── source        Enum (HUGGINGFACE, LOCAL)
 ├── localPath     String (nullable)
-└── active        Boolean  ← false = Modell deaktiviert, Daten bleiben erhalten
+├── active        Boolean  ← false = Modell deaktiviert, Daten bleiben erhalten
+└── executionOrder  Int    ← Ausführungsreihenfolge; NOT NULL, kein Default – muss in jedem Migration-INSERT explizit gesetzt werden (Konvention: 10, 20, 30, …)
 ```
 
 Modell-Konfiguration in DB statt `application.yml` – zur Laufzeit änderbar.
@@ -72,6 +73,7 @@ DlExtractionRun
 ├── inputHash       String                 ← SHA256(title + description)
 ├── extractedAt     LocalDateTime
 ├── status          Enum (INIT, PENDING, DONE, FAILED, NO_IMPLEMENTATION, RE_EVALUATE)
+├── durationMs      Long (nullable)  ← Laufzeit des Modells in Millisekunden
 ├── errorMessage    String (nullable, max 500 Zeichen, nur bei FAILED)
 └── createdAt       LocalDateTime  ← für Scheduler: hängende INIT-Runs erkennen
 ```
@@ -143,10 +145,10 @@ DlCategoryPrompt
 | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `ItemTextService`          | `findOrCreateOrUpdate(WhListing)` – aktuellsten ItemText zurückgeben oder neuen Record anlegen bei Inhaltsänderung                                                                                                         |
 | `ItemTextCleanupScheduler` | TTL-Cleanup: alte ItemText-Records löschen (konfigurierbar, schützt userCorrectedTerm)                                                                                                                                     |
-| `DlOrchestrationService`   | Vorbereitung: aktive `DlModelConfig` aus DB, Duplikat-Check, Component-Check, Prompt auflösen, Run anlegen (INIT oder NO_IMPLEMENTATION), CompletableFutures starten, `allOf().thenRun()` als primärer allDone-Mechanismus |
+| `DlOrchestrationService`   | Vorbereitung: aktive `DlModelConfig` aus DB (nach `executionOrder` sortiert), Duplikat-Check, Component-Check, Prompt auflösen, Run anlegen (INIT oder NO_IMPLEMENTATION), alle Modelle **sequenziell** über einen gemeinsamen `SingleThreadExecutor` starten (`thenRunAsync(..., extractionExecutor)`), `allOf().thenRun()` als primärer allDone-Mechanismus |
 | `DlExtractionService`      | Ausführung: Context aufbauen, Token-Kürzung via `modelConfig.getMaxTokens()`, `ExtractionModel.extract()`, weiterleiten an `DlPersistenceService` – Status PENDING→DONE/FAILED                                             |
 | `DlFilterService`          | Filter (unabhängig vom Modell): confidence↓ → top-k → min-confidence – VOR DB-Insert, kein LIMIT in Query                                                                                                                  |
-| `DlPersistenceService`     | DB-Insert gefilterte Terms, Run-Status setzen, `checkAllDone()` als DB-Fallback für Restart-Szenarien, Event publizieren                                                                                                   |
+| `DlPersistenceService`     | DB-Insert gefilterte Terms, `durationMs` setzen, Run-Status DONE/FAILED setzen, `DlExtractionCompletedEvent(itemTextId, modelName)` nach jedem Modell publizieren                                                         |
 | `DlPromptResolver`         | Prompt auflösen: kategorie-spezifisch → Default (DB) → hardcodierter Fallback                                                                                                                                              |
 | `DlCategoryPromptSeeder`   | Idempotente Befüllung von `DlCategoryPrompt` nach Kategorie-Refresh                                                                                                                                                        |
 
@@ -165,26 +167,27 @@ WhSearchService.upsertListing()
         ├── 4. Component-Check: ExtractionModel für modelName vorhanden?
         │       → NEIN: Run anlegen mit status=NO_IMPLEMENTATION (terminal) → fertig
         │       → JA:   Run anlegen mit status=INIT
-        ├── 5. CompletableFutures starten (non-blocking)
-        └── 6. CompletableFuture.allOf(...).thenRun()    ← primärer allDone-Mechanismus
-                → alle Futures fertig?
-                    → ApplicationEventPublisher.publishEvent()
-                        → SseHub.broadcast("dl-extract", DlExtractionDonePayload) → Angular
-                DB-Fallback: DlPersistenceService.checkAllDone() nach jedem Run
-                → fängt Restart-Szenarien ab (Futures verloren, DB-Status korrekt)
+        └── 5. Runs sequenziell via `extractionExecutor` (newSingleThreadExecutor) einreihen
+                → Modelle laufen strikt nach `executionOrder` – global nie zwei Modelle gleichzeitig
+                → gilt auch über mehrere Items hinweg (Item B wartet bis Item A fertig ist)
 
-DlExtractionService.runModel(run)           ← pro Modell, parallel
+DlExtractionService.runModel(run)           ← pro Modell, sequenziell via extractionExecutor
     ├── status=PENDING  (Modell setzt selbst)
     ├── Context: title + "\n\n" + description
     │   kürzen via run.getModelConfig().getMaxTokens()
     ├── ExtractionModel.extract(itemText, run.getPrompt(), maxTokens)
-    └── DlPersistenceService.saveResults()
+    └── DlPersistenceService.saveResults(run, terms, durationMs)
             → DlFilterService.filter()      (confidence↓ → top-k → min-confidence)
             → DlExtractionTermRepository.saveAll()
+            → run.durationMs setzen
             → status=DONE oder FAILED + errorMessage
-            → checkAllDone() als DB-Fallback
-                → alle Runs DONE/FAILED/NO_IMPLEMENTATION?
-                    → ApplicationEventPublisher (nur wenn allOf() nicht gefeuert hat)
+            → ApplicationEventPublisher.publishEvent(DlExtractionCompletedEvent(itemTextId, modelName))
+                ← feuert nach JEDEM Modell einzeln
+
+DlExtractionController.onExtractionCompleted(event)   ← @EventListener, pro Modell
+    ├── WhItemRepository.findIdByItemTextId(event.itemTextId) → whItemId
+    ├── DlExtractionTermRepository.findByItemTextIdAndModelName(itemTextId, modelName) → terms
+    └── SseHub.broadcast("dl-extract", { whItemId, terms })  → Angular sofort sichtbar
 ```
 
 ## Referenz: Konfiguration (`application.yml`)
@@ -497,21 +500,23 @@ class DlCategoryPromptSeederTest {
 
 ```sql
 CREATE TABLE dl_model_config (
-    id            BIGSERIAL PRIMARY KEY,
-    model_name    VARCHAR(255) NOT NULL UNIQUE,
-    model_version VARCHAR(100),
-    temperature   FLOAT        NOT NULL DEFAULT 0.0,
-    max_tokens    INTEGER      NOT NULL DEFAULT 512,
-    source        VARCHAR(20)  NOT NULL DEFAULT 'HUGGINGFACE',
-    local_path    VARCHAR(500),
-    active        BOOLEAN      NOT NULL DEFAULT TRUE
+    id              BIGSERIAL PRIMARY KEY,
+    model_name      VARCHAR(255) NOT NULL UNIQUE,
+    model_version   VARCHAR(100),
+    temperature     FLOAT        NOT NULL DEFAULT 0.0,
+    max_tokens      INTEGER      NOT NULL DEFAULT 512,
+    source          VARCHAR(20)  NOT NULL DEFAULT 'HUGGINGFACE',
+    local_path      VARCHAR(500),
+    active          BOOLEAN      NOT NULL DEFAULT TRUE,
+    execution_order INTEGER      NOT NULL  -- kein DEFAULT: muss in jedem INSERT explizit gesetzt werden
 );
 
 -- Initiale Einträge (Evaluierungsphase)
-INSERT INTO dl_model_config (model_name, model_version, temperature, max_tokens, source, active)
+-- execution_order: Schritte à 10 – Lücken für spätere Einfügungen lassen
+INSERT INTO dl_model_config (model_name, model_version, temperature, max_tokens, source, active, execution_order)
 VALUES
-    ('gelectra-base-germanquad', '2024-03', 0.0, 512, 'HUGGINGFACE', true),
-    ('xlm-roberta-base-squad2',  '2024-03', 0.0, 512, 'HUGGINGFACE', true);
+    ('gelectra-base-germanquad', '2024-03', 0.0, 512, 'HUGGINGFACE', true, 10),
+    ('xlm-roberta-base-squad2',  '2024-03', 0.0, 512, 'HUGGINGFACE', true, 20);
 ```
 
 **`V{n+2}__create_item_text.sql`**
@@ -545,6 +550,7 @@ CREATE TABLE dl_extraction_run (
     extracted_at     TIMESTAMP,
     -- Status: INIT, PENDING, DONE, FAILED, NO_IMPLEMENTATION, RE_EVALUATE
     status           VARCHAR(20)  NOT NULL DEFAULT 'INIT',
+    duration_ms      BIGINT,                  -- Laufzeit des Modells in ms, nullable
     error_message    VARCHAR(500),
     created_at       TIMESTAMP    NOT NULL DEFAULT NOW()
 );
@@ -1498,25 +1504,41 @@ Jeder Angular-App-Instance verbindet einmalig beim Start mit einer UUID (`GET /a
 | Payload    | `DlExtractionDonePayload`   |
 
 ```json
-{ "itemTextId": 42 }
+{
+  "whItemId": 42,
+  "terms": [
+    { "modelName": "llama-3.2-3b", "term": "ThinkPad X1 Carbon Gen 11", "confidence": 0.94, "durationMs": 6982 }
+  ]
+}
 ```
 
 `DlExtractionDonePayload` ist ein Backend-DTO in `at.querchecker.dto` und wird via OpenAPI
 generiert (`@ApiResponse(schema = @Schema(oneOf = ...))` am `SseController`).
 
-**Extraktionsergebnisse** werden nicht im SSE-Payload mitgeliefert — der Frontend holt sie
-nach Empfang des Events via `GET /api/dl/extraction/{itemTextId}/terms`:
+**Benachrichtigungs-Takt: pro Modell, nicht pro Item.**
+`DlPersistenceService.saveResults()` publiziert nach jedem einzelnen Modell-Run ein
+`DlExtractionCompletedEvent(itemTextId, modelName)`. `DlExtractionController.onExtractionCompleted()`
+empfängt dieses Event, löst `itemTextId → whItemId` via `WhItemRepository.findIdByItemTextId()` auf,
+lädt die Terms nur für dieses Modell (`DlExtractionTermRepository.findByItemTextIdAndModelName()`),
+und broadcastet sofort ein SSE-Event. Das Frontend sieht Ergebnisse Modell für Modell,
+sobald jedes fertig ist – nicht erst wenn alle abgeschlossen sind.
 
-```json
-[
-  { "modelName": "gelectra-base-germanquad", "term": "ThinkPad X1 Carbon Gen 11", "confidence": 0.94 },
-  { "modelName": "bert-multi-english-german-squad2", "term": "Lenovo ThinkPad X1", "confidence": 0.81 }
-]
-```
+**Korrelationsschlüssel**: `whItemId` (= `WhItem.id`) statt `itemTextId`.
+`itemTextId` ist ein internes ML-Pipeline-Detail; das Frontend kennt nur `WhItem` (1:1 mit `WhListing`).
+`WhDetailDto.whItemId` liefert die ID ohne Extra-Query.
 
-**Angular**: `EventSourceServerService<AppSseEventName, DlExtractionDonePayload>` ist ein
-`providedIn: 'root'`-Singleton. `item-research.component.ts` registriert sich auf `dl-extract`
-und filtert nach `payload.itemTextId === detail().itemTextId`, dann `GET /api/dl/extraction/{itemTextId}/terms`.
+**Terms kommen direkt im SSE-Payload** – kein separater REST-Aufruf nach SSE-Empfang nötig.
+`DlExtractionTermDto` enthält `modelName`, `term`, `confidence`, `durationMs` (Laufzeit des Runs in ms).
+
+`GET /api/dl/extraction/{whItemId}/terms` existiert zusätzlich für den Fall, dass die Detail-Ansicht
+geöffnet wird **nachdem** Extraktion bereits in einem früheren Session gelaufen ist (kein SSE mehr).
+`DlExtractionTermRepository.findByWhItemId(Long whItemId)` löst die Verknüpfung via Join über
+`WhItem → WhListing → ItemText` auf.
+
+**Angular**: `ExtractionStore` empfängt `dl-extract`-Events und merged Terms pro `whItemId` direkt
+aus `payload.terms` in den Store — kein GET-Aufruf nach SSE. Beim Öffnen einer Detail-Ansicht
+ruft `ItemResearchComponent` via `loadExistingTerms(whItemId)` einmalig `GET /api/dl/extraction/{whItemId}/terms`
+ab, um bereits vorhandene Ergebnisse zu laden. Der Store schlüsselt alle Ergebnisse nach `whItemId`.
 
 ---
 

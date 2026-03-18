@@ -4,6 +4,7 @@ api.base.service.ts
 api.module.ts
 api/api.ts
 api/dlExtractionController.service.ts
+api/dlSettingsController.service.ts
 api/listingDetail.service.ts
 api/listings.service.ts
 api/sseController.service.ts
@@ -15,6 +16,7 @@ git_push.sh
 index.ts
 model/dlExtractionDonePayload.ts
 model/dlExtractionTermDto.ts
+model/dlSettingsDto.ts
 model/models.ts
 model/whCategoryDto.ts
 model/whDetailDto.ts

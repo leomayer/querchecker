@@ -27,7 +27,7 @@ export class ItemResearchComponent {
   constructor() {
     // Load existing extraction terms when detail changes
     effect(() => {
-      const id = this.detail().itemTextId;
+      const id = this.detail().whItemId;
       if (id != null) {
         this.extractionStore.loadExistingTerms(id);
       }
@@ -35,13 +35,13 @@ export class ItemResearchComponent {
   }
 
   protected readonly state = computed<'idle' | 'loading' | 'done'>(() => {
-    const id = this.detail().itemTextId;
+    const id = this.detail().whItemId;
     if (id == null) return 'idle';
     return id in this.extractionStore.results() ? 'done' : 'loading';
   });
 
   protected readonly termGroups = computed<TermGroup[]>(() => {
-    const id = this.detail().itemTextId;
+    const id = this.detail().whItemId;
     if (id == null) return [];
     return this.groupByModel(this.extractionStore.results()[id] ?? []);
   });

@@ -23,6 +23,9 @@ public interface WhItemRepository extends JpaRepository<WhItem, Long> {
 
     List<WhItem> findAllByWhListingIdIn(List<Long> whListingIds);
 
+    @Query("SELECT wi.id FROM WhItem wi WHERE wi.whListing.id = (SELECT it.whListing.id FROM ItemText it WHERE it.id = :itemTextId)")
+    Optional<Long> findIdByItemTextId(@Param("itemTextId") Long itemTextId);
+
     interface WhItemSummary {
         Long getListingId();
         String getNote();

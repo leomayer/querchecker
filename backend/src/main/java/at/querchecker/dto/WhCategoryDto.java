@@ -13,6 +13,6 @@ public class WhCategoryDto {
     private Integer whId;
     private String name;
     private int level;
-    @ArraySchema(schema = @Schema(implementation = WhCategoryDto.class))
+    @ArraySchema(schema = @Schema(ref = "#/components/schemas/WhCategoryDto"))
     private List<WhCategoryDto> children;
 }

@@ -12,7 +12,7 @@ import { WhPreviewDto } from './whPreviewDto';
 
 
 export interface WhDetailDto { 
-    itemTextId?: number;
+    whItemId?: number;
     id?: number;
     whId?: string;
     title?: string;

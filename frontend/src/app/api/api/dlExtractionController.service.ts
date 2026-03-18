@@ -36,18 +36,18 @@ export class DlExtractionControllerService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/dl/extraction/{itemTextId}/terms
-     * @param itemTextId 
+     * @endpoint get /api/dl/extraction/{whItemId}/terms
+     * @param whItemId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getTerms(itemTextId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<Array<DlExtractionTermDto>>;
-    public getTerms(itemTextId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<DlExtractionTermDto>>>;
-    public getTerms(itemTextId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<DlExtractionTermDto>>>;
-    public getTerms(itemTextId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (itemTextId === null || itemTextId === undefined) {
-            throw new Error('Required parameter itemTextId was null or undefined when calling getTerms.');
+    public getTerms(whItemId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<Array<DlExtractionTermDto>>;
+    public getTerms(whItemId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<DlExtractionTermDto>>>;
+    public getTerms(whItemId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<DlExtractionTermDto>>>;
+    public getTerms(whItemId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (whItemId === null || whItemId === undefined) {
+            throw new Error('Required parameter whItemId was null or undefined when calling getTerms.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -75,7 +75,7 @@ export class DlExtractionControllerService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/dl/extraction/${this.configuration.encodeParam({name: "itemTextId", value: itemTextId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/terms`;
+        let localVarPath = `/api/dl/extraction/${this.configuration.encodeParam({name: "whItemId", value: whItemId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/terms`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<DlExtractionTermDto>>('get', `${basePath}${localVarPath}`,
             {

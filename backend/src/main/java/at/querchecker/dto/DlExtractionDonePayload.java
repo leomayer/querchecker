@@ -8,6 +8,6 @@ import java.util.List;
 @Data
 @Builder
 public class DlExtractionDonePayload {
-    private Long itemTextId;
+    private Long whItemId;
     private List<DlExtractionTermDto> terms;
 }

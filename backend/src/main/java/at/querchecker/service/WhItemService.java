@@ -123,7 +123,7 @@ public class WhItemService {
             }
         });
 
-        return toDto(item, listing, description, previews, itemText.getId());
+        return toDto(item, listing, description, previews);
     }
 
     @Transactional
@@ -187,12 +187,12 @@ public class WhItemService {
         return path;
     }
 
-    private WhDetailDto toDto(WhItem entity, WhListing listing, String description, List<WhPreviewDto> previews, Long itemTextId) {
+    private WhDetailDto toDto(WhItem entity, WhListing listing, String description, List<WhPreviewDto> previews) {
         String fullUrl = listing.getUrl() != null
             ? WhConstants.WH_LISTING_BASE + listing.getUrl()
             : null;
         return WhDetailDto.builder()
-                .itemTextId(itemTextId)
+                .whItemId(entity.getId())
                 .id(listing.getId())
                 .whId(listing.getWhId())
                 .title(listing.getTitle())
@@ -219,6 +219,6 @@ public class WhItemService {
     /** For mutation responses — listing metadata not needed by frontend callers. */
     private WhDetailDto toDto(WhItem entity) {
         WhListing listing = entity.getWhListing();
-        return toDto(entity, listing, null, null, null);
+        return toDto(entity, listing, null, null);
     }
 }

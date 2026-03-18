@@ -17,8 +17,8 @@ import java.util.List;
 public class WhDetailDto {
 
     // --- DL-Extraktion ---
-    /** ID des aktuellen ItemText-Records – für SSE-Stream und Term-Abruf. */
-    private Long itemTextId;
+    /** ID des WhItem-Records – für SSE-Stream und Term-Abruf. */
+    private Long whItemId;
 
     // --- Listing-Metadaten (aus WhListing) ---
     private Long id;

@@ -90,7 +90,11 @@
       "Bash(systemctl --user status gcr-ssh-agent.service)",
       "Bash(systemctl --user status gnome-keyring-daemon.service)",
       "Bash(systemctl --user status org.freedesktop.secrets.service)",
-      "Bash(ssh-keygen -y -f ~/.ssh/id_ed25519 -P)"
+      "Bash(ssh-keygen -y -f ~/.ssh/id_ed25519 -P)",
+      "Bash(java -version)",
+      "Bash(python3 -c \"import sys,json; spec=json.load\\(sys.stdin\\); print\\(json.dumps\\(spec[''''components''''][''''schemas''''].get\\(''''WhCategoryDto'''', {}\\), indent=2\\)\\)\")",
+      "Bash(ls /home/leo/programming/github/querchecker/doc*)",
+      "Bash(find /home/leo/programming/github/querchecker -name doc* -type d)"
     ]
   }
 }

@@ -15,22 +15,22 @@ export const ExtractionStore = signalStore(
   withMethods((store) => {
     const dlService = inject(DlExtractionService);
     return {
-      remove(itemTextId: number): void {
+      remove(whItemId: number): void {
         patchState(store, (s) => {
-          const { [itemTextId]: _, ...rest } = s.results;
+          const { [whItemId]: _, ...rest } = s.results;
           return { results: rest };
         });
       },
       clear(): void {
         patchState(store, { results: {} });
       },
-      loadExistingTerms(itemTextId: number): void {
-        dlService.getTerms(itemTextId).subscribe((terms) => {
+      loadExistingTerms(whItemId: number): void {
+        dlService.getTerms(whItemId).subscribe((terms) => {
           if (terms && terms.length > 0) {
             patchState(store, (s) => ({
               results: {
                 ...s.results,
-                [itemTextId]: terms,
+                [whItemId]: terms,
               },
             }));
           }
@@ -44,16 +44,16 @@ export const ExtractionStore = signalStore(
     ) as EventSourceServerService<AppSseEventName, DlExtractionDonePayload>;
 
     const onDlExtract = (payload: DlExtractionDonePayload): void => {
-      const itemTextId = payload?.itemTextId;
-      if (itemTextId == null) return;
+      const whItemId = payload?.whItemId;
+      if (whItemId == null) return;
       const incoming = payload.terms ?? [];
       // Replace entries for this model, keep others — handles retries cleanly
       const incomingModels = new Set(incoming.map((t) => t.modelName));
       patchState(store, (s) => ({
         results: {
           ...s.results,
-          [itemTextId]: [
-            ...(s.results[itemTextId] ?? []).filter((t) => !incomingModels.has(t.modelName)),
+          [whItemId]: [
+            ...(s.results[whItemId] ?? []).filter((t) => !incomingModels.has(t.modelName)),
             ...incoming,
           ],
         },

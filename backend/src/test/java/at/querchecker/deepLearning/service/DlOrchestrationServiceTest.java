@@ -7,6 +7,7 @@ import at.querchecker.deepLearning.entity.ItemText;
 import at.querchecker.deepLearning.repository.DlExtractionRunRepository;
 import at.querchecker.deepLearning.repository.DlExtractionTermRepository;
 import at.querchecker.deepLearning.repository.DlModelConfigRepository;
+import at.querchecker.repository.AppConfigRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,6 +31,7 @@ class DlOrchestrationServiceTest {
     @Mock DlPromptResolver promptResolver;
     @Mock DlExtractionService extractionService;
     @Mock ApplicationEventPublisher eventPublisher;
+    @Mock AppConfigRepository appConfigRepository;
     @InjectMocks DlOrchestrationService service;
 
     @Test

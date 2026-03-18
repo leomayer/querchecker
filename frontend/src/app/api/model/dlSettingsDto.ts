@@ -7,11 +7,9 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { DlExtractionTermDto } from './dlExtractionTermDto';
 
 
-export interface DlExtractionDonePayload { 
-    whItemId?: number;
-    terms?: Array<DlExtractionTermDto>;
+export interface DlSettingsDto { 
+    contextMaxTokens?: number;
 }
 

@@ -1,5 +1,7 @@
 export * from './dlExtractionController.service';
 import { DlExtractionControllerService } from './dlExtractionController.service';
+export * from './dlSettingsController.service';
+import { DlSettingsControllerService } from './dlSettingsController.service';
 export * from './listingDetail.service';
 import { ListingDetailService } from './listingDetail.service';
 export * from './listings.service';
@@ -10,4 +12,4 @@ export * from './willhabenMeta.service';
 import { WillhabenMetaService } from './willhabenMeta.service';
 export * from './willhabenSearch.service';
 import { WillhabenSearchService } from './willhabenSearch.service';
-export const APIS = [DlExtractionControllerService, ListingDetailService, ListingsService, SseControllerService, WillhabenMetaService, WillhabenSearchService];
+export const APIS = [DlExtractionControllerService, DlSettingsControllerService, ListingDetailService, ListingsService, SseControllerService, WillhabenMetaService, WillhabenSearchService];

@@ -32,7 +32,7 @@ class DlPersistenceServiceTest {
     void saveResults_firesEventWithCorrectItemTextIdAndModelName() {
         DlExtractionRun run = runFor(42L, "test-model");
 
-        service.saveResults(run, List.of(), 0L);
+        service.saveResults(run, List.<ExtractionResult>of(), 0L);
 
         ArgumentCaptor<DlExtractionCompletedEvent> captor =
             ArgumentCaptor.forClass(DlExtractionCompletedEvent.class);
@@ -43,7 +43,7 @@ class DlPersistenceServiceTest {
 
     @Test
     void saveResults_alwaysFiresEvent_evenWithNoTerms() {
-        service.saveResults(runFor(1L, "some-model"), List.of(), 0L);
+        service.saveResults(runFor(1L, "some-model"), List.<ExtractionResult>of(), 0L);
 
         verify(eventPublisher, times(1)).publishEvent(any(DlExtractionCompletedEvent.class));
     }
