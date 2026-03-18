@@ -25,6 +25,7 @@ export const SearchStore = signalStore(
     selectedId: null as string | null,
     searchQuery: null as SearchQuery | null,
     loading: false,
+    initialLoading: true,
     error: null as string | null,
     whTotal: null as number | null,
     searchPatches: {} as Record<number, Partial<WhItemDto>>,
@@ -125,6 +126,7 @@ export const SearchStore = signalStore(
     setResourceState(state: {
       listings?: WhItemDto[];
       loading?: boolean;
+      initialLoading?: boolean;
       error?: string | null;
       whTotal?: number | null;
     }): void {

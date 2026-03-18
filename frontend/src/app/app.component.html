@@ -1,7 +1,11 @@
-<app-header />
+@if (!health.backendReady()) {
+  <app-startup-overlay />
+} @else {
+  <app-header />
 
-<main class="page-content">
-  <router-outlet />
-</main>
+  <main class="page-content">
+    <router-outlet />
+  </main>
 
-<app-footer />
+  <app-footer />
+}

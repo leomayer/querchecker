@@ -31,3 +31,6 @@ test_keybert/
 backend/src/main/resources/models/**/*.onnx
 backend/src/main/resources/models/**/*.gguf
 backend/src/main/resources/models/.venv/
+
+# Investigation TODOs (personal notes, not project docs)
+docs/todo-*.md

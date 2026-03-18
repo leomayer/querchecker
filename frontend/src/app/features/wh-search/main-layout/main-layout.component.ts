@@ -17,6 +17,8 @@ import { WhDetailComponent } from '../wh-detail/wh-detail.component';
 import { PlaceholderComponent } from '../../../shared/components/placeholder/placeholder.component';
 import { ZoneLeftComponent } from '../../../shared/layout/zone-left/zone-left.component';
 import { ZoneRightComponent } from '../../../shared/layout/zone-right/zone-right.component';
+import { ConnectionBannerComponent } from '../../../core/connection-banner/connection-banner';
+import { HealthService } from '../../../core/health.service';
 
 const SLIDE_IN_RIGHT = [
   style({ transform: 'translateX(40px)', opacity: 0 }),
@@ -41,6 +43,7 @@ const FADE_IN = [style({ opacity: 0 }), animate('300ms ease-in', style({ opacity
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
+    ConnectionBannerComponent,
   ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',
@@ -92,6 +95,7 @@ const FADE_IN = [style({ opacity: 0 }), animate('300ms ease-in', style({ opacity
 })
 export class MainLayoutComponent {
   protected readonly store = inject(SearchStore);
+  protected readonly health = inject(HealthService);
   protected readonly LayoutState = LayoutState;
 
   private readonly allResource = httpResource<WhItemDto[]>(
@@ -121,13 +125,15 @@ export class MainLayoutComponent {
         this.store.setResourceState({
           listings: this.searchResource.value()?.listings ?? [],
           loading: this.searchResource.isLoading(),
+          initialLoading: false,
           error: this.errorMessage(this.searchResource.error()),
           whTotal: this.searchResource.value()?.totalCount ?? null,
         });
       } else {
         this.store.setResourceState({
           listings: this.allResource.value() ?? [],
-          loading: this.allResource.isLoading(),
+          loading: false,
+          initialLoading: this.allResource.isLoading(),
           error: this.errorMessage(this.allResource.error()),
           whTotal: null,
         });

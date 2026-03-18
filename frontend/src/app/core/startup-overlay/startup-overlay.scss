@@ -1,0 +1,47 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--mat-sys-surface);
+}
+
+.overlay-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px;
+}
+
+.spinner-wrap {
+  margin-bottom: 8px;
+}
+
+h2 {
+  margin: 0;
+  font-family: var(--font-brand);
+  font-size: 1.6rem;
+  color: var(--mat-sys-primary);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.attempts {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--mat-sys-on-surface-variant);
+  opacity: 0.6;
+  animation: fade-in 300ms ease-in;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 0.6; }
+}

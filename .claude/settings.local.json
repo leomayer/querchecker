@@ -94,7 +94,10 @@
       "Bash(java -version)",
       "Bash(python3 -c \"import sys,json; spec=json.load\\(sys.stdin\\); print\\(json.dumps\\(spec[''''components''''][''''schemas''''].get\\(''''WhCategoryDto'''', {}\\), indent=2\\)\\)\")",
       "Bash(ls /home/leo/programming/github/querchecker/doc*)",
-      "Bash(find /home/leo/programming/github/querchecker -name doc* -type d)"
+      "Bash(find /home/leo/programming/github/querchecker -name doc* -type d)",
+      "Bash(grep -r \"RestClient\\\\|RestTemplate\\\\|WebClient\\\\|HttpClient\\\\|OkHttp\" /home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/deepLearning --include=*.java)",
+      "Bash(ls -la /home/leo/programming/github/querchecker/backend/src/main/resources/*.yml)",
+      "Bash(npx ng:*)"
     ]
   }
 }

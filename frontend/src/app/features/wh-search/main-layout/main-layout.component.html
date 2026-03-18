@@ -1,41 +1,47 @@
-<app-zone-left
-  [@leftZone]="store.layoutState()"
-  [width]="store.layoutState() === LayoutState.DETAIL ? '420px' : '320px'">
-  @if (store.layoutState() === LayoutState.DETAIL) {
-    <div class="zone-content">
-      <app-wh-listings (ratingChanged)="handleRatingChange($event)" />
-    </div>
-  } @else {
-    <div class="zone-content">
-      <app-wh-filter />
-    </div>
-  }
-</app-zone-left>
+@if (health.connectionLost()) {
+  <app-connection-banner />
+}
 
-<app-zone-right [@rightZone]="store.layoutState()">
-  @switch (store.layoutState()) {
-    @case (LayoutState.SEARCH) {
+<div class="zones">
+  <app-zone-left
+    [@leftZone]="store.layoutState()"
+    [width]="store.layoutState() === LayoutState.DETAIL ? '420px' : '320px'">
+    @if (store.layoutState() === LayoutState.DETAIL) {
       <div class="zone-content">
-        <app-placeholder />
-      </div>
-    }
-    @case (LayoutState.LISTINGS) {
-      <div class="zone-content">
-        <app-wh-sort />
         <app-wh-listings (ratingChanged)="handleRatingChange($event)" />
       </div>
-    }
-    @case (LayoutState.DETAIL) {
-      <div class="zone-content detail-zone">
-        <app-wh-detail />
-        <button
-          mat-fab
-          class="back-fab"
-          (click)="store.backToListings()"
-          matTooltip="Zurück zur Suche">
-          <mat-icon>arrow_back</mat-icon>
-        </button>
+    } @else {
+      <div class="zone-content">
+        <app-wh-filter />
       </div>
     }
-  }
-</app-zone-right>
+  </app-zone-left>
+
+  <app-zone-right [@rightZone]="store.layoutState()">
+    @switch (store.layoutState()) {
+      @case (LayoutState.SEARCH) {
+        <div class="zone-content">
+          <app-placeholder />
+        </div>
+      }
+      @case (LayoutState.LISTINGS) {
+        <div class="zone-content">
+          <app-wh-sort />
+          <app-wh-listings (ratingChanged)="handleRatingChange($event)" />
+        </div>
+      }
+      @case (LayoutState.DETAIL) {
+        <div class="zone-content detail-zone">
+          <app-wh-detail />
+          <button
+            mat-fab
+            class="back-fab"
+            (click)="store.backToListings()"
+            matTooltip="Zurück zur Suche">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+        </div>
+      }
+    }
+  </app-zone-right>
+</div>

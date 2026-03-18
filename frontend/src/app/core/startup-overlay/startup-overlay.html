@@ -1,0 +1,12 @@
+<div class="overlay">
+  <div class="overlay-card">
+    <div class="spinner-wrap">
+      <mat-spinner [diameter]="48" />
+    </div>
+    <h2>Querchecker wird gestartet</h2>
+    <p class="subtitle">Warte auf Backend-Verbindung…</p>
+    @if (health.attempts() > 2) {
+      <p class="attempts">Versuch {{ health.attempts() }}</p>
+    }
+  </div>
+</div>

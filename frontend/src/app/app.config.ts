@@ -1,5 +1,4 @@
 import {
-  APP_INITIALIZER,
   ApplicationConfig,
   inject,
   LOCALE_ID,
@@ -13,6 +12,7 @@ import { routes } from './app.routes';
 import { Theme } from './features/settings/theme';
 import { EventSourceServerService } from './shared/utils/event-source-server';
 import { ServerErrorInterceptor } from './core/http-error.interceptor';
+import { HealthService } from './core/health.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -26,6 +26,7 @@ export const appConfig: ApplicationConfig = {
       const theme = inject(Theme);
       theme.darkMode(); // Trigger initialization
       inject(EventSourceServerService); // Open SSE connection eagerly at startup
+      inject(HealthService); // Start health polling immediately
     }),
   ],
 };

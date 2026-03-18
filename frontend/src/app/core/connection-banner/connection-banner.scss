@@ -1,0 +1,42 @@
+:host {
+  display: block;
+}
+
+.banner {
+  background: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+  overflow: hidden;
+  animation: slide-down 300ms ease-out;
+}
+
+.banner-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 0.875rem;
+}
+
+mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--mat-sys-on-error-container);
+}
+
+mat-progress-bar {
+  --mdc-linear-progress-active-indicator-color: var(--mat-sys-on-error-container);
+  --mdc-linear-progress-track-color: transparent;
+}
+
+@keyframes slide-down {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 60px;
+    opacity: 1;
+  }
+}
