@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DlExtractionTermDto } from '../../../../api/model/dlExtractionTermDto';
@@ -8,12 +9,13 @@ import { ExtractionStore } from '../../extraction.store';
 interface TermGroup {
   modelName: string;
   terms: DlExtractionTermDto[];
+  durationMs?: number;
 }
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-item-research',
-  imports: [MatIconModule, MatProgressSpinnerModule],
+  imports: [DecimalPipe, MatIconModule, MatProgressSpinnerModule],
   templateUrl: './item-research.component.html',
   styleUrl: './item-research.component.scss',
 })
@@ -51,7 +53,11 @@ export class ItemResearchComponent {
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(t);
     }
-    return Array.from(map.entries()).map(([modelName, ts]) => ({ modelName, terms: ts }));
+    return Array.from(map.entries()).map(([modelName, ts]) => ({
+      modelName,
+      terms: ts,
+      durationMs: ts[0]?.durationMs,
+    }));
   }
 
   protected confidencePct(confidence: number | undefined): string {

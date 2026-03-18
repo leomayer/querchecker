@@ -24,12 +24,24 @@
   }
 }
 
+.model-header {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
 .model-name {
   font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-on-surface-variant);
+}
+
+.duration-badge {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface-variant);
 }
 
 .term-list {

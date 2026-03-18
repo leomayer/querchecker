@@ -11,7 +11,12 @@
     } @else {
       @for (group of termGroups(); track group.modelName) {
         <div class="model-group">
-          <span class="model-name">{{ group.modelName }}</span>
+          <div class="model-header">
+            <span class="model-name">{{ group.modelName }}</span>
+            @if (group.durationMs != null) {
+              <span class="duration-badge">{{ group.durationMs | number:'1.0-0' }} ms</span>
+            }
+          </div>
           <div class="term-list">
             @for (t of group.terms; track t.term) {
               <span class="term-entry">

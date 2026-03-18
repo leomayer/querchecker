@@ -35,4 +35,7 @@ public class DlModelConfig {
 
     @Column(nullable = false)
     private Boolean active;
+
+    @Column(nullable = false)
+    private Integer executionOrder;
 }

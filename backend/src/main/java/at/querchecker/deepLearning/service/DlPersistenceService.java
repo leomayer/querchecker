@@ -22,13 +22,14 @@ public class DlPersistenceService {
     private final DlExtractionRunRepository runRepo;
     private final ApplicationEventPublisher eventPublisher;
 
-    public void saveResults(DlExtractionRun run, List<ExtractionResult> filtered) {
+    public void saveResults(DlExtractionRun run, List<ExtractionResult> filtered, long durationMs) {
         filtered.forEach(r -> termRepo.save(DlExtractionTerm.builder()
             .run(run).term(r.getTerm())
             .confidence((float) r.getConfidence()).build()));
 
         run.setStatus(ExtractionStatus.DONE);
         run.setExtractedAt(LocalDateTime.now());
+        run.setDurationMs(durationMs);
         runRepo.save(run);
 
         eventPublisher.publishEvent(new DlExtractionCompletedEvent(

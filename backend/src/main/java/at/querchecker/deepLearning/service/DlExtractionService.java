@@ -33,10 +33,13 @@ public class DlExtractionService {
                 .findFirst().orElseThrow();
 
             int maxTokens = run.getModelConfig().getMaxTokens();
+            long startMs = System.currentTimeMillis();
             List<ExtractionResult> raw = model.extract(
                 run.getItemText(), run.getPrompt(), maxTokens);
+            long durationMs = System.currentTimeMillis() - startMs;
+
             List<ExtractionResult> filtered = filterService.filter(raw, config);
-            persistenceService.saveResults(run, filtered);
+            persistenceService.saveResults(run, filtered, durationMs);
 
         } catch (Exception e) {
             run.setStatus(ExtractionStatus.FAILED);

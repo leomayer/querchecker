@@ -21,10 +21,13 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 @Service
@@ -39,6 +42,9 @@ public class DlOrchestrationService {
     private final ApplicationEventPublisher eventPublisher;
     private final AppConfigRepository appConfigRepo;
 
+    // Single-threaded: guarantees only one model runs at a time across all items
+    private final ExecutorService extractionExecutor = Executors.newSingleThreadExecutor();
+
     @Autowired
     List<ExtractionModel> models;
 
@@ -46,10 +52,13 @@ public class DlOrchestrationService {
         String prompt = promptResolver.resolve(itemText);
         String inputHash = sha256(itemText.getTitle() + itemText.getDescription());
 
+        var activeModels = modelConfigRepo.findByActiveTrueOrderByExecutionOrderAsc();
         log.debug("scheduleExtraction: itemText={}, active models={}, registered components={}",
-            itemText.getId(), modelConfigRepo.findByActiveTrue().size(), models.size());
+            itemText.getId(), activeModels.size(), models.size());
 
-        List<CompletableFuture<Void>> futures = modelConfigRepo.findByActiveTrue().stream()
+        record RunEntry(DlExtractionRun run, ExtractionModel model) {}
+
+        List<RunEntry> entries = activeModels.stream()
             .filter(mc -> {
                 boolean alreadyDone = runRepo.existsByItemTextAndModelConfigAndStatus(
                     itemText, mc, ExtractionStatus.DONE);
@@ -61,7 +70,7 @@ public class DlOrchestrationService {
                 }
                 return !alreadyDone;
             })
-            .map(mc -> {
+            .flatMap(mc -> {
                 Optional<ExtractionModel> model = models.stream()
                     .filter(m -> m.getName().equals(mc.getModelName()))
                     .findFirst();
@@ -80,45 +89,58 @@ public class DlOrchestrationService {
                     .status(status)
                     .build());
 
-                return model.map(m ->
-                    CompletableFuture.<Void>runAsync(() -> {
-                        log.debug("Starting async extraction: model={}, run={}",
-                            m.getName(), run.getId());
-                        extractionService.runModel(run);
-                        log.debug("Finished async extraction: model={}, run={}, status={}",
-                            m.getName(), run.getId(), run.getStatus());
-                    }).exceptionally(ex -> {
-                        log.error("Async extraction failed: model={}, itemText={}",
-                            m.getName(), itemText.getId(), ex);
-                        return null;
-                    }))
-                    .orElse(CompletableFuture.completedFuture(null));
+                return model.map(m -> new RunEntry(run, m)).stream();
             })
             .toList();
 
-        log.debug("Scheduled {} async extractions for itemText={}", futures.size(), itemText.getId());
+        // Chain extractions sequentially in executionOrder
+        CompletableFuture<Void> chain = CompletableFuture.completedFuture(null);
+        for (RunEntry entry : entries) {
+            chain = chain.thenRunAsync(() -> {
+                log.debug("Starting sequential extraction: model={}, run={}",
+                    entry.model().getName(), entry.run().getId());
+                extractionService.runModel(entry.run());
+                log.debug("Finished sequential extraction: model={}, run={}",
+                    entry.model().getName(), entry.run().getId());
+            }, extractionExecutor);
+        }
+
+        log.debug("Scheduled {} sequential extractions for itemText={}", entries.size(), itemText.getId());
     }
 
     @Scheduled(fixedDelay = 300_000)
     @Transactional
     public void retryStuckRuns() {
-        runRepo.findByStatusAndCreatedAtBeforeEager(ExtractionStatus.INIT, LocalDateTime.now().minusMinutes(5))
-            .forEach(run -> models.stream()
-                .filter(m -> m.getName().equals(run.getModelConfig().getModelName()))
-                .findFirst()
-                .ifPresent(m -> CompletableFuture.runAsync(
-                    () -> extractionService.runModel(run))));
+        List<DlExtractionRun> stuckRuns = runRepo
+            .findByStatusAndCreatedAtBeforeEager(ExtractionStatus.INIT, LocalDateTime.now().minusMinutes(5))
+            .stream()
+            .sorted(Comparator.comparing(r -> r.getModelConfig().getExecutionOrder()))
+            .toList();
 
-        runRepo.findByStatusEager(ExtractionStatus.RE_EVALUATE).forEach(run -> {
+        CompletableFuture<Void> chain = CompletableFuture.completedFuture(null);
+        for (DlExtractionRun run : stuckRuns) {
+            chain = chain.thenRunAsync(() ->
+                models.stream()
+                    .filter(m -> m.getName().equals(run.getModelConfig().getModelName()))
+                    .findFirst()
+                    .ifPresent(m -> extractionService.runModel(run)), extractionExecutor);
+        }
+
+        List<DlExtractionRun> reEvalRuns = runRepo.findByStatusEager(ExtractionStatus.RE_EVALUATE)
+            .stream()
+            .sorted(Comparator.comparing(r -> r.getModelConfig().getExecutionOrder()))
+            .toList();
+
+        for (DlExtractionRun run : reEvalRuns) {
             termRepo.deleteByRun(run);
             run.setStatus(ExtractionStatus.INIT);
             runRepo.save(run);
-            models.stream()
-                .filter(m -> m.getName().equals(run.getModelConfig().getModelName()))
-                .findFirst()
-                .ifPresent(m -> CompletableFuture.runAsync(
-                    () -> extractionService.runModel(run)));
-        });
+            chain = chain.thenRunAsync(() ->
+                models.stream()
+                    .filter(m -> m.getName().equals(run.getModelConfig().getModelName()))
+                    .findFirst()
+                    .ifPresent(m -> extractionService.runModel(run)), extractionExecutor);
+        }
 
         LocalDateTime now = LocalDateTime.now();
         appConfigRepo.save(AppConfig.builder()

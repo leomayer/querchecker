@@ -44,6 +44,8 @@ public class DlExtractionRun {
     @Column(length = 500)
     private String errorMessage;
 
+    private Long durationMs;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 

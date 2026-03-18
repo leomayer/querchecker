@@ -34,6 +34,7 @@ public class DlExtractionController {
                 .modelName(t.getRun().getModelConfig().getModelName())
                 .term(t.getTerm())
                 .confidence(t.getConfidence())
+                .durationMs(t.getRun().getDurationMs())
                 .build())
             .toList();
     }
@@ -47,6 +48,7 @@ public class DlExtractionController {
                     .modelName(t.getRun().getModelConfig().getModelName())
                     .term(t.getTerm())
                     .confidence(t.getConfidence())
+                    .durationMs(t.getRun().getDurationMs())
                     .build())
                 .toList();
 

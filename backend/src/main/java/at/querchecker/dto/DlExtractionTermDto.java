@@ -9,4 +9,5 @@ public class DlExtractionTermDto {
     private String modelName;
     private String term;
     private Float confidence;
+    private Long durationMs;
 }

@@ -78,7 +78,19 @@
       "Bash(.venv/bin/python3 -c \":*)",
       "Bash(curl -s \"https://raw.githubusercontent.com/kherud/java-llama.cpp/v4.2.0/src/main/java/de/kherud/llama/InferenceParameters.java\")",
       "Bash(curl -s \"https://raw.githubusercontent.com/kherud/java-llama.cpp/v4.2.0/src/main/java/de/kherud/llama/ModelParameters.java\")",
-      "Bash(curl -s \"https://raw.githubusercontent.com/kherud/java-llama.cpp/v4.2.0/src/main/java/de/kherud/llama/args/CacheType.java\")"
+      "Bash(curl -s \"https://raw.githubusercontent.com/kherud/java-llama.cpp/v4.2.0/src/main/java/de/kherud/llama/args/CacheType.java\")",
+      "Bash(echo $SSH_AUTH_SOCK)",
+      "Bash(ssh-add -l)",
+      "Read(//home/leo/.config/fish/**)",
+      "Bash(printenv SSH_AUTH_SOCK)",
+      "Read(//run/user/1000/gcr/**)",
+      "Read(//run/user/1000/keyring/**)",
+      "Bash(systemctl --user list-units)",
+      "Read(//home/leo/.ssh/**)",
+      "Bash(systemctl --user status gcr-ssh-agent.service)",
+      "Bash(systemctl --user status gnome-keyring-daemon.service)",
+      "Bash(systemctl --user status org.freedesktop.secrets.service)",
+      "Bash(ssh-keygen -y -f ~/.ssh/id_ed25519 -P)"
     ]
   }
 }

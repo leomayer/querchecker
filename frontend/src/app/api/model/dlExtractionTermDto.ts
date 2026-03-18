@@ -9,8 +9,9 @@
  */
 
 
-export interface DlExtractionTermDto { 
+export interface DlExtractionTermDto {
     modelName?: string;
     term?: string;
     confidence?: number;
+    durationMs?: number;
 }

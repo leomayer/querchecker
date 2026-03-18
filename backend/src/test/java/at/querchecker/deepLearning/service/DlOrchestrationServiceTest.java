@@ -35,7 +35,7 @@ class DlOrchestrationServiceTest {
     @Test
     void scheduleExtraction_setsNoImplementation_whenComponentMissing() {
         DlModelConfig mc = modelConfig("unknown-model");
-        when(modelConfigRepo.findByActiveTrue()).thenReturn(List.of(mc));
+        when(modelConfigRepo.findByActiveTrueOrderByExecutionOrderAsc()).thenReturn(List.of(mc));
         when(runRepo.existsByItemTextAndModelConfigAndStatus(any(), any(), any()))
             .thenReturn(false);
         when(promptResolver.resolve(any())).thenReturn("prompt");
@@ -51,7 +51,7 @@ class DlOrchestrationServiceTest {
     @Test
     void scheduleExtraction_skipsDoneRuns() {
         DlModelConfig mc = modelConfig("gelectra-large-germanquad");
-        when(modelConfigRepo.findByActiveTrue()).thenReturn(List.of(mc));
+        when(modelConfigRepo.findByActiveTrueOrderByExecutionOrderAsc()).thenReturn(List.of(mc));
         when(runRepo.existsByItemTextAndModelConfigAndStatus(any(), eq(mc), eq(DONE)))
             .thenReturn(true);
         when(promptResolver.resolve(any())).thenReturn("prompt");
@@ -65,7 +65,7 @@ class DlOrchestrationServiceTest {
     @Test
     void scheduleExtraction_doesNotCreateRun_beforeComponentCheck() {
         DlModelConfig mc = modelConfig("missing-model");
-        when(modelConfigRepo.findByActiveTrue()).thenReturn(List.of(mc));
+        when(modelConfigRepo.findByActiveTrueOrderByExecutionOrderAsc()).thenReturn(List.of(mc));
         when(runRepo.existsByItemTextAndModelConfigAndStatus(any(), any(), any()))
             .thenReturn(false);
         when(promptResolver.resolve(any())).thenReturn("prompt");
@@ -85,7 +85,7 @@ class DlOrchestrationServiceTest {
         service.models = List.of(model);
 
         DlModelConfig mc = modelConfig("gelectra-large-germanquad");
-        when(modelConfigRepo.findByActiveTrue()).thenReturn(List.of(mc));
+        when(modelConfigRepo.findByActiveTrueOrderByExecutionOrderAsc()).thenReturn(List.of(mc));
         when(runRepo.existsByItemTextAndModelConfigAndStatus(any(), any(), any()))
             .thenReturn(false);
         when(promptResolver.resolve(any())).thenReturn("prompt");
@@ -98,6 +98,6 @@ class DlOrchestrationServiceTest {
     }
 
     private DlModelConfig modelConfig(String name) {
-        return DlModelConfig.builder().modelName(name).active(true).build();
+        return DlModelConfig.builder().modelName(name).active(true).executionOrder(10).build();
     }
 }
