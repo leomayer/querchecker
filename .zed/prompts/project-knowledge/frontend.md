@@ -34,7 +34,11 @@ frontend/src/app/
 │       │   └── listing-card/  ← Karte mit Thumbnail, Rating-Buttons, Stats
 │       ├── wh-sort/           ← Sortierung
 │       ├── wh-detail/         ← Detail-Panel (rechte Zone, kein Dialog)
+│       │   ├── wh-base/       ← Galerie, Preis, Meta, Beschreibung
+│       │   ├── item-annotation/ ← Notiz, Rating, Interest-Level, Tags
+│       │   └── item-research/ ← DL-Extraktion (Geizhals-Vergleich geplant)
 │       ├── search.store.ts    ← @ngrx/signals SignalStore
+│       ├── extraction.store.ts ← @ngrx/signals SignalStore für DL-Extraktion
 │       ├── layout-state.enum.ts ← SEARCH | LISTINGS | DETAIL
 │       ├── search-query.model.ts
 │       └── listings.guard.ts
@@ -185,7 +189,28 @@ Root: `flex-direction: column`, `height: 100vh`. Header/Footer: `flex: 0 0 auto`
 
 ---
 
+## ExtractionStore (`extraction.store.ts`, `@ngrx/signals`)
+
+Verwaltet DL-Extraktionsergebnisse clientseitig.
+
+**State:** `results: Map<whItemId, DlExtractionTermDto[]>`, `loadingIds: Set<Long>`
+
+**Schlüssel**: `whItemId` = `WhItem.id` — NICHT `itemTextId`
+
+**Methoden:**
+- `loadExistingTerms(whItemId)` — ruft `GET /api/dl/extraction/{whItemId}/terms` auf; aufgerufen aus `ItemResearchComponent` wenn Detail öffnet
+- SSE-Event `dl-extract` mergt `DlExtractionDonePayload.terms` per `whItemId` in den Store (terms werden direkt im SSE-Payload geliefert, kein separater GET danach)
+
+**State-Übergänge:** `'idle'` (kein whItemId) → `'loading'` (id vorhanden, noch keine Results) → `'done'` (Results im Store)
+
+**`DlExtractionTermDto`**: `{ modelName, term, confidence, durationMs }`
+
+`ItemResearchComponent` liest `detail().whItemId` aus `WhDetailDto`.
+
+---
+
 ## OpenAPI Workflow
 
 `npm run generate-api` nach Backend-Änderungen → regeneriert `src/app/api/`.
 Workflow: Backend lokal starten → generieren → committen.
+Voraussetzung: `SpringDocConfig` Cycle-Breaker im Backend muss aktiv sein (sonst 500 beim Swagger-Abruf → NPE beim Generator).

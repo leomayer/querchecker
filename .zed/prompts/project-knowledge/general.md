@@ -10,7 +10,7 @@ Preisvergleichs-App für Elektronik/Hardware. Willhaben-Inserate durchsuchen, fi
 | Schicht | Technologie |
 |---|---|
 | Frontend | Angular 21+, Angular Material V3, @ngrx/signals |
-| Backend | Spring Boot 3.3.4, Java 21, Lombok, SpotBugs |
+| Backend | Spring Boot 3.5.3, Java 21, Lombok, SpotBugs |
 | Datenbank | PostgreSQL 16 via Docker |
 | API-Codegen | openapi-generator-cli (devDependency im Frontend) |
 | Prod | Docker, nginx, Traefik (SSL via Let's Encrypt) |
@@ -67,6 +67,7 @@ querchecker/
 - Letzte Suche im localStorage gespeichert (inkl. Standort/Kategorie, 3 Tage TTL)
 - Sortierung der Ergebnisse
 - Settings-Route (/settings): Theme-Toggle, Datenbereinigung
+- Deep-Learning-Extraktion: ML-Modelle analysieren Inseratstexte, Ergebnisse per SSE (`dl-extract`) an Frontend
 
 ## Geplante Features
 
@@ -87,8 +88,8 @@ cd frontend && npm start          # Frontend
 cd frontend && npm run generate-api  # nach Backend-API-Änderungen
 ```
 
-**Source changes**: `mvn compile` → spring-boot-devtools startet Spring-Context neu.
-JVM muss nicht neu gestartet werden.
+**Source changes**: File saves → DevTools startet Spring-Context automatisch neu.
+JVM muss nicht neu gestartet werden. Nur bei Prozess-Crash: "Dev: Kill & Restart Backend".
 
 ---
 

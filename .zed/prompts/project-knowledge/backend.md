@@ -6,15 +6,24 @@
 at.querchecker/
 ├── entity/         WhListing, WhListingDetail, WhCategory, WhLocation, AppConfig
 ├── dto/            QuercheckerListingDto, WhListingDetailDto, WhSearchResultDto,
-│                   WhCategoryDto, WhLocationDto, WhMetaStatusDto
+│                   WhCategoryDto, WhLocationDto, WhMetaStatusDto,
+│                   WhDetailDto, DlExtractionTermDto, DlExtractionDonePayload
 ├── controller/     WhListingController, WhListingDetailController
-├── service/        WhListingService, WhListingDetailService
+├── service/        WhListingService, WhListingDetailService, WhItemService
 ├── repository/     WhListingRepository, WhListingDetailRepository,
-│                   WhCategoryRepository, WhLocationRepository, AppConfigRepository
-├── config/         CorsConfig, RestTemplateConfig
-└── wh/             WhSearchController, WhSearchService, WhMetaController,
-                    WhCategoryService, WhLocationService, WhRefreshScheduler,
-                    api/WhApiResponse.java
+│                   WhCategoryRepository, WhLocationRepository, AppConfigRepository,
+│                   WhItemRepository
+├── config/         CorsConfig, RestTemplateConfig, SpringDocConfig
+├── sse/            SseController, SseHub
+├── wh/             WhSearchController, WhSearchService, WhMetaController,
+│                   WhCategoryService, WhLocationService, WhRefreshScheduler,
+│                   api/WhApiResponse.java
+└── deepLearning/
+    ├── entity/     DlModelConfig, DlExtractionRun, DlExtractionTerm, ItemText, WhItem
+    ├── repository/ DlModelConfigRepository, DlExtractionRunRepository,
+    │               DlExtractionTermRepository
+    ├── service/    DlOrchestrationService, DlExtractionService, DlPersistenceService
+    └── controller/ DlExtractionController
 ```
 
 ---
@@ -75,12 +84,58 @@ at.querchecker/
 
 ---
 
+## Deep-Learning-Extraction Entities (`deepLearning/entity/`)
+
+### `ItemText` — Normalisierter Inseratstext (Eingabe für ML)
+| Feld | Typ |
+|---|---|
+| `id` | Long (PK) |
+| `whListing` | ManyToOne → WhListing |
+| `text` | String |
+
+### `WhItem` — View-Entität über WhListing (Frontend-ID)
+| Feld | Typ |
+|---|---|
+| `id` | Long (PK) |
+| `whListing` | ManyToOne → WhListing |
+
+### `DlModelConfig` — ML-Modell-Konfiguration
+| Feld | Typ |
+|---|---|
+| `id` | Long (PK) |
+| `name` | String |
+| `active` | boolean |
+| `executionOrder` | int (INT NOT NULL, kein DB-Default — muss in jeder Migration explizit gesetzt werden, Konvention: Vielfache von 10) |
+
+### `DlExtractionRun` — Ausführungsprotokoll je Modell+Text
+| Feld | Typ |
+|---|---|
+| `id` | Long (PK) |
+| `itemText` | ManyToOne → ItemText |
+| `modelConfig` | ManyToOne → DlModelConfig |
+| `status` | Enum (VARCHAR) |
+| `durationMs` | Long (nullable, wall-clock ms) |
+| `createdAt` | LocalDateTime |
+
+### `DlExtractionTerm` — Erkannter Begriff je Run
+| Feld | Typ |
+|---|---|
+| `id` | Long (PK) |
+| `run` | ManyToOne → DlExtractionRun |
+| `term` | String |
+| `confidence` | Double |
+
+---
+
 ## Repositories
 
 - `WhListingRepository` – `findByWhId(String whId)`
 - `WhListingDetailRepository` – `findByWhListingId(Long)`, `findAllSummaries()` (Projection für effiziente Joins)
   - Projection `WhListingDetailSummary`: `getListingId()`, `getNote()`, `getViewCount()`, `getLastViewedAt()`, `getRating()`
+- `WhItemRepository` – `findIdByItemTextId(Long itemTextId)` → `Optional<Long>` (resolves ItemText → WhItem.id via Join)
 - `WhCategoryRepository`, `WhLocationRepository`, `AppConfigRepository` – Standard JpaRepository
+- `DlModelConfigRepository` – `findByActiveTrueOrderByExecutionOrderAsc()`
+- `DlExtractionTermRepository` – `findByWhItemId(Long whItemId)` (Join über WhItem → WhListing → ItemText), `findByItemTextIdAndModelName()`
 
 ---
 
@@ -116,6 +171,16 @@ Manuell via Builder im Service — kein Mapping-Framework (kein MapStruct).
 - `GET /api/wh/meta/categories` — Kategoriebaum
 - `GET /api/wh/meta/locations` — Standortbaum
 
+### DL Extraction (`DlExtractionController`)
+- `GET /api/dl/extraction/{whItemId}/terms` — bestehende Extraktionsergebnisse für ein WhItem laden
+  - `{whItemId}` = `WhItem.id` (nicht `ItemText.id`)
+
+### SSE (`SseController`)
+- `GET /api/sse/stream` — Server-Sent Events Stream
+- Event `dl-extract`: `DlExtractionDonePayload { whItemId: Long, terms: DlExtractionTermDto[] }`
+  - Wird nach jedem Modell-Run gesendet (nicht erst am Ende aller Modelle)
+  - `DlExtractionTermDto`: `{ modelName, term, confidence, durationMs }`
+
 Swagger UI: `/swagger-ui.html` (dev only, in Prod via `SPRING_PROFILES_ACTIVE=prod` deaktiviert)
 
 ---
@@ -131,12 +196,24 @@ Swagger UI: `/swagger-ui.html` (dev only, in Prod via `SPRING_PROFILES_ACTIVE=pr
 
 ---
 
+## DL Orchestrierung
+
+- `DlOrchestrationService`: Globaler `Executors.newSingleThreadExecutor()` — alle Modelle für alle Items laufen sequenziell, nie parallel
+- Reihenfolge: `DlModelConfig.executionOrder` ASC (via `findByActiveTrueOrderByExecutionOrderAsc()`)
+- `DlPersistenceService.saveResults()`: speichert Ergebnis + `durationMs`, publisht `DlExtractionCompletedEvent(itemTextId, modelName)` nach jedem Modell
+- `DlExtractionController.onExtractionCompleted()`: löst `itemTextId → whItemId` auf via `WhItemRepository.findIdByItemTextId()`, sendet SSE
+
+---
+
 ## Build & Tooling
 
 - Lombok + SpotBugs (Maven-Plugin, läuft bei `mvn verify`)
-- spring-boot-devtools: Hot-Restart nach `mvn compile`
+- spring-boot-devtools: Hot-Restart bei Dateiänderungen
 - CORS: allows `http://localhost:14072`
 - DB: `jdbc:postgresql://localhost:14071/mydb`, user `myuser`
+- **Spring Boot 3.5.3**: `jackson-bom.version=2.18.3` in pom.xml gepinnt (springdoc 2.8.6 inkompatibel mit Jackson 2.19.x)
+- **`SpringDocConfig`** (`at.querchecker.config`): Überschreibt `PolymorphicModelConverter` mit ThreadLocal Cycle-Breaker um StackOverflow bei selbst-referenziellen DTOs (`WhCategoryDto.children`) zu verhindern
+- Enum-Konvention: `@Enumerated(EnumType.STRING)` — kein nativer PostgreSQL-Enum-Typ (Flyway-Kompatibilität)
 
 ---
 
