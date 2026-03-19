@@ -97,7 +97,16 @@
       "Bash(find /home/leo/programming/github/querchecker -name doc* -type d)",
       "Bash(grep -r \"RestClient\\\\|RestTemplate\\\\|WebClient\\\\|HttpClient\\\\|OkHttp\" /home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/deepLearning --include=*.java)",
       "Bash(ls -la /home/leo/programming/github/querchecker/backend/src/main/resources/*.yml)",
-      "Bash(npx ng:*)"
+      "Bash(npx ng:*)",
+      "WebFetch(domain:geizhals.at)",
+      "WebSearch",
+      "WebFetch(domain:pypi.org)",
+      "WebFetch(domain:apify.com)",
+      "WebFetch(domain:readme.priceapi.com)",
+      "Bash(ln -s /home/leo/programming/github/claude-leo-config/.claude/skills/update-docu /home/leo/.claude/skills/update-docu)",
+      "Bash(git -C /home/leo/programming/github/querchecker diff --name-only --diff-filter=U)",
+      "Bash(git -C /home/leo/programming/github/querchecker add .claude/settings.local.json frontend/src/app/app.component.html frontend/src/app/app.component.ts frontend/src/app/core/connection-banner/connection-banner.html frontend/src/app/core/connection-banner/connection-banner.scss frontend/src/app/core/health.service.ts frontend/src/app/core/startup-overlay/startup-overlay.scss)",
+      "Bash(git -C /home/leo/programming/github/querchecker add frontend/src/app/app.component.html frontend/src/app/app.component.ts frontend/src/app/core/connection-banner/connection-banner.html frontend/src/app/core/connection-banner/connection-banner.scss frontend/src/app/core/health.service.ts frontend/src/app/core/startup-overlay/startup-overlay.scss)"
     ]
   }
 }

@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject, effect } from '@angular/core';
 
 import { API_URLS } from '../../core/api-urls';
+import { HealthService } from '../../core/health.service';
 
 type EventHandler<TMessageEvent> = (event: TMessageEvent) => void;
 
@@ -10,6 +11,8 @@ export const isEmptyObject = (obj: unknown): boolean => Object.keys(obj ?? {}).l
   providedIn: 'root',
 })
 export class EventSourceServerService<T, V> {
+  readonly #health = inject(HealthService);
+
   get eventSourceId(): string {
     return this.#eventSourceId;
   }
@@ -25,15 +28,33 @@ export class EventSourceServerService<T, V> {
   readonly #eventSourceId: string = crypto.randomUUID();
   #serverToken: string | null = null;
   #stalenessTimer: ReturnType<typeof setTimeout> | null = null;
+  #wasConnectionLost = false;
 
   constructor() {
     this.#connect();
+    // When health is restored after a loss, reconnect SSE immediately
+    // rather than waiting for the browser's own EventSource retry timer.
+    effect(() => {
+      const lost = this.#health.connectionLost();
+      if (lost) {
+        this.#wasConnectionLost = true;
+      } else if (this.#wasConnectionLost) {
+        this.#wasConnectionLost = false;
+        this.eventSource.close();
+        this.#connect();
+      }
+    });
   }
 
   #connect(): void {
+    if (this.#stalenessTimer !== null) {
+      clearTimeout(this.#stalenessTimer);
+      this.#stalenessTimer = null;
+    }
     this.eventSource = new EventSource(API_URLS.sse(this.#eventSourceId));
     this.eventSource.addEventListener('server-hello', (e: Event) => this.#handleServerToken(e));
     this.eventSource.addEventListener('keepalive', (e: Event) => this.#handleServerToken(e));
+    this.eventSource.onerror = () => this.#health.notifyServerError();
     // Re-attach consumer listeners onto the new EventSource
     for (const [event, handlers] of this.#eventListeners) {
       for (const handler of handlers) {
@@ -53,9 +74,9 @@ export class EventSourceServerService<T, V> {
     if (this.#serverToken === null) {
       this.#serverToken = token;
     } else if (this.#serverToken !== token) {
-      // Server restarted — full page reload to pick up new state
-      window.location.reload();
-      return;
+      // Server restarted mid-session — accept new token and notify app.
+      this.#serverToken = token;
+      this.#health.notifyServerRestart();
     }
     // Reset stale-connection watchdog: reconnect if no keepalive within 40 s.
     // The reconnect triggers a new server-hello; only then reload if the token changed.

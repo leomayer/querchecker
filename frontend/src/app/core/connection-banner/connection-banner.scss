@@ -28,6 +28,16 @@ mat-icon {
 mat-progress-bar {
   --mdc-linear-progress-active-indicator-color: var(--mat-sys-on-error-container);
   --mdc-linear-progress-track-color: transparent;
+  // Lock both bars to the same animation phase
+  .mdc-linear-progress__primary-bar,
+  .mdc-linear-progress__secondary-bar {
+    animation-delay: 0s !important;
+    animation-duration: 2s !important;
+  }
+}
+
+.bar-bottom {
+  transform: scaleX(-1); // mirror so the two bars travel toward each other
 }
 
 @keyframes slide-down {

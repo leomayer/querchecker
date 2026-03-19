@@ -25,7 +25,7 @@ public class SseHub {
     private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
 
     public SseEmitter register(String eventSourceId) {
-        SseEmitter emitter = new SseEmitter(300_000L); // 5 min
+        SseEmitter emitter = new SseEmitter(0L); // no timeout — client reconnects on its own
         emitters.put(eventSourceId, emitter);
         emitter.onCompletion(() -> emitters.remove(eventSourceId, emitter));
         emitter.onTimeout(() -> emitters.remove(eventSourceId, emitter));

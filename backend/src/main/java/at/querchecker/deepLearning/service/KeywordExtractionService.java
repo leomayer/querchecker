@@ -12,7 +12,6 @@ public class KeywordExtractionService {
     private HuggingFaceTokenizer tokenizerMini;
     private HuggingFaceTokenizer tokenizerLarge;
 
-    private static final int LIMIT_MINI = 128;
     private static final int LIMIT_LARGE = 512;
 
     public KeywordExtractionService(

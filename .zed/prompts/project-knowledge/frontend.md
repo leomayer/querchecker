@@ -209,6 +209,34 @@ Verwaltet DL-Extraktionsergebnisse clientseitig.
 
 ---
 
+## Health & Verbindungs-Handling
+
+### `HealthService` (`core/health.service.ts`)
+Signals: `backendReady()`, `connectionLost()`, `attempts()`, `serverRestartCount()`
+- Pollt kontinuierlich: 2s Startup, **30s Idle** (gesund), **3s Rapid-Retry** (unterbrochen)
+- `notifyServerError()` — cancelt geplanten Idle-Poll, pollt sofort; guard verhindert Doppel-Trigger
+- `notifyServerRestart()` — inkrementiert `serverRestartCount` (von SSE bei Token-Mismatch aufgerufen)
+
+### `StartupOverlayComponent` (`core/startup-overlay/`)
+- Glassmorphisches Overlay: `backdrop-filter: blur(6px)` auf Overlay + `blur(24px)` auf Karte
+- `AppComponent` rendert Header/Footer **immer**; `<router-outlet>` via `@if (health.backendReady())` gegatet
+- Kein `@if/@else` mehr — App-Skeleton ist hinter dem Glas sichtbar
+
+### `ConnectionBannerComponent` (`core/connection-banner/`)
+- `@if (health.connectionLost())` in `MainLayoutComponent` oberhalb der Zones
+- Zwei `mat-progress-bar` (oben + unten, untere via `scaleX(-1)` gespiegelt)
+
+### `EventSourceServerService` (`shared/utils/event-source-server.ts`)
+- `onerror` → `health.notifyServerError()` für sofortige Erkennung
+- Effect: wenn `connectionLost` von `true → false` wechselt → `eventSource.close()` + `#connect()` sofort
+- Token-Mismatch (Server-Neustart): Token still akzeptiert + `health.notifyServerRestart()` — **kein `window.location.reload()`**
+- `#connect()` cleared immer zuerst `#stalenessTimer` (verhindert stale timer auf neuer Verbindung)
+
+### `AppComponent`
+- `effect()` auf `health.serverRestartCount()` → MatSnackBar "Server neugestartet — Verbindung wiederhergestellt" (5s)
+
+---
+
 ## OpenAPI Workflow
 
 `npm run generate-api` nach Backend-Änderungen → regeneriert `src/app/api/`.

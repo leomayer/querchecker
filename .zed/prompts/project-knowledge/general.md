@@ -68,6 +68,7 @@ querchecker/
 - Sortierung der Ergebnisse
 - Settings-Route (/settings): Theme-Toggle, Datenbereinigung
 - Deep-Learning-Extraktion: ML-Modelle analysieren Inseratstexte, Ergebnisse per SSE (`dl-extract`) an Frontend
+- Health-Check & Reconnection: glassmorphisches Startup-Overlay, Connection-Banner (mid-session), SSE-Auto-Reconnect, Soft-Restart (kein Page-Reload)
 
 ## Geplante Features
 
