@@ -15,6 +15,8 @@ import org.springframework.web.client.RestClient;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -132,16 +134,33 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
         if (icecatId == null) return result;
         String icecatIdLower = icecatId.toLowerCase();
 
-        // Step 1: ID must appear in at least one Brave URL
+        // Step 1: ID must appear in at least one Brave URL that is an actual product page.
+        // Asset/file URLs (objects.icecat.biz, PDFs, images) are rejected — they embed
+        // file-object IDs that look like product IDs but are not (e.g. mmo_{productId}_{fileId}.pdf).
         List<BraveResult> matchingResults = braveResults.stream()
-                .filter(r -> r.getUrl() != null && r.getUrl().toLowerCase().contains(icecatIdLower))
+                .filter(r -> r.getUrl() != null
+                        && r.getUrl().toLowerCase().contains(icecatIdLower)
+                        && isProductPageUrl(r.getUrl()))
                 .toList();
         if (matchingResults.isEmpty()) {
-            log.debug("Safety check: icecatId='{}' not found in Brave URLs — discarding", icecatId);
+            log.debug("Safety check: icecatId='{}' not found in Brave product-page URLs — discarding", icecatId);
             result.getSources().setIcecatId(null);
             result.getSources().setIcecatUrl(null);
             return result;
         }
+
+        // Step 1b: Correct the icecatId to the actual product ID extracted from the URL.
+        // Icecat URLs embed an EAN in the slug (e.g. -0887111102249-) before the real
+        // product ID (-18021605.html). The LLM may extract the EAN instead of the product ID.
+        // Always trust what is at the end of the URL path.
+        matchingResults.stream()
+                .map(r -> extractIcecatProductId(r.getUrl()))
+                .filter(id -> id != null && !id.equals(icecatId))
+                .findFirst()
+                .ifPresent(corrected -> {
+                    log.debug("Safety check: correcting icecatId '{}' → '{}' (from URL slug)", icecatId, corrected);
+                    result.getSources().setIcecatId(corrected);
+                });
 
         // Step 2: The Brave result(s) containing this ID must mention the lookup term's brand
         // (first word, e.g. "Microsoft" from "Microsoft Surface Laptop 5").
@@ -163,6 +182,39 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
             }
         }
         return result;
+    }
+
+    /**
+     * Icecat product-page URL format: …/{category}-{EAN}-{name}-{productId}.html
+     * The actual product ID is the LAST numeric segment before .html — not the EAN
+     * or any other number that may appear earlier in the slug.
+     */
+    private static final Pattern ICECAT_PRODUCT_ID_PATTERN = Pattern.compile("-(\\d+)\\.html");
+
+    /**
+     * Extracts the canonical Icecat product ID from a product-page URL.
+     * Returns null if no numeric segment before .html is found.
+     */
+    private static String extractIcecatProductId(String url) {
+        if (url == null) return null;
+        Matcher m = ICECAT_PRODUCT_ID_PATTERN.matcher(url);
+        String last = null;
+        while (m.find()) last = m.group(1);
+        return last;
+    }
+
+    /**
+     * Returns true only for Icecat product page URLs.
+     * Rejects asset/file URLs (objects.icecat.biz, PDFs, images) which embed
+     * file-object IDs that are not valid Icecat product IDs.
+     */
+    private static boolean isProductPageUrl(String url) {
+        if (url == null) return false;
+        String lower = url.toLowerCase();
+        if (lower.contains("objects.icecat.biz")) return false;
+        if (lower.endsWith(".pdf") || lower.endsWith(".jpg") || lower.endsWith(".png")
+                || lower.endsWith(".jpeg") || lower.endsWith(".webp")) return false;
+        return lower.contains("icecat.biz");
     }
 
     private String formatSnippets(List<BraveResult> results) {

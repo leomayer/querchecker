@@ -3,9 +3,12 @@ package at.querchecker.research;
 import at.querchecker.api.entity.Provider;
 import at.querchecker.api.entity.RequestType;
 import at.querchecker.api.service.ApiUsageLogService;
+import at.querchecker.research.model.IcecatFetchResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -25,12 +28,12 @@ public class IcecatService {
     private final ApiUsageLogService usageLogService;
 
     /**
-     * Lädt alle Specs für eine Icecat-Produkt-ID als JSON-String.
+     * Lädt alle Specs für eine Icecat-Produkt-ID.
      *
      * @param icecatId Icecat-Produkt-ID (aus URL-Pattern: .../p/[slug]-[icecatId].html)
-     * @return vollständiger Icecat-Response als JSON-String, oder null bei Fehler
+     * @return {@link IcecatFetchResult} — unterscheidet "gefunden", "404 nicht gefunden" und "Fehler"
      */
-    public String fetchFullSpecs(String icecatId) {
+    public IcecatFetchResult fetchFullSpecs(String icecatId) {
         String url = UriComponentsBuilder.fromHttpUrl(ICECAT_API_URL)
                 .queryParam("icecat_id", icecatId)
                 .queryParam("lang", "DE")
@@ -44,13 +47,22 @@ public class IcecatService {
             long duration = System.currentTimeMillis() - start;
             usageLogService.log(Provider.GOOGLE, RequestType.SPEC_DETAIL,
                     icecatId, 200, null, null, duration);
-            return response;
+            return IcecatFetchResult.found(response);
+        } catch (HttpClientErrorException e) {
+            long duration = System.currentTimeMillis() - start;
+            int status = e.getStatusCode().value();
+            log.warn("Icecat fetchFullSpecs failed for id={}: {}", icecatId, e.getMessage());
+            usageLogService.log(Provider.GOOGLE, RequestType.SPEC_DETAIL,
+                    icecatId, status, null, null, duration);
+            return e.getStatusCode() == HttpStatus.NOT_FOUND
+                    ? IcecatFetchResult.notFound()
+                    : IcecatFetchResult.error();
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - start;
             log.warn("Icecat fetchFullSpecs failed for id={}: {}", icecatId, e.getMessage());
             usageLogService.log(Provider.GOOGLE, RequestType.SPEC_DETAIL,
                     icecatId, 500, null, null, duration);
-            return null;
+            return IcecatFetchResult.error();
         }
     }
 }

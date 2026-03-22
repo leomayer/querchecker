@@ -1,0 +1,117 @@
+.preferred-summary {
+  margin-bottom: 8px;
+  padding: 6px 10px 8px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--color-ui-teal) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-ui-teal) 30%, transparent);
+
+  .preferred-header {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-ui-teal);
+    margin-bottom: 4px;
+
+    .preferred-icon {
+      font-size: 0.9rem;
+      width: 0.9rem;
+      height: 0.9rem;
+      color: var(--color-tertiary);
+    }
+
+    .preferred-count {
+      margin-left: auto;
+      font-size: 0.7rem;
+      opacity: 0.7;
+    }
+  }
+}
+
+.icecat-accordion {
+  margin-top: 8px;
+
+  ::ng-deep .mat-expansion-panel {
+    background: color-mix(in srgb, var(--mat-sys-surface-variant) 30%, transparent);
+    box-shadow: none !important;
+    border-radius: 6px !important;
+    margin-bottom: 2px;
+  }
+
+  ::ng-deep .mat-expansion-panel-header {
+    padding: 0 10px;
+    height: 36px !important;
+    min-height: 36px !important;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  ::ng-deep .mat-expansion-panel-body {
+    padding: 4px 10px 8px;
+  }
+}
+
+.specs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+
+  td {
+    padding: 2px 4px 2px 0;
+    vertical-align: middle;
+  }
+
+  .spec-key {
+    width: 50%;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .spec-value {
+    width: 46%;
+    color: var(--mat-sys-on-surface);
+  }
+
+  .spec-star {
+    width: 4%;
+    text-align: right;
+    padding-right: 0;
+  }
+
+  .preferred-row {
+    .spec-key {
+      color: var(--color-ui-teal);
+      font-weight: 600;
+    }
+  }
+}
+
+.star-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.35;
+  transition: opacity 0.15s;
+
+  &:hover:not(:disabled) {
+    opacity: 0.75;
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+
+  mat-icon {
+    font-size: 0.9rem;
+    width: 0.9rem;
+    height: 0.9rem;
+    color: var(--color-tertiary);
+  }
+
+  &.star-active {
+    opacity: 1;
+  }
+}

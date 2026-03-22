@@ -99,10 +99,32 @@ export const ExtractionStore = signalStore(
         }));
         productLookupService.lookup(listingId, lookupTerm).subscribe({
           next: (result) => {
-            patchState(store, (s) => ({
-              lookupResults: { ...s.lookupResults, [whItemId]: { ...result, lookupTerm } },
-              lookupLoadingIds: s.lookupLoadingIds.filter((id) => id !== whItemId),
-            }));
+            // Parse cached full specs if the backend already has them stored
+            let cachedGroups: IcecatFeatureGroup[] = [];
+            let cachedGeneralInfo: IcecatData['GeneralInfo'] = undefined;
+            let cachedCatalogUrl: string | undefined;
+            const specsAlreadyCached = !!result.icecatSpecsJson;
+            if (specsAlreadyCached) {
+              try {
+                const parsed = JSON.parse(result.icecatSpecsJson!) as IcecatResponse;
+                cachedGroups = parsed?.data?.FeaturesGroups ?? [];
+                cachedGeneralInfo = parsed?.data?.GeneralInfo;
+                cachedCatalogUrl = parsed?.data?.CatalogObjectCloud?.ProductPage?.URL;
+              } catch { /* ignore */ }
+            }
+            patchState(store, (s) => {
+              const next: Partial<ExtractionState> = {
+                lookupResults: { ...s.lookupResults, [whItemId]: { ...result, lookupTerm } },
+                lookupLoadingIds: s.lookupLoadingIds.filter((id) => id !== whItemId),
+              };
+              if (specsAlreadyCached) {
+                next.fullSpecsLoaded = { ...s.fullSpecsLoaded, [whItemId]: true };
+                next.fullSpecsData = { ...s.fullSpecsData, [whItemId]: cachedGroups };
+                next.fullSpecsGeneralInfo = { ...s.fullSpecsGeneralInfo, [whItemId]: cachedGeneralInfo };
+                next.icecatCatalogUrls = { ...s.icecatCatalogUrls, [whItemId]: cachedCatalogUrl };
+              }
+              return next;
+            });
           },
           error: () => {
             patchState(store, (s) => ({

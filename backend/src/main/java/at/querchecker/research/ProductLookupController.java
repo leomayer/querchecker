@@ -5,6 +5,7 @@ import at.querchecker.repository.WhListingRepository;
 import at.querchecker.research.entity.ProductLookup;
 import at.querchecker.research.model.FullSpecsRequest;
 import at.querchecker.research.model.FullSpecsResponse;
+import at.querchecker.research.model.IcecatFetchResult;
 import at.querchecker.research.model.LookupRequest;
 import at.querchecker.research.model.LookupResponse;
 import at.querchecker.research.model.ProductLookupResult;
@@ -44,11 +45,12 @@ public class ProductLookupController {
 
         ProductLookupResult result = productLookupService.lookup(req.getLookupTerm(), listing.getWhCategory());
 
-        String icecatId = productLookupRepository.findByLookupTerm(req.getLookupTerm())
-                .map(ProductLookup::getIcecatId)
-                .orElse(null);
+        ProductLookup saved = productLookupRepository.findByLookupTerm(req.getLookupTerm()).orElse(null);
+        String icecatId = saved != null ? saved.getIcecatId() : null;
+        String icecatSpecsJson = saved != null ? saved.getIcecatSpecsJson() : null;
 
-        return new LookupResponse(result.getStatus(), parseQuickFacts(result.getQuickFactsJson()), icecatId);
+        return new LookupResponse(result.getStatus(), parseQuickFacts(result.getQuickFactsJson()),
+                icecatId, icecatSpecsJson);
     }
 
     @PostMapping("/lookup/full-specs")
@@ -58,14 +60,31 @@ public class ProductLookupController {
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Kein ProductLookup für icecatId: " + req.getIcecatId()));
 
-        String specs = icecatService.fetchFullSpecs(req.getIcecatId());
-        if (specs != null) {
-            lookup.setIcecatSpecsJson(specs);
+        // Return cached specs immediately — no Icecat API call needed.
+        if (lookup.getIcecatSpecsJson() != null) {
+            log.debug("Returning cached Icecat specs for icecatId={}", req.getIcecatId());
+            return new FullSpecsResponse(lookup.getIcecatSpecsJson());
+        }
+
+        IcecatFetchResult fetch = icecatService.fetchFullSpecs(req.getIcecatId());
+
+        if (fetch.isNotFound()) {
+            // Icecat reported 404 → the stored icecatId is invalid (e.g. extracted from a file URL).
+            // Clear it so this bad ID is never retried.
+            log.warn("Icecat returned 404 for icecatId={} — clearing from ProductLookup", req.getIcecatId());
+            lookup.setIcecatId(null);
+            lookup.setIcecatUrl(null);
+            productLookupRepository.save(lookup);
+            return new FullSpecsResponse(null);
+        }
+
+        if (fetch.json() != null) {
+            lookup.setIcecatSpecsJson(fetch.json());
             lookup.setIcecatFetchedAt(LocalDateTime.now());
             productLookupRepository.save(lookup);
         }
 
-        return new FullSpecsResponse(specs);
+        return new FullSpecsResponse(fetch.json());
     }
 
     // --- private helpers ---

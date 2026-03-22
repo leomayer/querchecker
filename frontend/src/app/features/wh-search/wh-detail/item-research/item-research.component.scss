@@ -191,29 +191,17 @@
     width: 0.9rem;
     height: 0.9rem;
   }
+
+  &.full-specs-unavailable {
+    color: var(--mat-sys-on-surface-variant);
+    opacity: 0.75;
+  }
 }
 
 .quota-warn {
   color: var(--color-tertiary);
 }
 
-// --- Icecat Full Specs ---
-
-.icecat-accordion {
-  margin-top: 8px;
-
-  // Tighten the default expansion panel padding
-  ::ng-deep .mat-expansion-panel-header {
-    padding: 0 12px;
-    height: 36px;
-    font-size: 0.8rem;
-    font-weight: 600;
-  }
-
-  ::ng-deep .mat-expansion-panel-body {
-    padding: 4px 12px 10px;
-  }
-}
 
 .icecat-meta {
   display: flex;
@@ -276,46 +264,6 @@
   }
 }
 
-.icecat-specs-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.78rem;
-
-  td {
-    padding: 2px 6px 2px 0;
-    vertical-align: top;
-  }
-
-  .spec-key {
-    color: var(--mat-sys-on-surface-variant);
-    white-space: nowrap;
-    padding-right: 12px;
-    width: 45%;
-  }
-
-  .spec-value {
-    color: var(--mat-sys-on-surface);
-  }
-
-  .preferred-row {
-    .spec-key {
-      color: var(--color-ui-teal);
-      font-weight: 600;
-    }
-    .spec-value {
-      font-weight: 600;
-    }
-  }
-}
-
-.pref-star {
-  font-size: 0.85rem;
-  width: 0.85rem;
-  height: 0.85rem;
-  color: var(--color-tertiary);
-  vertical-align: middle;
-  margin-right: 3px;
-}
 
 .conf-badge {
   font-size: 0.7rem;

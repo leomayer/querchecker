@@ -89,6 +89,7 @@ public class WhListingService {
         WhCategory current = category;
         while (current != null) {
             path.add(0, WhCategoryDto.builder()
+                .id(current.getId())
                 .whId(current.getWhId())
                 .name(current.getName())
                 .level(current.getLevel())

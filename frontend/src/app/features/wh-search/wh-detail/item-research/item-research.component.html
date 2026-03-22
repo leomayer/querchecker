@@ -1,15 +1,12 @@
 <div class="search-row">
   <mat-form-field class="search-field">
     <mat-label>Produktsuche</mat-label>
-    <input matInput [(ngModel)]="searchTerm" (keyup.enter)="onSearch()" />
+    <input matInput [(ngModel)]="searchTerm" (keyup.enter)="onLookup()" />
   </mat-form-field>
   <button mat-icon-button (click)="onLookup()"
           [disabled]="!searchTerm().trim() || lookupState() === 'loading'"
           matTooltip="Spec-Lookup starten">
     <mat-icon>auto_awesome</mat-icon>
-  </button>
-  <button mat-icon-button (click)="onSearch()" [disabled]="!searchTerm().trim()">
-    <mat-icon>search</mat-icon>
   </button>
 </div>
 
@@ -103,10 +100,16 @@
             }
           </button>
         }
-        @if (fullSpecsLoaded()) {
+        @if (fullSpecsLoaded() && icecatFeatureGroups().length > 0) {
           <span class="full-specs-badge">
             <mat-icon class="specs-ok-icon">check_circle</mat-icon>
             Icecat-Specs geladen
+          </span>
+        }
+        @if (fullSpecsLoaded() && icecatFeatureGroups().length === 0) {
+          <span class="full-specs-badge full-specs-unavailable">
+            <mat-icon class="specs-ok-icon">info</mat-icon>
+            Keine Specs verfügbar
           </span>
         }
       </div>
@@ -144,28 +147,12 @@
         </div>
       }
       @if (icecatFeatureGroups().length > 0) {
-        <mat-accordion class="icecat-accordion">
-          @for (group of icecatFeatureGroups(); track group.FeatureGroup.ID) {
-            <mat-expansion-panel>
-              <mat-expansion-panel-header>
-                <mat-panel-title>{{ group.FeatureGroup.Name.Value }}</mat-panel-title>
-              </mat-expansion-panel-header>
-              <table class="icecat-specs-table">
-                @for (feature of group.Features; track feature.Feature.ID) {
-                  <tr [class.preferred-row]="isPreferred(feature.Feature.Name.Value)">
-                    <td class="spec-key">
-                      @if (isPreferred(feature.Feature.Name.Value)) {
-                        <mat-icon class="pref-star">star</mat-icon>
-                      }
-                      {{ feature.Feature.Name.Value }}
-                    </td>
-                    <td class="spec-value">{{ feature.PresentationValue }}</td>
-                  </tr>
-                }
-              </table>
-            </mat-expansion-panel>
-          }
-        </mat-accordion>
+        <app-icecat-accordion
+          [groups]="icecatFeatureGroups()"
+          [preferredKeys]="preferredKeySet()"
+          [canToggle]="activeCategoryId() != null"
+          (toggle)="togglePreference($event)"
+        />
       }
     </div>
   }
@@ -178,17 +165,4 @@
   @default {
     <p class="state-label empty">Noch kein Spec-Lookup durchgeführt.</p>
   }
-}
-
-@if (activeQuery()) {
-  <div class="section-divider"></div>
-  <app-upc-search
-    [query]="activeQuery()"
-    (productSelected)="onProductSelected($event)"
-  />
-}
-
-@if (selectedEan()) {
-  <div class="section-divider"></div>
-  <app-icecat-spec [ean]="selectedEan()" />
 }

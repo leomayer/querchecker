@@ -12,4 +12,6 @@ public class LookupResponse {
     private LookupStatus lookupStatus;
     private Map<String, String> quickFacts;
     private String icecatId;
+    /** Already-cached Icecat full-specs JSON, or null if not yet fetched. */
+    private String icecatSpecsJson;
 }

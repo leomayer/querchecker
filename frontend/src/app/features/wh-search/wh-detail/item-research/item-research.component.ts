@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { DecimalPipe, SlicePipe } from '@angular/common';
-import { httpResource } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,16 +7,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconButton } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { DlExtractionTermDto } from '../../../../api/model/dlExtractionTermDto';
 import { WhDetailDto } from '../../../../api/model/whDetailDto';
 import { ExtractionStore } from '../../extraction.store';
-import { EanProduct } from '../../../../core/model/ean-search.model';
 import { IcecatData, IcecatFeatureGroup } from '../../../../core/model/icecat.model';
-import { UpcSearchComponent } from './upc-search/upc-search.component';
-import { IcecatSpecComponent } from './icecat-spec/icecat-spec.component';
-import { API_URLS } from '../../../../core/api-urls';
-import { PreferenceEntry } from '../../../../core/preferences.service';
+import { IcecatAccordionComponent } from './icecat-accordion/icecat-accordion.component';
+import { PreferenceEntry, PreferencesService } from '../../../../core/preferences.service';
 
 interface TermGroup {
   modelName: string;
@@ -40,9 +35,7 @@ type LookupState = 'empty' | 'loading' | 'COMPLETE' | 'FAILED' | 'QUOTA_EXCEEDED
     MatInputModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    UpcSearchComponent,
-    IcecatSpecComponent,
-    MatExpansionModule,
+    IcecatAccordionComponent,
   ],
   templateUrl: './item-research.component.html',
   styleUrl: './item-research.component.scss',
@@ -53,28 +46,33 @@ export class ItemResearchComponent {
   private readonly extractionStore = inject(ExtractionStore);
 
   protected readonly searchTerm = signal('');
-  protected readonly activeQuery = signal('');
-  protected readonly selectedEan = signal<string | null>(null);
 
   constructor() {
+    this.loadPreferences();
+
     effect(() => {
       const id = this.detail().whItemId;
       if (id != null) {
         this.extractionStore.loadExistingTerms(id);
       }
-      // Reset product search when item changes
-      this.activeQuery.set('');
-      this.selectedEan.set(null);
     });
 
     // Pre-fill from store suggestion, but only when the field is still empty
     // — preserves any text the user has already typed.
+    // Also auto-triggers the spec-lookup when a suggested term arrives and no
+    // lookup result exists yet — the backend returns cached data instantly when available.
     effect(() => {
       const id = this.detail().whItemId;
-      if (id == null) return;
+      const listingId = this.detail().id;
+      if (id == null || listingId == null) return;
       const suggested = this.extractionStore.suggestedTerms()[id];
-      if (suggested && !this.searchTerm()) {
+      if (!suggested) return;
+      if (!this.searchTerm()) {
         this.searchTerm.set(suggested);
+      }
+      if (!this.extractionStore.lookupResults()[id] &&
+          !this.extractionStore.lookupLoadingIds().includes(id)) {
+        this.extractionStore.lookup(id, listingId, suggested);
       }
     });
   }
@@ -186,40 +184,67 @@ export class ItemResearchComponent {
 
   // --- Preferences ---
 
-  private readonly preferencesResource = httpResource<PreferenceEntry[]>(
-    () => ({ url: API_URLS.settingsPreferences }),
-    { defaultValue: [] },
-  );
+  private readonly prefService = inject(PreferencesService);
+  private readonly preferences = signal<PreferenceEntry[]>([]);
 
-  protected readonly preferredKeySet = computed<Set<string>>(() => {
-    const categoryPath = this.detail().categoryPath ?? [];
-    const prefs = this.preferencesResource.value();
-    // Walk from most specific to least specific category
-    for (let i = categoryPath.length - 1; i >= 0; i--) {
-      const catId = categoryPath[i].id;
-      const entry = prefs.find((p) => p.categoryId === catId);
-      if (entry && entry.fieldKeys.length > 0) {
-        return new Set(entry.fieldKeys.map((k) => k.toLowerCase()));
-      }
-    }
-    return new Set<string>();
+  private loadPreferences(): void {
+    this.prefService.getAll().subscribe((list) => this.preferences.set(list));
+  }
+
+  /** The leaf category ID to save new preferences to (most specific in path). */
+  protected readonly activeCategoryId = computed<number | null>(() => {
+    const path = this.detail().categoryPath ?? [];
+    return path.length > 0 ? (path[path.length - 1].id ?? null) : null;
   });
 
-  protected isPreferred(featureName: string): boolean {
-    const keys = this.preferredKeySet();
-    if (keys.size === 0) return false;
-    const lower = featureName.toLowerCase();
-    return [...keys].some((k) => lower.includes(k));
+  /** The preference entry currently active for this listing's category path. */
+  private readonly activePrefEntry = computed<PreferenceEntry | null>(() => {
+    const path = this.detail().categoryPath ?? [];
+    const prefs = this.preferences();
+    for (let i = path.length - 1; i >= 0; i--) {
+      const entry = prefs.find((p) => p.categoryId === path[i].id);
+      if (entry) return entry;
+    }
+    return null;
+  });
+
+  protected readonly preferredKeySet = computed<Set<string>>(() => {
+    const entry = this.activePrefEntry();
+    if (!entry || entry.fieldKeys.length === 0) return new Set<string>();
+    return new Set(entry.fieldKeys.map((k) => k.toLowerCase()));
+  });
+
+  protected togglePreference(featureName: string): void {
+    const catId = this.activeCategoryId();
+    if (catId == null) return;
+    const key = featureName.toLowerCase();
+    const currentKeys = (this.activePrefEntry()?.fieldKeys ?? []).map((k) => k.toLowerCase());
+    // Use same fuzzy check as isPreferred for removal, exact add for insertion
+    const alreadyPreferred = currentKeys.some((k) => key.includes(k));
+    const newKeys = alreadyPreferred
+      ? currentKeys.filter((k) => !key.includes(k))
+      : [...currentKeys, key];
+
+    // Optimistic update
+    const patch = (list: PreferenceEntry[]): PreferenceEntry[] => {
+      const idx = list.findIndex((p) => p.categoryId === catId);
+      if (idx >= 0) {
+        return list.map((p, i) => (i === idx ? { ...p, fieldKeys: newKeys } : p));
+      }
+      return [...list, { categoryId: catId, categoryName: '', fieldKeys: newKeys }];
+    };
+    this.preferences.update(patch);
+
+    this.prefService.save(catId, newKeys).subscribe({
+      next: (saved) =>
+        this.preferences.update((list) =>
+          list.map((p) => (p.categoryId === saved.categoryId ? saved : p)),
+        ),
+      error: () => this.loadPreferences(), // rollback on error
+    });
   }
 
   // --- Handlers ---
-
-  protected onSearch(): void {
-    const term = this.searchTerm().trim();
-    if (!term) return;
-    this.selectedEan.set(null);
-    this.activeQuery.set(term);
-  }
 
   protected onLookup(): void {
     const term = this.searchTerm().trim();
@@ -235,10 +260,6 @@ export class ItemResearchComponent {
     const listingId = this.detail().id;
     if (!icecatId || whItemId == null || listingId == null) return;
     this.extractionStore.loadFullSpecs(whItemId, listingId, icecatId);
-  }
-
-  protected onProductSelected(product: EanProduct): void {
-    this.selectedEan.set(product.ean || null);
   }
 
   private groupByModel(terms: DlExtractionTermDto[]): TermGroup[] {

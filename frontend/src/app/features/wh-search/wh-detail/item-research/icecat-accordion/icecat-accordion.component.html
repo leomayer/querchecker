@@ -1,0 +1,52 @@
+@if (preferredFeatures().length > 0) {
+  <div class="preferred-summary">
+    <div class="preferred-header">
+      <mat-icon class="preferred-icon">star</mat-icon>
+      <span>Markierte Spezifikationen</span>
+      <span class="preferred-count">{{ preferredFeatures().length }}</span>
+    </div>
+    <table class="specs-table">
+      @for (f of preferredFeatures(); track f.key) {
+        <tr class="preferred-row">
+          <td class="spec-key preferred-key">{{ f.key }}</td>
+          <td class="spec-value">{{ f.value }}</td>
+          <td class="spec-star">
+            <button class="star-btn star-active"
+                    [disabled]="!canToggle()"
+                    matTooltip="Präferenz entfernen"
+                    (click)="toggle.emit(f.key)">
+              <mat-icon>star</mat-icon>
+            </button>
+          </td>
+        </tr>
+      }
+    </table>
+  </div>
+}
+
+<mat-accordion class="icecat-accordion">
+  @for (group of groups(); track group.FeatureGroup.ID) {
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>{{ group.FeatureGroup.Name.Value }}</mat-panel-title>
+      </mat-expansion-panel-header>
+      <table class="specs-table">
+        @for (feature of group.Features; track feature.Feature.ID) {
+          <tr [class.preferred-row]="isPreferred(feature.Feature.Name.Value)">
+            <td class="spec-key">{{ feature.Feature.Name.Value }}</td>
+            <td class="spec-value">{{ feature.PresentationValue }}</td>
+            <td class="spec-star">
+              <button class="star-btn"
+                      [class.star-active]="isPreferred(feature.Feature.Name.Value)"
+                      [disabled]="!canToggle()"
+                      [matTooltip]="isPreferred(feature.Feature.Name.Value) ? 'Präferenz entfernen' : 'Als Präferenz markieren'"
+                      (click)="toggle.emit(feature.Feature.Name.Value)">
+                <mat-icon>{{ isPreferred(feature.Feature.Name.Value) ? 'star' : 'star_outline' }}</mat-icon>
+              </button>
+            </td>
+          </tr>
+        }
+      </table>
+    </mat-expansion-panel>
+  }
+</mat-accordion>

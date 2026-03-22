@@ -7,6 +7,7 @@ export interface LookupResult {
   lookupStatus: 'COMPLETE' | 'FAILED' | 'QUOTA_EXCEEDED';
   quickFacts: Record<string, string>;
   icecatId: string | null;
+  icecatSpecsJson?: string | null;
   /** Frontend-only: the term that was used for this lookup */
   lookupTerm?: string;
 }
