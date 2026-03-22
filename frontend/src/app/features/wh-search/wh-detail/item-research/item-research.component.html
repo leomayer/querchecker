@@ -1,3 +1,18 @@
+<div class="search-row">
+  <mat-form-field class="search-field">
+    <mat-label>Produktsuche</mat-label>
+    <input matInput [(ngModel)]="searchTerm" (keyup.enter)="onSearch()" />
+  </mat-form-field>
+  <button mat-icon-button (click)="onLookup()"
+          [disabled]="!searchTerm().trim() || lookupState() === 'loading'"
+          matTooltip="Spec-Lookup starten">
+    <mat-icon>auto_awesome</mat-icon>
+  </button>
+  <button mat-icon-button (click)="onSearch()" [disabled]="!searchTerm().trim()">
+    <mat-icon>search</mat-icon>
+  </button>
+</div>
+
 @switch (state()) {
   @case ('loading') {
     <div class="state-row">
@@ -20,7 +35,7 @@
           <div class="term-list">
             @for (t of group.terms; track t.term) {
               <span class="term-entry">
-                <span class="term-chip">{{ t.term }}</span>
+                <span class="term-chip" (click)="searchTerm.set(t.term ?? '')">{{ t.term }}</span>
                 <span class="conf-badge" [class]="confidenceClass(t.confidence)">{{ confidencePct(t.confidence) }}</span>
               </span>
             }
@@ -32,4 +47,148 @@
   @default {
     <p class="state-label empty">Keine Extraktion verfügbar.</p>
   }
+}
+
+<!-- Spec-Lookup Section -->
+<div class="section-divider"></div>
+
+@switch (lookupState()) {
+  @case ('loading') {
+    <div class="state-row">
+      <mat-spinner diameter="16" />
+      <span class="state-label">Spezifikationen werden ermittelt…</span>
+    </div>
+  }
+  @case ('COMPLETE') {
+    <div class="lookup-result">
+      @if (noIcecatData()) {
+        <div class="no-icecat-warning">
+          <mat-icon class="no-icecat-icon">info</mat-icon>
+          Keine Icecat-Daten gefunden. Icecat kennt dieses Produkt möglicherweise nicht.
+        </div>
+      }
+      @if (lookupQuickFacts().length > 0) {
+        <table class="quick-facts-table">
+          @for (entry of lookupQuickFacts(); track entry[0]) {
+            <tr>
+              <td class="fact-key">{{ entry[0] }}</td>
+              <td class="fact-value">{{ entry[1] }}</td>
+            </tr>
+          }
+        </table>
+      }
+      <div class="lookup-actions">
+        @if (geizhalUrl()) {
+          <a class="geizhals-link" [href]="geizhalUrl()!" target="_blank" rel="noopener">
+            <mat-icon class="link-icon">open_in_new</mat-icon>
+            Geizhals
+          </a>
+        }
+        @if (icecatPageUrl()) {
+          <a class="geizhals-link" [href]="icecatPageUrl()!" target="_blank" rel="noopener"
+             matTooltip="Produktseite auf Icecat öffnen">
+            <mat-icon class="link-icon">open_in_new</mat-icon>
+            Icecat
+          </a>
+        }
+        @if (lookupIcecatId() && !fullSpecsLoaded()) {
+          <button mat-icon-button class="full-specs-btn"
+                  (click)="onLoadFullSpecs()"
+                  [disabled]="fullSpecsLoading()"
+                  matTooltip="Vollständige Icecat-Specs laden">
+            @if (fullSpecsLoading()) {
+              <mat-spinner diameter="16" />
+            } @else {
+              <mat-icon>description</mat-icon>
+            }
+          </button>
+        }
+        @if (fullSpecsLoaded()) {
+          <span class="full-specs-badge">
+            <mat-icon class="specs-ok-icon">check_circle</mat-icon>
+            Icecat-Specs geladen
+          </span>
+        }
+      </div>
+      @if (icecatGeneralInfo(); as info) {
+        @if (icecatMismatch()) {
+          <div class="icecat-mismatch-warning">
+            <mat-icon class="mismatch-icon">warning</mat-icon>
+            Icecat-Eintrag stimmt möglicherweise nicht überein:
+            <strong>{{ info.Brand }} {{ info.Title | slice:0:60 }}</strong>
+          </div>
+        }
+        <div class="icecat-meta">
+          @if (info.ReleaseDate && !info.ReleaseDate.startsWith('0000')) {
+            <span class="icecat-meta-item">
+              <mat-icon class="meta-icon">calendar_today</mat-icon>
+              {{ info.ReleaseDate | slice:0:10 }}
+            </span>
+          } @else {
+            <span class="icecat-meta-item icecat-meta-unavailable">
+              <mat-icon class="meta-icon">calendar_today</mat-icon>
+              Erscheinungsdatum unbekannt
+            </span>
+          }
+          @if (info.EndOfLifeDate && !info.EndOfLifeDate.startsWith('0000')) {
+            <span class="icecat-meta-item icecat-meta-eol">
+              <mat-icon class="meta-icon">event_busy</mat-icon>
+              EOL: {{ info.EndOfLifeDate | slice:0:10 }}
+            </span>
+          } @else {
+            <span class="icecat-meta-item icecat-meta-unavailable">
+              <mat-icon class="meta-icon">event_busy</mat-icon>
+              EOL unbekannt
+            </span>
+          }
+        </div>
+      }
+      @if (icecatFeatureGroups().length > 0) {
+        <mat-accordion class="icecat-accordion">
+          @for (group of icecatFeatureGroups(); track group.FeatureGroup.ID) {
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>{{ group.FeatureGroup.Name.Value }}</mat-panel-title>
+              </mat-expansion-panel-header>
+              <table class="icecat-specs-table">
+                @for (feature of group.Features; track feature.Feature.ID) {
+                  <tr [class.preferred-row]="isPreferred(feature.Feature.Name.Value)">
+                    <td class="spec-key">
+                      @if (isPreferred(feature.Feature.Name.Value)) {
+                        <mat-icon class="pref-star">star</mat-icon>
+                      }
+                      {{ feature.Feature.Name.Value }}
+                    </td>
+                    <td class="spec-value">{{ feature.PresentationValue }}</td>
+                  </tr>
+                }
+              </table>
+            </mat-expansion-panel>
+          }
+        </mat-accordion>
+      }
+    </div>
+  }
+  @case ('FAILED') {
+    <p class="state-label empty">Keine Spezifikationen gefunden.</p>
+  }
+  @case ('QUOTA_EXCEEDED') {
+    <p class="state-label quota-warn">API-Kontingent überschritten – bitte später erneut versuchen.</p>
+  }
+  @default {
+    <p class="state-label empty">Noch kein Spec-Lookup durchgeführt.</p>
+  }
+}
+
+@if (activeQuery()) {
+  <div class="section-divider"></div>
+  <app-upc-search
+    [query]="activeQuery()"
+    (productSelected)="onProductSelected($event)"
+  />
+}
+
+@if (selectedEan()) {
+  <div class="section-divider"></div>
+  <app-icecat-spec [ean]="selectedEan()" />
 }

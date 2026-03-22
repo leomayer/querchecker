@@ -10,6 +10,7 @@ import java.util.List;
 @Data
 @Builder
 public class WhCategoryDto {
+    private Long id;
     private Integer whId;
     private String name;
     private int level;

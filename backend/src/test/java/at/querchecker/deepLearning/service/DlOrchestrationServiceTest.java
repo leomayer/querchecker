@@ -19,10 +19,13 @@ import org.springframework.context.ApplicationEventPublisher;
 import java.util.List;
 
 import static at.querchecker.deepLearning.ExtractionStatus.*;
+import at.querchecker.deepLearning.entity.ItemText;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 class DlOrchestrationServiceTest {
@@ -38,8 +41,8 @@ class DlOrchestrationServiceTest {
 
     @BeforeEach
     void setUp() {
-        when(promptResolver.resolve(any())).thenReturn("prompt");
-        when(runRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        lenient().when(promptResolver.resolve(any(ItemText.class))).thenReturn("prompt");
+        lenient().when(runRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
         service.init();
     }
 

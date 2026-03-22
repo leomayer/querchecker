@@ -11,6 +11,8 @@ export interface DlSettingsDto {
 export interface DlExtractionStatusResponse {
   extractionStatus: 'DONE' | 'PENDING' | 'CANCELLED' | 'NONE';
   terms: DlExtractionTermDto[];
+  /** Best term from the configured source model — pre-fills the research search field. */
+  suggestedTerm?: string | null;
 }
 
 @Injectable({

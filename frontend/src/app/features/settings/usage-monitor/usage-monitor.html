@@ -1,0 +1,55 @@
+@if (usage(); as data) {
+  <table class="usage-table">
+    <thead>
+      <tr>
+        <th>Provider</th>
+        <th>Calls</th>
+        <th>Ø Dauer</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr [class.warn-row]="isBraveWarn()">
+        <td class="provider-name">Brave</td>
+        <td>{{ data.brave.calls | number }}</td>
+        <td>{{ data.brave.avgDurationMs | number:'1.0-0' }} ms</td>
+        <td>
+          @if (isBraveWarn()) {
+            <mat-icon class="warn-icon" title="Kontingent fast aufgebraucht">warning</mat-icon>
+          }
+        </td>
+      </tr>
+      <tr [class.warn-row]="isGroqWarn()">
+        <td class="provider-name">Groq</td>
+        <td>{{ data.groq.calls | number }}</td>
+        <td>{{ data.groq.avgDurationMs | number:'1.0-0' }} ms</td>
+        <td>
+          @if (isGroqWarn()) {
+            <mat-icon class="warn-icon" title="Kontingent fast aufgebraucht">warning</mat-icon>
+          }
+        </td>
+      </tr>
+      <tr>
+        <td class="provider-name">OpenRouter</td>
+        <td>{{ data.openRouter.calls | number }}</td>
+        <td>{{ data.openRouter.avgDurationMs | number:'1.0-0' }} ms</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+} @else if (loading()) {
+  <div class="loading-row">
+    <mat-spinner diameter="20" />
+    <span>Lade Verbrauchsdaten…</span>
+  </div>
+} @else if (error()) {
+  <p class="error-text">Fehler beim Laden der Verbrauchsdaten.</p>
+}
+
+<div class="actions-row">
+  <button mat-button (click)="load()" [disabled]="loading()">
+    <mat-icon>refresh</mat-icon>
+    Aktualisieren
+  </button>
+  <span class="refresh-hint">Automatische Aktualisierung alle 60 Sekunden</span>
+</div>

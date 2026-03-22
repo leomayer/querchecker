@@ -17,10 +17,25 @@
   }
 }
 
-.settings-content {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.settings-accordion {
+  display: block;
+}
+
+.panel-icon {
+  margin-right: 8px;
+  vertical-align: middle;
+  color: var(--mat-sys-on-surface-variant);
+
+  &.warn-icon {
+    color: var(--color-tertiary);
+  }
+}
+
+.warn-badge {
+  font-size: 0.75rem;
+  color: var(--color-tertiary);
+  margin-left: 8px;
+  font-weight: 500;
 }
 
 .section-icon {

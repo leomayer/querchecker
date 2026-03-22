@@ -10,6 +10,7 @@
 
 
 export interface WhCategoryDto { 
+    id?: number;
     whId?: number;
     name?: string;
     level?: number;

@@ -1,0 +1,99 @@
+<div class="pref-toolbar">
+  <span class="pref-count">{{ preferences().length }} Kategorie(n) konfiguriert</span>
+  <button mat-button (click)="openNewForm()" [disabled]="showNewForm()">
+    <mat-icon>add</mat-icon>
+    Neu
+  </button>
+</div>
+
+@if (showNewForm()) {
+  <div class="new-form">
+    <mat-form-field class="category-select-field">
+      <mat-label>Kategorie</mat-label>
+      <mat-select [ngModel]="newCategoryId()" (ngModelChange)="newCategoryId.set($event)">
+        @for (opt of availableCategoryOptions(); track opt.id) {
+          <mat-option [value]="opt.id">{{ opt.displayName }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field class="keyword-field">
+      <mat-label>Keywords (kommagetrennt, max. 5)</mat-label>
+      <input matInput [ngModel]="newDraft()" (ngModelChange)="newDraft.set($event)" />
+      <mat-hint>{{ newDraftKeywords().length }}/5 Keywords</mat-hint>
+    </mat-form-field>
+    <div class="chip-preview">
+      @for (kw of newDraftKeywords(); track kw) {
+        <span class="kw-chip">{{ kw }}</span>
+      }
+    </div>
+    @if (newSaveError()) {
+      <p class="save-error">{{ newSaveError() }}</p>
+    }
+    <div class="edit-btns">
+      <button mat-flat-button (click)="saveNew()"
+              [disabled]="loading() || newCategoryId() == null || newDraftKeywords().length > 5">
+        <mat-icon>save</mat-icon>
+        Speichern
+      </button>
+      <button mat-button (click)="cancelNewForm()">Abbrechen</button>
+    </div>
+  </div>
+}
+
+@if (preferences().length === 0 && !showNewForm()) {
+  <p class="empty-hint">Noch keine Kategorie-Präferenzen gespeichert.</p>
+} @else {
+  <div class="pref-list">
+    @for (pref of preferences(); track pref.categoryId) {
+      <div class="pref-entry" [class.editing]="editState()?.categoryId === pref.categoryId">
+        <div class="pref-header">
+          <span class="pref-category">{{ pref.categoryName }}</span>
+          <div class="pref-actions">
+            @if (editState()?.categoryId !== pref.categoryId) {
+              <button mat-icon-button (click)="startEdit(pref)" matTooltip="Bearbeiten">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button (click)="deletePref(pref.categoryId)" matTooltip="Löschen">
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
+          </div>
+        </div>
+
+        @if (editState()?.categoryId === pref.categoryId) {
+          <div class="edit-form">
+            <mat-form-field class="keyword-field">
+              <mat-label>Keywords (kommagetrennt, max. 5)</mat-label>
+              <input matInput [(ngModel)]="editState()!.draft" (ngModelChange)="editState.set({ categoryId: editState()!.categoryId, draft: $event })" />
+              <mat-hint>{{ draftKeywords().length }}/5 Keywords</mat-hint>
+            </mat-form-field>
+            <div class="chip-preview">
+              @for (kw of draftKeywords(); track kw) {
+                <span class="kw-chip">{{ kw }}</span>
+              }
+            </div>
+            @if (saveError()) {
+              <p class="save-error">{{ saveError() }}</p>
+            }
+            <div class="edit-btns">
+              <button mat-flat-button (click)="saveEdit()" [disabled]="loading() || draftKeywords().length > 5">
+                <mat-icon>save</mat-icon>
+                Speichern
+              </button>
+              <button mat-button (click)="cancelEdit()">Abbrechen</button>
+            </div>
+          </div>
+        } @else {
+          <div class="keyword-chips">
+            @for (kw of pref.fieldKeys; track kw) {
+              <span class="kw-chip">{{ kw }}</span>
+            }
+            @if (pref.fieldKeys.length === 0) {
+              <span class="empty-hint">Keine Keywords</span>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+}

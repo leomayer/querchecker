@@ -19,4 +19,11 @@ public class DlExtractionStatusResponse {
     private String extractionStatus;
 
     private List<DlExtractionTermDto> terms;
+
+    /**
+     * Best term from the configured source model (querchecker.research.source-model),
+     * selected by highest confidence. Null if no matching model terms exist yet.
+     * Used to pre-fill the product search field in the research panel.
+     */
+    private String suggestedTerm;
 }

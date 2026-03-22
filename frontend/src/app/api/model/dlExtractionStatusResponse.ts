@@ -13,5 +13,6 @@ import { DlExtractionTermDto } from './dlExtractionTermDto';
 export interface DlExtractionStatusResponse { 
     extractionStatus?: string;
     terms?: Array<DlExtractionTermDto>;
+    suggestedTerm?: string;
 }
 

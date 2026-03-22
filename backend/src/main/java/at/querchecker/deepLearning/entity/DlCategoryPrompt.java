@@ -20,10 +20,17 @@ public class DlCategoryPrompt {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "wh_category_id")
-    private WhCategory whCategory;  // null = Default-Prompt
+    private WhCategory whCategory;  // null = Default
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private PromptType promptType;
+
+    @Column(columnDefinition = "TEXT")
+    private String systemPrompt;    // nullable — Fallback: hardcodierter Default
 
     @Column(nullable = false, columnDefinition = "TEXT")
-    private String prompt;
+    private String userPrompt;
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;

@@ -48,6 +48,7 @@ public class WhCategoryService {
             .map(this::toDto)
             .toList();
         return WhCategoryDto.builder()
+            .id(cat.getId())
             .whId(cat.getWhId())
             .name(cat.getName())
             .level(cat.getLevel())

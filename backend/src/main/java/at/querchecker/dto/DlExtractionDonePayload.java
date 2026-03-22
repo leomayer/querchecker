@@ -10,4 +10,6 @@ import java.util.List;
 public class DlExtractionDonePayload {
     private Long whItemId;
     private List<DlExtractionTermDto> terms;
+    /** Best term from the configured source model — pre-fills the spec-lookup field. */
+    private String suggestedTerm;
 }

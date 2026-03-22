@@ -7,4 +7,11 @@ export const API_URLS = {
   sse: (eventSourceId: string) => `/api/sse?eventSourceId=${eventSourceId}`,
   dlExtractionTerms: (whItemId: number) => `/api/dl/extraction/${whItemId}/terms`,
   dlSettings: '/api/dl/settings',
+  productSearch: '/api/research/product/search',
+  icecatSpec: (ean: string) => `/api/research/icecat/${ean}`,
+  productLookup: (listingId: number) => `/api/listings/${listingId}/lookup`,
+  productFullSpecs: (listingId: number) => `/api/listings/${listingId}/lookup/full-specs`,
+  apiUsage: '/api/usage',
+  settingsPreferences: '/api/settings/preferences',
+  settingsPreferenceCategory: (categoryId: number) => `/api/settings/preferences/${categoryId}`,
 } as const;

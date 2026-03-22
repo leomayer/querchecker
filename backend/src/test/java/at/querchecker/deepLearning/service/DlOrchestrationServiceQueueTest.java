@@ -27,6 +27,8 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -47,8 +49,8 @@ class DlOrchestrationServiceQueueTest {
     void setUp() {
         when(appConfigRepo.findById("dl.queue.limit"))
             .thenReturn(Optional.of(appConfig("dl.queue.limit", "3")));
-        when(promptResolver.resolve(any())).thenReturn("prompt");
-        when(runRepo.save(any())).thenAnswer(i -> i.getArgument(0));
+        lenient().when(promptResolver.resolve(any(ItemText.class))).thenReturn("prompt");
+        lenient().when(runRepo.save(any())).thenAnswer(i -> i.getArgument(0));
         // Default: no existing runs
         when(runRepo.existsByItemTextAndModelConfigAndStatus(any(), any(), any())).thenReturn(false);
         when(runRepo.existsByItemTextAndModelConfigAndStatusIn(any(), any(), anyList())).thenReturn(false);
@@ -90,16 +92,24 @@ class DlOrchestrationServiceQueueTest {
         ExtractionModel m2 = mockModel("bert");
         service.models = List.of(m1, m2);
 
-        // Pre-fill queue to limit=3 with dummy tasks
-        service.getQueue().add(dummyTask());
-        service.getQueue().add(dummyTask());
-        service.getQueue().add(dummyTask());
+        // Block executor so no tasks are consumed during the test
+        CountDownLatch latch = new CountDownLatch(1);
+        service.getQueue().addFirst(() -> {
+            try { latch.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        });
 
-        // New item with 2 models → 2 tasks added → total 5 → 2 trimmed
+        // Pre-fill queue to limit=3 with real ExtractionTasks so they can be CANCELLED on overflow
+        service.getQueue().add(dummyExtractionTask());
+        service.getQueue().add(dummyExtractionTask());
+        service.getQueue().add(dummyExtractionTask());
+
+        // New item with 2 models → 2 tasks added → total 5 (+ 1 blocking) → 2 trimmed from back
         service.scheduleExtraction(itemText(1L));
 
         verify(runRepo, atLeastOnce()).save(argThat(run ->
             run.getStatus() == ExtractionStatus.CANCELLED));
+
+        latch.countDown();
     }
 
     @Test
@@ -111,11 +121,19 @@ class DlOrchestrationServiceQueueTest {
 
         service.models = List.of(mockModel("gelectra"), mockModel("bert"));
 
+        // Block executor so the worker thread doesn't consume tasks before peekFirst()
+        CountDownLatch latch = new CountDownLatch(1);
+        service.getQueue().addFirst(() -> {
+            try { latch.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        });
+
         service.scheduleExtraction(itemText(1L));
 
         ExtractionTask first = (ExtractionTask) service.getQueue().peekFirst();
         assertThat(first).isNotNull();
         assertThat(first.getRun().getModelConfig().getModelName()).isEqualTo("gelectra");
+
+        latch.countDown();
     }
 
     @Test
@@ -124,10 +142,10 @@ class DlOrchestrationServiceQueueTest {
         when(modelConfigRepo.findByActiveTrueOrderByExecutionOrderAsc()).thenReturn(List.of(mc));
         when(runRepo.existsByItemTextAndModelConfigAndStatusIn(any(), eq(mc), anyList())).thenReturn(true);
 
-        service.models = List.of(mockModel("gelectra"));
+        // Model list is irrelevant — INIT/PENDING check short-circuits before models are checked
+        service.models = List.of();
         service.scheduleExtraction(itemText(1L));
 
-        // Only DONE check triggers save; INIT/PENDING check prevents new run creation
         verify(runRepo, never()).save(argThat(run -> run.getStatus() == ExtractionStatus.INIT));
     }
 
@@ -179,12 +197,14 @@ class DlOrchestrationServiceQueueTest {
     }
 
     private ExtractionModel mockModel(String name) {
-        ExtractionModel m = org.mockito.Mockito.mock(ExtractionModel.class);
+        ExtractionModel m = mock(ExtractionModel.class);
         when(m.getName()).thenReturn(name);
         return m;
     }
 
-    private Runnable dummyTask() {
-        return () -> {};
+    private ExtractionTask dummyExtractionTask() {
+        DlModelConfig mc = DlModelConfig.builder().modelName("dummy").executionOrder(99).build();
+        DlExtractionRun run = DlExtractionRun.builder().status(ExtractionStatus.INIT).modelConfig(mc).build();
+        return new ExtractionTask(run, extractionService);
     }
 }

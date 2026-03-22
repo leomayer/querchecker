@@ -1,0 +1,62 @@
+.usage-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  th, td {
+    padding: 6px 8px;
+    text-align: left;
+  }
+
+  th {
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--mat-sys-on-surface-variant);
+    border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline) 30%, transparent);
+  }
+
+  .provider-name {
+    font-weight: 500;
+  }
+
+  .warn-row td {
+    color: var(--color-tertiary);
+  }
+
+  .warn-icon {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+    color: var(--color-tertiary);
+    vertical-align: middle;
+  }
+}
+
+.loading-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 0.875rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.error-text {
+  font-size: 0.875rem;
+  color: var(--color-rating-down);
+  margin: 8px 0;
+}
+
+.actions-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.refresh-hint {
+  font-size: 0.75rem;
+  color: var(--mat-sys-on-surface-variant);
+}

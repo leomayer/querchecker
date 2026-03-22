@@ -1,0 +1,2 @@
+ALTER TABLE wh_item
+    ADD COLUMN IF NOT EXISTS lookup_term VARCHAR(255);

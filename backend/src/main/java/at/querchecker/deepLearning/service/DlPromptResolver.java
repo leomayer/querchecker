@@ -1,8 +1,8 @@
 package at.querchecker.deepLearning.service;
 
-import at.querchecker.deepLearning.DlCategoryPromptDefinitions;
 import at.querchecker.deepLearning.entity.DlCategoryPrompt;
 import at.querchecker.deepLearning.entity.ItemText;
+import at.querchecker.deepLearning.entity.PromptType;
 import at.querchecker.deepLearning.repository.DlCategoryPromptRepository;
 import at.querchecker.entity.WhCategory;
 import lombok.RequiredArgsConstructor;
@@ -17,34 +17,34 @@ public class DlPromptResolver {
     private final DlCategoryPromptRepository promptRepo;
 
     /**
-     * Resolves the extraction prompt for an ItemText.
-     * Walks up the category hierarchy (deepest → root) looking for a matching prompt.
-     * Falls back to the DB default prompt, then to hardcoded DEFAULT.
-     *
-     * If the resolved prompt contains {category}, it is replaced with the name of the
-     * deepest (most specific) category of the listing — e.g. "Notebooks" instead of
-     * "Computer / Software".
+     * Löst Prompt auf: Eigene Kategorie → Eltern → ... → Default (whCategory=null).
+     * Wirft IllegalStateException wenn kein Default-Prompt in der DB vorhanden.
+     */
+    public DlCategoryPrompt resolve(WhCategory category, PromptType promptType) {
+        return resolveRecursive(category, promptType);
+    }
+
+    /**
+     * Legacy-API für den bestehenden DL-Extraction-Pipeline.
+     * Löst den PRODUCT_NAME-Prompt auf und gibt den interpolierten userPrompt zurück.
      */
     public String resolve(ItemText itemText) {
         WhCategory deepestCategory = Optional.ofNullable(itemText.getWhListing())
             .map(listing -> listing.getWhCategory())
             .orElse(null);
 
-        // Walk up category tree looking for a prompt
-        WhCategory category = deepestCategory;
-        while (category != null) {
-            Optional<DlCategoryPrompt> prompt = promptRepo.findByWhCategory(category);
-            if (prompt.isPresent()) {
-                return interpolate(prompt.get().getPrompt(), deepestCategory);
-            }
-            category = category.getParent();
-        }
+        DlCategoryPrompt prompt = resolveRecursive(deepestCategory, PromptType.PRODUCT_NAME);
+        return interpolate(prompt.getUserPrompt(), deepestCategory);
+    }
 
-        // Fallback: default DB prompt or hardcoded
-        String fallback = promptRepo.findDefault()
-            .map(DlCategoryPrompt::getPrompt)
-            .orElse(DlCategoryPromptDefinitions.DEFAULT);
-        return interpolate(fallback, deepestCategory);
+    private DlCategoryPrompt resolveRecursive(WhCategory category, PromptType promptType) {
+        if (category == null) {
+            return promptRepo.findDefaultByPromptType(promptType)
+                .orElseThrow(() -> new IllegalStateException(
+                    "Kein Default-Prompt für PromptType: " + promptType));
+        }
+        return promptRepo.findByWhCategoryAndPromptType(category, promptType)
+            .orElseGet(() -> resolveRecursive(category.getParent(), promptType));
     }
 
     private String interpolate(String prompt, WhCategory deepestCategory) {

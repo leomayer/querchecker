@@ -1,24 +1,21 @@
-import { Component, computed, signal } from '@angular/core';
-import { ThemeToggle } from '../theme-toggle/theme-toggle';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
 import { MatSliderModule } from '@angular/material/slider';
-import { inject } from '@angular/core/primitives/di';
 import { ListingService } from '../../../core/listing.service';
 
 @Component({
   selector: 'app-delete-sweep',
-  imports: [MatButtonModule, MatIconModule, MatCardModule, MatSliderModule],
+  imports: [MatButtonModule, MatIconModule, MatSliderModule],
   templateUrl: './delete-sweep.html',
   styleUrl: './delete-sweep.scss',
 })
 export class DeleteSweep {
+  private readonly listingService = inject(ListingService);
+
   olderThanDays = signal(30);
   deleting = signal(false);
   deleteResult = signal<string | null>(null);
-  //private readonly listingService = inject(ListingService);
-  constructor(private listingService: ListingService) {}
 
   readonly daysLabel = computed(() => {
     const d = this.olderThanDays();

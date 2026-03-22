@@ -1,13 +1,12 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSliderModule } from '@angular/material/slider';
 import { DlExtractionService } from '../../../core/dl-extraction.service';
 
 @Component({
   selector: 'app-dl-extraction-settings',
-  imports: [MatButtonModule, MatCardModule, MatIconModule, MatSliderModule],
+  imports: [MatButtonModule, MatIconModule, MatSliderModule],
   templateUrl: './dl-extraction-settings.html',
   styleUrl: './dl-extraction-settings.scss',
 })

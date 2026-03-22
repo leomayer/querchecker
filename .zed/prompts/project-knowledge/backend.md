@@ -7,7 +7,8 @@ at.querchecker/
 ├── entity/         WhListing, WhListingDetail, WhCategory, WhLocation, AppConfig
 ├── dto/            QuercheckerListingDto, WhListingDetailDto, WhSearchResultDto,
 │                   WhCategoryDto, WhLocationDto, WhMetaStatusDto,
-│                   WhDetailDto, DlExtractionTermDto, DlExtractionDonePayload
+│                   WhDetailDto, DlExtractionTermDto, DlExtractionDonePayload,
+│                   DlExtractionStatusResponse
 ├── controller/     WhListingController, WhListingDetailController
 ├── service/        WhListingService, WhListingDetailService, WhItemService
 ├── repository/     WhListingRepository, WhListingDetailRepository,
@@ -15,15 +16,37 @@ at.querchecker/
 │                   WhItemRepository
 ├── config/         CorsConfig, RestTemplateConfig, SpringDocConfig
 ├── sse/            SseController, SseHub
+├── api/
+│   ├── entity/     ApiUsageLog, Provider (enum), RequestType (enum)
+│   ├── extraction/ ExtractionClient (interface), AbstractLlmExtractionClient,
+│   │               GroqExtractionClient, OpenRouterExtractionClient,
+│   │               ExtractionProviderRouter
+│   ├── model/      ChatRequest, ChatResponse
+│   └── service/    ApiUsageLogService, QuotaService
 ├── wh/             WhSearchController, WhSearchService, WhMetaController,
 │                   WhCategoryService, WhLocationService, WhRefreshScheduler,
 │                   api/WhApiResponse.java
+├── research/
+│   ├── entity/     CategorySpecPreference, ProductLookup, LookupStatus (enum)
+│   ├── model/      BraveResult, BraveApiResponse, QuickFactsResult,
+│   │               LookupRequest/Response, FullSpecsRequest/Response, ProductLookupResult
+│   ├── repository/ CategorySpecPreferenceRepository, ProductLookupRepository
+│   ├── config/     ResearchConfig
+│   └── services:   BraveSearchService, GroqExtractionService, ProductLookupService,
+│                   IcecatService, IcecatClient, EanSearchClient,
+│                   CategorySpecPreferenceService
+│       controllers: ProductLookupController, ResearchController
 └── deepLearning/
     ├── entity/     DlModelConfig, DlExtractionRun, DlExtractionTerm, ItemText, WhItem
     ├── repository/ DlModelConfigRepository, DlExtractionRunRepository,
-    │               DlExtractionTermRepository
-    ├── service/    DlOrchestrationService, DlExtractionService, DlPersistenceService
-    └── controller/ DlExtractionController
+    │               DlExtractionTermRepository, ItemTextRepository, WhItemRepository
+    ├── service/    DlOrchestrationService, DlExtractionService, DlPersistenceService,
+    │               DlPromptResolver, DlCategoryPromptSeeder, DlFilterService,
+    │               ExtractionModel (interface), ExtractionTask, GroqExtractionModel,
+    │               AbstractExtractionModel, AbstractLlamaExtractionModel,
+    │               Llama32ExtractionModel, MdebertaExtractionModel, ...
+    ├── controller/ DlExtractionController
+    └── DlCategoryPromptDefinitions (Konstanten für alle Prompts)
 ```
 
 ---
@@ -172,8 +195,17 @@ Manuell via Builder im Service — kein Mapping-Framework (kein MapStruct).
 - `GET /api/wh/meta/locations` — Standortbaum
 
 ### DL Extraction (`DlExtractionController`)
-- `GET /api/dl/extraction/{whItemId}/terms` — bestehende Extraktionsergebnisse für ein WhItem laden
+- `GET /api/dl/extraction/{whItemId}/terms` — `DlExtractionStatusResponse { extractionStatus, terms[], suggestedTerm? }`
   - `{whItemId}` = `WhItem.id` (nicht `ItemText.id`)
+  - `suggestedTerm`: bester Term des in `application.yml` konfigurierten `source-model` (Standard: `llama`)
+
+### Spec-Lookup (`ProductLookupController`)
+- `POST /api/listings/{listingId}/lookup` — Brave Search + Groq → `LookupResponse { lookupStatus, quickFacts, icecatId }`
+- `POST /api/listings/{listingId}/lookup/full-specs` — Icecat API → `FullSpecsResponse { icecatSpecsJson }`
+
+### Research (`ResearchController`)
+- `GET /api/research/product/search` — EAN/UPC-Suche
+- `GET /api/research/icecat/{ean}` — Icecat-Specs per EAN
 
 ### SSE (`SseController`)
 - `GET /api/sse/stream` — Server-Sent Events Stream
@@ -198,10 +230,43 @@ Swagger UI: `/swagger-ui.html` (dev only, in Prod via `SPRING_PROFILES_ACTIVE=pr
 
 ## DL Orchestrierung
 
-- `DlOrchestrationService`: Globaler `Executors.newSingleThreadExecutor()` — alle Modelle für alle Items laufen sequenziell, nie parallel
-- Reihenfolge: `DlModelConfig.executionOrder` ASC (via `findByActiveTrueOrderByExecutionOrderAsc()`)
-- `DlPersistenceService.saveResults()`: speichert Ergebnis + `durationMs`, publisht `DlExtractionCompletedEvent(itemTextId, modelName)` nach jedem Modell
-- `DlExtractionController.onExtractionCompleted()`: löst `itemTextId → whItemId` auf via `WhItemRepository.findIdByItemTextId()`, sendet SSE
+- `DlOrchestrationService`: `LinkedBlockingDeque` + `ThreadPoolExecutor(1,1)` — alle Modelle laufen sequenziell, nie parallel
+- **Priority Queue**: Tasks sortiert DESC nach `executionOrder`, dann `addFirst()` → niedrigstes executionOrder läuft zuerst
+- **Queue Limit**: aus `AppConfig` key `dl.queue.limit` (default 10). Overflow → `pollLast()` → Task auf `CANCELLED` gesetzt
+- **CANCELLED Retry**: CANCELLED-Runs werden NICHT übersprungen → neue INIT-Runs bei nächstem Schedule
+- Reihenfolge: `DlModelConfig.executionOrder` ASC; Groq hat `executionOrder=5` (läuft zuerst), lokale Modelle 10+
+- `DlPersistenceService.saveResults()`: speichert Ergebnis + `durationMs`, publisht `DlExtractionCompletedEvent` nach jedem Modell
+- `DlExtractionController.onExtractionCompleted()`: löst `itemTextId → whItemId` auf, sendet SSE mit `suggestedTerm` (aus `source-model`)
+
+## LLM Extraction API (`api/extraction/`)
+
+- `ExtractionClient` interface: `extractProductName(title, description, categoryName, DlCategoryPrompt)` + `extractQuickFacts(...)`
+- `AbstractLlmExtractionClient`: `callLlm()`, JSON-Parsing, `applyIcecatIdSafetyCheck()` (case-insensitive URL-Match), `formatSnippets()`
+- `GroqExtractionClient` / `OpenRouterExtractionClient`: OpenAI-kompatibles API
+- `ExtractionProviderRouter`: aktiver Provider via `querchecker.api.extraction.active-provider` (GROQ | OPENROUTER)
+
+## DL Category Prompts
+
+- `DlCategoryPromptDefinitions`: Java-Konstanten für alle Prompts (PRODUCT_NAME + QUICK_FACTS, default + kategorie-spezifisch)
+- `DlCategoryPromptSeeder`: seeded DB idempotent bei Start (INSERT wenn count=0 je prompt_type)
+- Nach Prompt-Änderungen: DB-Zeilen löschen + Neustart. Flyway V27/V28 löschen PRODUCT_NAME/QUICK_FACTS.
+- `DlPromptResolver.resolve(WhCategory, PromptType)`: traversiert Kategoriehierarchie, Fallback auf Default
+- **QUICK_FACTS icecatId**: "die rein numerische ID am Ende der icecat-URL, direkt vor .html"
+
+## GroqExtractionModel
+
+- Implementiert `ExtractionModel`, delegiert an `ExtractionProviderRouter.getActive().extractProductName()`
+- Length-Guard: Terme > 150 Zeichen werden verworfen (verhindert generische Halluzinationen)
+- DB: `model_name='groq'`, `source='API'`, `execution_order=5`
+- `ModelSource` Enum: `HUGGINGFACE`, `LOCAL`, `API`
+
+## Research-Package (`research/`)
+
+- `BraveSearchService`: 3-stufige Suche (exakt, icecat.biz-scoped, breiter). Kein `Accept-Encoding: gzip` Header (RestTemplate kann nicht dekomprimieren)
+- `GroqExtractionService.extractFromSnippets(lookupTerm, whCategory, braveResults, mandatoryFields)`: löst Prompt per `DlPromptResolver` auf, ruft aktiven LLM-Provider auf → `QuickFactsResult { quickFacts, sources.icecatId, sources.icecatUrl }`
+- `ProductLookupService`: orchestriert Lookup — BraveSearch → GroqExtractionService → speichert in `ProductLookup`
+- `IcecatService`: Icecat-API nach `icecatId` (numerische ID), gibt `icecatSpecsJson` zurück
+- `CategorySpecPreferenceService`: verwaltet Pflichtfelder je Kategorie
 
 ---
 

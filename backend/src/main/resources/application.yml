@@ -3,6 +3,8 @@ server:
   shutdown: graceful
 
 spring:
+  config:
+    import: optional:file:../config/secrets.yml   # dev: relative to backend/ working dir
   lifecycle:
     timeout-per-shutdown-phase: 5s  # Fast DevTools restarts without waiting for long-lived connections (SSE)
   flyway:
@@ -23,6 +25,31 @@ spring:
         format_sql: false
 
 querchecker:
+  api:
+    extraction:
+      active-provider: GROQ   # GROQ | OPENROUTER — Neustart nötig bei Wechsel
+    providers:
+      brave:
+        free-limit: 1000
+        free-limit-period: MONTHLY
+        period-start-day: 1
+        limit-unit: REQUESTS
+        alert-at-percent: 80
+      groq:
+        model: llama-3.1-8b-instant
+        free-limit: 25000
+        free-limit-period: DAILY
+        period-start-day: 1
+        limit-unit: TOKENS
+        alert-at-percent: 80
+      openrouter:
+        model: meta-llama/llama-3.3-70b-instruct:free
+        free-limit: 0
+        free-limit-period: DAILY
+        limit-unit: REQUESTS
+        alert-at-percent: 80
+  research:
+    source-model: llama   # substring match against DlExtractionTerm.modelName — change to switch models
   wh:
     refresh:
       cron: "0 0 3 * * MON"   # montags um 03:00; Spring-Cron: Sek Min Std Tag Mon Wochentag
@@ -37,6 +64,8 @@ querchecker:
 logging:
   level:
     at.querchecker.deepLearning: DEBUG
+    at.querchecker.research: DEBUG
+    at.querchecker.api.extraction: DEBUG
     at.querchecker.willHaben: INFO
 
 springdoc:

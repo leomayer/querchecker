@@ -35,6 +35,9 @@ public class WhItem {
 
     private LocalDateTime lastViewedAt;
 
+    /** Vom User bestätigter/korrigierter Suchterm für den Spec-Lookup */
+    private String lookupTerm;
+
     /** null = kein Rating, "UP" = interessant, "DOWN" = nicht interessant */
     private String rating;
 

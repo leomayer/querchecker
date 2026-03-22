@@ -18,34 +18,36 @@
 ```
 frontend/src/app/
 ├── api/            ← generiert via openapi-generator-cli (nie manuell anfassen)
-│   ├── model/      quercheckerListingDto, whListingDetailDto, whSearchResultDto,
-│   │               whCategoryDto, whLocationDto, whMetaStatusDto
+│   ├── model/      quercheckerListingDto, whListingDetailDto, whSearchResultDto, ...
 │   └── api/        listings.service, listingDetail.service, ...
 ├── core/
+│   ├── model/      icecat.model.ts (IcecatFeatureGroup, IcecatResponse, IcecatData)
+│   │               ean-search.model.ts
 │   ├── api-urls.ts ← hand-written, stable, nie überschreiben
-│   └── listing.service.ts
+│   ├── listing.service.ts
+│   ├── dl-extraction.service.ts
+│   ├── product-lookup.service.ts  ← lookup() + loadFullSpecs()
+│   ├── icecat.service.ts          ← EAN-basierter Icecat-Lookup
+│   ├── ean-search.service.ts
+│   ├── usage.service.ts, preferences.service.ts
+│   └── health.service.ts, startup-overlay/, connection-banner/
 ├── features/
 │   └── wh-search/
-│       ├── main-layout/       ← Einzige Route-Komponente (Förderband)
-│       ├── wh-filter/         ← Suchformular (keyword, rows, price, paylivery)
-│       ├── location-filter/   ← smart wrapper um hierarchical-filter
-│       ├── category-filter/   ← smart wrapper um hierarchical-filter
-│       ├── wh-listings/       ← Ergebnisliste mit Rating-Filter-Tabs
-│       │   └── listing-card/  ← Karte mit Thumbnail, Rating-Buttons, Stats
-│       ├── wh-sort/           ← Sortierung
-│       ├── wh-detail/         ← Detail-Panel (rechte Zone, kein Dialog)
-│       │   ├── wh-base/       ← Galerie, Preis, Meta, Beschreibung
-│       │   ├── item-annotation/ ← Notiz, Rating, Interest-Level, Tags
-│       │   └── item-research/ ← DL-Extraktion (Geizhals-Vergleich geplant)
-│       ├── search.store.ts    ← @ngrx/signals SignalStore
-│       ├── extraction.store.ts ← @ngrx/signals SignalStore für DL-Extraktion
-│       ├── layout-state.enum.ts ← SEARCH | LISTINGS | DETAIL
-│       ├── search-query.model.ts
+│       ├── main-layout/
+│       ├── wh-filter/, location-filter/, category-filter/, wh-sort/
+│       ├── wh-listings/ → listing-card/
+│       ├── wh-detail/
+│       │   ├── wh-base/
+│       │   ├── item-annotation/
+│       │   └── item-research/       ← Spec-Lookup, DL-Terms, Icecat-Accordion
+│       │       ├── upc-search/      ← EAN/UPC-Produktsuche
+│       │       └── icecat-spec/     ← Icecat-Specs per EAN (legacy)
+│       ├── search.store.ts
+│       ├── extraction.store.ts
+│       ├── layout-state.enum.ts
 │       └── listings.guard.ts
 └── shared/
-    ├── components/
-    │   ├── hierarchical-filter-component/
-    │   └── placeholder/
+    ├── components/hierarchical-filter-component/, placeholder/
     ├── layout/     app-header, app-footer, zone-left, zone-right
     └── pipes/      custom-currency
 ```
@@ -88,15 +90,17 @@ State-Sync via `effect()` → `SearchStore.setResourceState()`.
 
 ## URL-Management (`core/api-urls.ts`) — nie überschreiben
 
-```typescript
-export const API_URLS = {
-  listings: '/api/listings',
-  listingById: (id: number) => `/api/listings/${id}`,
-  whSearch: '/api/wh/search',
-  whLocations: '/api/wh/meta/locations',
-  whCategories: '/api/wh/meta/categories',
-} as const;
-```
+Aktuelle Einträge (hand-written, nie überschreiben):
+- `health`, `listings`, `whSearch`, `whLocations`, `whCategories`, `sse`
+- `dlExtractionTerms(whItemId)` → `/api/dl/extraction/{id}/terms`
+- `dlSettings` → `/api/dl/settings`
+- `productSearch` → `/api/research/product/search`
+- `icecatSpec(ean)` → `/api/research/icecat/{ean}`
+- `productLookup(listingId)` → `/api/listings/{id}/lookup`
+- `productFullSpecs(listingId)` → `/api/listings/{id}/lookup/full-specs`
+- `apiUsage` → `/api/usage`
+- `settingsPreferences` → `/api/settings/preferences`
+- `settingsPreferenceCategory(categoryId)` → `/api/settings/preferences/{categoryId}`
 
 Generierte Service-Klassen werden **nicht** für HTTP-Calls verwendet — nur DTO-Typen aus `api/model/`.
 
@@ -191,23 +195,48 @@ Root: `flex-direction: column`, `height: 100vh`. Header/Footer: `flex: 0 0 auto`
 
 ## ExtractionStore (`extraction.store.ts`, `@ngrx/signals`)
 
-Verwaltet DL-Extraktionsergebnisse clientseitig.
+Verwaltet DL-Extraktion, Spec-Lookup und Icecat-Daten clientseitig. Alle State-Slices per `whItemId` (= `WhItem.id`) geindext.
 
-**State:** `results: Map<whItemId, DlExtractionTermDto[]>`, `loadingIds: Set<Long>`
-
-**Schlüssel**: `whItemId` = `WhItem.id` — NICHT `itemTextId`
+**State:**
+- `results: Record<number, DlExtractionTermDto[]>` — DL-Extraktionsergebnisse
+- `extractionStatus: Record<number, 'DONE'|'PENDING'|'CANCELLED'|'NONE'>`
+- `suggestedTerms: Record<number, string>` — vorausgefüllter Suchbegriff (aus source-model)
+- `lookupResults: Record<number, LookupResult>` — `{ lookupStatus, quickFacts, icecatId, lookupTerm }`
+- `lookupLoadingIds: number[]`, `fullSpecsLoadingIds: number[]`
+- `fullSpecsLoaded: Record<number, boolean>`
+- `fullSpecsData: Record<number, IcecatFeatureGroup[]>` — geparste Icecat-Feature-Gruppen
 
 **Methoden:**
-- `loadExistingTerms(whItemId)` — ruft `GET /api/dl/extraction/{whItemId}/terms` auf; aufgerufen aus `ItemResearchComponent` wenn Detail öffnet
-- SSE-Event `dl-extract` mergt `DlExtractionDonePayload.terms` per `whItemId` in den Store (terms werden direkt im SSE-Payload geliefert, kein separater GET danach)
+- `loadExistingTerms(whItemId)` — `GET /api/dl/extraction/{id}/terms` → aktualisiert results + extractionStatus + suggestedTerms
+- `lookup(whItemId, listingId, lookupTerm)` — `POST /api/listings/{id}/lookup` → speichert LookupResult
+- `loadFullSpecs(whItemId, listingId, icecatId)` — `POST /api/listings/{id}/lookup/full-specs` → parst `icecatSpecsJson` als `IcecatResponse`, speichert `FeaturesGroups` in `fullSpecsData`
+- `remove(whItemId)` / `clear()` — bereinigt alle State-Slices inkl. `fullSpecsData`
 
-**State-Übergänge:** `'idle'` (kein whItemId) → `'loading'` (id vorhanden, noch keine Results) → `'done'` (Results im Store)
+**SSE:** `dl-extract` mergt Terms per Modell, setzt `extractionStatus = 'DONE'` und `suggestedTerms` (falls payload.suggestedTerm vorhanden und noch nicht gesetzt).
 
 **`DlExtractionTermDto`**: `{ modelName, term, confidence, durationMs }`
 
-`ItemResearchComponent` liest `detail().whItemId` aus `WhDetailDto`.
-
 ---
+
+## item-research Component (`wh-detail/item-research/`)
+
+Vollständig implementiertes Feature:
+- Suchfeld vorausgefüllt aus `suggestedTerms`; DL-Term-Chips klickbar zum Befüllen
+- `auto_awesome` Button → `lookup()` → Spec-Lookup (Brave Search + Groq LLM)
+- Quick-Facts-Tabelle (key-value aus `quickFacts`)
+- Geizhals-Link (öffnet Suche in neuem Tab)
+- Icecat-Full-Specs-Button (`description` Icon) → `loadFullSpecs()` — nur wenn `icecatId` vorhanden + noch nicht geladen
+- **Icecat-Accordion** (`MatExpansionModule`) — zeigt Feature-Gruppen aus `fullSpecsData`, Spec-Tabelle je Panel
+- `upc-search/` Sub-Komponente — EAN/UPC-Produktsuche über Suchicon
+- `icecat-spec/` Sub-Komponente — EAN-basierter Icecat-Lookup (legacy, per EAN-Auswahl)
+
+**Computed Signals:** `state`, `termGroups`, `lookupState`, `lookupQuickFacts`, `lookupIcecatId`, `lookupTerm`, `geizhalUrl`, `fullSpecsLoading`, `fullSpecsLoaded`, `icecatFeatureGroups`
+
+## Core Services
+
+- `ProductLookupService` (`core/`): `lookup(listingId, lookupTerm)` + `loadFullSpecs(listingId, icecatId)`
+- `IcecatService` (`core/`): `getByEan(ean)` — EAN-basierter Icecat-Lookup
+- `EanSearchService` (`core/`): Produktsuche per Suchbegriff → EAN-Ergebnisse
 
 ## Health & Verbindungs-Handling
 

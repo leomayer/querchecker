@@ -1,0 +1,39 @@
+@switch (state()) {
+  @case ('loading') {
+    <div class="state-row">
+      <mat-spinner diameter="16" />
+      <span class="state-label">Suche in EAN-Datenbank…</span>
+    </div>
+  }
+  @case ('empty') {
+    <p class="state-label empty">Keine Produkte gefunden.</p>
+  }
+  @case ('error') {
+    <div class="state-row">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <span class="state-label">Suche fehlgeschlagen.</span>
+    </div>
+  }
+  @case ('done') {
+    <div class="results-list">
+      @for (p of results(); track p.ean) {
+        <div
+          class="result-item"
+          [class.selected]="selected()?.ean === p.ean"
+          (click)="select(p)"
+        >
+          <span class="product-title">{{ p.name }}</span>
+          <div class="product-meta">
+            <span class="product-ean">{{ p.ean }}</span>
+            @if (p.issuingCountry) {
+              <span class="product-country">{{ p.issuingCountry }}</span>
+            }
+            @if (p.categoryName) {
+              <span class="product-category">{{ p.categoryName }}</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+}
