@@ -1,3 +1,9 @@
+/** Simples Feature-Gruppen-Format für HTML-Fetch-Quellen (GSMArena, FlatpanelsHD). */
+export interface SpecsFeatureGroup {
+  name: string;
+  features: { name: string; value: string }[];
+}
+
 export interface IcecatFeature {
   Feature: {
     ID: number;

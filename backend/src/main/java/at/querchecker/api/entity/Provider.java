@@ -4,5 +4,6 @@ public enum Provider {
     BRAVE,
     GROQ,
     OPENROUTER,
-    ICECAT
+    ICECAT,
+    GOOGLE   // vorbereitet, noch nicht aktiv
 }

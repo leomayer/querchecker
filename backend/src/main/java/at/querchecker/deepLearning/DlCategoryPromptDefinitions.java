@@ -69,7 +69,48 @@ public final class DlCategoryPromptDefinitions {
           },
           "sources": {
             "icecatId": "die rein numerische ID am Ende der icecat-URL, direkt vor .html — Beispiel: aus '...lenovo-thinkpad-x1-carbon-123456.html' ist die icecatId '123456'",
-            "icecatUrl": "vollständige URL des relevantesten Treffers"
+            "sourceUrl": "vollständige URL des relevantesten Treffers (egal welche Quelle)"
+          }
+        }
+        """;
+
+    // ─── HTML_FULL_SPECS ──────────────────────────────────────────────────────
+
+    public static final String HTML_FULL_SPECS_SYSTEM =
+        """
+        Du extrahierst technische Spezifikationen aus einer Produktseite (vollständiger Seitentext oder Tabellen).
+        Antworte NUR mit validem JSON — kein erklärender Text, keine Markdown-Backticks.
+        Wenn ein Wert nicht erkennbar ist, lass das Feld weg (kein null, kein "unbekannt").
+        Feldnamen im quickFacts-Objekt: Kleinbuchstaben, Englisch, keine Sonderzeichen.
+        Gruppiere Felder nach ihren Abschnitten in featureGroups (z.B. "Display", "Connectivity").
+        """;
+
+    public static final String HTML_FULL_SPECS_USER_DEFAULT =
+        """
+        Produkt: {lookupTerm}
+        Kategorie: {category}
+
+        Seiteninhalt:
+        {snippets}
+
+        Pflichtfelder (müssen erscheinen wenn erkennbar):
+        {mandatoryFields}
+
+        Antworte mit diesem JSON-Schema:
+        {
+          "quickFacts": {
+            "field_name": "extracted value"
+          },
+          "featureGroups": [
+            {
+              "name": "Gruppenname (z.B. Display, Connectivity)",
+              "features": [
+                { "name": "Feldbezeichnung", "value": "Wert" }
+              ]
+            }
+          ],
+          "sources": {
+            "icecatId": null
           }
         }
         """;
@@ -197,7 +238,7 @@ public final class DlCategoryPromptDefinitions {
                   "quickFacts": { "cpu": "...", "ram": "...", "display": "..." },
                   "sources": {
                     "icecatId": "die rein numerische ID am Ende der icecat-URL, direkt vor .html — Beispiel: aus '...thinkpad-t14-123456.html' ist die icecatId '123456'",
-                    "icecatUrl": "vollständige URL des relevantesten Treffers"
+                    "sourceUrl": "vollständige URL des relevantesten Treffers (egal welche Quelle)"
                   }
                 }
                 """)
@@ -219,7 +260,7 @@ public final class DlCategoryPromptDefinitions {
                 Antworte mit diesem JSON-Schema:
                 {
                   "quickFacts": { "technology": "...", "duplex": "...", "ppm_mono": "..." },
-                  "sources": { "icecatId": "...", "icecatUrl": "..." }
+                  "sources": { "icecatId": "...", "sourceUrl": "..." }
                 }
                 """)
         ))

@@ -1,0 +1,52 @@
+@if (preferredFeatures().length > 0) {
+  <div class="preferred-summary">
+    <div class="preferred-header">
+      <mat-icon class="preferred-icon">star</mat-icon>
+      <span>Markierte Spezifikationen</span>
+      <span class="preferred-count">{{ preferredFeatures().length }}</span>
+    </div>
+    <table class="specs-table">
+      @for (f of preferredFeatures(); track f.key) {
+        <tr class="preferred-row">
+          <td class="spec-key preferred-key">{{ f.key }}</td>
+          <td class="spec-value">{{ f.value }}</td>
+          <td class="spec-star">
+            <button class="star-btn star-active"
+                    [disabled]="!canToggle()"
+                    matTooltip="Präferenz entfernen"
+                    (click)="toggle.emit(f.key)">
+              <mat-icon>star</mat-icon>
+            </button>
+          </td>
+        </tr>
+      }
+    </table>
+  </div>
+}
+
+<mat-accordion class="icecat-accordion">
+  @for (group of groups(); track group.name) {
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>{{ group.name }}</mat-panel-title>
+      </mat-expansion-panel-header>
+      <table class="specs-table">
+        @for (feature of group.features; track feature.name) {
+          <tr [class.preferred-row]="isPreferred(feature.name)">
+            <td class="spec-key">{{ feature.name }}</td>
+            <td class="spec-value">{{ feature.value }}</td>
+            <td class="spec-star">
+              <button class="star-btn"
+                      [class.star-active]="isPreferred(feature.name)"
+                      [disabled]="!canToggle()"
+                      [matTooltip]="isPreferred(feature.name) ? 'Präferenz entfernen' : 'Als Präferenz markieren'"
+                      (click)="toggle.emit(feature.name)">
+                <mat-icon>{{ isPreferred(feature.name) ? 'star' : 'star_outline' }}</mat-icon>
+              </button>
+            </td>
+          </tr>
+        }
+      </table>
+    </mat-expansion-panel>
+  }
+</mat-accordion>

@@ -1,31 +1,49 @@
 package at.querchecker.research.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * Ergebnis der LLM-Extraktion von technischen Spezifikationen.
- * quickFacts: Key-Value-Map mit extrahierten Specs (z.B. {"cpu": "Core i7", "ram": "16 GB"})
- * sources.icecatId: Icecat-Produkt-ID, falls aus den Brave-URLs erkennbar (nullable)
- * sources.icecatUrl: Vollständige Icecat-URL (nullable)
+ * LLM-Extraktionsergebnis: technische Specs + Quellenangaben + optionale Feature-Gruppen (HTML-Fetch-Pfad).
  */
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class QuickFactsResult {
 
     private Map<String, String> quickFacts = new HashMap<>();
+    private List<FeatureGroup> featureGroups;
     private Sources sources = new Sources();
 
     @Data
     @NoArgsConstructor
+    @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Sources {
         private String icecatId;
-        private String icecatUrl;
+        private String sourceUrl;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class FeatureGroup {
+        private String name;
+        private List<Feature> features;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Feature {
+        private String name;
+        private String value;
     }
 }

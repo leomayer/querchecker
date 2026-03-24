@@ -5,8 +5,8 @@ import at.querchecker.api.model.ChatRequest;
 import at.querchecker.api.model.ChatResponse;
 import at.querchecker.api.service.ApiUsageLogService;
 import at.querchecker.deepLearning.entity.DlCategoryPrompt;
-import at.querchecker.research.model.BraveResult;
 import at.querchecker.research.model.QuickFactsResult;
+import at.querchecker.research.model.SearchResult;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +58,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
 
     @Override
     public QuickFactsResult extractQuickFacts(String lookupTerm, String categoryName,
-                                              List<BraveResult> braveResults,
+                                              List<SearchResult> braveResults,
                                               List<String> mandatoryFields,
                                               DlCategoryPrompt prompt) {
         String snippetsBlock = formatSnippets(braveResults);
@@ -73,6 +73,24 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
 
         QuickFactsResult result = parseJson(response.firstChoice());
         return applyIcecatIdSafetyCheck(result, braveResults, lookupTerm);
+    }
+
+    @Override
+    public QuickFactsResult extractQuickFactsFromText(String lookupTerm, String categoryName,
+                                                      String pageText,
+                                                      List<String> mandatoryFields,
+                                                      DlCategoryPrompt prompt) {
+        // Identisch zu extractQuickFacts(), aber {snippets} wird mit pageText befüllt
+        String userPrompt = prompt.getUserPrompt()
+                .replace("{lookupTerm}", lookupTerm)
+                .replace("{category}", categoryName)
+                .replace("{snippets}", pageText)
+                .replace("{mandatoryFields}", String.join(", ", mandatoryFields));
+
+        ChatResponse response = callLlm(RequestType.EXTRACTION, lookupTerm,
+                prompt.getSystemPrompt(), userPrompt);
+
+        return parseJson(response.firstChoice());
     }
 
     // --- private helpers ---
@@ -112,7 +130,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
         return new ChatRequest(getModel(), messages);
     }
 
-    private QuickFactsResult parseJson(String json) {
+    protected QuickFactsResult parseJson(String json) {
         try {
             log.debug("QuickFacts raw LLM response (provider={}): {}", getProvider(), json);
             QuickFactsResult result = MAPPER.readValue(json, QuickFactsResult.class);
@@ -127,7 +145,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     }
 
     private QuickFactsResult applyIcecatIdSafetyCheck(QuickFactsResult result,
-                                                       List<BraveResult> braveResults,
+                                                       List<SearchResult> braveResults,
                                                        String lookupTerm) {
         if (result.getSources() == null) return result;
         String icecatId = result.getSources().getIcecatId();
@@ -136,8 +154,8 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
 
         // Step 1: ID must appear in at least one Brave URL that is an actual product page.
         // Asset/file URLs (objects.icecat.biz, PDFs, images) are rejected — they embed
-        // file-object IDs that look like product IDs but are not (e.g. mmo_{productId}_{fileId}.pdf).
-        List<BraveResult> matchingResults = braveResults.stream()
+        // file-object IDs that look like product IDs but are not.
+        List<SearchResult> matchingResults = braveResults.stream()
                 .filter(r -> r.getUrl() != null
                         && r.getUrl().toLowerCase().contains(icecatIdLower)
                         && isProductPageUrl(r.getUrl()))
@@ -145,14 +163,11 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
         if (matchingResults.isEmpty()) {
             log.debug("Safety check: icecatId='{}' not found in Brave product-page URLs — discarding", icecatId);
             result.getSources().setIcecatId(null);
-            result.getSources().setIcecatUrl(null);
+            result.getSources().setSourceUrl(null);
             return result;
         }
 
         // Step 1b: Correct the icecatId to the actual product ID extracted from the URL.
-        // Icecat URLs embed an EAN in the slug (e.g. -0887111102249-) before the real
-        // product ID (-18021605.html). The LLM may extract the EAN instead of the product ID.
-        // Always trust what is at the end of the URL path.
         matchingResults.stream()
                 .map(r -> extractIcecatProductId(r.getUrl()))
                 .filter(id -> id != null && !id.equals(icecatId))
@@ -162,9 +177,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
                     result.getSources().setIcecatId(corrected);
                 });
 
-        // Step 2: The Brave result(s) containing this ID must mention the lookup term's brand
-        // (first word, e.g. "Microsoft" from "Microsoft Surface Laptop 5").
-        // This prevents picking up unrelated cross-linked products from Icecat sidebars.
+        // Step 2: Brand check — prevents picking up cross-linked products from Icecat sidebars.
         if (lookupTerm != null && !lookupTerm.isBlank()) {
             String brand = lookupTerm.trim().split("\\s+")[0].toLowerCase();
             if (brand.length() > 2) {
@@ -177,7 +190,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
                     log.debug("Safety check: icecatId='{}' found in Brave URL but result doesn't mention brand '{}' — discarding",
                             icecatId, brand);
                     result.getSources().setIcecatId(null);
-                    result.getSources().setIcecatUrl(null);
+                    result.getSources().setSourceUrl(null);
                 }
             }
         }
@@ -186,15 +199,10 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
 
     /**
      * Icecat product-page URL format: …/{category}-{EAN}-{name}-{productId}.html
-     * The actual product ID is the LAST numeric segment before .html — not the EAN
-     * or any other number that may appear earlier in the slug.
+     * The actual product ID is the LAST numeric segment before .html.
      */
     private static final Pattern ICECAT_PRODUCT_ID_PATTERN = Pattern.compile("-(\\d+)\\.html");
 
-    /**
-     * Extracts the canonical Icecat product ID from a product-page URL.
-     * Returns null if no numeric segment before .html is found.
-     */
     private static String extractIcecatProductId(String url) {
         if (url == null) return null;
         Matcher m = ICECAT_PRODUCT_ID_PATTERN.matcher(url);
@@ -203,11 +211,6 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
         return last;
     }
 
-    /**
-     * Returns true only for Icecat product page URLs.
-     * Rejects asset/file URLs (objects.icecat.biz, PDFs, images) which embed
-     * file-object IDs that are not valid Icecat product IDs.
-     */
     private static boolean isProductPageUrl(String url) {
         if (url == null) return false;
         String lower = url.toLowerCase();
@@ -217,7 +220,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
         return lower.contains("icecat.biz");
     }
 
-    private String formatSnippets(List<BraveResult> results) {
+    private String formatSnippets(List<SearchResult> results) {
         return results.stream().map(r ->
                 "---\nURL: " + r.getUrl() + "\nTitel: " + r.getTitle()
                 + "\nSnippet: " + r.getDescription()

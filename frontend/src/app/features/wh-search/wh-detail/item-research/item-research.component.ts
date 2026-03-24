@@ -10,8 +10,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { DlExtractionTermDto } from '../../../../api/model/dlExtractionTermDto';
 import { WhDetailDto } from '../../../../api/model/whDetailDto';
 import { ExtractionStore } from '../../extraction.store';
-import { IcecatData, IcecatFeatureGroup } from '../../../../core/model/icecat.model';
+import { IcecatData, IcecatFeatureGroup, SpecsFeatureGroup } from '../../../../core/model/icecat.model';
 import { IcecatAccordionComponent } from './icecat-accordion/icecat-accordion.component';
+import { SpecsAccordionComponent } from './specs-accordion/specs-accordion.component';
 import { PreferenceEntry, PreferencesService } from '../../../../core/preferences.service';
 
 interface TermGroup {
@@ -36,6 +37,7 @@ type LookupState = 'empty' | 'loading' | 'COMPLETE' | 'FAILED' | 'QUOTA_EXCEEDED
     MatProgressSpinnerModule,
     MatTooltipModule,
     IcecatAccordionComponent,
+    SpecsAccordionComponent,
   ],
   templateUrl: './item-research.component.html',
   styleUrl: './item-research.component.scss',
@@ -150,13 +152,20 @@ export class ItemResearchComponent {
     return this.extractionStore.fullSpecsGeneralInfo()[id];
   });
 
+  protected readonly specsFeatureGroups = computed<SpecsFeatureGroup[]>(() => {
+    const id = this.detail().whItemId;
+    if (id == null) return [];
+    return this.extractionStore.lookupResults()[id]?.featureGroups ?? [];
+  });
+
   protected readonly noIcecatData = computed<boolean>(() => {
     const id = this.detail().whItemId;
     if (id == null) return false;
     const result = this.extractionStore.lookupResults()[id];
     if (!result || result.lookupStatus !== 'COMPLETE') return false;
     const hasQuickFacts = Object.keys(result.quickFacts ?? {}).length > 0;
-    return !hasQuickFacts && !result.icecatId;
+    const hasFeatureGroups = (result.featureGroups?.length ?? 0) > 0;
+    return !hasQuickFacts && !result.icecatId && !hasFeatureGroups;
   });
 
   protected readonly icecatPageUrl = computed<string | null>(() => {

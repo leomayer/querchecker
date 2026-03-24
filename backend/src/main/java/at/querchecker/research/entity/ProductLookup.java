@@ -46,6 +46,19 @@ public class ProductLookup {
     @Column(name = "source_url", length = 500)
     private List<String> sourceUrls;
 
+    // P8: Quellen-Tracking — welche CategorySearchSource hat das Ergebnis geliefert
+    @Enumerated(EnumType.STRING)
+    private SourceType sourceType;
+
+    private String sourceDomain;
+
+    @Column(name = "source_url")
+    private String sourceUrl;
+
+    // P8b: gruppierte Specs (GSMARENA, FLATPANELSHD — HTML-Fetch-Pfad)
+    @Column(columnDefinition = "TEXT")
+    private String featureGroupsJson;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 

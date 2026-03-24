@@ -28,6 +28,8 @@ querchecker:
   api:
     extraction:
       active-provider: GROQ   # GROQ | OPENROUTER — Neustart nötig bei Wechsel
+    search:
+      active-provider: BRAVE  # BRAVE | GOOGLE (zukünftig)
     providers:
       brave:
         free-limit: 1000

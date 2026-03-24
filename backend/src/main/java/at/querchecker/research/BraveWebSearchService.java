@@ -6,9 +6,10 @@ import at.querchecker.api.entity.Provider;
 import at.querchecker.api.entity.RequestType;
 import at.querchecker.api.service.ApiUsageLogService;
 import at.querchecker.research.model.BraveApiResponse;
-import at.querchecker.research.model.BraveResult;
+import at.querchecker.research.model.SearchResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -20,46 +21,47 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 
 /**
- * Sucht Produktspezifikationen auf Icecat via Brave Search API.
- * Dreistufige Fallback-Strategie: mit Präferenzen → technische Daten → direkte Suche.
+ * Brave Search-Implementierung von WebSearchService.
+ * Dreistufige Fallback-Strategie: mit Keywords → technische Daten → direkte Suche.
  */
 @Slf4j
 @Service
+@ConditionalOnProperty(
+    name = "querchecker.api.search.active-provider",
+    havingValue = "BRAVE",
+    matchIfMissing = true)
 @RequiredArgsConstructor
-public class BraveSearchService {
+public class BraveWebSearchService implements WebSearchService {
 
     private static final String BRAVE_API_URL = "https://api.search.brave.com/res/v1/web/search";
-    private static final String NEGATIVE_FILTERS_STAGES_1_2 =
-            " -filetype:pdf -\"user guide\" -\"quick start\" -\"Bedienungsanleitung\"";
-    private static final String NEGATIVE_FILTER_STAGE_3 = " -filetype:pdf";
 
     private final RestTemplate restTemplate;
     private final ApiUsageLogService usageLogService;
     private final ProviderProperties providerProperties;
 
-    /**
-     * Sucht Treffer für den lookupTerm auf icecat.biz — dreistufige Query-Strategie.
-     *
-     * @param lookupTerm         Produktname (z.B. "Lenovo ThinkPad X1 Carbon Gen 11")
-     * @param preferenceKeywords Kategorie-Präferenz-Schlüsselwörter (max. 5 werden verwendet)
-     * @return Trefferliste (leer wenn alle Stufen keine Ergebnisse liefern)
-     */
-    public List<BraveResult> search(String lookupTerm, List<String> preferenceKeywords) {
-        // Stufe 1: mit Präferenz-Keywords
-        List<BraveResult> results = callBrave(buildStage1Query(lookupTerm, preferenceKeywords), lookupTerm);
+    @Override
+    public List<SearchResult> search(String lookupTerm, String siteDomain,
+                                     List<String> keywords, List<String> queryExcludes,
+                                     int resultCount) {
+        // Stufe 1: mit Präferenz-Keywords + Spezifikationen
+        List<SearchResult> results = callBrave(
+            buildStage1Query(lookupTerm, siteDomain, keywords, queryExcludes),
+            lookupTerm, resultCount);
         if (!results.isEmpty()) return results;
 
         // Stufe 2: Spezifikationen technische Daten
-        results = callBrave(buildStage2Query(lookupTerm), lookupTerm);
+        results = callBrave(
+            buildStage2Query(lookupTerm, siteDomain, queryExcludes),
+            lookupTerm, resultCount);
         if (!results.isEmpty()) return results;
 
-        // Stufe 3: direkte Suche (letzter Fallback)
-        return callBrave(buildStage3Query(lookupTerm), lookupTerm);
+        // Stufe 3: direkte Suche (letzter Fallback, keine Negativ-Filter)
+        return callBrave(buildStage3Query(lookupTerm, siteDomain), lookupTerm, resultCount);
     }
 
-    private List<BraveResult> callBrave(String query, String lookupTerm) {
+    private List<SearchResult> callBrave(String query, String lookupTerm, int count) {
         ProviderConfig config = providerProperties.getProvider(Provider.BRAVE);
-        String url = buildUrl(query);
+        String url = buildUrl(query, count);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept", "application/json");
@@ -87,37 +89,49 @@ public class BraveSearchService {
         }
     }
 
-    private String buildUrl(String query) {
+    private String buildUrl(String query, int count) {
         return UriComponentsBuilder.fromHttpUrl(BRAVE_API_URL)
                 .queryParam("q", query)
-                .queryParam("count", 10)
+                .queryParam("count", count)
                 .queryParam("extra_snippets", true)
                 .build()
                 .toUriString();
     }
 
-    private String buildStage1Query(String lookupTerm, List<String> preferenceKeywords) {
+    private String buildStage1Query(String lookupTerm, String siteDomain,
+                                    List<String> keywords, List<String> queryExcludes) {
         StringBuilder q = new StringBuilder(lookupTerm);
         q.append(" Spezifikationen");
-        preferenceKeywords.stream().limit(5).forEach(k -> q.append(" ").append(k));
-        q.append(" site:icecat.biz");
-        q.append(NEGATIVE_FILTERS_STAGES_1_2);
+        if (keywords != null) {
+            keywords.stream().limit(5).forEach(k -> q.append(" ").append(k));
+        }
+        q.append(" site:").append(siteDomain);
+        appendExcludes(q, queryExcludes);
         return q.toString();
     }
 
-    private String buildStage2Query(String lookupTerm) {
-        return lookupTerm + " Spezifikationen technische Daten site:icecat.biz"
-                + NEGATIVE_FILTERS_STAGES_1_2;
+    private String buildStage2Query(String lookupTerm, String siteDomain,
+                                    List<String> queryExcludes) {
+        StringBuilder q = new StringBuilder(lookupTerm);
+        q.append(" Spezifikationen technische Daten site:").append(siteDomain);
+        appendExcludes(q, queryExcludes);
+        return q.toString();
     }
 
-    private String buildStage3Query(String lookupTerm) {
-        return lookupTerm + " site:icecat.biz" + NEGATIVE_FILTER_STAGE_3;
+    private String buildStage3Query(String lookupTerm, String siteDomain) {
+        return lookupTerm + " site:" + siteDomain;
     }
 
-    private List<BraveResult> extractResults(BraveApiResponse body) {
+    private void appendExcludes(StringBuilder q, List<String> queryExcludes) {
+        if (queryExcludes != null) {
+            queryExcludes.forEach(ex -> q.append(" ").append(ex));
+        }
+    }
+
+    private List<SearchResult> extractResults(BraveApiResponse body) {
         if (body == null || body.getWeb() == null) return List.of();
         return body.getWeb().getResults().stream()
-                .map(r -> BraveResult.builder()
+                .map(r -> SearchResult.builder()
                         .title(r.getTitle())
                         .url(r.getUrl())
                         .description(r.getDescription())

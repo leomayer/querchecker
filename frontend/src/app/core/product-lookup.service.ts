@@ -2,12 +2,19 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_URLS } from './api-urls';
+import { SpecsFeatureGroup } from './model/icecat.model';
 
 export interface LookupResult {
   lookupStatus: 'COMPLETE' | 'FAILED' | 'QUOTA_EXCEEDED';
   quickFacts: Record<string, string>;
   icecatId: string | null;
   icecatSpecsJson?: string | null;
+  sourceType: string | null;
+  sourceDomain: string | null;
+  sourceUrl: string | null;
+  /** Raw JSON string from backend — parsed into featureGroups by ExtractionStore. */
+  featureGroupsJson?: string | null;
+  featureGroups: SpecsFeatureGroup[] | null;
   /** Frontend-only: the term that was used for this lookup */
   lookupTerm?: string;
 }

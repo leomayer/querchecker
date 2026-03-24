@@ -2,8 +2,8 @@ package at.querchecker.api.extraction;
 
 import at.querchecker.api.entity.Provider;
 import at.querchecker.deepLearning.entity.DlCategoryPrompt;
-import at.querchecker.research.model.BraveResult;
 import at.querchecker.research.model.QuickFactsResult;
+import at.querchecker.research.model.SearchResult;
 
 import java.util.List;
 
@@ -21,15 +21,24 @@ public interface ExtractionClient {
         String title,
         String description,
         String categoryName,
-        DlCategoryPrompt prompt  // aus DB, aufgelöst via DlPromptResolver
+        DlCategoryPrompt prompt
     );
 
-    /** Quick Facts + icecatId aus Brave-Snippets — JSON-Response */
+    /** Quick Facts + sourceUrl aus Brave-Snippets — JSON-Response (Snippets-Pfad: ICECAT, GENERIC) */
     QuickFactsResult extractQuickFacts(
         String lookupTerm,
         String categoryName,
-        List<BraveResult> braveResults,
+        List<SearchResult> braveResults,
         List<String> mandatoryFields,
-        DlCategoryPrompt prompt  // aus DB, aufgelöst via DlPromptResolver
+        DlCategoryPrompt prompt
+    );
+
+    /** Quick Facts aus bereinigtem HTML-Text — JSON-Response (HTML-Fetch-Pfad: FLATPANELSHD, GSMARENA) */
+    QuickFactsResult extractQuickFactsFromText(
+        String lookupTerm,
+        String categoryName,
+        String pageText,
+        List<String> mandatoryFields,
+        DlCategoryPrompt prompt
     );
 }

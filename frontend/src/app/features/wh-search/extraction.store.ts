@@ -5,7 +5,7 @@ import { AppSseEventName, DlExtractionDonePayload } from '../../core/sse-events'
 import { EventSourceServerService } from '../../shared/utils/event-source-server';
 import { DlExtractionService, DlExtractionStatusResponse } from '../../core/dl-extraction.service';
 import { LookupResult, ProductLookupService } from '../../core/product-lookup.service';
-import { IcecatData, IcecatFeatureGroup, IcecatResponse } from '../../core/model/icecat.model';
+import { IcecatData, IcecatFeatureGroup, IcecatResponse, SpecsFeatureGroup } from '../../core/model/icecat.model';
 
 interface ExtractionState {
   results: Record<number, DlExtractionTermDto[]>;
@@ -99,7 +99,7 @@ export const ExtractionStore = signalStore(
         }));
         productLookupService.lookup(listingId, lookupTerm).subscribe({
           next: (result) => {
-            // Parse cached full specs if the backend already has them stored
+            // Parse cached full specs if the backend already has them stored (Icecat path)
             let cachedGroups: IcecatFeatureGroup[] = [];
             let cachedGeneralInfo: IcecatData['GeneralInfo'] = undefined;
             let cachedCatalogUrl: string | undefined;
@@ -112,9 +112,24 @@ export const ExtractionStore = signalStore(
                 cachedCatalogUrl = parsed?.data?.CatalogObjectCloud?.ProductPage?.URL;
               } catch { /* ignore */ }
             }
+
+            // Parse featureGroups from HTML-Fetch path (GSMArena, FlatpanelsHD)
+            let featureGroups: SpecsFeatureGroup[] | null = null;
+            if (result.featureGroupsJson) {
+              try {
+                featureGroups = JSON.parse(result.featureGroupsJson) as SpecsFeatureGroup[];
+              } catch { /* ignore */ }
+            }
+
+            const lookupResultWithExtras: LookupResult = {
+              ...result,
+              lookupTerm,
+              featureGroups: featureGroups ?? result.featureGroups ?? null,
+            };
+
             patchState(store, (s) => {
               const next: Partial<ExtractionState> = {
-                lookupResults: { ...s.lookupResults, [whItemId]: { ...result, lookupTerm } },
+                lookupResults: { ...s.lookupResults, [whItemId]: lookupResultWithExtras },
                 lookupLoadingIds: s.lookupLoadingIds.filter((id) => id !== whItemId),
               };
               if (specsAlreadyCached) {

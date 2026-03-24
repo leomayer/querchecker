@@ -72,6 +72,11 @@ public class DlCategoryPromptSeeder {
                 .systemPrompt(DlCategoryPromptDefinitions.QUICK_FACTS_SYSTEM)
                 .userPrompt(DlCategoryPromptDefinitions.QUICK_FACTS_USER_DEFAULT)
                 .build();
+            case HTML_FULL_SPECS -> DlCategoryPrompt.builder()
+                .whCategory(null).promptType(type)
+                .systemPrompt(DlCategoryPromptDefinitions.HTML_FULL_SPECS_SYSTEM)
+                .userPrompt(DlCategoryPromptDefinitions.HTML_FULL_SPECS_USER_DEFAULT)
+                .build();
         };
     }
 

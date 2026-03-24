@@ -46,11 +46,20 @@ public class ProductLookupController {
         ProductLookupResult result = productLookupService.lookup(req.getLookupTerm(), listing.getWhCategory());
 
         ProductLookup saved = productLookupRepository.findByLookupTerm(req.getLookupTerm()).orElse(null);
-        String icecatId = saved != null ? saved.getIcecatId() : null;
+        String icecatId = result.getIcecatId() != null ? result.getIcecatId()
+                : (saved != null ? saved.getIcecatId() : null);
         String icecatSpecsJson = saved != null ? saved.getIcecatSpecsJson() : null;
 
-        return new LookupResponse(result.getStatus(), parseQuickFacts(result.getQuickFactsJson()),
-                icecatId, icecatSpecsJson);
+        return LookupResponse.builder()
+                .lookupStatus(result.getStatus())
+                .quickFacts(parseQuickFacts(result.getQuickFactsJson()))
+                .icecatId(icecatId)
+                .icecatSpecsJson(icecatSpecsJson)
+                .sourceType(result.getSourceType())
+                .sourceDomain(result.getSourceDomain())
+                .sourceUrl(result.getSourceUrl())
+                .featureGroupsJson(result.getFeatureGroupsJson())
+                .build();
     }
 
     @PostMapping("/lookup/full-specs")

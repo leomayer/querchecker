@@ -5,8 +5,8 @@ import at.querchecker.api.entity.RequestType;
 import at.querchecker.api.model.ChatResponse;
 import at.querchecker.api.service.ApiUsageLogService;
 import at.querchecker.deepLearning.entity.DlCategoryPrompt;
-import at.querchecker.research.model.BraveResult;
 import at.querchecker.research.model.QuickFactsResult;
+import at.querchecker.research.model.SearchResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,7 +58,6 @@ class GroqExtractionClientTest {
 
         client.extractProductName("ThinkPad Laptop", "sehr gepflegt", "Laptop / Notebook", prompt);
 
-        // Nur 1 Brave-Call — vereinfacht, echter Test prüft Request-Body
         verify(restClient).post();
     }
 
@@ -68,7 +67,6 @@ class GroqExtractionClientTest {
         DlCategoryPrompt prompt = prompt("system", "{description}");
         String longDesc = "x".repeat(2000);
 
-        // Kein Fehler, keine Exception — gekürzt auf max Länge
         assertThatNoException().isThrownBy(() ->
                 client.extractProductName("HP", longDesc, "Drucker", prompt));
     }
@@ -78,11 +76,11 @@ class GroqExtractionClientTest {
         givenGroqReturns("""
                 {
                   "quickFacts": { "cpu": "Core i7" },
-                  "sources": { "icecatId": "99999", "icecatUrl": "https://icecat.biz/p/fake-99999.html" }
+                  "sources": { "icecatId": "99999", "sourceUrl": "https://icecat.biz/p/fake-99999.html" }
                 }
                 """);
-        List<BraveResult> results = List.of(
-                braveResult("https://icecat.biz/p/lenovo-12345.html"));  // andere ID
+        List<SearchResult> results = List.of(
+                searchResult("https://icecat.biz/p/lenovo-12345.html"));
 
         QuickFactsResult result = client.extractQuickFacts(
                 "ThinkPad", "Laptop", results, List.of(), prompt("s", "u"));
@@ -95,11 +93,11 @@ class GroqExtractionClientTest {
         givenGroqReturns("""
                 {
                   "quickFacts": { "cpu": "Core Ultra 7" },
-                  "sources": { "icecatId": "12345", "icecatUrl": "https://icecat.biz/p/lenovo-12345.html" }
+                  "sources": { "icecatId": "12345", "sourceUrl": "https://icecat.biz/p/lenovo-12345.html" }
                 }
                 """);
-        List<BraveResult> results = List.of(
-                braveResult("https://icecat.biz/p/lenovo-12345.html", "Lenovo ThinkPad specs"));  // ID stimmt, Marke stimmt
+        List<SearchResult> results = List.of(
+                searchResult("https://icecat.biz/p/lenovo-12345.html", "Lenovo ThinkPad specs"));
 
         QuickFactsResult result = client.extractQuickFacts(
                 "ThinkPad", "Laptop", results, List.of(), prompt("s", "u"));
@@ -122,6 +120,17 @@ class GroqExtractionClientTest {
         givenGroqReturns("kein JSON");
         assertThatNoException().isThrownBy(() ->
                 client.extractQuickFacts("test", "cat", List.of(), List.of(), prompt("s", "u")));
+    }
+
+    @Test
+    void extractQuickFactsFromText_callsLlmWithPageText() {
+        givenGroqReturns("{\"quickFacts\": {\"panel\": \"IPS\"}, \"sources\": {}}");
+
+        QuickFactsResult result = client.extractQuickFactsFromText(
+                "Samsung S95D", "Fernseher", "Panel: IPS\nSize: 65\"",
+                List.of("panel", "size"), prompt("s", "{snippets}"));
+
+        assertThat(result.getQuickFacts()).containsKey("panel");
     }
 
     // --- Hilfsmethoden ---
@@ -157,12 +166,12 @@ class GroqExtractionClientTest {
         return response;
     }
 
-    private BraveResult braveResult(String url) {
-        return braveResult(url, "Test Product");
+    private SearchResult searchResult(String url) {
+        return searchResult(url, "Test Product");
     }
 
-    private BraveResult braveResult(String url, String title) {
-        return BraveResult.builder()
+    private SearchResult searchResult(String url, String title) {
+        return SearchResult.builder()
                 .title(title)
                 .url(url)
                 .description("Test description")

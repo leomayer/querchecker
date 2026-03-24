@@ -154,6 +154,14 @@
           (toggle)="togglePreference($event)"
         />
       }
+      @if (specsFeatureGroups().length > 0) {
+        <app-specs-accordion
+          [groups]="specsFeatureGroups()"
+          [preferredKeys]="preferredKeySet()"
+          [canToggle]="activeCategoryId() != null"
+          (toggle)="togglePreference($event)"
+        />
+      }
     </div>
   }
   @case ('FAILED') {

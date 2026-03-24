@@ -1,16 +1,22 @@
 package at.querchecker.research;
 
+import at.querchecker.api.extraction.ExtractionClient;
+import at.querchecker.api.extraction.ExtractionProviderRouter;
 import at.querchecker.api.entity.Provider;
 import at.querchecker.api.service.QuotaService;
 import at.querchecker.api.service.QuotaStatus;
+import at.querchecker.deepLearning.service.DlPromptResolver;
 import at.querchecker.entity.WhCategory;
+import at.querchecker.research.entity.CategorySearchSource;
+import at.querchecker.research.entity.ExtractionQuality;
 import at.querchecker.research.entity.LookupStatus;
 import at.querchecker.research.entity.ProductLookup;
-import at.querchecker.research.model.BraveResult;
+import at.querchecker.research.entity.SourceType;
 import at.querchecker.research.model.ProductLookupResult;
 import at.querchecker.research.model.QuickFactsResult;
+import at.querchecker.research.model.SearchResult;
 import at.querchecker.research.repository.ProductLookupRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static at.querchecker.research.entity.SourceType.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -30,142 +37,237 @@ class ProductLookupServiceTest {
 
     @Mock ProductLookupRepository repo;
     @Mock QuotaService quotaService;
-    @Mock BraveSearchService braveSearchService;
-    @Mock GroqExtractionService groqExtractionService;
+    @Mock WebSearchService webSearchService;
+    @Mock HtmlFetchService htmlFetchService;
+    @Mock ExtractionQualityEvaluator qualityEvaluator;
+    @Mock UrlValidator urlValidator;
+    @Mock CategorySearchSourceService sourceService;
     @Mock CategorySpecPreferenceService prefService;
+    @Mock ExtractionClient llmClient;
+    @Mock ExtractionProviderRouter extractionRouter;
+    @Mock DlPromptResolver promptResolver;
     @InjectMocks ProductLookupService service;
 
-    // --- Cache-Logik ---
+    @BeforeEach
+    void routerSetup() {
+        lenient().when(extractionRouter.getActive()).thenReturn(llmClient);
+    }
+
+    // --- HTML-Fetch Fallback-Loop ---
 
     @Test
-    void lookup_returnsCachedResult_whenComplete() {
-        ProductLookup cached = lookup(LookupStatus.COMPLETE, "{\"cpu\":\"i7\"}");
-        when(repo.findByLookupTerm("ThinkPad X1")).thenReturn(Optional.of(cached));
+    void lookup_htmlFetch_triesNextUrl_whenFirstFetchEmpty() {
+        setupNoCache(); setupQuotaOk();
+        CategorySearchSource src = htmlSource("flatpanelshd.com", FLATPANELSHD);
+        when(sourceService.findForCategory(any())).thenReturn(List.of(src));
+        when(prefService.getMandatoryFields(any())).thenReturn(List.of("screen_size"));
+        when(prefService.getQueryKeywords(any())).thenReturn(List.of());
 
-        ProductLookupResult result = service.lookup("ThinkPad X1", null);
+        List<SearchResult> brave = List.of(
+            searchResult("https://www.flatpanelshd.com/lg_c4_oled_2024.php"),
+            searchResult("https://www.flatpanelshd.com/lg_g5_oled_2025.php"));
+
+        when(webSearchService.search(any(), any(), any(), any(), anyInt()))
+            .thenReturn(brave);
+
+        when(urlValidator.matchesExpectedPattern(anyString(), eq(FLATPANELSHD)))
+            .thenReturn(true);
+
+        // Erste URL → leer, zweite URL → Inhalt
+        when(htmlFetchService.shouldFetchFullPage(FLATPANELSHD)).thenReturn(true);
+        when(htmlFetchService.fetchAndExtract(
+            "https://www.flatpanelshd.com/lg_c4_oled_2024.php", FLATPANELSHD))
+            .thenReturn(Optional.empty());
+        when(htmlFetchService.fetchAndExtract(
+            "https://www.flatpanelshd.com/lg_g5_oled_2025.php", FLATPANELSHD))
+            .thenReturn(Optional.of("<table>panel_type: OLED</table>"));
+
+        QuickFactsResult extracted = quickFacts(
+            Map.of("screen_size", "65\"", "panel_type", "OLED"), null,
+            "https://www.flatpanelshd.com/lg_g5_oled_2025.php");
+        when(llmClient.extractQuickFactsFromText(any(), any(), any(), any(), any()))
+            .thenReturn(extracted);
+        when(qualityEvaluator.evaluate(any(), any(), eq(FLATPANELSHD)))
+            .thenReturn(ExtractionQuality.GOOD);
+
+        ProductLookupResult result = service.lookup("LG G5", mock(WhCategory.class));
 
         assertThat(result.getStatus()).isEqualTo(LookupStatus.COMPLETE);
-        assertThat(result.getQuickFactsJson()).isEqualTo("{\"cpu\":\"i7\"}");
-        verifyNoInteractions(quotaService, braveSearchService, groqExtractionService);
+        assertThat(result.getSourceUrl())
+            .isEqualTo("https://www.flatpanelshd.com/lg_g5_oled_2025.php");
+
+        // Beide URLs wurden versucht
+        verify(htmlFetchService).fetchAndExtract(
+            "https://www.flatpanelshd.com/lg_c4_oled_2024.php", FLATPANELSHD);
+        verify(htmlFetchService).fetchAndExtract(
+            "https://www.flatpanelshd.com/lg_g5_oled_2025.php", FLATPANELSHD);
     }
 
     @Test
-    void lookup_returnsFailed_whenCachedFailed() {
-        when(repo.findByLookupTerm("Unbekanntes Gerät"))
-                .thenReturn(Optional.of(lookup(LookupStatus.FAILED, null)));
-
-        ProductLookupResult result = service.lookup("Unbekanntes Gerät", null);
-
-        assertThat(result.getStatus()).isEqualTo(LookupStatus.FAILED);
-        verifyNoInteractions(braveSearchService);
-    }
-
-    @Test
-    void lookup_continuesAfterCachedQuotaExceeded_whenQuotaFree() {
-        when(repo.findByLookupTerm("ThinkPad"))
-                .thenReturn(Optional.of(lookup(LookupStatus.QUOTA_EXCEEDED, null)));
-        when(quotaService.checkQuota(Provider.BRAVE)).thenReturn(QuotaStatus.OK);
+    void lookup_htmlFetch_skipsUrl_whenPatternMismatch() {
+        setupNoCache(); setupQuotaOk();
+        CategorySearchSource src = htmlSource("flatpanelshd.com", FLATPANELSHD);
+        when(sourceService.findForCategory(any())).thenReturn(List.of(src));
+        when(prefService.getMandatoryFields(any())).thenReturn(List.of("screen_size"));
         when(prefService.getQueryKeywords(any())).thenReturn(List.of());
-        when(braveSearchService.search(any(), any())).thenReturn(List.of());
-        lenient().when(prefService.getMandatoryFields(any())).thenReturn(List.of());
+        when(htmlFetchService.shouldFetchFullPage(FLATPANELSHD)).thenReturn(true);
 
-        service.lookup("ThinkPad", null);
+        List<SearchResult> brave = List.of(
+            searchResult("https://www.flatpanelshd.com/review.php?id=999"),
+            searchResult("https://www.flatpanelshd.com/lg_g5_oled_2025.php"));
 
-        verify(braveSearchService).search(any(), any());
+        when(webSearchService.search(any(), any(), any(), any(), anyInt()))
+            .thenReturn(brave);
+        when(urlValidator.matchesExpectedPattern(
+            "https://www.flatpanelshd.com/review.php?id=999", FLATPANELSHD))
+            .thenReturn(false);
+        when(urlValidator.matchesExpectedPattern(
+            "https://www.flatpanelshd.com/lg_g5_oled_2025.php", FLATPANELSHD))
+            .thenReturn(true);
+        when(htmlFetchService.fetchAndExtract(
+            "https://www.flatpanelshd.com/lg_g5_oled_2025.php", FLATPANELSHD))
+            .thenReturn(Optional.of("<table>screen_size: 65\"</table>"));
+
+        when(llmClient.extractQuickFactsFromText(any(), any(), any(), any(), any()))
+            .thenReturn(quickFacts(Map.of("screen_size", "65\""), null, null));
+        when(qualityEvaluator.evaluate(any(), any(), any()))
+            .thenReturn(ExtractionQuality.GOOD);
+
+        service.lookup("LG G5", mock(WhCategory.class));
+
+        // review.php wurde NICHT gefetcht
+        verify(htmlFetchService, never()).fetchAndExtract(
+            "https://www.flatpanelshd.com/review.php?id=999", FLATPANELSHD);
+        verify(htmlFetchService).fetchAndExtract(
+            "https://www.flatpanelshd.com/lg_g5_oled_2025.php", FLATPANELSHD);
     }
 
-    // --- Kontingent-Logik ---
-
     @Test
-    void lookup_savesQuotaExceeded_whenQuotaFull() {
-        when(repo.findByLookupTerm(any())).thenReturn(Optional.empty());
-        when(quotaService.checkQuota(Provider.BRAVE)).thenReturn(QuotaStatus.QUOTA_EXCEEDED);
-
-        ProductLookupResult result = service.lookup("ThinkPad X1", null);
-
-        assertThat(result.getStatus()).isEqualTo(LookupStatus.QUOTA_EXCEEDED);
-        verify(repo).save(argThat(l -> l.getLookupStatus() == LookupStatus.QUOTA_EXCEEDED));
-        verifyNoInteractions(braveSearchService);
-    }
-
-    // --- Brave Search → FAILED ---
-
-    @Test
-    void lookup_savesFailed_whenAllBraveStagesEmpty() {
-        when(repo.findByLookupTerm(any())).thenReturn(Optional.empty());
-        when(quotaService.checkQuota(any())).thenReturn(QuotaStatus.OK);
+    void lookup_htmlFetch_continuesNextSource_whenAllUrlsFail() {
+        setupNoCache(); setupQuotaOk();
+        CategorySearchSource htmlSrc    = htmlSource("flatpanelshd.com", FLATPANELSHD);
+        CategorySearchSource snippetSrc = snippetSource("whathifi.com",  GENERIC);
+        when(sourceService.findForCategory(any()))
+            .thenReturn(List.of(htmlSrc, snippetSrc));
+        when(prefService.getMandatoryFields(any())).thenReturn(List.of("screen_size"));
         when(prefService.getQueryKeywords(any())).thenReturn(List.of());
-        lenient().when(prefService.getMandatoryFields(any())).thenReturn(List.of());
-        when(braveSearchService.search(any(), any())).thenReturn(List.of());
+        when(htmlFetchService.shouldFetchFullPage(FLATPANELSHD)).thenReturn(true);
+        when(htmlFetchService.shouldFetchFullPage(GENERIC)).thenReturn(false);
 
-        ProductLookupResult result = service.lookup("Unbekanntes Gerät X999", null);
+        // FlatpanelsHD: eine URL, Pattern ok, aber Fetch leer
+        when(webSearchService.search(any(), eq("flatpanelshd.com"), any(), any(), anyInt()))
+            .thenReturn(List.of(
+                searchResult("https://www.flatpanelshd.com/lg_g5_oled_2025.php")));
+        when(urlValidator.matchesExpectedPattern(anyString(), eq(FLATPANELSHD)))
+            .thenReturn(true);
+        when(htmlFetchService.fetchAndExtract(any(), eq(FLATPANELSHD)))
+            .thenReturn(Optional.empty());
 
-        assertThat(result.getStatus()).isEqualTo(LookupStatus.FAILED);
-        verify(repo).save(argThat(l -> l.getLookupStatus() == LookupStatus.FAILED));
-        verifyNoInteractions(groqExtractionService);
-    }
+        // What Hi-Fi: Snippets-Pfad → liefert Ergebnis
+        when(webSearchService.search(any(), eq("whathifi.com"), any(), any(), anyInt()))
+            .thenReturn(List.of(searchResult("https://whathifi.com/lg-g5-review")));
+        when(llmClient.extractQuickFacts(any(), any(), any(), any(), any()))
+            .thenReturn(quickFacts(Map.of("screen_size", "65\""), null, null));
+        when(qualityEvaluator.evaluate(any(), any(), eq(GENERIC)))
+            .thenReturn(ExtractionQuality.GOOD);
+        when(urlValidator.resolveSourceUrl(any(), any())).thenReturn(null);
+        when(urlValidator.matchesExpectedPattern(isNull(), eq(GENERIC))).thenReturn(false);
 
-    // --- Vollständiger Happy Path ---
-
-    @Test
-    void lookup_savesComplete_onSuccessfulFlow() {
-        when(repo.findByLookupTerm(any())).thenReturn(Optional.empty());
-        when(quotaService.checkQuota(any())).thenReturn(QuotaStatus.OK);
-        when(prefService.getQueryKeywords(any())).thenReturn(List.of("cpu", "ram"));
-        when(prefService.getMandatoryFields(any())).thenReturn(List.of("cpu", "ram"));
-        when(braveSearchService.search(any(), any()))
-                .thenReturn(List.of(braveResult("https://icecat.biz/p/lenovo-12345678.html")));
-        when(groqExtractionService.extractFromSnippets(any(), any(), any(), any()))
-                .thenReturn(quickFacts("{\"cpu\":\"Core Ultra 7\"}", "12345678"));
-
-        ProductLookupResult result = service.lookup("Lenovo Yoga 7", null);
+        ProductLookupResult result = service.lookup("LG G5", mock(WhCategory.class));
 
         assertThat(result.getStatus()).isEqualTo(LookupStatus.COMPLETE);
-        verify(repo).save(argThat(l ->
-                l.getLookupStatus() == LookupStatus.COMPLETE
-                && "12345678".equals(l.getIcecatId())
-                && l.getQuickFactsJson() != null && l.getQuickFactsJson().contains("Core Ultra 7")));
+        assertThat(result.getSourceDomain()).isEqualTo("whathifi.com");
     }
 
     @Test
-    void lookup_passesPreferenceKeywords_toBraveSearch() {
-        when(repo.findByLookupTerm(any())).thenReturn(Optional.empty());
-        when(quotaService.checkQuota(any())).thenReturn(QuotaStatus.OK);
-        when(prefService.getQueryKeywords(any())).thenReturn(List.of("cpu", "display"));
-        lenient().when(prefService.getMandatoryFields(any())).thenReturn(List.of());
-        when(braveSearchService.search(any(), any())).thenReturn(List.of());
+    void lookup_htmlFetch_sourceUrlSetByJava_notLlm() {
+        setupNoCache(); setupQuotaOk();
+        CategorySearchSource src = htmlSource("gsmarena.com", GSMARENA);
+        when(sourceService.findForCategory(any())).thenReturn(List.of(src));
+        when(prefService.getMandatoryFields(any())).thenReturn(List.of());
+        when(prefService.getQueryKeywords(any())).thenReturn(List.of());
+        when(htmlFetchService.shouldFetchFullPage(GSMARENA)).thenReturn(true);
 
-        service.lookup("ThinkPad", mock(WhCategory.class));
+        String fetchedUrl = "https://www.gsmarena.com/samsung_galaxy_s25-13322.php";
+        when(webSearchService.search(any(), any(), any(), any(), anyInt()))
+            .thenReturn(List.of(searchResult(fetchedUrl)));
+        when(urlValidator.matchesExpectedPattern(fetchedUrl, GSMARENA)).thenReturn(true);
+        when(htmlFetchService.fetchAndExtract(fetchedUrl, GSMARENA))
+            .thenReturn(Optional.of("<table>cpu: Snapdragon 8 Elite</table>"));
 
-        verify(braveSearchService).search(eq("ThinkPad"), eq(List.of("cpu", "display")));
+        // LLM gibt eine andere sourceUrl zurück (sollte ignoriert werden)
+        QuickFactsResult extracted = quickFacts(
+            Map.of("cpu", "Snapdragon 8 Elite"), null,
+            "https://halluziniert.com/falsche-url");
+        when(llmClient.extractQuickFactsFromText(any(), any(), any(), any(), any()))
+            .thenReturn(extracted);
+        when(qualityEvaluator.evaluate(any(), any(), any()))
+            .thenReturn(ExtractionQuality.GOOD);
+
+        ProductLookupResult result =
+            service.lookup("Samsung Galaxy S25", mock(WhCategory.class));
+
+        // sourceUrl muss von Java kommen, nicht vom LLM
+        assertThat(result.getSourceUrl()).isEqualTo(fetchedUrl);
+        assertThat(result.getSourceUrl()).doesNotContain("halluziniert.com");
+    }
+
+    @Test
+    void lookup_usesSearchResultCount_fromSource() {
+        setupNoCache(); setupQuotaOk();
+        CategorySearchSource src = htmlSource("gsmarena.com", GSMARENA);
+        src.setSearchResultCount(3);
+        when(sourceService.findForCategory(any())).thenReturn(List.of(src));
+        when(prefService.getMandatoryFields(any())).thenReturn(List.of());
+        when(prefService.getQueryKeywords(any())).thenReturn(List.of());
+        when(webSearchService.search(any(), any(), any(), any(), eq(3)))
+            .thenReturn(List.of());
+
+        service.lookup("Samsung S25", mock(WhCategory.class));
+
+        verify(webSearchService).search(any(), any(), any(), any(), eq(3));
     }
 
     // --- Hilfsmethoden ---
 
-    private ProductLookup lookup(LookupStatus status, String quickFactsJson) {
-        return ProductLookup.builder()
-                .lookupStatus(status)
-                .quickFactsJson(quickFactsJson)
-                .build();
+    private void setupNoCache() {
+        when(repo.findByLookupTerm(any())).thenReturn(Optional.empty());
     }
 
-    private BraveResult braveResult(String url) {
-        return BraveResult.builder()
-                .title("Test")
-                .url(url)
-                .description("desc")
-                .extraSnippets(List.of())
-                .build();
+    private void setupQuotaOk() {
+        when(quotaService.checkQuota(any())).thenReturn(QuotaStatus.OK);
+        lenient().when(prefService.getMandatoryFields(any())).thenReturn(List.of());
+        lenient().when(prefService.getQueryKeywords(any())).thenReturn(List.of());
     }
 
-    private QuickFactsResult quickFacts(String json, String icecatId) {
+    private CategorySearchSource htmlSource(String domain, SourceType type) {
+        return CategorySearchSource.builder()
+            .siteDomain(domain).sourceType(type)
+            .lookupEnabled(true).active(true)
+            .searchResultCount(3).build();
+    }
+
+    private CategorySearchSource snippetSource(String domain, SourceType type) {
+        return CategorySearchSource.builder()
+            .siteDomain(domain).sourceType(type)
+            .lookupEnabled(true).active(true)
+            .searchResultCount(10).build();
+    }
+
+    private SearchResult searchResult(String url) {
+        return SearchResult.builder().url(url).extraSnippets(List.of()).build();
+    }
+
+    private QuickFactsResult quickFacts(Map<String, String> facts,
+                                        String icecatId, String sourceUrl) {
         QuickFactsResult qfr = new QuickFactsResult();
-        try {
-            @SuppressWarnings("unchecked")
-            Map<String, String> map = new ObjectMapper().readValue(json, Map.class);
-            qfr.setQuickFacts(map);
-        } catch (Exception ignored) {}
-        qfr.getSources().setIcecatId(icecatId);
+        qfr.setQuickFacts(facts != null ? facts : Map.of());
+        if (icecatId != null || sourceUrl != null) {
+            QuickFactsResult.Sources sources = new QuickFactsResult.Sources();
+            sources.setIcecatId(icecatId);
+            sources.setSourceUrl(sourceUrl);
+            qfr.setSources(sources);
+        }
         return qfr;
     }
 }

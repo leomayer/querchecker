@@ -30,12 +30,14 @@ class DlCategoryPromptSeederTest {
     }
 
     @Test
-    void seedIfAbsent_doesNothing_whenBothDefaultsAlreadySeeded() {
+    void seedIfAbsent_doesNothing_whenAllDefaultsAlreadySeeded() {
         when(categoryRepo.count()).thenReturn(5L);
-        // Both defaults present — findByName returns empty by default (no category-specific saves)
+        // All defaults present — findByName returns empty by default (no category-specific saves)
         when(promptRepo.findDefaultByPromptType(PromptType.PRODUCT_NAME))
             .thenReturn(Optional.of(mock(DlCategoryPrompt.class)));
         when(promptRepo.findDefaultByPromptType(PromptType.QUICK_FACTS))
+            .thenReturn(Optional.of(mock(DlCategoryPrompt.class)));
+        when(promptRepo.findDefaultByPromptType(PromptType.HTML_FULL_SPECS))
             .thenReturn(Optional.of(mock(DlCategoryPrompt.class)));
         seeder.seedIfAbsent();
         verify(promptRepo, never()).save(any());
@@ -44,9 +46,11 @@ class DlCategoryPromptSeederTest {
     @Test
     void seedIfAbsent_savesDefaultProductNamePrompt_whenMissing() {
         when(categoryRepo.count()).thenReturn(5L);
-        // PRODUCT_NAME default missing, QUICK_FACTS already present
+        // PRODUCT_NAME default missing, others already present
         when(promptRepo.findDefaultByPromptType(PromptType.PRODUCT_NAME)).thenReturn(Optional.empty());
         when(promptRepo.findDefaultByPromptType(PromptType.QUICK_FACTS))
+            .thenReturn(Optional.of(mock(DlCategoryPrompt.class)));
+        when(promptRepo.findDefaultByPromptType(PromptType.HTML_FULL_SPECS))
             .thenReturn(Optional.of(mock(DlCategoryPrompt.class)));
 
         seeder.seedIfAbsent();
@@ -58,10 +62,12 @@ class DlCategoryPromptSeederTest {
     @Test
     void seedIfAbsent_savesDefaultQuickFactsPrompt_whenMissing() {
         when(categoryRepo.count()).thenReturn(5L);
-        // QUICK_FACTS default missing, PRODUCT_NAME already present
+        // QUICK_FACTS default missing, others already present
         when(promptRepo.findDefaultByPromptType(PromptType.PRODUCT_NAME))
             .thenReturn(Optional.of(mock(DlCategoryPrompt.class)));
         when(promptRepo.findDefaultByPromptType(PromptType.QUICK_FACTS)).thenReturn(Optional.empty());
+        when(promptRepo.findDefaultByPromptType(PromptType.HTML_FULL_SPECS))
+            .thenReturn(Optional.of(mock(DlCategoryPrompt.class)));
 
         seeder.seedIfAbsent();
 
@@ -70,9 +76,9 @@ class DlCategoryPromptSeederTest {
     }
 
     @Test
-    void seedIfAbsent_savesBothDefaults_whenBothMissing() {
+    void seedIfAbsent_savesAllDefaults_whenAllMissing() {
         when(categoryRepo.count()).thenReturn(5L);
-        // Both defaults missing, findByName returns empty → no category-specific saves
+        // All defaults missing, findByName returns empty → no category-specific saves
         when(promptRepo.findDefaultByPromptType(any())).thenReturn(Optional.empty());
 
         seeder.seedIfAbsent();
@@ -81,5 +87,7 @@ class DlCategoryPromptSeederTest {
             p.getWhCategory() == null && p.getPromptType() == PromptType.PRODUCT_NAME));
         verify(promptRepo, times(1)).save(argThat(p ->
             p.getWhCategory() == null && p.getPromptType() == PromptType.QUICK_FACTS));
+        verify(promptRepo, times(1)).save(argThat(p ->
+            p.getWhCategory() == null && p.getPromptType() == PromptType.HTML_FULL_SPECS));
     }
 }
