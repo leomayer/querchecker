@@ -7,5 +7,9 @@ import lombok.Data;
 @AllArgsConstructor
 public class ProviderUsageDto {
     private long calls;
-    private double avgDurationMs;
+    private long callsToday;
+    private long tokensIn;
+    private long tokensOut;
+    private long quotaUsage;
+    private long quotaLimit;
 }

@@ -13,6 +13,7 @@ export interface LookupResponse {
     lookupStatus?: LookupResponse.LookupStatusEnum;
     quickFacts?: { [key: string]: string; };
     icecatId?: string;
+    icecatSpecsJson?: string;
 }
 export namespace LookupResponse {
     export const LookupStatusEnum = {

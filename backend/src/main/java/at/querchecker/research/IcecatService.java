@@ -45,14 +45,14 @@ public class IcecatService {
         try {
             String response = restTemplate.getForObject(url, String.class);
             long duration = System.currentTimeMillis() - start;
-            usageLogService.log(Provider.GOOGLE, RequestType.SPEC_DETAIL,
+            usageLogService.log(Provider.ICECAT, RequestType.SPEC_DETAIL,
                     icecatId, 200, null, null, duration);
             return IcecatFetchResult.found(response);
         } catch (HttpClientErrorException e) {
             long duration = System.currentTimeMillis() - start;
             int status = e.getStatusCode().value();
             log.warn("Icecat fetchFullSpecs failed for id={}: {}", icecatId, e.getMessage());
-            usageLogService.log(Provider.GOOGLE, RequestType.SPEC_DETAIL,
+            usageLogService.log(Provider.ICECAT, RequestType.SPEC_DETAIL,
                     icecatId, status, null, null, duration);
             return e.getStatusCode() == HttpStatus.NOT_FOUND
                     ? IcecatFetchResult.notFound()
@@ -60,7 +60,7 @@ public class IcecatService {
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - start;
             log.warn("Icecat fetchFullSpecs failed for id={}: {}", icecatId, e.getMessage());
-            usageLogService.log(Provider.GOOGLE, RequestType.SPEC_DETAIL,
+            usageLogService.log(Provider.ICECAT, RequestType.SPEC_DETAIL,
                     icecatId, 500, null, null, duration);
             return IcecatFetchResult.error();
         }

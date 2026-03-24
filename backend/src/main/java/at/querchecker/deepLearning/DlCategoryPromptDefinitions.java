@@ -1,5 +1,8 @@
 package at.querchecker.deepLearning;
 
+import at.querchecker.deepLearning.entity.PromptType;
+
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -10,6 +13,8 @@ import java.util.Map;
 public final class DlCategoryPromptDefinitions {
 
     private DlCategoryPromptDefinitions() {}
+
+    public record PromptConfig(PromptType promptType, String systemPrompt, String userPrompt) {}
 
     // ─── PRODUCT_NAME ────────────────────────────────────────────────────────
 
@@ -35,93 +40,6 @@ public final class DlCategoryPromptDefinitions {
         - HP LaserJet Pro M404dn
         """;
 
-    /**
-     * Kategorie-spezifische User-Prompts für PRODUCT_NAME (optional).
-     * Keys müssen exakt mit wh_category.name übereinstimmen (beliebige Ebene).
-     */
-    public static final Map<String, String> PRODUCT_NAME_USER_BY_CATEGORY = Map.ofEntries(
-        Map.entry("Computer / Software",
-            """
-            Kategorie: {category}
-            Titel: {title}
-
-            Beschreibung:
-            {description}
-
-            Welches {category} wird verkauft? Nenne Hersteller und Modellbezeichnung.
-            """),
-        Map.entry("Smartphones / Telefonie",
-            """
-            Kategorie: {category}
-            Titel: {title}
-
-            Beschreibung:
-            {description}
-
-            Welches {category} wird verkauft? Nenne Hersteller und Modellbezeichnung.
-            """),
-        Map.entry("Kameras / TV / Multimedia",
-            """
-            Kategorie: {category}
-            Titel: {title}
-
-            Beschreibung:
-            {description}
-
-            Welches {category} wird angeboten? Nenne Hersteller und Modellbezeichnung.
-            """),
-        Map.entry("Games / Konsolen",
-            """
-            Kategorie: {category}
-            Titel: {title}
-
-            Beschreibung:
-            {description}
-
-            Welches {category} wird angeboten? Nenne den genauen Namen.
-            """),
-        Map.entry("Wohnen / Haushalt / Gastronomie",
-            """
-            Kategorie: {category}
-            Titel: {title}
-
-            Beschreibung:
-            {description}
-
-            Welches {category} wird angeboten? Nenne Hersteller und Modellbezeichnung.
-            """),
-        Map.entry("Haus / Garten / Werkstatt",
-            """
-            Kategorie: {category}
-            Titel: {title}
-
-            Beschreibung:
-            {description}
-
-            Welches {category} wird angeboten? Nenne Hersteller und Modellbezeichnung.
-            """),
-        Map.entry("Freizeit / Instrumente / Kulinarik",
-            """
-            Kategorie: {category}
-            Titel: {title}
-
-            Beschreibung:
-            {description}
-
-            Welches {category} wird angeboten? Nenne den genauen Produktnamen.
-            """),
-        Map.entry("Sport / Sportgeräte",
-            """
-            Kategorie: {category}
-            Titel: {title}
-
-            Beschreibung:
-            {description}
-
-            Welches {category} wird angeboten? Nenne Hersteller und Modellbezeichnung.
-            """)
-    );
-
     // ─── QUICK_FACTS ─────────────────────────────────────────────────────────
 
     public static final String QUICK_FACTS_SYSTEM =
@@ -146,8 +64,8 @@ public final class DlCategoryPromptDefinitions {
         Antworte mit diesem JSON-Schema:
         {
           "quickFacts": {
-            "cpu": "...",
-            "ram": "..."
+            "field_name": "extracted value",
+            "another_field": "extracted value"
           },
           "sources": {
             "icecatId": "die rein numerische ID am Ende der icecat-URL, direkt vor .html — Beispiel: aus '...lenovo-thinkpad-x1-carbon-123456.html' ist die icecatId '123456'",
@@ -156,51 +74,154 @@ public final class DlCategoryPromptDefinitions {
         }
         """;
 
+    // ─── CONFIGS (kategorie-spezifisch, alle PromptTypes) ────────────────────
+
     /**
-     * Kategorie-spezifische User-Prompts für QUICK_FACTS (optional).
+     * Kategorie-spezifische Prompts für alle PromptTypes.
      * Keys müssen exakt mit wh_category.name übereinstimmen (beliebige Ebene).
+     * DlCategoryPromptSeeder iteriert über PromptType.values() und prüft pro Eintrag.
      */
-    public static final Map<String, String> QUICK_FACTS_USER_BY_CATEGORY = Map.ofEntries(
-        Map.entry("Laptop / Notebook",
-            """
-            Produkt: {lookupTerm}
-            Kategorie: Laptop / Notebook
+    public static final Map<String, List<PromptConfig>> CONFIGS = Map.ofEntries(
+        Map.entry("Computer / Software", List.of(
+            new PromptConfig(PromptType.PRODUCT_NAME, PRODUCT_NAME_SYSTEM,
+                """
+                Kategorie: {category}
+                Titel: {title}
 
-            Suchergebnisse:
-            {snippets}
+                Beschreibung:
+                {description}
 
-            Pflichtfelder (müssen erscheinen wenn erkennbar):
-            {mandatoryFields}
+                Welches {category} wird verkauft? Nenne Hersteller und Modellbezeichnung.
+                """)
+        )),
+        Map.entry("Smartphones / Telefonie", List.of(
+            new PromptConfig(PromptType.PRODUCT_NAME, PRODUCT_NAME_SYSTEM,
+                """
+                Kategorie: {category}
+                Titel: {title}
 
-            Relevante Felder für Laptops: cpu, ram, storage, display, battery, weight, os
+                Beschreibung:
+                {description}
 
-            Antworte mit diesem JSON-Schema:
-            {
-              "quickFacts": { "cpu": "...", "ram": "...", "display": "..." },
-              "sources": {
-                "icecatId": "die rein numerische ID am Ende der icecat-URL, direkt vor .html — Beispiel: aus '...thinkpad-t14-123456.html' ist die icecatId '123456'",
-                "icecatUrl": "vollständige URL des relevantesten Treffers"
-              }
-            }
-            """),
-        Map.entry("Drucker & Scanner",
-            """
-            Produkt: {lookupTerm}
-            Kategorie: Drucker & Scanner
+                Welches {category} wird verkauft? Nenne Hersteller und Modellbezeichnung.
+                """)
+        )),
+        Map.entry("Kameras / TV / Multimedia", List.of(
+            new PromptConfig(PromptType.PRODUCT_NAME, PRODUCT_NAME_SYSTEM,
+                """
+                Kategorie: {category}
+                Titel: {title}
 
-            Suchergebnisse:
-            {snippets}
+                Beschreibung:
+                {description}
 
-            Pflichtfelder (müssen erscheinen wenn erkennbar):
-            {mandatoryFields}
+                Welches {category} wird angeboten? Nenne Hersteller und Modellbezeichnung.
+                """)
+        )),
+        Map.entry("Games / Konsolen", List.of(
+            new PromptConfig(PromptType.PRODUCT_NAME, PRODUCT_NAME_SYSTEM,
+                """
+                Kategorie: {category}
+                Titel: {title}
 
-            Relevante Felder für Drucker: technology, color, duplex, adf, ppm_mono, ppm_color, connectivity
+                Beschreibung:
+                {description}
 
-            Antworte mit diesem JSON-Schema:
-            {
-              "quickFacts": { "technology": "...", "duplex": "...", "ppm_mono": "..." },
-              "sources": { "icecatId": "...", "icecatUrl": "..." }
-            }
-            """)
+                Welches {category} wird angeboten? Nenne den genauen Namen.
+                """)
+        )),
+        Map.entry("Wohnen / Haushalt / Gastronomie", List.of(
+            new PromptConfig(PromptType.PRODUCT_NAME, PRODUCT_NAME_SYSTEM,
+                """
+                Kategorie: {category}
+                Titel: {title}
+
+                Beschreibung:
+                {description}
+
+                Welches {category} wird angeboten? Nenne Hersteller und Modellbezeichnung.
+                """)
+        )),
+        Map.entry("Haus / Garten / Werkstatt", List.of(
+            new PromptConfig(PromptType.PRODUCT_NAME, PRODUCT_NAME_SYSTEM,
+                """
+                Kategorie: {category}
+                Titel: {title}
+
+                Beschreibung:
+                {description}
+
+                Welches {category} wird angeboten? Nenne Hersteller und Modellbezeichnung.
+                """)
+        )),
+        Map.entry("Freizeit / Instrumente / Kulinarik", List.of(
+            new PromptConfig(PromptType.PRODUCT_NAME, PRODUCT_NAME_SYSTEM,
+                """
+                Kategorie: {category}
+                Titel: {title}
+
+                Beschreibung:
+                {description}
+
+                Welches {category} wird angeboten? Nenne den genauen Produktnamen.
+                """)
+        )),
+        Map.entry("Sport / Sportgeräte", List.of(
+            new PromptConfig(PromptType.PRODUCT_NAME, PRODUCT_NAME_SYSTEM,
+                """
+                Kategorie: {category}
+                Titel: {title}
+
+                Beschreibung:
+                {description}
+
+                Welches {category} wird angeboten? Nenne Hersteller und Modellbezeichnung.
+                """)
+        )),
+        Map.entry("Laptop / Notebook", List.of(
+            new PromptConfig(PromptType.QUICK_FACTS, QUICK_FACTS_SYSTEM,
+                """
+                Produkt: {lookupTerm}
+                Kategorie: Laptop / Notebook
+
+                Suchergebnisse:
+                {snippets}
+
+                Pflichtfelder (müssen erscheinen wenn erkennbar):
+                {mandatoryFields}
+
+                Relevante Felder für Laptops: cpu, ram, storage, display, battery, weight, os
+
+                Antworte mit diesem JSON-Schema:
+                {
+                  "quickFacts": { "cpu": "...", "ram": "...", "display": "..." },
+                  "sources": {
+                    "icecatId": "die rein numerische ID am Ende der icecat-URL, direkt vor .html — Beispiel: aus '...thinkpad-t14-123456.html' ist die icecatId '123456'",
+                    "icecatUrl": "vollständige URL des relevantesten Treffers"
+                  }
+                }
+                """)
+        )),
+        Map.entry("Drucker & Scanner", List.of(
+            new PromptConfig(PromptType.QUICK_FACTS, QUICK_FACTS_SYSTEM,
+                """
+                Produkt: {lookupTerm}
+                Kategorie: Drucker & Scanner
+
+                Suchergebnisse:
+                {snippets}
+
+                Pflichtfelder (müssen erscheinen wenn erkennbar):
+                {mandatoryFields}
+
+                Relevante Felder für Drucker: technology, color, duplex, adf, ppm_mono, ppm_color, connectivity
+
+                Antworte mit diesem JSON-Schema:
+                {
+                  "quickFacts": { "technology": "...", "duplex": "...", "ppm_mono": "..." },
+                  "sources": { "icecatId": "...", "icecatUrl": "..." }
+                }
+                """)
+        ))
     );
 }

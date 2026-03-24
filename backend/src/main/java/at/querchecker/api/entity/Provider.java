@@ -4,5 +4,5 @@ public enum Provider {
     BRAVE,
     GROQ,
     OPENROUTER,
-    GOOGLE
+    ICECAT
 }

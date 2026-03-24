@@ -5,7 +5,11 @@ import { API_URLS } from './api-urls';
 
 export interface ProviderUsage {
   calls: number;
-  avgDurationMs: number;
+  callsToday: number;
+  tokensIn: number;
+  tokensOut: number;
+  quotaUsage: number;
+  quotaLimit: number;
 }
 
 export interface ApiUsageResponse {

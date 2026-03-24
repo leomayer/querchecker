@@ -13,4 +13,5 @@ public interface WhCategoryRepository extends JpaRepository<WhCategory, Long> {
     List<WhCategory> findByLevelOrderByNameAsc(Integer level);
     List<WhCategory> findByParentIdOrderByNameAsc(Long parentId);
     java.util.Optional<WhCategory> findByName(String name);
+    List<WhCategory> findAllByName(String name);
 }

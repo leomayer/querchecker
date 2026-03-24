@@ -2,6 +2,8 @@ package at.querchecker.willHaben;
 
 import at.querchecker.deepLearning.service.DlCategoryPromptSeeder;
 import at.querchecker.repository.WhListingRepository;
+import at.querchecker.research.seeder.CategorySearchSourceSeeder;
+import at.querchecker.research.seeder.CategorySpecPreferenceSeeder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +24,8 @@ public class WhRefreshScheduler {
     private final WhLocationService whLocationService;
     private final WhListingRepository whListingRepository;
     private final DlCategoryPromptSeeder dlCategoryPromptSeeder;
+    private final CategorySpecPreferenceSeeder categorySpecPreferenceSeeder;
+    private final CategorySearchSourceSeeder categorySearchSourceSeeder;
 
     @Value("${querchecker.wh.refresh.cron:0 0 3 * * MON}")
     private String refreshCron;
@@ -51,14 +55,20 @@ public class WhRefreshScheduler {
     }
 
     /**
-     * Führt beim Start eine Sofort-Aktualisierung durch, wenn die Tabellen leer sind
-     * (z.B. erste Inbetriebnahme oder leere DB).
+     * Beim Start:
+     * - Tabellen leer → vollständiger Refresh (Willhaben-Fetch + Seeder)
+     * - Tabellen befüllt → nur Seeder (additive Logik, idempotent)
      */
     @EventListener(ApplicationReadyEvent.class)
     public void onStartup() {
         if (whCategoryService.isEmpty() || whLocationService.isEmpty()) {
             log.info("Leere Kategorie- oder Standort-Tabelle erkannt – initialer Abruf gestartet");
             Thread.ofVirtual().start(this::runRefresh);
+        } else {
+            log.info("Kategorien vorhanden – nur Seeder ausführen");
+            dlCategoryPromptSeeder.seedIfAbsent();
+            categorySpecPreferenceSeeder.seedIfAbsent();
+            categorySearchSourceSeeder.seedIfAbsent();
         }
     }
 
@@ -75,6 +85,8 @@ public class WhRefreshScheduler {
             whCategoryService.fetchAndUpsert();
             whLocationService.fetchAndUpsert();
             dlCategoryPromptSeeder.seedIfAbsent();
+            categorySpecPreferenceSeeder.seedIfAbsent();
+            categorySearchSourceSeeder.seedIfAbsent();
         } finally {
             refreshInProgress.set(false);
         }

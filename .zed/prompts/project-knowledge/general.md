@@ -69,6 +69,11 @@ querchecker/
 - Settings-Route (/settings): Theme-Toggle, Datenbereinigung
 - Deep-Learning-Extraktion: ML-Modelle analysieren Inseratstexte, Ergebnisse per SSE (`dl-extract`) an Frontend
 - Health-Check & Reconnection: glassmorphisches Startup-Overlay, Connection-Banner (mid-session), SSE-Auto-Reconnect, Soft-Restart (kein Page-Reload)
+- Spec-Lookup & Item Research: Brave Search (3-stufig) + Groq LLM → Quick Facts, Geizhals-Link, Icecat Full-Specs Accordion
+- Usage Monitor (Settings): Provider-Tabelle mit Calls, Tokens, GradientProgressBar für Kontingent (Brave, Groq, OpenRouter — Icecat entfernt, kein Kontingent)
+- CategorySearchSourceDefinitions + Seeder: 13 Kategorien mit Suchquellen-Konfiguration (ICECAT, FLATPANELSHD, GSMARENA, GENERIC) und automatischem Seeding beim Start
+- ExtractionQualityEvaluator: bewertet Spec-Lookup-Ergebnisse (GOOD/PARTIAL/EMPTY/FAILED_NO_CRITERIA) anhand SYSTEM-Felder-Coverage
+- UrlValidator + HtmlFetchService: Anti-Halluzination URL-Prüfung + HTML-Fetch für FLATPANELSHD/GSMARENA mit Jsoup
 
 ## Geplante Features
 

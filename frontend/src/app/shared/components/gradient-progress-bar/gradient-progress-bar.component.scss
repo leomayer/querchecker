@@ -1,0 +1,28 @@
+.gpb-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 160px;
+}
+
+.gpb-track {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--mat-sys-outline) 25%, transparent);
+  overflow: hidden;
+}
+
+.gpb-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease, background-color 0.4s ease;
+  min-width: 2px;
+}
+
+.gpb-label {
+  font-size: 0.75rem;
+  white-space: nowrap;
+  color: var(--mat-sys-on-surface-variant);
+  font-variant-numeric: tabular-nums;
+}

@@ -99,7 +99,7 @@ class GroqExtractionClientTest {
                 }
                 """);
         List<BraveResult> results = List.of(
-                braveResult("https://icecat.biz/p/lenovo-12345.html"));  // ID stimmt
+                braveResult("https://icecat.biz/p/lenovo-12345.html", "Lenovo ThinkPad specs"));  // ID stimmt, Marke stimmt
 
         QuickFactsResult result = client.extractQuickFacts(
                 "ThinkPad", "Laptop", results, List.of(), prompt("s", "u"));
@@ -158,8 +158,12 @@ class GroqExtractionClientTest {
     }
 
     private BraveResult braveResult(String url) {
+        return braveResult(url, "Test Product");
+    }
+
+    private BraveResult braveResult(String url, String title) {
         return BraveResult.builder()
-                .title("Test Product")
+                .title(title)
                 .url(url)
                 .description("Test description")
                 .extraSnippets(List.of())

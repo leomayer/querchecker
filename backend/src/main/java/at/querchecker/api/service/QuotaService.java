@@ -25,6 +25,7 @@ public class QuotaService {
 
     /** Prüft ob das Kontingent für diesen Provider noch frei ist. */
     public QuotaStatus checkQuota(Provider provider) {
+        if (provider == Provider.ICECAT) return QuotaStatus.OK; // kein Kontingent
         ProviderConfig config = providerProperties.getProvider(provider);
         long usage = currentUsage(provider, config);
         return usage >= config.getFreeLimit() ? QuotaStatus.QUOTA_EXCEEDED : QuotaStatus.OK;
@@ -32,6 +33,7 @@ public class QuotaService {
 
     /** Prüft ob die Warnschwelle (alert-at-percent) erreicht oder überschritten ist. */
     public boolean isWarningThreshold(Provider provider) {
+        if (provider == Provider.ICECAT) return false;
         ProviderConfig config = providerProperties.getProvider(provider);
         long usage = currentUsage(provider, config);
         long threshold = (long) (config.getFreeLimit() * (config.getAlertAtPercent() / 100.0));

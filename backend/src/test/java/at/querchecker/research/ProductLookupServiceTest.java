@@ -115,7 +115,7 @@ class ProductLookupServiceTest {
         when(prefService.getMandatoryFields(any())).thenReturn(List.of("cpu", "ram"));
         when(braveSearchService.search(any(), any()))
                 .thenReturn(List.of(braveResult("https://icecat.biz/p/lenovo-12345678.html")));
-        when(groqExtractionService.extractFromSnippets(any(), any()))
+        when(groqExtractionService.extractFromSnippets(any(), any(), any(), any()))
                 .thenReturn(quickFacts("{\"cpu\":\"Core Ultra 7\"}", "12345678"));
 
         ProductLookupResult result = service.lookup("Lenovo Yoga 7", null);

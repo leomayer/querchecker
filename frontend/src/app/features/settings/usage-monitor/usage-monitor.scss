@@ -3,7 +3,8 @@
   border-collapse: collapse;
   font-size: 0.875rem;
 
-  th, td {
+  th,
+  td {
     padding: 6px 8px;
     text-align: left;
   }
@@ -15,22 +16,59 @@
     letter-spacing: 0.05em;
     color: var(--mat-sys-on-surface-variant);
     border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline) 30%, transparent);
+    &.num {
+      border-bottom: none;
+    }
+  }
+
+  th.num,
+  td.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  th.tokens-group {
+    text-align: center;
+    border-bottom: none;
+    padding-bottom: 2px;
+  }
+
+  th.sub {
+    font-size: 0.7rem;
+    padding-top: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline) 30%, transparent);
+  }
+
+  th.quota-col,
+  td.quota-col {
+    min-width: 180px;
   }
 
   .provider-name {
     font-weight: 500;
   }
 
-  .warn-row td {
-    color: var(--color-tertiary);
+  td.two-line {
+    display: table-cell;
+    line-height: 1.2;
+
+    span {
+      display: block;
+    }
+
+    .sub-value {
+      font-size: 0.75rem;
+      color: var(--mat-sys-on-surface-variant);
+    }
   }
 
-  .warn-icon {
-    font-size: 1rem;
-    width: 1rem;
-    height: 1rem;
+  .na {
+    color: var(--mat-sys-on-surface-variant);
+    opacity: 0.5;
+  }
+
+  .warn-row td {
     color: var(--color-tertiary);
-    vertical-align: middle;
   }
 }
 

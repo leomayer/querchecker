@@ -1,10 +1,13 @@
 package at.querchecker.deepLearning.service;
 
 import at.querchecker.deepLearning.DlCategoryPromptDefinitions;
+import at.querchecker.deepLearning.DlCategoryPromptDefinitions.PromptConfig;
 import at.querchecker.deepLearning.entity.DlCategoryPrompt;
 import at.querchecker.deepLearning.entity.PromptType;
 import at.querchecker.deepLearning.repository.DlCategoryPromptRepository;
+import at.querchecker.entity.WhCategory;
 import at.querchecker.repository.WhCategoryRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -12,8 +15,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 /**
- * Befüllt DlCategoryPrompt idempotent nach Kategorie-Refresh.
- * Mehrfachaufruf sicher — prüft pro PromptType ob bereits Einträge vorhanden.
+ * Befüllt DlCategoryPrompt additiv nach Kategorie-Refresh.
+ * Mehrfachaufruf sicher — prüft pro (Kategorie, PromptType) ob bereits ein Eintrag vorhanden.
  */
 @Slf4j
 @Component
@@ -28,74 +31,56 @@ public class DlCategoryPromptSeeder {
         seedIfAbsent();
     }
 
+    @Transactional
     public void seedIfAbsent() {
-        if (categoryRepo.count() == 0) return;  // Kategorien noch nicht geladen
+        if (categoryRepo.count() == 0) return;
 
-        boolean needsProductName = promptRepo.countByPromptType(PromptType.PRODUCT_NAME) == 0;
-        boolean needsQuickFacts  = promptRepo.countByPromptType(PromptType.QUICK_FACTS)  == 0;
-
-        if (!needsProductName && !needsQuickFacts) return;  // bereits vollständig befüllt
-
-        if (needsProductName) {
-            log.info("Seeding PRODUCT_NAME prompts...");
-            seedProductNamePrompts();
+        for (PromptType type : PromptType.values()) {
+            // Default-Prompt
+            if (promptRepo.findDefaultByPromptType(type).isEmpty()) {
+                promptRepo.save(buildDefault(type));
+                log.info("Seeded default prompt for {}", type);
+            }
+            // Kategorie-spezifische Prompts
+            DlCategoryPromptDefinitions.CONFIGS.forEach((name, cfgs) ->
+                categoryRepo.findByName(name).ifPresent(cat ->
+                    cfgs.stream()
+                        .filter(cfg -> cfg.promptType() == type)
+                        .findFirst()
+                        .ifPresent(cfg -> {
+                            if (promptRepo.findByWhCategoryAndPromptType(cat, type).isEmpty()) {
+                                promptRepo.save(build(cat, cfg));
+                                log.info("Seeded {} prompt for category '{}'", type, name);
+                            }
+                        })
+                )
+            );
         }
-        if (needsQuickFacts) {
-            log.info("Seeding QUICK_FACTS prompts...");
-            seedQuickFactsPrompts();
-        }
 
-        log.info("Seeded DL category prompts: {} total", promptRepo.count());
+        log.info("DlCategoryPromptSeeder done: {} total", promptRepo.count());
     }
 
-    private void seedProductNamePrompts() {
-        // Default-Prompt
-        promptRepo.save(DlCategoryPrompt.builder()
-            .whCategory(null)
-            .promptType(PromptType.PRODUCT_NAME)
-            .systemPrompt(DlCategoryPromptDefinitions.PRODUCT_NAME_SYSTEM)
-            .userPrompt(DlCategoryPromptDefinitions.PRODUCT_NAME_USER_DEFAULT)
-            .build());
-
-        // Kategorie-spezifische Prompts (Level-0-Kategorien)
-        var rootCategories = categoryRepo.findByLevelOrderByNameAsc(0);
-        DlCategoryPromptDefinitions.PRODUCT_NAME_USER_BY_CATEGORY.forEach((name, userPrompt) ->
-            rootCategories.stream()
-                .filter(cat -> cat.getName().equals(name))
-                .findFirst()
-                .ifPresentOrElse(
-                    cat -> promptRepo.save(DlCategoryPrompt.builder()
-                        .whCategory(cat)
-                        .promptType(PromptType.PRODUCT_NAME)
-                        .systemPrompt(DlCategoryPromptDefinitions.PRODUCT_NAME_SYSTEM)
-                        .userPrompt(userPrompt)
-                        .build()),
-                    () -> log.warn("Category '{}' not found in wh_category — skipping PRODUCT_NAME prompt", name)
-                )
-        );
+    private DlCategoryPrompt buildDefault(PromptType type) {
+        return switch (type) {
+            case PRODUCT_NAME -> DlCategoryPrompt.builder()
+                .whCategory(null).promptType(type)
+                .systemPrompt(DlCategoryPromptDefinitions.PRODUCT_NAME_SYSTEM)
+                .userPrompt(DlCategoryPromptDefinitions.PRODUCT_NAME_USER_DEFAULT)
+                .build();
+            case QUICK_FACTS -> DlCategoryPrompt.builder()
+                .whCategory(null).promptType(type)
+                .systemPrompt(DlCategoryPromptDefinitions.QUICK_FACTS_SYSTEM)
+                .userPrompt(DlCategoryPromptDefinitions.QUICK_FACTS_USER_DEFAULT)
+                .build();
+        };
     }
 
-    private void seedQuickFactsPrompts() {
-        // Default-Prompt
-        promptRepo.save(DlCategoryPrompt.builder()
-            .whCategory(null)
-            .promptType(PromptType.QUICK_FACTS)
-            .systemPrompt(DlCategoryPromptDefinitions.QUICK_FACTS_SYSTEM)
-            .userPrompt(DlCategoryPromptDefinitions.QUICK_FACTS_USER_DEFAULT)
-            .build());
-
-        // Kategorie-spezifische Prompts (beliebige Ebene — Subkategorien wie "Laptop / Notebook")
-        DlCategoryPromptDefinitions.QUICK_FACTS_USER_BY_CATEGORY.forEach((name, userPrompt) ->
-            categoryRepo.findByName(name)
-                .ifPresentOrElse(
-                    cat -> promptRepo.save(DlCategoryPrompt.builder()
-                        .whCategory(cat)
-                        .promptType(PromptType.QUICK_FACTS)
-                        .systemPrompt(DlCategoryPromptDefinitions.QUICK_FACTS_SYSTEM)
-                        .userPrompt(userPrompt)
-                        .build()),
-                    () -> log.warn("Category '{}' not found in wh_category — skipping QUICK_FACTS prompt", name)
-                )
-        );
+    private DlCategoryPrompt build(WhCategory cat, PromptConfig cfg) {
+        return DlCategoryPrompt.builder()
+            .whCategory(cat)
+            .promptType(cfg.promptType())
+            .systemPrompt(cfg.systemPrompt())
+            .userPrompt(cfg.userPrompt())
+            .build();
     }
 }

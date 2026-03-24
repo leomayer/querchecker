@@ -9,7 +9,6 @@ api/healthController.service.ts
 api/listingDetail.service.ts
 api/listings.service.ts
 api/productLookup.service.ts
-api/researchController.service.ts
 api/settingsPreferences.service.ts
 api/sseController.service.ts
 api/usage.service.ts

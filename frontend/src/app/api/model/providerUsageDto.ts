@@ -11,6 +11,10 @@
 
 export interface ProviderUsageDto { 
     calls?: number;
-    avgDurationMs?: number;
+    callsToday?: number;
+    tokensIn?: number;
+    tokensOut?: number;
+    quotaUsage?: number;
+    quotaLimit?: number;
 }
 

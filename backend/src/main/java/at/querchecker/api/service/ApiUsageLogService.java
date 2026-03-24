@@ -47,8 +47,13 @@ public class ApiUsageLogService {
         return result != null ? result : 0L;
     }
 
-    public double avgDurationByProvider(Provider provider, LocalDateTime from, LocalDateTime to) {
-        Double result = repo.avgDurationMsByProviderAndCreatedAtBetween(provider, from, to);
-        return result != null ? result : 0.0;
+    public long sumTokensInputByProviderAndPeriod(Provider provider, LocalDateTime from, LocalDateTime to) {
+        Long result = repo.sumTokensInputByProviderAndCreatedAtBetween(provider, from, to);
+        return result != null ? result : 0L;
+    }
+
+    public long sumTokensOutputByProviderAndPeriod(Provider provider, LocalDateTime from, LocalDateTime to) {
+        Long result = repo.sumTokensOutputByProviderAndCreatedAtBetween(provider, from, to);
+        return result != null ? result : 0L;
     }
 }

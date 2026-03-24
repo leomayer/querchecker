@@ -14,10 +14,11 @@ at.querchecker/
 ├── repository/     WhListingRepository, WhListingDetailRepository,
 │                   WhCategoryRepository, WhLocationRepository, AppConfigRepository,
 │                   WhItemRepository
-├── config/         CorsConfig, RestTemplateConfig, SpringDocConfig
+├── config/         CorsConfig, RestTemplateConfig, SpringDocConfig,
+│                   UserAgentHolder, UserAgentFilter
 ├── sse/            SseController, SseHub
 ├── api/
-│   ├── entity/     ApiUsageLog, Provider (enum), RequestType (enum)
+│   ├── entity/     ApiUsageLog, Provider (enum: BRAVE, GROQ, OPENROUTER, ICECAT), RequestType (enum)
 │   ├── extraction/ ExtractionClient (interface), AbstractLlmExtractionClient,
 │   │               GroqExtractionClient, OpenRouterExtractionClient,
 │   │               ExtractionProviderRouter
@@ -27,15 +28,20 @@ at.querchecker/
 │                   WhCategoryService, WhLocationService, WhRefreshScheduler,
 │                   api/WhApiResponse.java
 ├── research/
-│   ├── entity/     CategorySpecPreference, ProductLookup, LookupStatus (enum)
+│   ├── entity/     CategorySpecPreference, ProductLookup, LookupStatus (enum),
+│   │               CategorySearchSource, SourceType (enum: ICECAT, FLATPANELSHD, GSMARENA, GENERIC),
+│   │               ExtractionQuality (enum: GOOD, PARTIAL, EMPTY, FAILED_NO_CRITERIA)
 │   ├── model/      BraveResult, BraveApiResponse, QuickFactsResult,
-│   │               LookupRequest/Response, FullSpecsRequest/Response, ProductLookupResult
-│   ├── repository/ CategorySpecPreferenceRepository, ProductLookupRepository
+│   │               LookupRequest/Response, FullSpecsRequest/Response, ProductLookupResult,
+│   │               SearchResult (generic: title, url, description, extraSnippets)
+│   ├── repository/ CategorySpecPreferenceRepository, ProductLookupRepository,
+│   │               CategorySearchSourceRepository
 │   ├── config/     ResearchConfig
+│   ├── seeder/     CategorySearchSourceDefinitions, CategorySearchSourceSeeder
 │   └── services:   BraveSearchService, GroqExtractionService, ProductLookupService,
-│                   IcecatService, IcecatClient, EanSearchClient,
-│                   CategorySpecPreferenceService
-│       controllers: ProductLookupController, ResearchController
+│                   IcecatService, CategorySpecPreferenceService, CategorySearchSourceService,
+│                   ExtractionQualityEvaluator, UrlValidator, HtmlFetchService
+│       controllers: ProductLookupController
 └── deepLearning/
     ├── entity/     DlModelConfig, DlExtractionRun, DlExtractionTerm, ItemText, WhItem
     ├── repository/ DlModelConfigRepository, DlExtractionRunRepository,
@@ -156,7 +162,8 @@ at.querchecker/
 - `WhListingDetailRepository` – `findByWhListingId(Long)`, `findAllSummaries()` (Projection für effiziente Joins)
   - Projection `WhListingDetailSummary`: `getListingId()`, `getNote()`, `getViewCount()`, `getLastViewedAt()`, `getRating()`
 - `WhItemRepository` – `findIdByItemTextId(Long itemTextId)` → `Optional<Long>` (resolves ItemText → WhItem.id via Join)
-- `WhCategoryRepository`, `WhLocationRepository`, `AppConfigRepository` – Standard JpaRepository
+- `WhCategoryRepository` – `findAllByName(String name)` → `List<WhCategory>` (handles duplicate names across levels)
+- `WhLocationRepository`, `AppConfigRepository` – Standard JpaRepository
 - `DlModelConfigRepository` – `findByActiveTrueOrderByExecutionOrderAsc()`
 - `DlExtractionTermRepository` – `findByWhItemId(Long whItemId)` (Join über WhItem → WhListing → ItemText), `findByItemTextIdAndModelName()`
 
@@ -203,10 +210,6 @@ Manuell via Builder im Service — kein Mapping-Framework (kein MapStruct).
 - `POST /api/listings/{listingId}/lookup` — Brave Search + Groq → `LookupResponse { lookupStatus, quickFacts, icecatId }`
 - `POST /api/listings/{listingId}/lookup/full-specs` — Icecat API → `FullSpecsResponse { icecatSpecsJson }`
 
-### Research (`ResearchController`)
-- `GET /api/research/product/search` — EAN/UPC-Suche
-- `GET /api/research/icecat/{ean}` — Icecat-Specs per EAN
-
 ### SSE (`SseController`)
 - `GET /api/sse/stream` — Server-Sent Events Stream
 - Event `dl-extract`: `DlExtractionDonePayload { whItemId: Long, terms: DlExtractionTermDto[] }`
@@ -247,9 +250,8 @@ Swagger UI: `/swagger-ui.html` (dev only, in Prod via `SPRING_PROFILES_ACTIVE=pr
 
 ## DL Category Prompts
 
-- `DlCategoryPromptDefinitions`: Java-Konstanten für alle Prompts (PRODUCT_NAME + QUICK_FACTS, default + kategorie-spezifisch)
-- `DlCategoryPromptSeeder`: seeded DB idempotent bei Start (INSERT wenn count=0 je prompt_type)
-- Nach Prompt-Änderungen: DB-Zeilen löschen + Neustart. Flyway V27/V28 löschen PRODUCT_NAME/QUICK_FACTS.
+- `DlCategoryPromptDefinitions`: Java-Konstanten für alle Prompts. Enthält `PromptConfig` record `(PromptType, systemPrompt, userPrompt)`. Default-Konstanten: `PRODUCT_NAME_SYSTEM`, `PRODUCT_NAME_USER_DEFAULT`, `QUICK_FACTS_SYSTEM`, `QUICK_FACTS_USER_DEFAULT`. Kategorie-spezifische Prompts in unified `CONFIGS: Map<String, List<PromptConfig>>` (ersetzt die früheren getrennten `*_BY_CATEGORY`-Maps).
+- `DlCategoryPromptSeeder`: Additives Per-Entry-Upsert beim Start — prüft jedes `(Kategorie, PromptType)`-Paar einzeln via `findDefaultByPromptType` + `findByWhCategoryAndPromptType`. Überschreibt niemals vorhandene Einträge. Re-seed: `DELETE FROM dl_category_prompt` + Neustart.
 - `DlPromptResolver.resolve(WhCategory, PromptType)`: traversiert Kategoriehierarchie, Fallback auf Default
 - **QUICK_FACTS icecatId**: "die rein numerische ID am Ende der icecat-URL, direkt vor .html"
 
@@ -265,14 +267,47 @@ Swagger UI: `/swagger-ui.html` (dev only, in Prod via `SPRING_PROFILES_ACTIVE=pr
 - `BraveSearchService`: 3-stufige Suche (exakt, icecat.biz-scoped, breiter). Kein `Accept-Encoding: gzip` Header (RestTemplate kann nicht dekomprimieren)
 - `GroqExtractionService.extractFromSnippets(lookupTerm, whCategory, braveResults, mandatoryFields)`: löst Prompt per `DlPromptResolver` auf, ruft aktiven LLM-Provider auf → `QuickFactsResult { quickFacts, sources.icecatId, sources.icecatUrl }`
 - `ProductLookupService`: orchestriert Lookup — BraveSearch → GroqExtractionService → speichert in `ProductLookup`
-- `IcecatService`: Icecat-API nach `icecatId` (numerische ID), gibt `icecatSpecsJson` zurück
-- `CategorySpecPreferenceService`: verwaltet Pflichtfelder je Kategorie
+- `IcecatService`: Icecat-API nach `icecatId` (numerische ID, `icecat_id` Query-Param), gibt `icecatSpecsJson` zurück. Verwendet `Provider.ICECAT`. (`IcecatClient` und `EanSearchClient` entfernt.)
+- `IcecatFetchResult` record: Komponente heißt `isNotFound` (nicht `notFound` — Namenskonflikt mit statischer Factory-Methode). Accessor: `fetch.isNotFound()`.
+- `CategorySpecPreferenceService`: verwaltet Pflichtfelder je Kategorie.
+  **Rekursive Vererbung** via `findWithInheritance(WhCategory)`: läuft die gesamte Elternkette hoch bis ein `CategorySpecPreference`-Eintrag gefunden wird (Level-2 → Level-1 → Level-0 → null). Wenn "Notebooks" keinen Eintrag hat, wird auf "Computer / Tablets" zurückgegriffen, dann auf die Root-Kategorie.
+  **Unterschied zu `CategorySearchSource.inheritFromParent`**: nur eine Ebene (Level-2 erbt von Level-1, keine weitere Eskalation).
+  **`getMandatorySystemFields(WhCategory)`** — neue Methode; liefert nur SYSTEM-Felder. Wird von `ExtractionQualityEvaluator` verwendet, da USER-Felder Wert-Keywords (keine quickFacts-Keys) sind.
+- `CategorySearchSourceService`: `findForCategory(WhCategory)` — prüft zuerst eigene Level-2-Einträge (aktiv, nach Priority); falls keine vorhanden, Fallback auf Eltern-Einträge mit `inheritFromParent=true`. Nur eine Ebene (kein weiterer Aufstieg).
+- `ExtractionQualityEvaluator`: `evaluate(QuickFactsResult, List<String> systemFields, SourceType)` → `ExtractionQuality` (GOOD/PARTIAL/EMPTY/FAILED_NO_CRITERIA). Coverage ≥60% SYSTEM fields = GOOD; <60% = PARTIAL; 0% = EMPTY; keine Kriterien = FAILED_NO_CRITERIA. ICECAT-Quellen: zusätzlich `icecatId` muss vorhanden sein für GOOD.
+- `UrlValidator`: Anti-Halluzination URL-Validierung.
+  - `resolveSourceUrl(llmUrl, braveResults)` — prüft LLM-URL gegen reale Brave-Ergebnisse, Fallback auf Top-Brave-URL
+  - `resolveIcecatId(llmId, braveResults)` — prüft ob icecatId in einer Brave-URL vorkommt
+  - `matchesExpectedPattern(url, SourceType)` — Regex: ICECAT `icecat.biz/p/[name]-[id].html`, GSMARENA `gsmarena.com/[name]-[id].php`, FLATPANELSHD `flatpanelshd.com/[name].php`; GENERIC passt immer
+- `HtmlFetchService`: `shouldFetchFullPage(SourceType)` (true für FLATPANELSHD/GSMARENA). `fetchAndExtract(url, SourceType)`: Jsoup-Fetch mit 10s Timeout, site-spezifische CSS-Selektoren (GSMArena: `table.specs-phone-big-table`; FlatpanelsHD: `table.specsTable, div.specs, table.tv-specs` mit `main`-Fallback).
+- `UserAgentHolder`: erfasst ersten Browser-User-Agent aus eingehenden Requests; Fallback: hardcodierter Chrome-UA. `UserAgentFilter`: Jakarta Servlet Filter; speichert UA bei jedem Request in `UserAgentHolder`.
+- `SearchResult` (neu, `research/model/`): generisches Modell mit denselben Feldern wie `BraveResult` (title, url, description, extraSnippets). `BraveResult` bleibt bis zur späteren Phase erhalten.
+- `FieldSource` Enum (`research/entity/`): `SYSTEM` = benannte Felder für LLM-Pflichtfelder-Liste (nicht für Brave-Query geeignet); `USER` = Wert-Keywords für Brave-Query (nicht als quickFacts-Keys auswertbar — excluded from quality evaluation).
+
+### CategorySearchSource Seeders (`research/seeder/`)
+- `CategorySearchSourceDefinitions`: `SourceConfig` record `(domain, label, type, lookupEnabled, queryExcludes, searchResultCount)`. `CONFIGS` map mit 13 Kategorien: "Notebooks", "Smartphones / Handys", "Tablets", "Monitore", "Beamer", "Drucker", "PC-Komponenten", "Netzwerke", "Kameras / Camcorder", "Fernseher", "Konsolen", "Adapter / Kabel", "Software", "Spiele". Exakte DB-Namen (z.B. "/" nicht "&"; "Tablets" plural).
+- `CategorySearchSourceSeeder`: additives Upsert beim Start. Verwendet `findAllByName` (nicht `findByName`) wegen doppelter Namen wie "Tablets" (Level-1 und Level-2). Setzt `inheritFromParent = (cat.getLevel() == 1)` automatisch.
+- `CategorySpecPreferenceSeeder` verwendet ebenfalls `findAllByName`.
+- `WhRefreshScheduler`: `else`-Branch ruft nun nur Seeder auf (kein Willhaben-Fetch), wenn Kategorien bereits existieren. Beide Seeder (`categorySpecPreferenceSeeder.seedIfAbsent()` + `categorySearchSourceSeeder.seedIfAbsent()`) werden dort aufgerufen.
+
+### CategorySearchSource (Flyway V30)
+Tabelle `category_search_source` — konfiguriert Suchquellen pro Kategorie.
+- `SourceType` enum: `ICECAT` | `FLATPANELSHD` | `GSMARENA` | `GENERIC`
+- Felder: `id`, `whCategory` (nullable=default), `priority`, `siteDomain`, `siteLabel`, `sourceType`, `coreFields TEXT[]`, `queryExcludes TEXT[]`, `searchResultCount` (default 10), `lookupEnabled` (default true), `inheritFromParent` (default false), `active` (default true)
+- `coreFields` / `queryExcludes`: `List<String>` mit `@Type(ListArrayType.class)` → PostgreSQL `TEXT[]`
+- Unique constraint: `(wh_category_id, site_domain)`
+- `CategorySearchSourceRepository`:
+  - `findByWhCategoryAndActiveTrueOrderByPriorityAsc(WhCategory)` — aktive Quellen
+  - `findByWhCategoryAndInheritFromParentTrueAndActiveTrueOrderByPriorityAsc(WhCategory)` — Eltern-Fallback
+  - `findByWhCategoryAndSiteDomain(WhCategory, String)` — für Seeder-Upsert
+  - **Achtung**: `AndActiveTrueOrderByPriority` (nicht `AndActiveOrderByPriority`) — Spring Data braucht `True`-Suffix für implizite boolean=true Filterung ohne Parameter
 
 ---
 
 ## Build & Tooling
 
 - Lombok + SpotBugs (Maven-Plugin, läuft bei `mvn verify`)
+- `io.hypersistence:hypersistence-utils-hibernate-63:3.9.11` — `ListArrayType` für PostgreSQL `TEXT[]` Mapping (`CategorySearchSource.coreFields`/`.queryExcludes`)
 - spring-boot-devtools: Hot-Restart bei Dateiänderungen
 - CORS: allows `http://localhost:14072`
 - DB: `jdbc:postgresql://localhost:14071/mydb`, user `myuser`
@@ -281,6 +316,21 @@ Swagger UI: `/swagger-ui.html` (dev only, in Prod via `SPRING_PROFILES_ACTIVE=pr
 - Enum-Konvention: `@Enumerated(EnumType.STRING)` — kein nativer PostgreSQL-Enum-Typ (Flyway-Kompatibilität)
 
 ---
+
+## API Usage (`api/`)
+
+- `Provider` enum: `BRAVE`, `GROQ`, `OPENROUTER`, `ICECAT` (ehemals `GOOGLE` → umbenannt via Flyway `V29`)
+- `RequestType` enum: `SEARCH`, `EXTRACTION`, `SPEC_DETAIL`, `HTML_FETCH` (`HTML_FETCH` neu für FlatpanelsHD/GSMArena HTML-Fetch-Logging)
+- `ApiUsageLogService`: `log()`, `countByProviderAndPeriod()`, `sumTokensInputByProviderAndPeriod()`, `sumTokensOutputByProviderAndPeriod()`. `avgDurationByProvider()` entfernt.
+- `ApiUsageLogRepository`: `sumTokensInputByProviderAndCreatedAtBetween` + `sumTokensOutputByProviderAndCreatedAtBetween` Queries.
+- `QuotaService`: `checkQuota(Provider.ICECAT)` → immer `OK`; `isWarningThreshold(Provider.ICECAT)` → immer `false` (kein Kontingent).
+- `ApiUsageController` (`GET /api/usage`): Periode/Limits kommen aus `QuotaService.getPeriodStart()` + `ProviderProperties` (nicht hardcodiert).
+- `ProviderUsageDto`: `{ callsThisPeriod, callsToday, tokensIn, tokensOut, quotaUsage, quotaLimit }`. Kein `avgDurationMs`.
+- `UsageResponse`: `{ brave, groq, openRouter }` — ICECAT entfernt (kein Kontingent, kein Monitor-Eintrag).
+
+## Bug Fixes (Bekannte Fixes)
+
+- `WhListingService.buildCategoryPath()`: fehlte `.id(current.getId())` im Builder → `activeCategoryId()` lieferte immer null → Stern-Klicks funktionierten nie. Behoben.
 
 ## Erweiterungsstrategie (Multi-Provider)
 

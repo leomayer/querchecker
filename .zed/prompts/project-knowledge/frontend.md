@@ -27,8 +27,8 @@ frontend/src/app/
 │   ├── listing.service.ts
 │   ├── dl-extraction.service.ts
 │   ├── product-lookup.service.ts  ← lookup() + loadFullSpecs()
-│   ├── icecat.service.ts          ← EAN-basierter Icecat-Lookup
-│   ├── ean-search.service.ts
+│   ├── icecat.service.ts          ← EAN-basierter Lookup (legacy, nicht importiert)
+│   ├── ean-search.service.ts      ← EAN-Suche (legacy, nicht importiert)
 │   ├── usage.service.ts, preferences.service.ts
 │   └── health.service.ts, startup-overlay/, connection-banner/
 ├── features/
@@ -40,14 +40,14 @@ frontend/src/app/
 │       │   ├── wh-base/
 │       │   ├── item-annotation/
 │       │   └── item-research/       ← Spec-Lookup, DL-Terms, Icecat-Accordion
-│       │       ├── upc-search/      ← EAN/UPC-Produktsuche
-│       │       └── icecat-spec/     ← Icecat-Specs per EAN (legacy)
+│       │       └── icecat-accordion/ ← Icecat Feature-Gruppen Accordion
 │       ├── search.store.ts
 │       ├── extraction.store.ts
 │       ├── layout-state.enum.ts
 │       └── listings.guard.ts
 └── shared/
     ├── components/hierarchical-filter-component/, placeholder/
+    │               gradient-progress-bar/ ← inputs: usage, limit. HSL-Farbverlauf (grün→gelb→rot). Label "X / Y"
     ├── layout/     app-header, app-footer, zone-left, zone-right
     └── pipes/      custom-currency
 ```
@@ -226,17 +226,17 @@ Vollständig implementiertes Feature:
 - Quick-Facts-Tabelle (key-value aus `quickFacts`)
 - Geizhals-Link (öffnet Suche in neuem Tab)
 - Icecat-Full-Specs-Button (`description` Icon) → `loadFullSpecs()` — nur wenn `icecatId` vorhanden + noch nicht geladen
-- **Icecat-Accordion** (`MatExpansionModule`) — zeigt Feature-Gruppen aus `fullSpecsData`, Spec-Tabelle je Panel
-- `upc-search/` Sub-Komponente — EAN/UPC-Produktsuche über Suchicon
-- `icecat-spec/` Sub-Komponente — EAN-basierter Icecat-Lookup (legacy, per EAN-Auswahl)
+- **Icecat-Accordion** — ausgelagert in `icecat-accordion/` Sub-Komponente. Zeigt Feature-Gruppen aus `fullSpecsData`, Spec-Tabelle je Panel
+- `upc-search/` und `icecat-spec/` Sub-Komponenten entfernt (EAN/UPC-Feature gelöscht)
 
 **Computed Signals:** `state`, `termGroups`, `lookupState`, `lookupQuickFacts`, `lookupIcecatId`, `lookupTerm`, `geizhalUrl`, `fullSpecsLoading`, `fullSpecsLoaded`, `icecatFeatureGroups`
 
 ## Core Services
 
 - `ProductLookupService` (`core/`): `lookup(listingId, lookupTerm)` + `loadFullSpecs(listingId, icecatId)`
-- `IcecatService` (`core/`): `getByEan(ean)` — EAN-basierter Icecat-Lookup
-- `EanSearchService` (`core/`): Produktsuche per Suchbegriff → EAN-Ergebnisse
+- `IcecatService` (`core/`): `getByEan(ean)` — EAN-basierter Lookup (legacy, nicht importiert)
+- `EanSearchService` (`core/`): Produktsuche → EAN-Ergebnisse (legacy, nicht importiert)
+- `usage.service.ts`: `ProviderUsage { callsThisPeriod, callsToday, tokensIn, tokensOut, quotaUsage, quotaLimit }`. `ApiUsageResponse { brave, groq, openRouter }` — ICECAT entfernt. Warning-Threshold: ≥80% von `quotaLimit`.
 
 ## Health & Verbindungs-Handling
 

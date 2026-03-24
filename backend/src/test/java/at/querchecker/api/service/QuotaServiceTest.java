@@ -115,6 +115,18 @@ class QuotaServiceTest {
         assertThat(service.isWarningThreshold(Provider.BRAVE)).isTrue();
     }
 
+    // --- ICECAT (kein Kontingent) ---
+
+    @Test
+    void checkQuota_returnsOk_forIcecat() {
+        assertThat(service.checkQuota(Provider.ICECAT)).isEqualTo(QuotaStatus.OK);
+    }
+
+    @Test
+    void isWarningThreshold_returnsFalse_forIcecat() {
+        assertThat(service.isWarningThreshold(Provider.ICECAT)).isFalse();
+    }
+
     private void givenBraveConfig(int freeLimit, int alertAtPercent) {
         ProviderConfig config = new ProviderConfig();
         config.setFreeLimit(freeLimit);

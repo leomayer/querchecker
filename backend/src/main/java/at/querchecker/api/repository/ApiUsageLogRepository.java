@@ -22,9 +22,16 @@ public interface ApiUsageLogRepository extends JpaRepository<ApiUsageLog, Long> 
         @Param("from") LocalDateTime from,
         @Param("to") LocalDateTime to);
 
-    @Query("SELECT AVG(l.durationMs) FROM ApiUsageLog l " +
-           "WHERE l.provider = :provider AND l.createdAt BETWEEN :from AND :to")
-    Double avgDurationMsByProviderAndCreatedAtBetween(
+    @Query("SELECT COALESCE(SUM(l.tokensInput), 0) FROM ApiUsageLog l " +
+           "WHERE l.provider = :provider AND l.createdAt BETWEEN :from AND :to AND l.tokensInput IS NOT NULL")
+    Long sumTokensInputByProviderAndCreatedAtBetween(
+        @Param("provider") Provider provider,
+        @Param("from") LocalDateTime from,
+        @Param("to") LocalDateTime to);
+
+    @Query("SELECT COALESCE(SUM(l.tokensOutput), 0) FROM ApiUsageLog l " +
+           "WHERE l.provider = :provider AND l.createdAt BETWEEN :from AND :to AND l.tokensOutput IS NOT NULL")
+    Long sumTokensOutputByProviderAndCreatedAtBetween(
         @Param("provider") Provider provider,
         @Param("from") LocalDateTime from,
         @Param("to") LocalDateTime to);

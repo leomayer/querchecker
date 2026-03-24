@@ -5,7 +5,6 @@ import at.querchecker.controller.dto.PreferenceResponse;
 import at.querchecker.entity.WhCategory;
 import at.querchecker.repository.WhCategoryRepository;
 import at.querchecker.research.CategorySpecPreferenceService;
-import at.querchecker.research.entity.CategorySpecPreference;
 import at.querchecker.research.repository.CategorySpecPreferenceRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,7 +32,7 @@ public class SettingsPreferencesController {
                 .map(p -> new PreferenceResponse(
                         p.getWhCategory().getId(),
                         p.getWhCategory().getName(),
-                        p.getFieldKeys()))
+                        p.getUserFieldKeys()))
                 .toList();
     }
 

@@ -24,12 +24,10 @@ public class CategorySpecPreference {
     @JoinColumn(name = "wh_category_id")
     private WhCategory whCategory;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "category_spec_preference_field",
-                     joinColumns = @JoinColumn(name = "preference_id"))
-    @Column(name = "field_key")
+    @OneToMany(mappedBy = "preference", cascade = CascadeType.ALL, orphanRemoval = true,
+               fetch = FetchType.EAGER)
     @Builder.Default
-    private List<String> fieldKeys = new ArrayList<>();
+    private List<CategorySpecPreferenceField> fields = new ArrayList<>();
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
@@ -38,5 +36,13 @@ public class CategorySpecPreference {
     @PreUpdate
     public void updateTimestamp() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    /** USER-Felder als editierbare Keywords (für Settings-UI und Brave-Query). */
+    public List<String> getUserFieldKeys() {
+        return fields.stream()
+                .filter(f -> f.getFieldSource() == FieldSource.USER)
+                .map(CategorySpecPreferenceField::getFieldKey)
+                .toList();
     }
 }

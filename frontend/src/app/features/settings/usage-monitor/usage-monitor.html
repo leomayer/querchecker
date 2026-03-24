@@ -2,39 +2,46 @@
   <table class="usage-table">
     <thead>
       <tr>
-        <th>Provider</th>
-        <th>Calls</th>
-        <th>Ø Dauer</th>
-        <th></th>
+        <th rowspan="2">Provider</th>
+        <th class="num">Calls</th>
+        <th colspan="2" class="num tokens-group">Tokens</th>
+        <th rowspan="2" class="quota-col">Kontingent</th>
+      </tr>
+      <tr>
+        <th class="num sub">Heute</th>
+        <th class="num sub">IN</th>
+        <th class="num sub">OUT</th>
       </tr>
     </thead>
     <tbody>
-      <tr [class.warn-row]="isBraveWarn()">
-        <td class="provider-name">Brave</td>
-        <td>{{ data.brave.calls | number }}</td>
-        <td>{{ data.brave.avgDurationMs | number:'1.0-0' }} ms</td>
-        <td>
-          @if (isBraveWarn()) {
-            <mat-icon class="warn-icon" title="Kontingent fast aufgebraucht">warning</mat-icon>
-          }
-        </td>
-      </tr>
-      <tr [class.warn-row]="isGroqWarn()">
-        <td class="provider-name">Groq</td>
-        <td>{{ data.groq.calls | number }}</td>
-        <td>{{ data.groq.avgDurationMs | number:'1.0-0' }} ms</td>
-        <td>
-          @if (isGroqWarn()) {
-            <mat-icon class="warn-icon" title="Kontingent fast aufgebraucht">warning</mat-icon>
-          }
-        </td>
-      </tr>
-      <tr>
-        <td class="provider-name">OpenRouter</td>
-        <td>{{ data.openRouter.calls | number }}</td>
-        <td>{{ data.openRouter.avgDurationMs | number:'1.0-0' }} ms</td>
-        <td></td>
-      </tr>
+      @for (row of [
+        { name: 'Brave',       p: data.brave },
+        { name: 'Groq',        p: data.groq },
+        { name: 'OpenRouter',  p: data.openRouter }
+      ]; track row.name) {
+        <tr [class.warn-row]="isOverThreshold(row.p)">
+          <td class="provider-name">{{ row.name }}</td>
+          <td class="num two-line">
+            <span>{{ row.p.calls | number:'1.0-0':'de' }}</span>
+            <span class="sub-value">{{ row.p.callsToday | number:'1.0-0':'de' }}</span>
+          </td>
+          <td class="num">
+            @if (row.p.tokensIn > 0) { {{ row.p.tokensIn | number:'1.0-0':'de' }} }
+            @else { <span class="na">—</span> }
+          </td>
+          <td class="num">
+            @if (row.p.tokensOut > 0) { {{ row.p.tokensOut | number:'1.0-0':'de' }} }
+            @else { <span class="na">—</span> }
+          </td>
+          <td class="quota-col">
+            @if (hasQuota(row.p)) {
+              <app-gradient-progress-bar [usage]="row.p.quotaUsage" [limit]="row.p.quotaLimit" />
+            } @else {
+              <span class="na">—</span>
+            }
+          </td>
+        </tr>
+      }
     </tbody>
   </table>
 } @else if (loading()) {
