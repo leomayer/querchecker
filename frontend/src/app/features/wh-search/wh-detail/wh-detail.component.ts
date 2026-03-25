@@ -1,8 +1,8 @@
 import {
-  
   Component,
   ElementRef,
   HostListener,
+  OnDestroy,
   effect,
   inject,
   signal,
@@ -15,6 +15,8 @@ import { SearchStore } from '../search.store';
 import { WhBaseComponent } from './wh-base/wh-base.component';
 import { ItemAnnotationComponent } from './item-annotation/item-annotation.component';
 import { ItemResearchComponent } from './item-research/item-research.component';
+import { EventSourceServerService } from '../../../shared/utils/event-source-server';
+import { AppSseEventName, ListingRefreshedPayload } from '../../../core/sse-events';
 
 const STORAGE_KEY_TOP    = 'wh-detail--top-height';
 const STORAGE_KEY_MIDDLE = 'wh-detail--middle-height';
@@ -39,10 +41,12 @@ const STORAGE_KEY_MIDDLE = 'wh-detail--middle-height';
   templateUrl: './wh-detail.component.html',
   styleUrl: './wh-detail.component.scss',
 })
-export class WhDetailComponent {
+export class WhDetailComponent implements OnDestroy {
   protected readonly store = inject(SearchStore);
   private readonly listingService = inject(ListingService);
   private readonly el = inject(ElementRef<HTMLElement>);
+  private readonly sseService = inject(EventSourceServerService) as
+    EventSourceServerService<AppSseEventName, ListingRefreshedPayload>;
 
   readonly detail = signal<WhDetailDto | null>(null);
 
@@ -50,8 +54,20 @@ export class WhDetailComponent {
   private dragStartY = 0;
   private dragStartHeight = 0;
 
+  private readonly onListingRefreshed = (payload: ListingRefreshedPayload): void => {
+    const current = this.detail();
+    if (!current || current.whItemId !== payload.whItemId) return;
+    this.detail.set({
+      ...current,
+      description: payload.description ?? current.description,
+      previews: payload.previews ?? current.previews,
+      categoryPath: payload.categoryPath ?? current.categoryPath,
+    });
+  };
+
   constructor() {
     this.restoreHeights();
+    this.sseService.addEventListener('listing-refreshed', this.onListingRefreshed);
 
     effect(() => {
       const selectedId = this.store.selectedId();
@@ -66,6 +82,10 @@ export class WhDetailComponent {
         });
       });
     });
+  }
+
+  ngOnDestroy(): void {
+    this.sseService.deleteEventListener('listing-refreshed', this.onListingRefreshed);
   }
 
   onDividerMousedown(event: MouseEvent, pane: 'top' | 'middle'): void {

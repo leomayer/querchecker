@@ -5,6 +5,7 @@ import at.querchecker.service.WhItemService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +22,12 @@ public class WhListingDetailController {
     @PostMapping("/detail")
     @Operation(summary = "Details zu einem Inserat abrufen und Aufruf erfassen")
     public WhDetailDto openDetail(@PathVariable Long id) {
-        return whItemService.openDetail(id);
+        try {
+            return whItemService.openDetail(id);
+        } catch (DataIntegrityViolationException e) {
+            // Race condition: concurrent first-open for the same listing — retry in a fresh transaction
+            return whItemService.openDetail(id);
+        }
     }
 
     @PutMapping("/detail/note")

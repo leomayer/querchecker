@@ -273,6 +273,10 @@ Signals: `backendReady()`, `connectionLost()`, `attempts()`, `serverRestartCount
 ### `AppComponent`
 - `effect()` auf `health.serverRestartCount()` → MatSnackBar "Server neugestartet — Verbindung wiederhergestellt" (5s)
 
+### HTTP Interceptors (`core/`)
+- `UaForwardingInterceptor` (`ua-forwarding.interceptor.ts`) — fügt `X-Querchecker-User-Agent` (`navigator.userAgent`) und `X-Querchecker-Accept-Language` (`navigator.language`) als Custom-Header an jeden Request an. Backend liest diese via `RequestUserAgentResolver` für Willhaben- und Jsoup-Calls.
+- `ServerErrorInterceptor` (`http-error.interceptor.ts`) — fängt 5xx und `status === 0`, ruft `health.notifyServerError()`. Injiziert `HealthService` lazy via `Injector` (bricht Circular-Dependency: `HealthService → HttpClient → HTTP_INTERCEPTORS → ServerErrorInterceptor → HealthService`). Beide in `app.config.ts` mit `HTTP_INTERCEPTORS` multi-Provider registriert (UaForwarding zuerst).
+
 ---
 
 ## OpenAPI Workflow

@@ -15,7 +15,7 @@ at.querchecker/
 │                   WhCategoryRepository, WhLocationRepository, AppConfigRepository,
 │                   WhItemRepository
 ├── config/         CorsConfig, RestTemplateConfig, SpringDocConfig,
-│                   UserAgentHolder, UserAgentFilter
+│                   UserAgentHolder, UserAgentFilter, RequestUserAgentResolver
 ├── sse/            SseController, SseHub
 ├── api/
 │   ├── entity/     ApiUsageLog, Provider (enum: BRAVE, GROQ, OPENROUTER, ICECAT), RequestType (enum)
@@ -286,6 +286,7 @@ Swagger UI: `/swagger-ui.html` (dev only, in Prod via `SPRING_PROFILES_ACTIVE=pr
   - `matchesExpectedPattern(url, SourceType)` — Regex: ICECAT `icecat.biz/p/[name]-[id].html`, GSMARENA `gsmarena.com/[name]-[id].php`, FLATPANELSHD `flatpanelshd.com/[name].php`; GENERIC passt immer
 - `HtmlFetchService`: `shouldFetchFullPage(SourceType)` (true für FLATPANELSHD/GSMARENA). `fetchAndExtract(url, SourceType)`: Jsoup-Fetch mit 10s Timeout, site-spezifische CSS-Selektoren (GSMArena: `table.specs-phone-big-table`; FlatpanelsHD: `table.specsTable, div.specs, table.tv-specs` mit `main`-Fallback).
 - `UserAgentHolder`: erfasst ersten Browser-User-Agent aus eingehenden Requests; Fallback: hardcodierter Chrome-UA. `UserAgentFilter`: Jakarta Servlet Filter; speichert UA bei jedem Request in `UserAgentHolder`.
+- `RequestUserAgentResolver` (`config/`): löst den UA für ausgehende HTTP-Calls auf — liest `X-Querchecker-User-Agent` aus dem aktuellen `RequestContextHolder`, Fallback: `UserAgentHolder.get()`. Wird von `WhApiClient` und `HtmlFetchService` verwendet. Konstante: `RequestUserAgentResolver.HEADER`.
 - `QuickFactsResult` record: `(Map<String,String> quickFacts, List<FeatureGroup> featureGroups, Sources sources)`. `featureGroups` null beim Snippets-Pfad; befüllt beim HTML-Fetch-Pfad. `Sources(icecatId, sourceUrl)`.
 - `LookupResponse`: `{ lookupStatus, quickFacts, icecatId, sourceType, sourceDomain, sourceUrl, featureGroupsJson }`.
 - `GroqExtractionService` und `BraveSearchService`/`BraveResult` entfernt.

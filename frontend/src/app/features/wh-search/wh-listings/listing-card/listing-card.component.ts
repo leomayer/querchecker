@@ -1,5 +1,4 @@
 import {
-  
   Component,
   computed,
   effect,
@@ -29,7 +28,13 @@ export interface InterestLevelChangedEvent {
 
 @Component({
   selector: 'app-listing-card',
-  imports: [MatIconModule, MatButtonModule, MatTooltipModule, DatePipe, CustomCurrencyPipe],
+  imports: [
+    MatIconModule,
+    MatButtonModule,
+    MatTooltipModule,
+    DatePipe,
+    CustomCurrencyPipe,
+  ],
   templateUrl: './listing-card.component.html',
   styleUrl: './listing-card.component.scss',
 })

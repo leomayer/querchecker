@@ -1,6 +1,6 @@
 package at.querchecker.research;
 
-import at.querchecker.config.UserAgentHolder;
+import at.querchecker.config.RequestUserAgentResolver;
 import at.querchecker.research.entity.SourceType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ public class HtmlFetchService {
 
     private static final int TIMEOUT_MS = 10_000;
 
-    private final UserAgentHolder userAgentHolder;
+    private final RequestUserAgentResolver uaResolver;
 
     /**
      * Entscheidet ob für einen SourceType ein vollständiger HTML-Fetch gemacht wird.
@@ -38,7 +38,7 @@ public class HtmlFetchService {
     public Optional<String> fetchAndExtract(String url, SourceType sourceType) {
         try {
             Document doc = Jsoup.connect(url)
-                    .userAgent(userAgentHolder.get())
+                    .userAgent(uaResolver.resolve())
                     .timeout(TIMEOUT_MS)
                     .get();
 

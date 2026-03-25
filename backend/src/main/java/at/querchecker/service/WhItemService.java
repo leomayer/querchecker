@@ -13,9 +13,6 @@ import at.querchecker.repository.WhCategoryRepository;
 import at.querchecker.repository.WhItemRepository;
 import at.querchecker.repository.WhListingRepository;
 import at.querchecker.willHaben.WhConstants;
-import at.querchecker.willHaben.WhSearchService;
-import at.querchecker.willHaben.api.WhApiResponse;
-import at.querchecker.willHaben.api.WhApiResponse.Advert;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -38,9 +35,9 @@ public class WhItemService {
     private final WhItemRepository whItemRepository;
     private final WhListingRepository whListingRepository;
     private final WhCategoryRepository whCategoryRepository;
-    private final WhSearchService whSearchService;
     private final ItemTextService itemTextService;
     private final DlOrchestrationService dlOrchestrationService;
+    private final WhListingRefreshService whListingRefreshService;
 
     @Transactional
     public WhDetailDto openDetail(Long whListingId) {
@@ -55,7 +52,9 @@ public class WhItemService {
         }
 
         WhListing listing = item.getWhListing();
-        String description = listing.getDescription();
+
+        // Return cached data immediately — WH refresh (full description, images, category)
+        // runs async in background and pushes a `listing-refreshed` SSE event when done.
         List<WhPreviewDto> previews = listing.getImagePaths().stream()
                 .map(p -> WhPreviewDto.builder()
                         .thumbUrl(WhConstants.WH_IMAGE_BASE + p + "_thumb.jpg")
@@ -63,67 +62,17 @@ public class WhItemService {
                         .build())
                 .collect(Collectors.toList());
 
-        // Fetch fresh description and images from WH (_next/data endpoint)
-        Advert advert = whSearchService.fetchListingDetail(listing.getUrl());
-        if (advert != null) {
-            // DESCRIPTION attribute has the full untruncated text (BODY_DYN in search is truncated)
-            String freshDesc = advert.getAttribute("DESCRIPTION");
-            if (freshDesc == null || freshDesc.isBlank()) freshDesc = advert.getAttribute("BODY_DYN");
-            if (freshDesc == null || freshDesc.isBlank()) freshDesc = advert.getDescription();
-            if (freshDesc != null && !freshDesc.isBlank()) {
-                description = freshDesc;
-                listing.setDescription(description);
-            }
-            if (advert.getAdvertImageList() != null
-                    && advert.getAdvertImageList().getAdvertImage() != null
-                    && !advert.getAdvertImageList().getAdvertImage().isEmpty()) {
-                List<WhApiResponse.AdvertImage> images = advert.getAdvertImageList().getAdvertImage();
-                previews = images.stream()
-                        .filter(img -> img.getReferenceImageUrl() != null && img.getThumbnailImageUrl() != null)
-                        .map(img -> WhPreviewDto.builder()
-                                .thumbUrl(img.getThumbnailImageUrl())
-                                .fullUrl(img.getReferenceImageUrl())
-                                .build())
-                        .collect(Collectors.toList());
-                // Update stored image paths from mainImageUrl (strip prefix + .jpg → stem)
-                List<String> freshPaths = images.stream()
-                        .filter(img -> img.getMainImageUrl() != null
-                                && img.getMainImageUrl().startsWith(WhConstants.WH_IMAGE_BASE)
-                                && img.getMainImageUrl().endsWith(".jpg"))
-                        .map(img -> img.getMainImageUrl()
-                                .substring(WhConstants.WH_IMAGE_BASE.length(),
-                                           img.getMainImageUrl().length() - 4))
-                        .collect(Collectors.toCollection(ArrayList::new));
-                if (!freshPaths.isEmpty()) {
-                    listing.getImagePaths().clear();
-                    listing.getImagePaths().addAll(freshPaths);
-                    whListingRepository.save(listing);
-                }
-            }
-        }
-
-        // Lazy category assignment — covers listings that had no category set during search
-        if (listing.getWhCategory() == null && advert != null) {
-            Integer catWhId = WhSearchService.parseDeepestCategoryWhId(advert);
-            if (catWhId != null) {
-                whCategoryRepository.findByWhId(catWhId).ifPresent(cat -> {
-                    listing.setWhCategory(cat);
-                    whListingRepository.save(listing);
-                    log.debug("Lazy category assigned: listingWhId={} → {}", listing.getWhId(), cat.getName());
-                });
-            }
-        }
-
-        // Create ItemText record for DL extraction pipeline (or return existing if content unchanged)
         ItemText itemText = itemTextService.findOrCreateOrUpdate(listing);
+        long itemId = item.getId();
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
+                whListingRefreshService.refreshAsync(listing.getId(), itemId);
                 dlOrchestrationService.scheduleExtraction(itemText);
             }
         });
 
-        return toDto(item, listing, description, previews);
+        return toDto(item, listing, listing.getDescription(), previews);
     }
 
     @Transactional

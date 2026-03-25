@@ -7,9 +7,24 @@
   [class.selected]="selected()"
   (click)="clicked.emit(listing())"
   (keydown.enter)="clicked.emit(listing())"
-  (keydown.space)="clicked.emit(listing())">
+  (keydown.space)="clicked.emit(listing())"
+>
   @if (listing().thumbnailUrl) {
-    <img class="thumbnail" [src]="listing().thumbnailUrl" [alt]="listing().title" loading="lazy" />
+    <div class="thumbnail-wrapper">
+      <img class="thumbnail" [src]="listing().thumbnailUrl" [alt]="listing().title" loading="lazy" />
+      @if (listing().viewCount) {
+        <div
+          class="view-chip"
+          [matTooltip]="
+            listing().lastViewedAt
+              ? listing().viewCount + '× gesehen · Zuletzt: ' + (listing().lastViewedAt | date: 'dd.MM.yyyy')
+              : listing().viewCount + '× gesehen'
+          ">
+          <mat-icon>visibility</mat-icon>
+          {{ listing().viewCount }}
+        </div>
+      }
+    </div>
   }
 
   <div class="card-body">
@@ -64,14 +79,6 @@
             <mat-icon>thumb_down</mat-icon>
           </button>
         </div>
-        @if (listing().viewCount) {
-          <span class="view-stats">
-            {{ listing().viewCount }}<span>x</span>
-            @if (listing().lastViewedAt) {
-              · {{ listing().lastViewedAt | date: 'dd.MM.' }}
-            }
-          </span>
-        }
       </div>
     </div>
   </div>

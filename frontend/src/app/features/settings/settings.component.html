@@ -11,6 +11,27 @@
     <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-panel-title>
+          <mat-icon class="panel-icon">tune</mat-icon>
+          Allgemein
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div class="setting-row">
+        <span class="setting-label">Schriftgröße</span>
+        <mat-button-toggle-group
+          [value]="theme.fontSize()"
+          (change)="theme.setFontSize($event.value)"
+          hideSingleSelectionIndicator>
+          <mat-button-toggle value="small">Klein</mat-button-toggle>
+          <mat-button-toggle value="medium">Normal</mat-button-toggle>
+          <mat-button-toggle value="large">Groß</mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
           <mat-icon class="panel-icon">palette</mat-icon>
           Design
         </mat-panel-title>

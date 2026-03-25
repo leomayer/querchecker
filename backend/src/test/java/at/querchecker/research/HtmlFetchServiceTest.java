@@ -1,6 +1,6 @@
 package at.querchecker.research;
 
-import at.querchecker.config.UserAgentHolder;
+import at.querchecker.config.RequestUserAgentResolver;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(MockitoExtension.class)
 class HtmlFetchServiceTest {
 
-    @Mock UserAgentHolder userAgentHolder;
+    @Mock RequestUserAgentResolver uaResolver;
     @InjectMocks HtmlFetchService service;
 
     @Test

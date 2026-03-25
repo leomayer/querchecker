@@ -21,6 +21,19 @@
   display: block;
 }
 
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 4px 0;
+
+  .setting-label {
+    font-size: 0.95rem;
+    color: var(--mat-sys-on-surface);
+  }
+}
+
 .panel-icon {
   margin-right: 8px;
   vertical-align: middle;

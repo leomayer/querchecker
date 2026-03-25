@@ -1,5 +1,6 @@
 package at.querchecker.willHaben;
 
+import at.querchecker.config.RequestUserAgentResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -17,6 +18,7 @@ import java.util.regex.Pattern;
 /**
  * Kapselt alle authentifizierten HTTP-Aufrufe zur Willhaben-API.
  * Holt den Application-Token einmalig und cached ihn für die Lebenszeit der Instanz.
+ * Verwendet den per-Request weitergeleiteten Browser-UA (X-Querchecker-User-Agent).
  */
 @Slf4j
 @Component
@@ -29,12 +31,11 @@ public class WhApiClient {
         "https://www.willhaben.at/";
     private static final String WH_CLIENT =
         "api@willhaben.at;responsive_web;server;1.0.0;";
-    private static final String USER_AGENT =
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36";
     private static final Pattern BUILD_ID_PATTERN =
         Pattern.compile("\"buildId\":\"([^\"]+)\"");
 
     private final RestTemplate restTemplate;
+    private final RequestUserAgentResolver uaResolver;
 
     private volatile String applicationToken;
     private volatile String buildId;
@@ -51,7 +52,7 @@ public class WhApiClient {
     private <T> ResponseEntity<T> doGet(URI uri, Class<T> responseType) {
         log.info("GET {}", uri);
         HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.USER_AGENT, USER_AGENT);
+        headers.set(HttpHeaders.USER_AGENT, uaResolver.resolve());
         headers.set(HttpHeaders.ACCEPT, "application/json");
         headers.set("X-WH-Client", WH_CLIENT);
         headers.set("X-WH-Application-Token", fetchApplicationToken());
@@ -77,7 +78,7 @@ public class WhApiClient {
             URI uri = new URI("https", "www.willhaben.at",
                 "/_next/data/" + fetchBuildId() + "/iad/" + cleanSeo + ".json", null, null);
             HttpHeaders headers = new HttpHeaders();
-            headers.set(HttpHeaders.USER_AGENT, USER_AGENT);
+            headers.set(HttpHeaders.USER_AGENT, uaResolver.resolve());
             headers.set(HttpHeaders.ACCEPT, "application/json");
             return restTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(headers), responseType);
         } catch (Exception e) {
@@ -91,7 +92,7 @@ public class WhApiClient {
         synchronized (this) {
             if (applicationToken != null) return applicationToken;
             HttpHeaders headers = new HttpHeaders();
-            headers.set(HttpHeaders.USER_AGENT, USER_AGENT);
+            headers.set(HttpHeaders.USER_AGENT, uaResolver.resolve());
             ResponseEntity<String> resp = restTemplate.exchange(
                 WH_TOKEN_URL, HttpMethod.GET, new HttpEntity<>(headers), String.class
             );
@@ -108,7 +109,7 @@ public class WhApiClient {
         synchronized (this) {
             if (buildId != null) return buildId;
             HttpHeaders headers = new HttpHeaders();
-            headers.set(HttpHeaders.USER_AGENT, USER_AGENT);
+            headers.set(HttpHeaders.USER_AGENT, uaResolver.resolve());
             headers.set(HttpHeaders.ACCEPT, "text/html");
             ResponseEntity<String> resp = restTemplate.exchange(
                 WH_HOME_URL, HttpMethod.GET, new HttpEntity<>(headers), String.class
