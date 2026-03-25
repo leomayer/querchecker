@@ -1,12 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, model } from '@angular/core';
-import { httpResource } from '@angular/common/http';
-import { API_URLS } from '../../../core/api-urls';
+import { Component, computed, inject, model } from '@angular/core';
 import { WhCategoryDto } from '../../../api/model/whCategoryDto';
 import { HierarchicalFilterComponent } from '../../../shared/components/hierarchical-filter-component/hierarchical-filter-component';
 import { FilterNode } from '../../../shared/components/hierarchical-filter-component/hierarchical-filter-component.model';
+import { WhMetaService } from '../../../core/wh-meta.service';
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-category-filter',
   imports: [HierarchicalFilterComponent],
   templateUrl: './category-filter.component.html',
@@ -15,13 +13,10 @@ import { FilterNode } from '../../../shared/components/hierarchical-filter-compo
 export class CategoryFilterComponent {
   categoryWhId = model<number | undefined>(undefined);
 
-  private categoriesResource = httpResource<WhCategoryDto[]>(
-    () => ({ url: API_URLS.whCategories }),
-    { defaultValue: [] },
-  );
+  private meta = inject(WhMetaService);
 
   filterNodes = computed<FilterNode[]>(() => {
-    const sorted = [...(this.categoriesResource.value() ?? [])].sort((a, b) =>
+    const sorted = [...(this.meta.categories() ?? [])].sort((a, b) =>
       (a.name ?? '').localeCompare(b.name ?? ''),
     );
     return this.toFilterNodes(sorted);

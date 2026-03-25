@@ -28,17 +28,19 @@ at.querchecker/
 │                   WhCategoryService, WhLocationService, WhRefreshScheduler,
 │                   api/WhApiResponse.java
 ├── research/
-│   ├── entity/     CategorySpecPreference, ProductLookup, LookupStatus (enum),
+│   ├── entity/     CategorySpecPreference, CategorySpecPreferenceField, ProductLookup,
+│   │               LookupStatus (enum), FieldSource (enum: SYSTEM, USER),
 │   │               CategorySearchSource, SourceType (enum: ICECAT, FLATPANELSHD, GSMARENA, GENERIC),
 │   │               ExtractionQuality (enum: GOOD, PARTIAL, EMPTY, FAILED_NO_CRITERIA)
-│   ├── model/      BraveResult, BraveApiResponse, QuickFactsResult,
+│   ├── model/      BraveApiResponse, QuickFactsResult (incl. featureGroups),
 │   │               LookupRequest/Response, FullSpecsRequest/Response, ProductLookupResult,
 │   │               SearchResult (generic: title, url, description, extraSnippets)
-│   ├── repository/ CategorySpecPreferenceRepository, ProductLookupRepository,
-│   │               CategorySearchSourceRepository
+│   ├── repository/ CategorySpecPreferenceRepository, CategorySpecPreferenceFieldRepository,
+│   │               ProductLookupRepository, CategorySearchSourceRepository
 │   ├── config/     ResearchConfig
-│   ├── seeder/     CategorySearchSourceDefinitions, CategorySearchSourceSeeder
-│   └── services:   BraveSearchService, GroqExtractionService, ProductLookupService,
+│   ├── seeder/     CategorySearchSourceDefinitions, CategorySearchSourceSeeder,
+│   │               CategorySpecPreferenceSeeder, CategorySpecPreferenceDefinitions
+│   └── services:   WebSearchService (interface), BraveWebSearchService, ProductLookupService,
 │                   IcecatService, CategorySpecPreferenceService, CategorySearchSourceService,
 │                   ExtractionQualityEvaluator, UrlValidator, HtmlFetchService
 │       controllers: ProductLookupController
@@ -243,8 +245,8 @@ Swagger UI: `/swagger-ui.html` (dev only, in Prod via `SPRING_PROFILES_ACTIVE=pr
 
 ## LLM Extraction API (`api/extraction/`)
 
-- `ExtractionClient` interface: `extractProductName(title, description, categoryName, DlCategoryPrompt)` + `extractQuickFacts(...)`
-- `AbstractLlmExtractionClient`: `callLlm()`, JSON-Parsing, `applyIcecatIdSafetyCheck()` (case-insensitive URL-Match), `formatSnippets()`
+- `ExtractionClient` interface: `extractProductName(...)` + `extractQuickFacts(lookupTerm, categoryName, braveResults, mandatoryFields, prompt)` + `extractQuickFactsFromText(lookupTerm, categoryName, pageText, mandatoryFields, prompt)` (HTML-Fetch-Pfad — `{snippets}` wird mit Jsoup-Output befüllt)
+- `AbstractLlmExtractionClient`: `callLlm()`, JSON-Parsing, `applyIcecatIdSafetyCheck()` (case-insensitive URL-Match), `formatSnippets()`. Parst `featureGroups` aus JSON wenn vorhanden.
 - `GroqExtractionClient` / `OpenRouterExtractionClient`: OpenAI-kompatibles API
 - `ExtractionProviderRouter`: aktiver Provider via `querchecker.api.extraction.active-provider` (GROQ | OPENROUTER)
 
@@ -264,15 +266,18 @@ Swagger UI: `/swagger-ui.html` (dev only, in Prod via `SPRING_PROFILES_ACTIVE=pr
 
 ## Research-Package (`research/`)
 
-- `BraveSearchService`: 3-stufige Suche (exakt, icecat.biz-scoped, breiter). Kein `Accept-Encoding: gzip` Header (RestTemplate kann nicht dekomprimieren)
-- `GroqExtractionService.extractFromSnippets(lookupTerm, whCategory, braveResults, mandatoryFields)`: löst Prompt per `DlPromptResolver` auf, ruft aktiven LLM-Provider auf → `QuickFactsResult { quickFacts, sources.icecatId, sources.icecatUrl }`
-- `ProductLookupService`: orchestriert Lookup — BraveSearch → GroqExtractionService → speichert in `ProductLookup`
+- `WebSearchService` (Interface): `search(lookupTerm, siteDomain, keywords, queryExcludes, resultCount)` → `List<SearchResult>`. Aktivierung per `querchecker.api.search.active-provider` (default: `BRAVE`).
+- `BraveWebSearchService implements WebSearchService`: 3-stufige Suche. Kein `Accept-Encoding: gzip` Header. Ersetzt `BraveSearchService`.
+- `SearchResult` record: `(title, url, description, extraSnippets)` — generisch. Ersetzt `BraveResult`.
+- `ProductLookupService`: Multi-Source-Schleife über `CategorySearchSource`-Liste. Je Quelle: Brave → HTML-Fetch (FLATPANELSHD/GSMARENA via Jsoup-Fallback-Loop) oder Snippets (ICECAT/GENERIC) → LLM → Quality-Check → weiter bei PARTIAL/EMPTY. Speichert `sourceType`, `sourceDomain`, `sourceUrl`, `featureGroupsJson` in `ProductLookup`.
 - `IcecatService`: Icecat-API nach `icecatId` (numerische ID, `icecat_id` Query-Param), gibt `icecatSpecsJson` zurück. Verwendet `Provider.ICECAT`. (`IcecatClient` und `EanSearchClient` entfernt.)
 - `IcecatFetchResult` record: Komponente heißt `isNotFound` (nicht `notFound` — Namenskonflikt mit statischer Factory-Methode). Accessor: `fetch.isNotFound()`.
 - `CategorySpecPreferenceService`: verwaltet Pflichtfelder je Kategorie.
   **Rekursive Vererbung** via `findWithInheritance(WhCategory)`: läuft die gesamte Elternkette hoch bis ein `CategorySpecPreference`-Eintrag gefunden wird (Level-2 → Level-1 → Level-0 → null). Wenn "Notebooks" keinen Eintrag hat, wird auf "Computer / Tablets" zurückgegriffen, dann auf die Root-Kategorie.
   **Unterschied zu `CategorySearchSource.inheritFromParent`**: nur eine Ebene (Level-2 erbt von Level-1, keine weitere Eskalation).
-  **`getMandatorySystemFields(WhCategory)`** — neue Methode; liefert nur SYSTEM-Felder. Wird von `ExtractionQualityEvaluator` verwendet, da USER-Felder Wert-Keywords (keine quickFacts-Keys) sind.
+  **`getMandatoryFields(WhCategory)`** — liefert SYSTEM + USER → LLM `{mandatoryFields}` + Quality-Check.
+  **`getQueryKeywords(WhCategory)`** — liefert nur USER-Felder (≤5) → Brave-Query-Keywords.
+  **`getMandatorySystemFields(WhCategory)`** — liefert nur SYSTEM-Felder. Übergabe an `ExtractionQualityEvaluator` (USER-Felder verfälschen Coverage — sie sind Wert-Keywords, keine quickFacts-Keys).
 - `CategorySearchSourceService`: `findForCategory(WhCategory)` — prüft zuerst eigene Level-2-Einträge (aktiv, nach Priority); falls keine vorhanden, Fallback auf Eltern-Einträge mit `inheritFromParent=true`. Nur eine Ebene (kein weiterer Aufstieg).
 - `ExtractionQualityEvaluator`: `evaluate(QuickFactsResult, List<String> systemFields, SourceType)` → `ExtractionQuality` (GOOD/PARTIAL/EMPTY/FAILED_NO_CRITERIA). Coverage ≥60% SYSTEM fields = GOOD; <60% = PARTIAL; 0% = EMPTY; keine Kriterien = FAILED_NO_CRITERIA. ICECAT-Quellen: zusätzlich `icecatId` muss vorhanden sein für GOOD.
 - `UrlValidator`: Anti-Halluzination URL-Validierung.
@@ -281,7 +286,9 @@ Swagger UI: `/swagger-ui.html` (dev only, in Prod via `SPRING_PROFILES_ACTIVE=pr
   - `matchesExpectedPattern(url, SourceType)` — Regex: ICECAT `icecat.biz/p/[name]-[id].html`, GSMARENA `gsmarena.com/[name]-[id].php`, FLATPANELSHD `flatpanelshd.com/[name].php`; GENERIC passt immer
 - `HtmlFetchService`: `shouldFetchFullPage(SourceType)` (true für FLATPANELSHD/GSMARENA). `fetchAndExtract(url, SourceType)`: Jsoup-Fetch mit 10s Timeout, site-spezifische CSS-Selektoren (GSMArena: `table.specs-phone-big-table`; FlatpanelsHD: `table.specsTable, div.specs, table.tv-specs` mit `main`-Fallback).
 - `UserAgentHolder`: erfasst ersten Browser-User-Agent aus eingehenden Requests; Fallback: hardcodierter Chrome-UA. `UserAgentFilter`: Jakarta Servlet Filter; speichert UA bei jedem Request in `UserAgentHolder`.
-- `SearchResult` (neu, `research/model/`): generisches Modell mit denselben Feldern wie `BraveResult` (title, url, description, extraSnippets). `BraveResult` bleibt bis zur späteren Phase erhalten.
+- `QuickFactsResult` record: `(Map<String,String> quickFacts, List<FeatureGroup> featureGroups, Sources sources)`. `featureGroups` null beim Snippets-Pfad; befüllt beim HTML-Fetch-Pfad. `Sources(icecatId, sourceUrl)`.
+- `LookupResponse`: `{ lookupStatus, quickFacts, icecatId, sourceType, sourceDomain, sourceUrl, featureGroupsJson }`.
+- `GroqExtractionService` und `BraveSearchService`/`BraveResult` entfernt.
 - `FieldSource` Enum (`research/entity/`): `SYSTEM` = benannte Felder für LLM-Pflichtfelder-Liste (nicht für Brave-Query geeignet); `USER` = Wert-Keywords für Brave-Query (nicht als quickFacts-Keys auswertbar — excluded from quality evaluation).
 
 ### CategorySearchSource Seeders (`research/seeder/`)
@@ -293,8 +300,8 @@ Swagger UI: `/swagger-ui.html` (dev only, in Prod via `SPRING_PROFILES_ACTIVE=pr
 ### CategorySearchSource (Flyway V30)
 Tabelle `category_search_source` — konfiguriert Suchquellen pro Kategorie.
 - `SourceType` enum: `ICECAT` | `FLATPANELSHD` | `GSMARENA` | `GENERIC`
-- Felder: `id`, `whCategory` (nullable=default), `priority`, `siteDomain`, `siteLabel`, `sourceType`, `coreFields TEXT[]`, `queryExcludes TEXT[]`, `searchResultCount` (default 10), `lookupEnabled` (default true), `inheritFromParent` (default false), `active` (default true)
-- `coreFields` / `queryExcludes`: `List<String>` mit `@Type(ListArrayType.class)` → PostgreSQL `TEXT[]`
+- Felder: `id`, `whCategory` (nullable=default), `priority`, `siteDomain`, `siteLabel`, `sourceType`, `queryExcludes TEXT[]`, `searchResultCount` (default 10), `lookupEnabled` (default true), `inheritFromParent` (default false), `active` (default true)
+- `queryExcludes`: `List<String>` mit `@Type(ListArrayType.class)` → PostgreSQL `TEXT[]` (`coreFields` wurde in V31 entfernt — Felder kommen jetzt aus `CategorySpecPreference`)
 - Unique constraint: `(wh_category_id, site_domain)`
 - `CategorySearchSourceRepository`:
   - `findByWhCategoryAndActiveTrueOrderByPriorityAsc(WhCategory)` — aktive Quellen
@@ -307,7 +314,7 @@ Tabelle `category_search_source` — konfiguriert Suchquellen pro Kategorie.
 ## Build & Tooling
 
 - Lombok + SpotBugs (Maven-Plugin, läuft bei `mvn verify`)
-- `io.hypersistence:hypersistence-utils-hibernate-63:3.9.11` — `ListArrayType` für PostgreSQL `TEXT[]` Mapping (`CategorySearchSource.coreFields`/`.queryExcludes`)
+- `io.hypersistence:hypersistence-utils-hibernate-63:3.9.11` — `ListArrayType` für PostgreSQL `TEXT[]` Mapping (`CategorySearchSource.queryExcludes`)
 - spring-boot-devtools: Hot-Restart bei Dateiänderungen
 - CORS: allows `http://localhost:14072`
 - DB: `jdbc:postgresql://localhost:14071/mydb`, user `myuser`

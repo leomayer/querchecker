@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 import { trigger, transition, style, animate, group, query } from '@angular/animations';
 import { MatButtonModule } from '@angular/material/button';
@@ -30,7 +30,6 @@ const SLIDE_OUT_LEFT = [
 const FADE_IN = [style({ opacity: 0 }), animate('300ms ease-in', style({ opacity: 1 }))];
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-main-layout',
   imports: [
     ZoneLeftComponent,

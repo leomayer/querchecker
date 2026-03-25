@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { DecimalPipe, SlicePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -24,7 +24,6 @@ interface TermGroup {
 type LookupState = 'empty' | 'loading' | 'COMPLETE' | 'FAILED' | 'QUOTA_EXCEEDED';
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-item-research',
   imports: [
     DecimalPipe,
@@ -102,18 +101,45 @@ export class ItemResearchComponent {
     return result.lookupStatus as LookupState;
   });
 
-  protected readonly lookupQuickFacts = computed<[string, string][]>(() => {
+  protected readonly orderedQuickFacts = computed<[string, string][]>(() => {
     const id = this.detail().whItemId;
     if (id == null) return [];
     const result = this.extractionStore.lookupResults()[id];
     if (!result?.quickFacts) return [];
-    return Object.entries(result.quickFacts) as [string, string][];
+    const facts = result.quickFacts;
+    const prefKeys = Array.from(this.preferredKeySet());
+    const preferred = prefKeys
+      .filter((k) => k in facts)
+      .map((k) => [k, facts[k]] as [string, string]);
+    const rest = Object.entries(facts)
+      .filter(([k]) => !prefKeys.includes(k))
+      .sort(([a], [b]) => a.localeCompare(b)) as [string, string][];
+    return [...preferred, ...rest];
   });
 
   protected readonly lookupIcecatId = computed<string | null>(() => {
     const id = this.detail().whItemId;
     if (id == null) return null;
     return this.extractionStore.lookupResults()[id]?.icecatId ?? null;
+  });
+
+  protected readonly showFullSpecsButton = computed<boolean>(() => {
+    const id = this.detail().whItemId;
+    if (id == null) return false;
+    const result = this.extractionStore.lookupResults()[id];
+    return result?.icecatId != null && result?.sourceType === 'ICECAT';
+  });
+
+  protected readonly lookupSourceDomain = computed<string | null>(() => {
+    const id = this.detail().whItemId;
+    if (id == null) return null;
+    return this.extractionStore.lookupResults()[id]?.sourceDomain ?? null;
+  });
+
+  protected readonly lookupSourceUrl = computed<string | null>(() => {
+    const id = this.detail().whItemId;
+    if (id == null) return null;
+    return this.extractionStore.lookupResults()[id]?.sourceUrl ?? null;
   });
 
   protected readonly lookupTerm = computed<string>(() => {

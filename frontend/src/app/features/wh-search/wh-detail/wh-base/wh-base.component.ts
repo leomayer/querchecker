@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,7 +11,6 @@ import { HierarchicalFilterComponent } from '../../../../shared/components/hiera
 import { FilterNode } from '../../../../shared/components/hierarchical-filter-component/hierarchical-filter-component.model';
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-wh-base',
   imports: [
     DatePipe,

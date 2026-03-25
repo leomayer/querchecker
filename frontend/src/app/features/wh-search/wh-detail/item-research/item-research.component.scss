@@ -126,6 +126,20 @@
   }
 }
 
+.source-link {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--mat-sys-on-surface-variant);
+  text-decoration: none;
+  opacity: 0.75;
+  margin-top: -4px;
+
+  &:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
+}
+
 .lookup-actions {
   display: flex;
   align-items: center;

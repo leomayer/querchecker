@@ -1,5 +1,5 @@
 import {
-  ChangeDetectionStrategy,
+  
   Component,
   ElementRef,
   inject,
@@ -22,7 +22,6 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { FilterNode } from './hierarchical-filter-component.model';
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-hierarchical-filter',
   imports: [
     MatAutocompleteModule,

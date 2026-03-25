@@ -1,5 +1,5 @@
 import {
-  ChangeDetectionStrategy,
+  
   Component,
   computed,
   effect,
@@ -28,7 +28,6 @@ export interface InterestLevelChangedEvent {
 }
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-listing-card',
   imports: [MatIconModule, MatButtonModule, MatTooltipModule, DatePipe, CustomCurrencyPipe],
   templateUrl: './listing-card.component.html',

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, output, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, output, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -12,7 +12,6 @@ import { ApiUsageResponse, ProviderUsage, UsageService } from '../../../core/usa
   imports: [DecimalPipe, MatButtonModule, MatCardModule, MatIconModule, MatProgressSpinnerModule, GradientProgressBarComponent],
   templateUrl: './usage-monitor.html',
   styleUrl: './usage-monitor.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UsageMonitor implements OnInit, OnDestroy {
   private readonly usageService = inject(UsageService);

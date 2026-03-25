@@ -134,7 +134,8 @@
       "Bash(jar -tf ~/.m2/repository/org/springframework/spring-web/6.2.8/spring-web-6.2.8-sources.jar)",
       "Bash(javap -classpath ~/.m2/repository/org/springframework/spring-web/6.2.8/spring-web-6.2.8.jar org.springframework.web.client.RestClient'$RequestBodySpec')",
       "Bash(docker compose:*)",
-      "Bash(find /home/leo/programming/github/querchecker -type f -name *preference* -o -name *rating*)"
+      "Bash(find /home/leo/programming/github/querchecker -type f -name *preference* -o -name *rating*)",
+      "Bash(xargs sed:*)"
     ]
   }
 }

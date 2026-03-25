@@ -1,6 +1,3 @@
-:host {
-  overflow: auto;
-}
 .w-full {
   width: 100%;
 }
@@ -118,7 +115,6 @@
   gap: 4px;
   margin-top: 4px;
   padding: 0;
-  overflow: auto;
 }
 
 // CSS custom properties cascade through component boundaries — no ::ng-deep needed.

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -13,7 +13,6 @@ export const SORT_FIELDS = [
 ] as const;
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-wh-sort',
   imports: [MatFormFieldModule, MatSelectModule, MatButtonToggleModule, MatIconModule],
   templateUrl: './wh-sort.component.html',

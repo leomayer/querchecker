@@ -1,5 +1,5 @@
 import {
-  ChangeDetectionStrategy,
+  
   Component,
   ElementRef,
   HostListener,
@@ -20,7 +20,6 @@ const STORAGE_KEY_TOP    = 'wh-detail--top-height';
 const STORAGE_KEY_MIDDLE = 'wh-detail--middle-height';
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-wh-detail',
   animations: [
     trigger('detailSlide', [

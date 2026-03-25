@@ -1,9 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 
 @Component({
   selector: 'app-gradient-progress-bar',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './gradient-progress-bar.component.html',
   styleUrl: './gradient-progress-bar.component.scss',
 })

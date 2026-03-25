@@ -1,11 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { IcecatFeatureGroup } from '../../../../../core/model/icecat.model';
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-icecat-accordion',
   imports: [MatExpansionModule, MatIconModule, MatTooltipModule],
   templateUrl: './icecat-accordion.component.html',

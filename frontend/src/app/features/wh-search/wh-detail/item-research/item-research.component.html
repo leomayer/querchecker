@@ -64,15 +64,22 @@
           Keine Icecat-Daten gefunden. Icecat kennt dieses Produkt möglicherweise nicht.
         </div>
       }
-      @if (lookupQuickFacts().length > 0) {
+      @if (orderedQuickFacts().length > 0) {
         <table class="quick-facts-table">
-          @for (entry of lookupQuickFacts(); track entry[0]) {
+          @for (entry of orderedQuickFacts(); track entry[0]) {
             <tr>
               <td class="fact-key">{{ entry[0] }}</td>
               <td class="fact-value">{{ entry[1] }}</td>
             </tr>
           }
         </table>
+      }
+      @if (lookupSourceDomain()) {
+        <a [href]="lookupSourceUrl() ?? 'https://' + lookupSourceDomain()"
+           target="_blank" rel="noopener"
+           class="source-link mat-body-small">
+          Daten von {{ lookupSourceDomain() }} ↗
+        </a>
       }
       <div class="lookup-actions">
         @if (geizhalUrl()) {
@@ -88,7 +95,7 @@
             Icecat
           </a>
         }
-        @if (lookupIcecatId() && !fullSpecsLoaded()) {
+        @if (showFullSpecsButton() && !fullSpecsLoaded()) {
           <button mat-icon-button class="full-specs-btn"
                   (click)="onLoadFullSpecs()"
                   [disabled]="fullSpecsLoading()"

@@ -1,5 +1,5 @@
 import {
-  ChangeDetectionStrategy,
+  
   Component,
   NgZone,
   ViewChild,
@@ -30,7 +30,6 @@ interface PredefinedTag {
 }
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-item-annotation',
   providers: [ItemDetailStore],
   imports: [

@@ -1,5 +1,5 @@
 import {
-  ChangeDetectionStrategy,
+  
   Component,
   computed,
   inject,
@@ -25,7 +25,6 @@ import { SearchStore } from '../search.store';
 export type RatingFilter = 'LIKE' | 'KEEP' | 'DISLIKE' | 'ALL';
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-wh-listings',
   imports: [
     MatFormFieldModule,
