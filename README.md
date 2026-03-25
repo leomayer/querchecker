@@ -18,38 +18,16 @@ Mir war dabei wichtig:
 
 ## Die App
 
-### Suche & Filter
 
-<div style="display: flex; align-items: flex-start; gap: 20px;">
-  <div style="flex: 1;">
-    <img src="docs/screenshots/search.png" alt="Suche & Filter" style="max-width: 100%;" />
-  </div>
-  <div style="flex: 2;">
-    <p>
-      Kleinanzeigen auf dem Willhaben Marktplatz durchsuchen mit Filtern für Stichwort, Standort, Kategorie und Preisspanne. Die Ergebnisliste zeigt Thumbnails und wesentliche Eckdaten auf einen Blick — Inserate können direkt bewertet, mit Notizen versehen und nach Rating gefiltert werden.
-    </p>
-  </div>
-</div>
 
-<div style="display: flex; flex-wrap: wrap; gap: 30px; align-items: flex-start;">
+## 🔍 Suche & Filterung
 
-  <div style="flex: 1; min-width: 300px;">
-    <img src="docs/screenshots/search_part1.png" alt="Suche & Preis" style="width: 100%; border-radius: 6px; border: 1px solid #e1e4e8;" />
-    <h3 style="margin-top: 15px; border-bottom: none;">🔍 Suche & Preisrahmen</h3>
-    <p>
-      Starten Sie Ihre Recherche mit einem gezielten <b>Suchbegriff</b>. Um die Ergebnisliste übersichtlich zu halten, können Sie die <b>Anzahl der Treffer</b> vorab limitieren und eine <b>Preisspanne</b> festlegen, die genau in Ihr Budget passt.
-    </p>
-  </div>
+Damit du nicht den Überblick verlierst, kannst du deine Suche im Querchecker sehr präzise steuern. Der Filter-Bereich ist in drei logische Schritte unterteilt:
 
-  <div style="flex: 1; min-width: 300px;">
-    <img src="docs/screenshots/search_part2.png" alt="Standort & Kategorien" style="width: 100%; border-radius: 6px; border: 1px solid #e1e4e8;" />
-    <h3 style="margin-top: 15px; border-bottom: none;">📍 Region & Kategorien</h3>
-    <p>
-      Grenzen Sie die Suche auf Ihr <b>Bundesland oder den Bezirk</b> ein. Über den tief verschachtelten <b>Kategorienbaum</b> (z.B. Hardware > Scanner) finden Sie exakt das, was Sie suchen. Aktivieren Sie <i>Nur Paylivery</i> für einen sicheren Kaufprozess.
-    </p>
-  </div>
-
-</div>
+| Was & Wie viel                                                                                                                                                                             | 📍Wo &  Kategorie                                                                                                                                                   | Extras & Aktion                                                                                                                                                                   |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |:------------------------------------------------------------------------------------------------------------------------------------------------------------------- |:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <img src="docs/screenshots/search_part1.png" width="100%" />                                                                                                                               | <img src="docs/screenshots/search_part2.png" width="100%" />                                                                                                        | <img src="docs/screenshots/search_part3.png" width="100%" />                                                                                                                      |
+| **Deine Basis-Suche**<br>Hier gibst du deinen **Suchbegriff** ein und legst dein **Budget** fest. Du entscheidest auch gleich vorab, wie viele **Ergebnisse** du pro Seite laden möchtest. | **Standort & Kategorien**<br>Grenze deine Suche auf ein **Bundesland** oder einen **Bezirk** ein. Über die **Kategorie** filterst du gezielt nach Hardware-Gruppen. | **Sicherheit & Start**<br>Aktiviere **Nur Paylivery**, wenn du nur Angebote mit Käuferschutz sehen willst. Mit einem Klick auf **Suchen** geht es los oder du setzt alles zurück. |
 
 ---
 
