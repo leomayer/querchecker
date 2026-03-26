@@ -140,6 +140,34 @@ a {
   }
 }
 
+// Material Symbols: global default = outlined (FILL=0).
+// Use .symbol-filled on individual icons that should appear filled.
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+}
+
+// Utility class: opt individual icons into filled (FILL=1) style
+.symbol-filled {
+  font-variation-settings:
+    'FILL' 1,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+}
+
+// Utility class: opt individual icons into outlined (FILL=0) style
+.symbol-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+}
+
 // Default icon color — overridden per-component where needed
 .mat-icon {
   color: var(--color-on-surface-variant);

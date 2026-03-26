@@ -1,5 +1,4 @@
 import {
-  
   Component,
   NgZone,
   ViewChild,
@@ -7,6 +6,7 @@ import {
   effect,
   inject,
   input,
+  signal,
   untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -24,14 +24,10 @@ import { ListingService } from '../../../../core/listing.service';
 import { SearchStore } from '../../search.store';
 import { ItemDetailStore } from './item-detail.store';
 
-interface PredefinedTag {
-  label: string;
-  positive: boolean;
-}
-
 @Component({
   selector: 'app-item-annotation',
   providers: [ItemDetailStore],
+  host: { '[class.notes-open]': 'notesOpen()' },
   imports: [
     FormsModule,
     MatButtonModule,
@@ -56,18 +52,39 @@ export class ItemAnnotationComponent {
 
   @ViewChild('notesRef') notesRef!: CdkTextareaAutosize;
 
-  readonly PREDEFINED_TAGS: PredefinedTag[] = [
-    { label: 'Guter Preis', positive: true },
-    { label: 'Überlegenswert', positive: true },
-    { label: 'Zu teuer', positive: false },
-    { label: 'Schlechte Fotos', positive: false },
-  ];
+  readonly notesOpen = signal(false);
 
-  readonly customTags = computed(() =>
-    this.store.tags().filter((t) => !this.PREDEFINED_TAGS.some((p) => p.label === t)),
+  readonly hasNote = computed(() => !!this.store.notes().trim());
+  readonly notesBtnIcon = computed(() => (this.hasNote() ? 'sticky_note_2' : 'article'));
+  readonly notesBtnTooltip = computed(() =>
+    this.hasNote() ? 'Notiz bearbeiten' : 'Notiz hinzufügen',
   );
 
-  customTagInput = '';
+  readonly saveStateIcon = computed(() => {
+    if (this.store.saveState() === 'saved') return 'check_circle';
+    if (this.store.hasUserEdited()) return 'edit';
+    return 'check';
+  });
+
+  readonly saveStateClass = computed(() => {
+    if (this.store.saveState() === 'saved') return 'saved';
+    if (this.store.saveState() === 'error') return 'error';
+    if (this.store.hasUserEdited()) return 'unsaved';
+    return 'idle';
+  });
+
+  readonly saveStateTooltip = computed(() => {
+    switch (this.store.saveState()) {
+      case 'pending':
+        return 'Speichert…';
+      case 'saved':
+        return 'Gespeichert';
+      case 'error':
+        return 'Fehler beim Speichern';
+      default:
+        return this.store.hasUserEdited() ? 'Ungespeicherte Änderungen' : 'Keine Änderungen';
+    }
+  });
 
   constructor() {
     effect(() => {
@@ -75,10 +92,23 @@ export class ItemAnnotationComponent {
       untracked(() => this.store.load(d.id!, d));
       this.ngZone.onStable.pipe(take(1)).subscribe(() => this.notesRef?.resizeToFitContent(true));
     });
+
+    effect(
+      () => this.notesOpen.set(!!this.detail().note?.trim()),
+      { allowSignalWrites: true },
+    );
   }
 
-  isTagSelected(label: string): boolean {
-    return this.store.tags().includes(label);
+  toggleNotes(): void {
+    const opening = !this.notesOpen();
+    this.notesOpen.set(opening);
+    if (opening) {
+      this.ngZone.onStable.pipe(take(1)).subscribe(() => this.notesRef?.resizeToFitContent(true));
+    }
+  }
+
+  clearNote(): void {
+    this.store.updateNotes('');
   }
 
   onVerdict(rating: 'UP' | 'DOWN' | null): void {
@@ -97,21 +127,5 @@ export class ItemAnnotationComponent {
     const next = this.store.interestLevel() === level ? null : level;
     this.store.setInterestLevel(next);
     this.listingService.updateInterest(this.detail().id!, next).subscribe();
-  }
-
-  onToggleTag(label: string): void {
-    const current = this.store.tags();
-    const next = current.includes(label) ? current.filter((t) => t !== label) : [...current, label];
-    this.store.setTags(next);
-    this.listingService.updateTags(this.detail().id!, next).subscribe();
-  }
-
-  onAddCustomTag(): void {
-    const tag = this.customTagInput.trim();
-    if (!tag || this.store.tags().includes(tag)) return;
-    const next = [...this.store.tags(), tag];
-    this.store.setTags(next);
-    this.customTagInput = '';
-    this.listingService.updateTags(this.detail().id!, next).subscribe();
   }
 }

@@ -5,7 +5,12 @@ import { AppSseEventName, DlExtractionDonePayload } from '../../core/sse-events'
 import { EventSourceServerService } from '../../shared/utils/event-source-server';
 import { DlExtractionService, DlExtractionStatusResponse } from '../../core/dl-extraction.service';
 import { LookupResult, ProductLookupService } from '../../core/product-lookup.service';
-import { IcecatData, IcecatFeatureGroup, IcecatResponse, SpecsFeatureGroup } from '../../core/model/icecat.model';
+import {
+  IcecatData,
+  IcecatFeatureGroup,
+  IcecatResponse,
+  SpecsFeatureGroup,
+} from '../../core/model/icecat.model';
 
 interface ExtractionState {
   results: Record<number, DlExtractionTermDto[]>;
@@ -110,7 +115,9 @@ export const ExtractionStore = signalStore(
                 cachedGroups = parsed?.data?.FeaturesGroups ?? [];
                 cachedGeneralInfo = parsed?.data?.GeneralInfo;
                 cachedCatalogUrl = parsed?.data?.CatalogObjectCloud?.ProductPage?.URL;
-              } catch { /* ignore */ }
+              } catch {
+                /* ignore */
+              }
             }
 
             // Parse featureGroups from HTML-Fetch path (GSMArena, FlatpanelsHD)
@@ -118,7 +125,9 @@ export const ExtractionStore = signalStore(
             if (result.featureGroupsJson) {
               try {
                 featureGroups = JSON.parse(result.featureGroupsJson) as SpecsFeatureGroup[];
-              } catch { /* ignore */ }
+              } catch {
+                /* ignore */
+              }
             }
 
             const lookupResultWithExtras: LookupResult = {
@@ -135,7 +144,10 @@ export const ExtractionStore = signalStore(
               if (specsAlreadyCached) {
                 next.fullSpecsLoaded = { ...s.fullSpecsLoaded, [whItemId]: true };
                 next.fullSpecsData = { ...s.fullSpecsData, [whItemId]: cachedGroups };
-                next.fullSpecsGeneralInfo = { ...s.fullSpecsGeneralInfo, [whItemId]: cachedGeneralInfo };
+                next.fullSpecsGeneralInfo = {
+                  ...s.fullSpecsGeneralInfo,
+                  [whItemId]: cachedGeneralInfo,
+                };
                 next.icecatCatalogUrls = { ...s.icecatCatalogUrls, [whItemId]: cachedCatalogUrl };
               }
               return next;
@@ -163,7 +175,9 @@ export const ExtractionStore = signalStore(
                 featureGroups = parsed?.data?.FeaturesGroups ?? [];
                 generalInfo = parsed?.data?.GeneralInfo;
                 catalogUrl = parsed?.data?.CatalogObjectCloud?.ProductPage?.URL;
-              } catch { /* ignore parse errors */ }
+              } catch {
+                /* ignore parse errors */
+              }
             }
             patchState(store, (s) => ({
               fullSpecsLoaded: { ...s.fullSpecsLoaded, [whItemId]: true },
@@ -183,9 +197,10 @@ export const ExtractionStore = signalStore(
     };
   }),
   withHooks((store) => {
-    const sseService = inject(
-      EventSourceServerService,
-    ) as EventSourceServerService<AppSseEventName, DlExtractionDonePayload>;
+    const sseService = inject(EventSourceServerService) as EventSourceServerService<
+      AppSseEventName,
+      DlExtractionDonePayload
+    >;
 
     const onDlExtract = (payload: DlExtractionDonePayload): void => {
       console.log('[ExtractionStore.onDlExtract] SSE event received:', payload);
@@ -195,7 +210,9 @@ export const ExtractionStore = signalStore(
         return;
       }
       const incoming = payload.terms ?? [];
-      console.log(`[ExtractionStore.onDlExtract] Processing ${incoming.length} terms for whItemId=${whItemId}`);
+      console.log(
+        `[ExtractionStore.onDlExtract] Processing ${incoming.length} terms for whItemId=${whItemId}`,
+      );
       // Replace entries for this model, keep others — handles retries cleanly
       const incomingModels = new Set(incoming.map((t) => t.modelName));
       patchState(store, (s) => {
@@ -213,7 +230,10 @@ export const ExtractionStore = signalStore(
         if (payload.suggestedTerm && !s.suggestedTerms[whItemId]) {
           next.suggestedTerms = { ...s.suggestedTerms, [whItemId]: payload.suggestedTerm };
         }
-        console.log(`[ExtractionStore.onDlExtract] Stored ${next.results[whItemId]?.length ?? 0} total terms for whItemId=${whItemId}`);
+        const extracted = (next.results ?? [])[whItemId]?.length ?? 0;
+        console.log(
+          `[ExtractionStore.onDlExtract] Stored ${extracted} total terms for whItemId=${whItemId}`,
+        );
         return next;
       });
     };
