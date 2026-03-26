@@ -4,9 +4,9 @@ server:
 
 spring:
   config:
-    import: optional:file:../config/secrets.yml   # dev: relative to backend/ working dir
+    import: optional:file:../config/secrets.yml # dev: relative to backend/ working dir
   lifecycle:
-    timeout-per-shutdown-phase: 5s  # Fast DevTools restarts without waiting for long-lived connections (SSE)
+    timeout-per-shutdown-phase: 5s # Fast DevTools restarts without waiting for long-lived connections (SSE)
   flyway:
     enabled: true
     locations: classpath:db/migration
@@ -27,9 +27,9 @@ spring:
 querchecker:
   api:
     extraction:
-      active-provider: GROQ   # GROQ | OPENROUTER — Neustart nötig bei Wechsel
+      active-provider: GROQ # GROQ | OPENROUTER — Neustart nötig bei Wechsel
     search:
-      active-provider: BRAVE  # BRAVE | GOOGLE (zukünftig)
+      active-provider: BRAVE # BRAVE | GOOGLE (zukünftig)
     providers:
       brave:
         free-limit: 1000
@@ -39,7 +39,7 @@ querchecker:
         alert-at-percent: 80
       groq:
         model: llama-3.1-8b-instant
-        free-limit: 25000
+        free-limit: 500000
         free-limit-period: DAILY
         period-start-day: 1
         limit-unit: TOKENS
@@ -51,17 +51,17 @@ querchecker:
         limit-unit: REQUESTS
         alert-at-percent: 80
   research:
-    source-model: llama   # substring match against DlExtractionTerm.modelName — change to switch models
+    source-model: llama # substring match against DlExtractionTerm.modelName — change to switch models
   wh:
     refresh:
-      cron: "0 0 3 * * MON"   # montags um 03:00; Spring-Cron: Sek Min Std Tag Mon Wochentag
+      cron: "0 0 3 * * MON" # montags um 03:00; Spring-Cron: Sek Min Std Tag Mon Wochentag
   dl:
-    min-confidence: 0.0       # Evaluierungsphase: alle Ergebnisse speichern
-    top-k: 5                  # Filter VOR DB-Insert
-    gpu-layers: 0             # 0 = CPU-only; set to 999 in GPU environments (llama.cpp clamps to model layer count)
+    min-confidence: 0.0 # Evaluierungsphase: alle Ergebnisse speichern
+    top-k: 5 # Filter VOR DB-Insert
+    gpu-layers: 0 # 0 = CPU-only; set to 999 in GPU environments (llama.cpp clamps to model layer count)
     item-text-cleanup:
-      retention-days: 10      # ältere ItemText-Records löschen (nicht neuester + kein userCorrectedTerm)
-      cron: "0 0 3 * * *"     # täglich um 3 Uhr nachts
+      retention-days: 10 # ältere ItemText-Records löschen (nicht neuester + kein userCorrectedTerm)
+      cron: "0 0 3 * * *" # täglich um 3 Uhr nachts
 
 logging:
   level:
