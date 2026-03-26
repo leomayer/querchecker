@@ -74,11 +74,11 @@
           }
         </table>
       }
-      @if (lookupSourceDomain()) {
+      @if (lookupSourceLabel()) {
         <a [href]="lookupSourceUrl() ?? 'https://' + lookupSourceDomain()"
            target="_blank" rel="noopener"
            class="source-link mat-body-small">
-          Daten von {{ lookupSourceDomain() }} ↗
+          Daten von {{ lookupSourceLabel() }} ↗
         </a>
       }
       <div class="lookup-actions">
@@ -88,7 +88,7 @@
             Geizhals
           </a>
         }
-        @if (icecatPageUrl()) {
+        @if (icecatPageUrl() && (lookupSourceDomain() === 'icecat.biz' || fullSpecsLoaded())) {
           <a class="geizhals-link" [href]="icecatPageUrl()!" target="_blank" rel="noopener"
              matTooltip="Produktseite auf Icecat öffnen">
             <mat-icon class="link-icon">open_in_new</mat-icon>
