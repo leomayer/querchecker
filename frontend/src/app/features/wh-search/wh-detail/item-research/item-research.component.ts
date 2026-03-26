@@ -1,13 +1,12 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
-import { DecimalPipe, SlicePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatIconButton } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { DlExtractionTermDto } from '../../../../api/model/dlExtractionTermDto';
 import { WhDetailDto } from '../../../../api/model/whDetailDto';
 import { ExtractionStore } from '../../extraction.store';
 import { IcecatData, IcecatFeatureGroup, SpecsFeatureGroup } from '../../../../core/model/icecat.model';
@@ -15,23 +14,17 @@ import { IcecatAccordionComponent } from './icecat-accordion/icecat-accordion.co
 import { SpecsAccordionComponent } from './specs-accordion/specs-accordion.component';
 import { PreferenceEntry, PreferencesService } from '../../../../core/preferences.service';
 
-interface TermGroup {
-  modelName: string;
-  terms: DlExtractionTermDto[];
-  durationMs?: number;
-}
-
 type LookupState = 'empty' | 'loading' | 'COMPLETE' | 'FAILED' | 'QUOTA_EXCEEDED';
 
 @Component({
   selector: 'app-item-research',
   imports: [
-    DecimalPipe,
-    SlicePipe,
+    DatePipe,
     FormsModule,
+    MatButton,
+    MatIconButton,
     MatFormFieldModule,
     MatIconModule,
-    MatIconButton,
     MatInputModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
@@ -43,6 +36,8 @@ type LookupState = 'empty' | 'loading' | 'COMPLETE' | 'FAILED' | 'QUOTA_EXCEEDED
 })
 export class ItemResearchComponent {
   readonly detail = input.required<WhDetailDto>();
+  /** Placeholder for future: disable AI search for unconfigured categories. */
+  readonly aiSearchEnabled = input(true);
 
   private readonly extractionStore = inject(ExtractionStore);
 
@@ -58,8 +53,7 @@ export class ItemResearchComponent {
       }
     });
 
-    // Pre-fill from store suggestion, but only when the field is still empty
-    // — preserves any text the user has already typed.
+    // Pre-fill from store suggestion, but only when the field is still empty.
     // Also auto-triggers the spec-lookup when a suggested term arrives and no
     // lookup result exists yet — the backend returns cached data instantly when available.
     effect(() => {
@@ -78,16 +72,13 @@ export class ItemResearchComponent {
     });
   }
 
-  protected readonly state = computed<'idle' | 'loading' | 'done'>(() => {
-    const id = this.detail().whItemId;
-    if (id == null) return 'idle';
-    return id in this.extractionStore.results() ? 'done' : 'loading';
-  });
+  // --- Extraction state ---
 
-  protected readonly termGroups = computed<TermGroup[]>(() => {
+  protected readonly extractionLoading = computed<boolean>(() => {
     const id = this.detail().whItemId;
-    if (id == null) return [];
-    return this.groupByModel(this.extractionStore.results()[id] ?? []);
+    if (id == null) return false;
+    const status = this.extractionStore.extractionStatus()[id];
+    return status == null || status === 'PENDING';
   });
 
   // --- Spec-Lookup ---
@@ -115,6 +106,16 @@ export class ItemResearchComponent {
       .filter(([k]) => !prefKeys.includes(k))
       .sort(([a], [b]) => a.localeCompare(b)) as [string, string][];
     return [...preferred, ...rest];
+  });
+
+  /** Quick facts chunked into rows of 3 for the 3-column table layout. */
+  protected readonly quickFactsRows = computed<[string, string][][]>(() => {
+    const facts = this.orderedQuickFacts();
+    const rows: [string, string][][] = [];
+    for (let i = 0; i < facts.length; i += 3) {
+      rows.push(facts.slice(i, i + 3));
+    }
+    return rows;
   });
 
   protected readonly lookupIcecatId = computed<string | null>(() => {
@@ -195,23 +196,11 @@ export class ItemResearchComponent {
     return this.extractionStore.lookupResults()[id]?.featureGroups ?? [];
   });
 
-  protected readonly noIcecatData = computed<boolean>(() => {
-    const id = this.detail().whItemId;
-    if (id == null) return false;
-    const result = this.extractionStore.lookupResults()[id];
-    if (!result || result.lookupStatus !== 'COMPLETE') return false;
-    const hasQuickFacts = Object.keys(result.quickFacts ?? {}).length > 0;
-    const hasFeatureGroups = (result.featureGroups?.length ?? 0) > 0;
-    return !hasQuickFacts && !result.icecatId && !hasFeatureGroups;
-  });
-
   protected readonly icecatPageUrl = computed<string | null>(() => {
     const id = this.detail().whItemId;
     if (id == null) return null;
-    // Prefer the canonical catalog URL from the full specs JSON
     const catalogUrl = this.extractionStore.icecatCatalogUrls()[id];
     if (catalogUrl) return catalogUrl;
-    // Fallback: construct an icecat.biz search using the lookup term
     const term = this.lookupTerm() || this.searchTerm().trim();
     const icecatId = this.lookupIcecatId();
     if (!term && !icecatId) return null;
@@ -219,14 +208,25 @@ export class ItemResearchComponent {
     return 'https://icecat.biz/de/search/?q=' + encodeURIComponent(q);
   });
 
-  protected readonly icecatMismatch = computed<boolean>(() => {
-    const info = this.icecatGeneralInfo();
-    if (!info) return false;
-    const brand = (info.Brand ?? '').toLowerCase().trim();
-    if (brand.length < 2) return false;
-    const term = (this.lookupTerm() || this.searchTerm()).toLowerCase();
-    return !term.includes(brand);
+  protected readonly lookupTimestamp = computed<Date | null>(() => {
+    const id = this.detail().whItemId;
+    if (id == null) return null;
+    const ts = this.extractionStore.lookupTimestamps()[id];
+    return ts ? new Date(ts) : null;
   });
+
+  protected readonly fullSpecsTimestamp = computed<Date | null>(() => {
+    const id = this.detail().whItemId;
+    if (id == null) return null;
+    const ts = this.extractionStore.fullSpecsTimestamps()[id];
+    return ts ? new Date(ts) : null;
+  });
+
+  protected readonly searchButtonDisabled = computed<boolean>(() =>
+    !this.aiSearchEnabled() ||
+    !this.searchTerm().trim() ||
+    this.lookupState() === 'loading',
+  );
 
   // --- Preferences ---
 
@@ -237,13 +237,11 @@ export class ItemResearchComponent {
     this.prefService.getAll().subscribe((list) => this.preferences.set(list));
   }
 
-  /** The leaf category ID to save new preferences to (most specific in path). */
   protected readonly activeCategoryId = computed<number | null>(() => {
     const path = this.detail().categoryPath ?? [];
     return path.length > 0 ? (path[path.length - 1].id ?? null) : null;
   });
 
-  /** The preference entry currently active for this listing's category path. */
   private readonly activePrefEntry = computed<PreferenceEntry | null>(() => {
     const path = this.detail().categoryPath ?? [];
     const prefs = this.preferences();
@@ -265,13 +263,11 @@ export class ItemResearchComponent {
     if (catId == null) return;
     const key = featureName.toLowerCase();
     const currentKeys = (this.activePrefEntry()?.fieldKeys ?? []).map((k) => k.toLowerCase());
-    // Use same fuzzy check as isPreferred for removal, exact add for insertion
     const alreadyPreferred = currentKeys.some((k) => key.includes(k));
     const newKeys = alreadyPreferred
       ? currentKeys.filter((k) => !key.includes(k))
       : [...currentKeys, key];
 
-    // Optimistic update
     const patch = (list: PreferenceEntry[]): PreferenceEntry[] => {
       const idx = list.findIndex((p) => p.categoryId === catId);
       if (idx >= 0) {
@@ -286,7 +282,7 @@ export class ItemResearchComponent {
         this.preferences.update((list) =>
           list.map((p) => (p.categoryId === saved.categoryId ? saved : p)),
         ),
-      error: () => this.loadPreferences(), // rollback on error
+      error: () => this.loadPreferences(),
     });
   }
 
@@ -306,31 +302,5 @@ export class ItemResearchComponent {
     const listingId = this.detail().id;
     if (!icecatId || whItemId == null || listingId == null) return;
     this.extractionStore.loadFullSpecs(whItemId, listingId, icecatId);
-  }
-
-  private groupByModel(terms: DlExtractionTermDto[]): TermGroup[] {
-    const map = new Map<string, DlExtractionTermDto[]>();
-    for (const t of terms) {
-      const key = t.modelName ?? 'Unbekannt';
-      if (!map.has(key)) map.set(key, []);
-      map.get(key)!.push(t);
-    }
-    return Array.from(map.entries()).map(([modelName, ts]) => ({
-      modelName,
-      terms: ts,
-      durationMs: ts[0]?.durationMs,
-    }));
-  }
-
-  protected confidencePct(confidence: number | undefined): string {
-    if (confidence == null) return '';
-    return Math.round(confidence * 100) + '%';
-  }
-
-  protected confidenceClass(confidence: number | undefined): string {
-    if (confidence == null) return '';
-    if (confidence >= 0.7) return 'conf-high';
-    if (confidence >= 0.4) return 'conf-mid';
-    return 'conf-low';
   }
 }

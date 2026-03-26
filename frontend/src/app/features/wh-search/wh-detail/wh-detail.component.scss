@@ -4,9 +4,8 @@
   overflow: hidden;
   position: relative;
 
-  // Defaults — overridden by inline style when user drags or localStorage restores
+  // Overridden by inline style when user drags or localStorage restores
   --top-height: 480px;
-  --middle-height: 220px;
 }
 
 .detail-panel {
@@ -47,10 +46,10 @@
   }
 }
 
-app-wh-base         { flex: 0 0 var(--top-height); min-height: 200px; overflow-y: auto; }
-app-item-annotation { flex: 0 0 auto;              overflow: hidden;
-  &.notes-open      { flex: 0 0 var(--middle-height); min-height: 100px; overflow-y: auto; } }
-app-item-research   { flex: 1 1 0; min-height: 80px; overflow-y: auto; }
+app-wh-base         { flex: 0 1 var(--top-height); min-height: 200px; overflow-y: auto; }
+app-item-annotation { flex: 0 0 auto; overflow: hidden;
+  &.notes-open      { overflow-y: auto; } }
+app-item-research   { flex: 1 1 0; min-height: 80px; overflow-y: auto; overflow-x: hidden; margin-top: 8px; }
 
 .pane-divider {
   flex-shrink: 0;

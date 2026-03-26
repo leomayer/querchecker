@@ -1,183 +1,124 @@
+<!-- 1. Search row -->
 <div class="search-row">
-  <mat-form-field class="search-field">
-    <mat-label>Produktsuche</mat-label>
-    <input matInput [(ngModel)]="searchTerm" (keyup.enter)="onLookup()" />
+  <mat-form-field class="search-field" subscriptSizing="dynamic">
+    <input matInput placeholder="Produktsuche" [(ngModel)]="searchTerm"
+           (keyup.enter)="onLookup()" [disabled]="!aiSearchEnabled()" />
   </mat-form-field>
   <button mat-icon-button (click)="onLookup()"
-          [disabled]="!searchTerm().trim() || lookupState() === 'loading'"
-          matTooltip="Spec-Lookup starten">
-    <mat-icon>auto_awesome</mat-icon>
+          [disabled]="searchButtonDisabled()"
+          matTooltip="KI-Suche starten">
+    @if (lookupState() === 'loading') {
+      <mat-spinner diameter="16" />
+    } @else {
+      <mat-icon>auto_awesome</mat-icon>
+    }
   </button>
 </div>
 
-@switch (state()) {
-  @case ('loading') {
-    <div class="state-row">
-      <mat-spinner diameter="16" />
-      <span class="state-label">Produktname wird extrahiert…</span>
-    </div>
-  }
-  @case ('done') {
-    @if (termGroups().length === 0) {
-      <p class="state-label empty">Kein Produktname erkannt.</p>
-    } @else {
-      @for (group of termGroups(); track group.modelName) {
-        <div class="model-group">
-          <div class="model-header">
-            <span class="model-name">{{ group.modelName }}</span>
-            @if (group.durationMs != null) {
-              <span class="duration-badge">{{ group.durationMs | number:'1.0-0' }} ms</span>
-            }
-          </div>
-          <div class="term-list">
-            @for (t of group.terms; track t.term) {
-              <span class="term-entry">
-                <span class="term-chip" (click)="searchTerm.set(t.term ?? '')">{{ t.term }}</span>
-                <span class="conf-badge" [class]="confidenceClass(t.confidence)">{{ confidencePct(t.confidence) }}</span>
-              </span>
-            }
-          </div>
-        </div>
-      }
+<!-- 2. Main content: Placeholder XOR Quick Facts table -->
+@if (lookupState() === 'COMPLETE' && orderedQuickFacts().length > 0) {
+  <table class="quick-facts-table">
+    @for (row of quickFactsRows(); track row[0][0]) {
+      <tr>
+        @for (entry of row; track entry[0]) {
+          <td class="fact-key">{{ entry[0] }}</td>
+          <td class="fact-value">{{ entry[1] }}</td>
+        }
+      </tr>
     }
-  }
-  @default {
-    <p class="state-label empty">Keine Extraktion verfügbar.</p>
-  }
+  </table>
+} @else {
+  <div class="placeholder">
+    @if (!aiSearchEnabled()) {
+      <mat-icon class="placeholder-icon">block</mat-icon>
+      <span>KI-Suche nicht konfiguriert</span>
+    } @else if (extractionLoading()) {
+      <mat-spinner diameter="20" />
+      <span>Produktname wird ermittelt…</span>
+    } @else if (lookupState() === 'loading') {
+      <mat-spinner diameter="20" />
+      <span>Produktdaten werden gesucht…</span>
+    } @else if (lookupState() === 'FAILED') {
+      <mat-icon class="placeholder-icon">search_off</mat-icon>
+      <span>Websuche hat nichts gefunden</span>
+    } @else if (lookupState() === 'QUOTA_EXCEEDED') {
+      <mat-icon class="placeholder-icon">block</mat-icon>
+      <span>API-Kontingent überschritten</span>
+    } @else if (lookupState() === 'COMPLETE') {
+      <mat-icon class="placeholder-icon">info</mat-icon>
+      <span>Keine Produktdaten gefunden</span>
+    } @else if (searchTerm().trim()) {
+      <mat-icon class="placeholder-icon">auto_awesome</mat-icon>
+      <span>Suche starten, um Produktdaten zu laden</span>
+    } @else {
+      <mat-icon class="placeholder-icon">search</mat-icon>
+      <span>Noch kein Suchbegriff ermittelt</span>
+    }
+  </div>
 }
 
-<!-- Spec-Lookup Section -->
-<div class="section-divider"></div>
+<!-- 3. Action area — only when lookup was successful -->
+@if (lookupState() === 'COMPLETE') {
+  <div class="action-area">
+    @if (showFullSpecsButton() && !fullSpecsLoaded()) {
+      <button mat-stroked-button class="load-details-btn"
+              (click)="onLoadFullSpecs()"
+              [disabled]="fullSpecsLoading()">
+        @if (fullSpecsLoading()) {
+          <mat-spinner diameter="16" />
+        } @else {
+          <mat-icon>description</mat-icon>
+        }
+        Produktdetails laden
+      </button>
+    }
 
-@switch (lookupState()) {
-  @case ('loading') {
-    <div class="state-row">
-      <mat-spinner diameter="16" />
-      <span class="state-label">Spezifikationen werden ermittelt…</span>
-    </div>
-  }
-  @case ('COMPLETE') {
-    <div class="lookup-result">
-      @if (noIcecatData()) {
-        <div class="no-icecat-warning">
-          <mat-icon class="no-icecat-icon">info</mat-icon>
-          Keine Icecat-Daten gefunden. Icecat kennt dieses Produkt möglicherweise nicht.
-        </div>
-      }
-      @if (orderedQuickFacts().length > 0) {
-        <table class="quick-facts-table">
-          @for (entry of orderedQuickFacts(); track entry[0]) {
-            <tr>
-              <td class="fact-key">{{ entry[0] }}</td>
-              <td class="fact-value">{{ entry[1] }}</td>
-            </tr>
-          }
-        </table>
-      }
-      @if (lookupSourceLabel()) {
-        <a [href]="lookupSourceUrl() ?? 'https://' + lookupSourceDomain()"
-           target="_blank" rel="noopener"
-           class="source-link mat-body-small">
-          Daten von {{ lookupSourceLabel() }} ↗
+    @if (icecatFeatureGroups().length > 0) {
+      <app-icecat-accordion
+        [groups]="icecatFeatureGroups()"
+        [preferredKeys]="preferredKeySet()"
+        [canToggle]="activeCategoryId() != null"
+        (toggle)="togglePreference($event)"
+      />
+    }
+    @if (specsFeatureGroups().length > 0) {
+      <app-specs-accordion
+        [groups]="specsFeatureGroups()"
+        [preferredKeys]="preferredKeySet()"
+        [canToggle]="activeCategoryId() != null"
+        (toggle)="togglePreference($event)"
+      />
+    }
+
+    <div class="external-links">
+      @if (geizhalUrl()) {
+        <a class="ext-link" [href]="geizhalUrl()!" target="_blank" rel="noopener">
+          <mat-icon class="link-icon">open_in_new</mat-icon>
+          Geizhals
         </a>
       }
-      <div class="lookup-actions">
-        @if (geizhalUrl()) {
-          <a class="geizhals-link" [href]="geizhalUrl()!" target="_blank" rel="noopener">
-            <mat-icon class="link-icon">open_in_new</mat-icon>
-            Geizhals
-          </a>
-        }
-        @if (icecatPageUrl() && (lookupSourceDomain() === 'icecat.biz' || fullSpecsLoaded())) {
-          <a class="geizhals-link" [href]="icecatPageUrl()!" target="_blank" rel="noopener"
-             matTooltip="Produktseite auf Icecat öffnen">
-            <mat-icon class="link-icon">open_in_new</mat-icon>
-            Icecat
-          </a>
-        }
-        @if (showFullSpecsButton() && !fullSpecsLoaded()) {
-          <button mat-icon-button class="full-specs-btn"
-                  (click)="onLoadFullSpecs()"
-                  [disabled]="fullSpecsLoading()"
-                  matTooltip="Vollständige Icecat-Specs laden">
-            @if (fullSpecsLoading()) {
-              <mat-spinner diameter="16" />
-            } @else {
-              <mat-icon>description</mat-icon>
-            }
-          </button>
-        }
-        @if (fullSpecsLoaded() && icecatFeatureGroups().length > 0) {
-          <span class="full-specs-badge">
-            <mat-icon class="specs-ok-icon">check_circle</mat-icon>
-            Icecat-Specs geladen
-          </span>
-        }
-        @if (fullSpecsLoaded() && icecatFeatureGroups().length === 0) {
-          <span class="full-specs-badge full-specs-unavailable">
-            <mat-icon class="specs-ok-icon">info</mat-icon>
-            Keine Specs verfügbar
-          </span>
-        }
-      </div>
-      @if (icecatGeneralInfo(); as info) {
-        @if (icecatMismatch()) {
-          <div class="icecat-mismatch-warning">
-            <mat-icon class="mismatch-icon">warning</mat-icon>
-            Icecat-Eintrag stimmt möglicherweise nicht überein:
-            <strong>{{ info.Brand }} {{ info.Title | slice:0:60 }}</strong>
-          </div>
-        }
-        <div class="icecat-meta">
-          @if (info.ReleaseDate && !info.ReleaseDate.startsWith('0000')) {
-            <span class="icecat-meta-item">
-              <mat-icon class="meta-icon">calendar_today</mat-icon>
-              {{ info.ReleaseDate | slice:0:10 }}
-            </span>
-          } @else {
-            <span class="icecat-meta-item icecat-meta-unavailable">
-              <mat-icon class="meta-icon">calendar_today</mat-icon>
-              Erscheinungsdatum unbekannt
-            </span>
-          }
-          @if (info.EndOfLifeDate && !info.EndOfLifeDate.startsWith('0000')) {
-            <span class="icecat-meta-item icecat-meta-eol">
-              <mat-icon class="meta-icon">event_busy</mat-icon>
-              EOL: {{ info.EndOfLifeDate | slice:0:10 }}
-            </span>
-          } @else {
-            <span class="icecat-meta-item icecat-meta-unavailable">
-              <mat-icon class="meta-icon">event_busy</mat-icon>
-              EOL unbekannt
-            </span>
-          }
-        </div>
+      @if (icecatPageUrl() && (lookupSourceDomain() === 'icecat.biz' || fullSpecsLoaded())) {
+        <a class="ext-link" [href]="icecatPageUrl()!" target="_blank" rel="noopener">
+          <mat-icon class="link-icon">open_in_new</mat-icon>
+          Icecat
+        </a>
       }
-      @if (icecatFeatureGroups().length > 0) {
-        <app-icecat-accordion
-          [groups]="icecatFeatureGroups()"
-          [preferredKeys]="preferredKeySet()"
-          [canToggle]="activeCategoryId() != null"
-          (toggle)="togglePreference($event)"
-        />
-      }
-      @if (specsFeatureGroups().length > 0) {
-        <app-specs-accordion
-          [groups]="specsFeatureGroups()"
-          [preferredKeys]="preferredKeySet()"
-          [canToggle]="activeCategoryId() != null"
-          (toggle)="togglePreference($event)"
-        />
+      @if (lookupSourceLabel() && lookupSourceDomain() !== 'icecat.biz') {
+        <a class="ext-link"
+           [href]="lookupSourceUrl() ?? 'https://' + lookupSourceDomain()"
+           target="_blank" rel="noopener">
+          <mat-icon class="link-icon">open_in_new</mat-icon>
+          {{ lookupSourceLabel() }}
+        </a>
       }
     </div>
-  }
-  @case ('FAILED') {
-    <p class="state-label empty">Keine Spezifikationen gefunden.</p>
-  }
-  @case ('QUOTA_EXCEEDED') {
-    <p class="state-label quota-warn">API-Kontingent überschritten – bitte später erneut versuchen.</p>
-  }
-  @default {
-    <p class="state-label empty">Noch kein Spec-Lookup durchgeführt.</p>
-  }
+  </div>
+}
+
+<!-- 4. Sticky footer — zeigt aktuellstes Abrufdatum -->
+@if (lookupState() === 'COMPLETE' && lookupTimestamp()) {
+  <div class="sticky-footer">
+    <mat-icon class="footer-icon">schedule</mat-icon>
+    <span>Daten vom {{ (fullSpecsTimestamp() ?? lookupTimestamp()) | date:'dd.MM.yyyy, HH:mm' }} Uhr</span>
+  </div>
 }

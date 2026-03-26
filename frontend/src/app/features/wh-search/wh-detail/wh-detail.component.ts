@@ -18,8 +18,7 @@ import { ItemResearchComponent } from './item-research/item-research.component';
 import { EventSourceServerService } from '../../../shared/utils/event-source-server';
 import { AppSseEventName, ListingRefreshedPayload } from '../../../core/sse-events';
 
-const STORAGE_KEY_TOP    = 'wh-detail--top-height';
-const STORAGE_KEY_MIDDLE = 'wh-detail--middle-height';
+const STORAGE_KEY_TOP = 'wh-detail--top-height';
 
 @Component({
   selector: 'app-wh-detail',
@@ -50,7 +49,7 @@ export class WhDetailComponent implements OnDestroy {
 
   readonly detail = signal<WhDetailDto | null>(null);
 
-  protected dragging: 'top' | 'middle' | null = null;
+  protected dragging: 'top' | null = null;
   private dragStartY = 0;
   private dragStartHeight = 0;
 
@@ -88,7 +87,7 @@ export class WhDetailComponent implements OnDestroy {
     this.sseService.deleteEventListener('listing-refreshed', this.onListingRefreshed);
   }
 
-  onDividerMousedown(event: MouseEvent, pane: 'top' | 'middle'): void {
+  onDividerMousedown(event: MouseEvent, pane: 'top'): void {
     this.dragging = pane;
     this.dragStartY = event.clientY;
     const prop = pane === 'top' ? '--top-height' : '--middle-height';
@@ -101,8 +100,7 @@ export class WhDetailComponent implements OnDestroy {
   onMouseMove(event: MouseEvent): void {
     if (!this.dragging) return;
     const newHeight = Math.max(100, this.dragStartHeight + (event.clientY - this.dragStartY));
-    const prop = this.dragging === 'top' ? '--top-height' : '--middle-height';
-    this.el.nativeElement.style.setProperty(prop, `${newHeight}px`);
+    this.el.nativeElement.style.setProperty('--top-height', `${newHeight}px`);
   }
 
   @HostListener('document:mouseup')
@@ -113,17 +111,12 @@ export class WhDetailComponent implements OnDestroy {
   }
 
   private restoreHeights(): void {
-    const top    = localStorage.getItem(STORAGE_KEY_TOP);
-    const middle = localStorage.getItem(STORAGE_KEY_MIDDLE);
-    if (top)    this.el.nativeElement.style.setProperty('--top-height',    `${top}px`);
-    if (middle) this.el.nativeElement.style.setProperty('--middle-height', `${middle}px`);
+    const top = localStorage.getItem(STORAGE_KEY_TOP);
+    if (top) this.el.nativeElement.style.setProperty('--top-height', `${top}px`);
   }
 
   private saveHeights(): void {
-    const style = this.el.nativeElement.style;
-    const top    = style.getPropertyValue('--top-height');
-    const middle = style.getPropertyValue('--middle-height');
-    if (top)    localStorage.setItem(STORAGE_KEY_TOP,    String(parseInt(top, 10)));
-    if (middle) localStorage.setItem(STORAGE_KEY_MIDDLE, String(parseInt(middle, 10)));
+    const top = this.el.nativeElement.style.getPropertyValue('--top-height');
+    if (top) localStorage.setItem(STORAGE_KEY_TOP, String(parseInt(top, 10)));
   }
 }

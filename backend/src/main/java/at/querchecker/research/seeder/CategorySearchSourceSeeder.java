@@ -39,8 +39,8 @@ public class CategorySearchSourceSeeder {
                 return;
             }
             for (WhCategory cat : matches) {
-                // level=1 → inheritFromParent=true, damit level=2-Kinder erben können
-                boolean inheritFromParent = cat.getLevel() == 1;
+                // level=1+2 → inheritFromParent=true, damit Kinder auf level=2 und level=3 erben können
+                boolean inheritFromParent = cat.getLevel() <= 2;
                 for (int i = 0; i < configs.size(); i++) {
                     SourceConfig cfg = configs.get(i);
                     if (repo.findByWhCategoryAndSiteDomain(cat, cfg.domain()).isEmpty()) {

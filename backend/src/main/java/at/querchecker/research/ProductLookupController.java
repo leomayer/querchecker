@@ -44,6 +44,11 @@ public class ProductLookupController {
 
         WhListing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Listing not found: " + id));
+
+        if (listing.getWhCategory() == null) {
+            log.warn("Listing id={} has no category — returning FAILED", id);
+            return LookupResponse.builder().lookupStatus(ProductLookupResult.failed().getStatus()).quickFacts(Map.of()).build();
+        }
         log.info("Listing found: id={}, categoryId={}, categoryName={}", listing.getId(), listing.getWhCategory().getId(), listing.getWhCategory().getName());
 
         ProductLookupResult result = productLookupService.lookup(req.getLookupTerm(), listing.getWhCategory());

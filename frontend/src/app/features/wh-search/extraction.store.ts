@@ -18,8 +18,10 @@ interface ExtractionState {
   suggestedTerms: Record<number, string>;
   lookupResults: Record<number, LookupResult>;
   lookupLoadingIds: number[];
+  lookupTimestamps: Record<number, number>;
   fullSpecsLoadingIds: number[];
   fullSpecsLoaded: Record<number, boolean>;
+  fullSpecsTimestamps: Record<number, number>;
   fullSpecsData: Record<number, IcecatFeatureGroup[]>;
   fullSpecsGeneralInfo: Record<number, IcecatData['GeneralInfo']>;
   icecatCatalogUrls: Record<number, string | undefined>;
@@ -33,8 +35,10 @@ export const ExtractionStore = signalStore(
     suggestedTerms: {},
     lookupResults: {},
     lookupLoadingIds: [],
+    lookupTimestamps: {},
     fullSpecsLoadingIds: [],
     fullSpecsLoaded: {},
+    fullSpecsTimestamps: {},
     fullSpecsData: {},
     fullSpecsGeneralInfo: {},
     icecatCatalogUrls: {},
@@ -49,7 +53,9 @@ export const ExtractionStore = signalStore(
           const { [whItemId]: _s, ...restStatus } = s.extractionStatus;
           const { [whItemId]: _t, ...restSuggested } = s.suggestedTerms;
           const { [whItemId]: _l, ...restLookup } = s.lookupResults;
+          const { [whItemId]: _lt, ...restLookupTimestamps } = s.lookupTimestamps;
           const { [whItemId]: _fs, ...restFullSpecs } = s.fullSpecsLoaded;
+          const { [whItemId]: _ft, ...restFullSpecsTimestamps } = s.fullSpecsTimestamps;
           const { [whItemId]: _fd, ...restFullSpecsData } = s.fullSpecsData;
           const { [whItemId]: _fg, ...restFullSpecsGeneralInfo } = s.fullSpecsGeneralInfo;
           const { [whItemId]: _cu, ...restCatalogUrls } = s.icecatCatalogUrls;
@@ -58,7 +64,9 @@ export const ExtractionStore = signalStore(
             extractionStatus: restStatus,
             suggestedTerms: restSuggested,
             lookupResults: restLookup,
+            lookupTimestamps: restLookupTimestamps,
             fullSpecsLoaded: restFullSpecs,
+            fullSpecsTimestamps: restFullSpecsTimestamps,
             fullSpecsData: restFullSpecsData,
             fullSpecsGeneralInfo: restFullSpecsGeneralInfo,
             icecatCatalogUrls: restCatalogUrls,
@@ -74,8 +82,10 @@ export const ExtractionStore = signalStore(
           suggestedTerms: {},
           lookupResults: {},
           lookupLoadingIds: [],
+          lookupTimestamps: {},
           fullSpecsLoadingIds: [],
           fullSpecsLoaded: {},
+          fullSpecsTimestamps: {},
           fullSpecsData: {},
           fullSpecsGeneralInfo: {},
           icecatCatalogUrls: {},
@@ -139,6 +149,7 @@ export const ExtractionStore = signalStore(
             patchState(store, (s) => {
               const next: Partial<ExtractionState> = {
                 lookupResults: { ...s.lookupResults, [whItemId]: lookupResultWithExtras },
+                lookupTimestamps: { ...s.lookupTimestamps, [whItemId]: Date.now() },
                 lookupLoadingIds: s.lookupLoadingIds.filter((id) => id !== whItemId),
               };
               if (specsAlreadyCached) {
@@ -181,6 +192,7 @@ export const ExtractionStore = signalStore(
             }
             patchState(store, (s) => ({
               fullSpecsLoaded: { ...s.fullSpecsLoaded, [whItemId]: true },
+              fullSpecsTimestamps: { ...s.fullSpecsTimestamps, [whItemId]: Date.now() },
               fullSpecsData: { ...s.fullSpecsData, [whItemId]: featureGroups },
               fullSpecsGeneralInfo: { ...s.fullSpecsGeneralInfo, [whItemId]: generalInfo },
               icecatCatalogUrls: { ...s.icecatCatalogUrls, [whItemId]: catalogUrl },
