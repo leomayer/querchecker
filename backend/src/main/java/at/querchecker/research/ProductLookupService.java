@@ -50,6 +50,10 @@ public class ProductLookupService {
         String lookupTerm,
         WhCategory whCategory
     ) {
+        log.info("[ProductLookupService] === LOOKUP START ===");
+        log.info("[ProductLookupService] Category: id={}, name={}, level={}",
+                whCategory.getId(), whCategory.getName(), whCategory.getLevel());
+
         // 1. Cache-Check
         Optional<ProductLookup> cached = repo.findByLookupTerm(lookupTerm);
         if (cached.isPresent()) {
@@ -74,7 +78,15 @@ public class ProductLookupService {
         List<CategorySearchSource> sources = sourceService.findForCategory(
             whCategory
         );
+        log.info("[ProductLookupService] Found {} sources for category {}", sources.size(), whCategory.getName());
+        for (CategorySearchSource src : sources) {
+            log.info("[ProductLookupService]   - Source: type={}, domain={}, inherit={}",
+                    src.getSourceType(), src.getSiteDomain(), src.isInheritFromParent());
+        }
+
         if (sources.isEmpty()) {
+            log.warn("[ProductLookupService] NO SOURCES FOUND for category id={} name={}",
+                    whCategory.getId(), whCategory.getName());
             save(lookupTerm, LookupStatus.FAILED, null);
             return ProductLookupResult.failed();
         }

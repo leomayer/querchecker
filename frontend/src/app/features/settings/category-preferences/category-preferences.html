@@ -1,5 +1,5 @@
 <div class="pref-toolbar">
-  <span class="pref-count">{{ preferences().length }} Kategorie(n) konfiguriert</span>
+  <span class="pref-count">{{ preferencesWithKeywords().length }} Kategorie(n) mit Zusatz-Präferenzen</span>
   <button mat-button (click)="openNewForm()" [disabled]="showNewForm()">
     <mat-icon>add</mat-icon>
     Neu
@@ -31,29 +31,29 @@
     }
     <div class="edit-btns">
       <button mat-flat-button (click)="saveNew()"
-              [disabled]="loading() || newCategoryId() == null || newDraftKeywords().length > 5">
+              [disabled]="loading() || newCategoryId() == null || newDraftKeywords().length === 0 || newDraftKeywords().length > 5">
         <mat-icon>save</mat-icon>
         Speichern
       </button>
-      <button mat-button (click)="cancelNewForm()">Abbrechen</button>
+      <button mat-button class="cancel-btn" (click)="cancelNewForm()">Abbrechen</button>
     </div>
   </div>
 }
 
-@if (preferences().length === 0 && !showNewForm()) {
+@if (preferencesWithKeywords().length === 0 && !showNewForm()) {
   <p class="empty-hint">Noch keine Kategorie-Präferenzen gespeichert.</p>
 } @else {
   <div class="pref-list">
-    @for (pref of preferences(); track pref.categoryId) {
+    @for (pref of preferencesWithKeywords(); track pref.categoryId) {
       <div class="pref-entry" [class.editing]="editState()?.categoryId === pref.categoryId">
         <div class="pref-header">
           <span class="pref-category">{{ pref.categoryName }}</span>
           <div class="pref-actions">
-            @if (editState()?.categoryId !== pref.categoryId) {
-              <button mat-icon-button (click)="startEdit(pref)" matTooltip="Bearbeiten">
+            @if (editState()?.categoryId !== pref.categoryId && pref.fieldKeys.length > 0) {
+              <button mat-icon-button class="edit-btn" (click)="startEdit(pref)" matTooltip="Bearbeiten">
                 <mat-icon>edit</mat-icon>
               </button>
-              <button mat-icon-button (click)="deletePref(pref.categoryId)" matTooltip="Löschen">
+              <button mat-icon-button class="delete-btn" (click)="deletePref(pref.categoryId)" matTooltip="Löschen">
                 <mat-icon>delete</mat-icon>
               </button>
             }
@@ -76,11 +76,11 @@
               <p class="save-error">{{ saveError() }}</p>
             }
             <div class="edit-btns">
-              <button mat-flat-button (click)="saveEdit()" [disabled]="loading() || draftKeywords().length > 5">
+              <button mat-flat-button (click)="saveEdit()" [disabled]="loading() || draftKeywords().length === 0 || draftKeywords().length > 5">
                 <mat-icon>save</mat-icon>
                 Speichern
               </button>
-              <button mat-button (click)="cancelEdit()">Abbrechen</button>
+              <button mat-button class="cancel-btn" (click)="cancelEdit()">Abbrechen</button>
             </div>
           </div>
         } @else {

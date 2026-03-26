@@ -136,6 +136,17 @@ export class ItemResearchComponent {
     return this.extractionStore.lookupResults()[id]?.sourceDomain ?? null;
   });
 
+  protected readonly lookupSourceLabel = computed<string | null>(() => {
+    const domain = this.lookupSourceDomain();
+    if (!domain) return null;
+    const labelMap: Record<string, string> = {
+      'icecat.biz': 'Icecat',
+      'gsmarena.com': 'GSMArena',
+      'flatpanelshd.com': 'FlatpanelsHD',
+    };
+    return labelMap[domain] || domain;
+  });
+
   protected readonly lookupSourceUrl = computed<string | null>(() => {
     const id = this.detail().whItemId;
     if (id == null) return null;

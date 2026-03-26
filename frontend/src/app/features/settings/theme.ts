@@ -9,24 +9,30 @@ const FONT_SIZE_PX: Record<FontSize, string> = {
 };
 
 const LS_FONT_SIZE = 'querchecker_font_size';
+const LS_DARK_MODE = 'querchecker_dark_mode';
 
 @Injectable({
   providedIn: 'root',
 })
 export class Theme {
-  darkMode = signal(window.matchMedia('(prefers-color-scheme: dark)').matches);
+  private readonly _storedDarkMode =
+    localStorage.getItem(LS_DARK_MODE) !== null
+      ? localStorage.getItem(LS_DARK_MODE) === 'true'
+      : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  darkMode = signal(this._storedDarkMode);
 
   private readonly _storedFontSize = (localStorage.getItem(LS_FONT_SIZE) as FontSize | null) ?? 'medium';
   fontSize = signal<FontSize>(this._storedFontSize);
 
   constructor() {
-    document.body.classList.toggle('dark-theme', this.darkMode());
+    document.body.classList.toggle('dark-theme', this._storedDarkMode);
     this._applyFontSize(this._storedFontSize);
   }
 
   setDarkTheme(isDark: boolean): void {
     this.darkMode.set(isDark);
-    document.body.classList.toggle('dark-theme', this.darkMode());
+    localStorage.setItem(LS_DARK_MODE, String(isDark));
+    document.body.classList.toggle('dark-theme', isDark);
   }
 
   setFontSize(size: FontSize): void {

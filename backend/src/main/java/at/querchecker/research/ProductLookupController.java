@@ -40,17 +40,22 @@ public class ProductLookupController {
     @PostMapping("/lookup")
     @Operation(summary = "Quick-Facts für ein Inserat per Brave+LLM ermitteln")
     public LookupResponse lookup(@PathVariable Long id, @RequestBody LookupRequest req) {
+        log.info("=== LOOKUP START: listingId={}, term=\"{}\" ===", id, req.getLookupTerm());
+
         WhListing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Listing not found: " + id));
+        log.info("Listing found: id={}, categoryId={}, categoryName={}", listing.getId(), listing.getWhCategory().getId(), listing.getWhCategory().getName());
 
         ProductLookupResult result = productLookupService.lookup(req.getLookupTerm(), listing.getWhCategory());
+        log.info("Lookup result: status={}, quickFacts={}, sourceType={}, sourceDomain={}",
+                result.getStatus(), result.getQuickFactsJson(), result.getSourceType(), result.getSourceDomain());
 
         ProductLookup saved = productLookupRepository.findByLookupTerm(req.getLookupTerm()).orElse(null);
         String icecatId = result.getIcecatId() != null ? result.getIcecatId()
                 : (saved != null ? saved.getIcecatId() : null);
         String icecatSpecsJson = saved != null ? saved.getIcecatSpecsJson() : null;
 
-        return LookupResponse.builder()
+        LookupResponse response = LookupResponse.builder()
                 .lookupStatus(result.getStatus())
                 .quickFacts(parseQuickFacts(result.getQuickFactsJson()))
                 .icecatId(icecatId)
@@ -60,6 +65,9 @@ public class ProductLookupController {
                 .sourceUrl(result.getSourceUrl())
                 .featureGroupsJson(result.getFeatureGroupsJson())
                 .build();
+
+        log.info("=== LOOKUP END: status={}, quickFactsCount={} ===", response.getLookupStatus(), response.getQuickFacts().size());
+        return response;
     }
 
     @PostMapping("/lookup/full-specs")

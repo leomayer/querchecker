@@ -135,7 +135,12 @@
       "Bash(javap -classpath ~/.m2/repository/org/springframework/spring-web/6.2.8/spring-web-6.2.8.jar org.springframework.web.client.RestClient'$RequestBodySpec')",
       "Bash(docker compose:*)",
       "Bash(find /home/leo/programming/github/querchecker -type f -name *preference* -o -name *rating*)",
-      "Bash(xargs sed:*)"
+      "Bash(xargs sed:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(curl -s http://localhost:14070/api/wh/categories)",
+      "Bash(curl -s http://localhost:14070/api/categories)",
+      "Bash(curl -s http://localhost:14070/api/wh/meta/categories)"
     ]
   }
 }

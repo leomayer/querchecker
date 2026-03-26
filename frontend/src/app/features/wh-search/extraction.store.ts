@@ -188,9 +188,14 @@ export const ExtractionStore = signalStore(
     ) as EventSourceServerService<AppSseEventName, DlExtractionDonePayload>;
 
     const onDlExtract = (payload: DlExtractionDonePayload): void => {
+      console.log('[ExtractionStore.onDlExtract] SSE event received:', payload);
       const whItemId = payload?.whItemId;
-      if (whItemId == null) return;
+      if (whItemId == null) {
+        console.warn('[ExtractionStore.onDlExtract] Missing whItemId in payload');
+        return;
+      }
       const incoming = payload.terms ?? [];
+      console.log(`[ExtractionStore.onDlExtract] Processing ${incoming.length} terms for whItemId=${whItemId}`);
       // Replace entries for this model, keep others — handles retries cleanly
       const incomingModels = new Set(incoming.map((t) => t.modelName));
       patchState(store, (s) => {
@@ -208,6 +213,7 @@ export const ExtractionStore = signalStore(
         if (payload.suggestedTerm && !s.suggestedTerms[whItemId]) {
           next.suggestedTerms = { ...s.suggestedTerms, [whItemId]: payload.suggestedTerm };
         }
+        console.log(`[ExtractionStore.onDlExtract] Stored ${next.results[whItemId]?.length ?? 0} total terms for whItemId=${whItemId}`);
         return next;
       });
     };

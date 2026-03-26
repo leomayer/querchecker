@@ -45,6 +45,10 @@ export class CategoryPreferences implements OnInit {
   readonly editState = signal<EditState | null>(null);
   readonly saveError = signal<string | null>(null);
 
+  readonly preferencesWithKeywords = computed(() =>
+    this.preferences().filter((p) => p.fieldKeys.length > 0),
+  );
+
   // New preference form
   readonly showNewForm = signal(false);
   readonly newCategoryId = signal<number | null>(null);
@@ -102,6 +106,7 @@ export class CategoryPreferences implements OnInit {
   }
 
   startEdit(pref: PreferenceEntry): void {
+    this.showNewForm.set(false);
     this.saveError.set(null);
     this.editState.set({
       categoryId: pref.categoryId,
@@ -114,10 +119,22 @@ export class CategoryPreferences implements OnInit {
     this.saveError.set(null);
   }
 
+  deletePref(categoryId: number): void {
+    this.prefService.delete(categoryId).subscribe({
+      next: () => {
+        this.preferences.update((list) => list.filter((p) => p.categoryId !== categoryId));
+      },
+    });
+  }
+
   saveEdit(): void {
     const state = this.editState();
     if (!state) return;
     const keywords = this.draftKeywords();
+    if (keywords.length === 0) {
+      this.saveError.set('Mindestens 1 Keyword erforderlich.');
+      return;
+    }
     if (keywords.length > 5) {
       this.saveError.set('Maximal 5 Keywords erlaubt.');
       return;
@@ -139,15 +156,8 @@ export class CategoryPreferences implements OnInit {
     });
   }
 
-  deletePref(categoryId: number): void {
-    this.prefService.delete(categoryId).subscribe({
-      next: () => {
-        this.preferences.update((list) => list.filter((p) => p.categoryId !== categoryId));
-      },
-    });
-  }
-
   openNewForm(): void {
+    this.editState.set(null);
     this.newCategoryId.set(null);
     this.newDraft.set('');
     this.newSaveError.set(null);
@@ -163,6 +173,10 @@ export class CategoryPreferences implements OnInit {
     const categoryId = this.newCategoryId();
     if (categoryId == null) return;
     const keywords = this.newDraftKeywords();
+    if (keywords.length === 0) {
+      this.newSaveError.set('Mindestens 1 Keyword erforderlich.');
+      return;
+    }
     if (keywords.length > 5) {
       this.newSaveError.set('Maximal 5 Keywords erlaubt.');
       return;

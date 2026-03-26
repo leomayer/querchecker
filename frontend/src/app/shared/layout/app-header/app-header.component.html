@@ -5,6 +5,14 @@
     <button
       mat-icon-button
       class="theme-toggle-btn"
+      style="margin-right: 8px"
+      (click)="toggleTheme()"
+      [attr.aria-label]="themeAriaLabel()">
+      <mat-icon>{{ themeIcon() }}</mat-icon>
+    </button>
+    <button
+      mat-icon-button
+      class="theme-toggle-btn"
       (click)="navigateSettings()"
       aria-label="Einstellungen">
       <mat-icon>settings</mat-icon>

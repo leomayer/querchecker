@@ -37,10 +37,13 @@ public class HtmlFetchService {
      */
     public Optional<String> fetchAndExtract(String url, SourceType sourceType) {
         try {
+            log.info("[HtmlFetch] Fetching {} from {}", sourceType, url);
             Document doc = Jsoup.connect(url)
                     .userAgent(uaResolver.resolve())
                     .timeout(TIMEOUT_MS)
                     .get();
+
+            log.debug("[HtmlFetch] Document size: {} bytes, title: {}", doc.html().length(), doc.title());
 
             String text = switch (sourceType) {
                 case GSMARENA     -> extractGsmarena(doc);
@@ -48,22 +51,36 @@ public class HtmlFetchService {
                 default           -> doc.body().text();
             };
 
+            log.info("[HtmlFetch] Extracted {} chars for {}", text.length(), sourceType);
             return text.isBlank() ? Optional.empty() : Optional.of(text);
 
         } catch (IOException e) {
-            log.warn("HtmlFetch fehlgeschlagen für {}: {}", url, e.getMessage());
+            log.warn("[HtmlFetch] Failed for {}: {}", url, e.getMessage());
             return Optional.empty();
         }
     }
 
     // GSMArena: Spec-Tabelle hat class="specs-phone-big-table"
     private String extractGsmarena(Document doc) {
-        return doc.select("table.specs-phone-big-table").text();
+        String selected = doc.select("table.specs-phone-big-table").text();
+        log.debug("[HtmlFetch.GSMArena] Found specs-phone-big-table: {} chars", selected.length());
+        if (selected.isBlank()) {
+            String allTables = doc.select("table").text();
+            log.debug("[HtmlFetch.GSMArena] specs-phone-big-table empty, trying all tables: {} chars", allTables.length());
+            return allTables;
+        }
+        return selected;
     }
 
     // FlatpanelsHD: Spec-Tabellen — Selektoren ggf. nach erstem Live-Test anpassen
     private String extractFlatpanelsHd(Document doc) {
         String tables = doc.select("table.specsTable, div.specs, table.tv-specs").text();
-        return tables.isBlank() ? doc.select("main").text() : tables;
+        log.debug("[HtmlFetch.FlatpanelsHD] Found spec tables: {} chars", tables.length());
+        if (tables.isBlank()) {
+            String main = doc.select("main").text();
+            log.debug("[HtmlFetch.FlatpanelsHD] Spec tables empty, using main: {} chars", main.length());
+            return main;
+        }
+        return tables;
     }
 }

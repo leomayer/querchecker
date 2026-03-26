@@ -35,6 +35,8 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 .pref-entry {
@@ -108,6 +110,29 @@
   font-size: 0.8rem;
   color: var(--color-rating-down);
   margin: 0;
+}
+
+button mat-icon {
+  color: inherit;
+}
+
+.edit-btn {
+  color: var(--mat-sys-primary);
+}
+
+.delete-btn {
+  color: var(--color-rating-down);
+}
+
+.cancel-btn {
+  border: 1px solid var(--mat-sys-outline);
+  border-radius: 8px;
+  color: var(--mat-sys-on-surface-variant);
+  padding: 8px 16px;
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--mat-sys-on-surface) 8%, transparent);
+  }
 }
 
 .edit-btns {
