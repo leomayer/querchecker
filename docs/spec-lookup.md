@@ -43,7 +43,7 @@ item-research: Suchfeld (editierbar, vorausgefüllt)
 
 ### Computed Signals (`item-research.component.ts`)
 
-`state`, `termGroups`, `lookupState`, `orderedQuickFacts`, `lookupIcecatId`, `showFullSpecsButton`, `lookupTerm`, `lookupSourceDomain`, `lookupSourceUrl`, `geizhalUrl`, `fullSpecsLoading`, `fullSpecsLoaded`, `icecatFeatureGroups`, `icecatGeneralInfo`, `specsFeatureGroups`, `noIcecatData`, `icecatPageUrl`, `icecatMismatch`
+`state`, `termGroups`, `lookupState`, `orderedQuickFacts`, `quickFactsRows`, `lookupIcecatId`, `showFullSpecsButton`, `lookupTerm`, `lookupSourceDomain`, `lookupSourceUrl`, `geizhalUrl`, `fullSpecsLoading`, `fullSpecsLoaded`, `icecatFeatureGroups`, `icecatGeneralInfo`, `specsFeatureGroups`, `noIcecatData`, `icecatPageUrl`, `icecatMismatch`, `activeCategoryId`, `preferredKeySet`, `searchButtonDisabled`
 
 - **`orderedQuickFacts`**: preferred fields (aus `preferredKeySet`) zuerst, Rest alphabetisch
 - **`showFullSpecsButton`**: nur wenn `icecatId != null && sourceType === 'ICECAT'`

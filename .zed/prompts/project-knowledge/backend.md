@@ -294,7 +294,7 @@ Swagger UI: `/swagger-ui.html` (dev only, in Prod via `SPRING_PROFILES_ACTIVE=pr
 
 ### CategorySearchSource Seeders (`research/seeder/`)
 - `CategorySearchSourceDefinitions`: `SourceConfig` record `(domain, label, type, lookupEnabled, queryExcludes, searchResultCount)`. `CONFIGS` map mit 13 Kategorien: "Notebooks", "Smartphones / Handys", "Tablets", "Monitore", "Beamer", "Drucker", "PC-Komponenten", "Netzwerke", "Kameras / Camcorder", "Fernseher", "Konsolen", "Adapter / Kabel", "Software", "Spiele". Exakte DB-Namen (z.B. "/" nicht "&"; "Tablets" plural).
-- `CategorySearchSourceSeeder`: additives Upsert beim Start. Verwendet `findAllByName` (nicht `findByName`) wegen doppelter Namen wie "Tablets" (Level-1 und Level-2). Setzt `inheritFromParent = (cat.getLevel() == 1)` automatisch.
+- `CategorySearchSourceSeeder`: additives Upsert beim Start. Verwendet `findAllByName` (nicht `findByName`) wegen doppelter Namen wie "Tablets" (Level-1 und Level-2). Setzt `inheritFromParent = (cat.getLevel() <= 2)` automatisch (Level-1 und Level-2 können als Fallback-Quellen für tiefere Kategorien dienen).
 - `CategorySpecPreferenceSeeder` verwendet ebenfalls `findAllByName`.
 - `WhRefreshScheduler`: `else`-Branch ruft nun nur Seeder auf (kein Willhaben-Fetch), wenn Kategorien bereits existieren. Beide Seeder (`categorySpecPreferenceSeeder.seedIfAbsent()` + `categorySearchSourceSeeder.seedIfAbsent()`) werden dort aufgerufen.
 

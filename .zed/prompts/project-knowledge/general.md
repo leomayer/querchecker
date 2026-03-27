@@ -61,7 +61,7 @@ querchecker/
 - Thumbnails in Listing-Cards + vollständige Bildergalerie in Detailansicht
 - Notizen je Inserat (WhListingDetail.note, Autosave)
 - Rating UP/DOWN/null je Inserat + Filterung nach Rating (UP, UP_NULL, DOWN, ALL)
-- Interesse-Level (LOW/MEDIUM/HIGH) + Tags je Inserat
+- Interesse-Level (LOW/MEDIUM/HIGH) je Inserat (Tags aus UI entfernt, Backend noch vorhanden)
 - View-Counter (viewCount, lastViewedAt) mit 60s Throttle
 - Hierarchische Standort- und Kategoriefilter (multi-level Baumnavigation)
 - Letzte Suche im localStorage gespeichert (inkl. Standort/Kategorie, 3 Tage TTL)

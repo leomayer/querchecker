@@ -1,5 +1,11 @@
 # Projektwissen: Querchecker — Frontend
 
+## Icons: Material Symbols
+
+Projekt verwendet **Material Symbols Outlined** Variable-Font (nicht Material Icons). In `index.html` geladen. FILL-Achse Standard = 0 (outlined); Klasse `.symbol-filled` (`font-variation-settings: 'FILL' 1`) für gefüllte Variante. Globaler Default in `styles.scss`. Keine `mat-icon [fontIcon]` mit Material Icons verwenden — Material-Symbols-Ligatur-Namen direkt nutzen.
+
+---
+
 ## Angular 21+ Konventionen (verbindlich)
 
 - **Standalone Components** — keine NgModules
@@ -208,9 +214,13 @@ Verwaltet DL-Extraktion, Spec-Lookup und Icecat-Daten clientseitig. Alle State-S
 - `lookupResults: Record<number, LookupResult>` — `{ lookupStatus, quickFacts, icecatId, sourceType, sourceDomain, sourceUrl, featureGroupsJson?, featureGroups, lookupTerm? }`
   - `featureGroups: SpecsFeatureGroup[]` — für HTML-Fetch-Quellen (GSMArena/FlatpanelsHD); null bei ICECAT/GENERIC
   - Store parst `featureGroupsJson` (Raw-JSON vom Backend) → `featureGroups` beim Speichern
-- `lookupLoadingIds: number[]`, `fullSpecsLoadingIds: number[]`
+- `lookupLoadingIds: number[]`
+- `lookupTimestamps: Record<number, number>` — Epoch-ms-Zeitstempel, wann Lookup abgeschlossen
+- `fullSpecsLoadingIds: number[]`
 - `fullSpecsLoaded: Record<number, boolean>`
+- `fullSpecsTimestamps: Record<number, number>` — Epoch-ms-Zeitstempel, wann Full-Specs geladen
 - `fullSpecsData: Record<number, IcecatFeatureGroup[]>` — geparste Icecat-Feature-Gruppen
+- `fullSpecsGeneralInfo: Record<number, IcecatData['GeneralInfo']>` — GeneralInfo aus Icecat Full-Specs
 
 **Methoden:**
 - `loadExistingTerms(whItemId)` — `GET /api/dl/extraction/{id}/terms` → aktualisiert results + extractionStatus + suggestedTerms
@@ -238,7 +248,7 @@ Vollständig implementiertes Feature:
 - `noIcecatData`-Guard: kein quickFacts + keine icecatId + keine featureGroups
 - `upc-search/` und `icecat-spec/` Sub-Komponenten entfernt (EAN/UPC-Feature gelöscht)
 
-**Computed Signals:** `state`, `termGroups`, `lookupState`, `orderedQuickFacts`, `lookupIcecatId`, `showFullSpecsButton`, `lookupTerm`, `lookupSourceDomain`, `lookupSourceUrl`, `geizhalUrl`, `fullSpecsLoading`, `fullSpecsLoaded`, `icecatFeatureGroups`, `icecatGeneralInfo`, `specsFeatureGroups`, `noIcecatData`, `icecatPageUrl`, `icecatMismatch`
+**Computed Signals:** `state`, `termGroups`, `lookupState`, `orderedQuickFacts`, `lookupIcecatId`, `showFullSpecsButton`, `lookupTerm`, `lookupSourceDomain`, `lookupSourceUrl`, `geizhalUrl`, `fullSpecsLoading`, `fullSpecsLoaded`, `icecatFeatureGroups`, `icecatGeneralInfo`, `specsFeatureGroups`, `noIcecatData`, `icecatPageUrl`, `icecatMismatch`, `activeCategoryId`, `preferredKeySet`, `quickFactsRows`, `searchButtonDisabled`
 
 ## Core Services
 

@@ -112,6 +112,11 @@
       <version>1.22.1</version>
     </dependency>
 
+    <dependency>
+        <groupId>com.google.cloud</groupId>
+        <artifactId>google-cloud-discoveryengine</artifactId>
+        <version>0.84.0</version>  </dependency>
+
     <!-- Test -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
