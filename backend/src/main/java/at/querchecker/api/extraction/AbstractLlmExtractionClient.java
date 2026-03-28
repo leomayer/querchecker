@@ -139,7 +139,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
             }
             return result;
         } catch (Exception e) {
-            log.warn("parseJson failed (provider={}): {}", getProvider(), e.getMessage());
+            log.warn("parseJson failed (provider={}, error={}, rawResponse={})", getProvider(), e.getMessage(), json);
             return new QuickFactsResult();
         }
     }

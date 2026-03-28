@@ -35,5 +35,7 @@ backend/src/main/resources/models/.venv/
 # Investigation TODOs (personal notes, not project docs)
 docs/todo-*.md
 
-# External secrets file (never commit)
-config/
+# External secrets / credentials (never commit)
+config/*.yml
+!config/*example*.yml
+config/*.json
