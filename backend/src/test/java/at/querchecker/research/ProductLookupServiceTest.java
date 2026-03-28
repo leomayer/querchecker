@@ -3,6 +3,9 @@ package at.querchecker.research;
 import at.querchecker.api.extraction.ExtractionClient;
 import at.querchecker.api.extraction.ExtractionProviderRouter;
 import at.querchecker.api.entity.Provider;
+import at.querchecker.api.search.SearchProperties;
+import at.querchecker.api.search.WebSearchProviderRouter;
+import at.querchecker.api.search.WebSearchService;
 import at.querchecker.api.service.QuotaService;
 import at.querchecker.api.service.QuotaStatus;
 import at.querchecker.deepLearning.service.DlPromptResolver;
@@ -37,6 +40,8 @@ class ProductLookupServiceTest {
 
     @Mock ProductLookupRepository repo;
     @Mock QuotaService quotaService;
+    @Mock SearchProperties searchProperties;
+    @Mock WebSearchProviderRouter webSearchRouter;
     @Mock WebSearchService webSearchService;
     @Mock HtmlFetchService htmlFetchService;
     @Mock ExtractionQualityEvaluator qualityEvaluator;
@@ -51,6 +56,7 @@ class ProductLookupServiceTest {
     @BeforeEach
     void routerSetup() {
         lenient().when(extractionRouter.getActive()).thenReturn(llmClient);
+        lenient().when(webSearchRouter.getActive()).thenReturn(webSearchService);
     }
 
     // --- HTML-Fetch Fallback-Loop ---
