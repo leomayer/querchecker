@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -49,13 +48,6 @@ public class WhListingDetailController {
     public WhDetailDto updateInterest(@PathVariable Long id,
                                             @RequestBody Map<String, String> body) {
         return whItemService.updateInterest(id, body.get("level"));
-    }
-
-    @PutMapping("/detail/tags")
-    @Operation(summary = "Tags eines Inserats speichern")
-    public WhDetailDto updateTags(@PathVariable Long id,
-                                        @RequestBody Map<String, List<String>> body) {
-        return whItemService.updateTags(id, body.getOrDefault("tags", List.of()));
     }
 
 }

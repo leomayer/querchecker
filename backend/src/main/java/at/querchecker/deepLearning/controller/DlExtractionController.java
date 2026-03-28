@@ -104,7 +104,7 @@ public class DlExtractionController {
     }
 
     private String deriveSuggestedTerm(List<DlExtractionTermDto> terms) {
-        String sourceModel = llmProperties.getEffectiveSourceModel();
+        String sourceModel = llmProperties.getLocalSourceModel();
         return terms.stream()
             .filter(t -> t.getModelName() != null && t.getModelName().toLowerCase().contains(sourceModel))
             .max(Comparator.comparingDouble(t -> t.getConfidence() != null ? t.getConfidence() : 0.0))

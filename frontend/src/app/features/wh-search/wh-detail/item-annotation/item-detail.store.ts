@@ -17,7 +17,6 @@ interface ItemDetailState {
   itemId: number | null;
   verdict: 'UP' | 'DOWN' | null;
   interestLevel: 'LOW' | 'MEDIUM' | 'HIGH' | null;
-  tags: string[];
   notes: string;
   saveState: 'idle' | 'pending' | 'saved' | 'error';
   hasUserEdited: boolean;
@@ -27,7 +26,6 @@ const initialState: ItemDetailState = {
   itemId: null,
   verdict: null,
   interestLevel: null,
-  tags: [],
   notes: '',
   saveState: 'idle',
   hasUserEdited: false,
@@ -80,7 +78,6 @@ export const ItemDetailStore = signalStore(
           itemId: id,
           verdict: (detail?.rating as 'UP' | 'DOWN' | null) ?? null,
           interestLevel: (detail?.interestLevel as 'LOW' | 'MEDIUM' | 'HIGH' | null) ?? null,
-          tags: detail?.tags ?? [],
           notes: detail?.note ?? '',
           saveState: 'idle',
           hasUserEdited: false,
@@ -100,9 +97,6 @@ export const ItemDetailStore = signalStore(
         patchState(store, { interestLevel: level });
       },
 
-      setTags(tags: string[]): void {
-        patchState(store, { tags });
-      },
     };
   }),
   withHooks({

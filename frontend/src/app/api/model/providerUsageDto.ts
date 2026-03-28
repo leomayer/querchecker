@@ -11,11 +11,11 @@
 
 export interface ProviderUsageDto { 
     calls?: number;
-    callsToday?: number;
     tokensIn?: number;
     tokensOut?: number;
     quotaUsage?: number;
     quotaLimit?: number;
     model?: string;
+    quotaPeriod?: string;
 }
 

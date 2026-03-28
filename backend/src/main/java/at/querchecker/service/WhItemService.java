@@ -99,15 +99,6 @@ public class WhItemService {
         return toDto(whItemRepository.save(item));
     }
 
-    @Transactional
-    public WhDetailDto updateTags(Long whListingId, List<String> tags) {
-        WhItem item = getOrCreate(whListingId);
-        item.getTags().clear();
-        item.getTags().addAll(tags);
-        item.setUpdatedAt(LocalDateTime.now());
-        return toDto(whItemRepository.save(item));
-    }
-
     private WhItem getOrCreate(Long whListingId) {
         return whItemRepository.findByWhListingId(whListingId)
                 .orElseGet(() -> {
@@ -160,7 +151,6 @@ public class WhItemService {
                 .lastViewedAt(entity.getLastViewedAt())
                 .rating(entity.getRating())
                 .interestLevel(entity.getInterestLevel())
-                .tags(entity.getTags())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();

@@ -42,7 +42,6 @@ public class WhDetailDto {
     private String note;
     private String rating;
     private String interestLevel;
-    private List<String> tags;
     private int viewCount;
     private LocalDateTime lastViewedAt;
     private LocalDateTime createdAt;

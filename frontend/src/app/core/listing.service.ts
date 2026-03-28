@@ -37,10 +37,6 @@ export class ListingService {
     return this.http.put<WhDetailDto>(`${API_URLS.listings}/${id}/detail/interest`, { level });
   }
 
-  updateTags(id: number, tags: string[]): Observable<WhDetailDto> {
-    return this.http.put<WhDetailDto>(`${API_URLS.listings}/${id}/detail/tags`, { tags });
-  }
-
   cleanupByRating(rating: string, olderThanDays: number): Observable<{ deleted: number }> {
     return this.http.delete<{ deleted: number }>(`${API_URLS.listings}/cleanup`, {
       params: { rating, olderThanDays: olderThanDays.toString() },

@@ -26,10 +26,10 @@ public class LlmProperties {
     private Provider externalProvider = Provider.GROQ;
 
     /**
-     * Nur relevant bei mode: LOCAL.
-     * Substring-Match gegen DlModelConfig.modelName — bestimmt welches lokale Modell
-     * den suggestedTerm liefert. Aktive Modelle: llama-3.2-3b, qwen3-4b, nuextract-1.5
-     * Kurzformen: "llama", "qwen", "nuextract"
+     * Substring-Match gegen DlModelConfig.modelName — bestimmt welches DL-Modell
+     * den suggestedTerm (Suchfeld-Vorbefüllung) liefert. Gilt in beiden Modi (API + LOCAL).
+     * Aktive DL-Modelle: groq, llama-3.2-3b, qwen3-4b, nuextract-1.5
+     * Kurzformen: "llama", "groq", "qwen", "nuextract"
      */
     private String localSourceModel = "llama";
 

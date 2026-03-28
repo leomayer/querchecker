@@ -28,7 +28,6 @@ export interface WhDetailDto {
     note?: string;
     rating?: string;
     interestLevel?: string;
-    tags?: Array<string>;
     viewCount?: number;
     lastViewedAt?: string;
     createdAt?: string;
