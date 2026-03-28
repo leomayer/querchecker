@@ -10,9 +10,12 @@ export interface ProviderUsage {
   tokensOut: number;
   quotaUsage: number;
   quotaLimit: number;
+  model: string | null;
 }
 
 export interface ApiUsageResponse {
+  activeSearchProvider: 'BRAVE' | 'GOOGLE_DISCOVERY';
+  activeLlmProvider: 'GROQ' | 'OPENROUTER';
   brave: ProviderUsage;
   googleDiscovery: ProviderUsage;
   groq: ProviderUsage;

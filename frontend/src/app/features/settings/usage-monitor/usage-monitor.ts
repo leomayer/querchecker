@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject, output, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, output, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -20,6 +20,19 @@ export class UsageMonitor implements OnInit, OnDestroy {
   readonly loading = signal(false);
   readonly error = signal(false);
   readonly warningChange = output<boolean>();
+
+  readonly providerRows = computed(() => {
+    const data = this.usage();
+    if (!data) return [];
+    return [
+      data.activeSearchProvider === 'BRAVE'
+        ? { name: 'Brave', p: data.brave }
+        : { name: 'Google Discovery', p: data.googleDiscovery },
+      data.activeLlmProvider === 'GROQ'
+        ? { name: 'Groq', p: data.groq }
+        : { name: 'OpenRouter', p: data.openRouter },
+    ];
+  });
 
   private refreshTimer?: ReturnType<typeof setInterval>;
 
@@ -49,9 +62,7 @@ export class UsageMonitor implements OnInit, OnDestroy {
   }
 
   protected hasAnyWarning(): boolean {
-    const d = this.usage();
-    if (!d) return false;
-    return this.isOverThreshold(d.brave) || this.isOverThreshold(d.googleDiscovery) || this.isOverThreshold(d.groq);
+    return this.providerRows().some(row => this.isOverThreshold(row.p));
   }
 
   protected isOverThreshold(p: ProviderUsage): boolean {

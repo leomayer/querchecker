@@ -1,9 +1,11 @@
 package at.querchecker.controller;
 
 import at.querchecker.api.config.LimitUnit;
+import at.querchecker.api.config.LlmProperties;
 import at.querchecker.api.config.ProviderConfig;
 import at.querchecker.api.config.ProviderProperties;
 import at.querchecker.api.entity.Provider;
+import at.querchecker.api.search.SearchProperties;
 import at.querchecker.api.service.ApiUsageLogService;
 import at.querchecker.api.service.QuotaService;
 import at.querchecker.controller.dto.ProviderUsageDto;
@@ -27,19 +29,28 @@ public class ApiUsageController {
     private final ApiUsageLogService usageLogService;
     private final ProviderProperties providerProperties;
     private final QuotaService quotaService;
+    private final SearchProperties searchProperties;
+    private final LlmProperties llmProperties;
 
     @GetMapping
     @Operation(summary = "API-Verbrauchsstatistik des laufenden Kontingent-Zeitraums abrufen")
     public UsageResponse getUsage() {
         return new UsageResponse(
-                providerUsage(Provider.BRAVE),
-                providerUsage(Provider.GOOGLE_DISCOVERY),
-                providerUsage(Provider.GROQ),
-                providerUsage(Provider.OPENROUTER)
+                searchProperties.getActiveProvider().name(),
+                llmProperties.getExternalProvider().name(),
+                providerUsage(Provider.BRAVE, null),
+                providerUsage(Provider.GOOGLE_DISCOVERY, null),
+                providerUsage(Provider.GROQ, modelName(Provider.GROQ)),
+                providerUsage(Provider.OPENROUTER, modelName(Provider.OPENROUTER))
         );
     }
 
-    private ProviderUsageDto providerUsage(Provider provider) {
+    private String modelName(Provider provider) {
+        ProviderConfig config = providerProperties.getProvider(provider);
+        return config != null ? config.getModel() : null;
+    }
+
+    private ProviderUsageDto providerUsage(Provider provider, String model) {
         ProviderConfig config = providerProperties.getProvider(provider);
 
         LocalDateTime now = LocalDateTime.now();
@@ -64,6 +75,6 @@ public class ApiUsageController {
         long tokensOut = usageLogService.sumTokensOutputByProviderAndPeriod(provider, periodStart, now);
         long quotaUsage = limitUnit == LimitUnit.TOKENS ? tokensIn + tokensOut : calls;
 
-        return new ProviderUsageDto(calls, callsToday, tokensIn, tokensOut, quotaUsage, quotaLimit);
+        return new ProviderUsageDto(calls, callsToday, tokensIn, tokensOut, quotaUsage, quotaLimit, model);
     }
 }

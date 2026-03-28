@@ -46,6 +46,16 @@
 
   .provider-name {
     font-weight: 500;
+
+    span {
+      display: block;
+    }
+
+    .provider-model {
+      font-size: 0.7rem;
+      font-weight: 400;
+      color: var(--mat-sys-on-surface-variant);
+    }
   }
 
   td.two-line {

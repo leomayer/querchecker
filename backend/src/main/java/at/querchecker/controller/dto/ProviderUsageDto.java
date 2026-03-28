@@ -12,4 +12,6 @@ public class ProviderUsageDto {
     private long tokensOut;
     private long quotaUsage;
     private long quotaLimit;
+    /** Modellname — nur bei LLM-Providern (Groq, OpenRouter), sonst null */
+    private String model;
 }
