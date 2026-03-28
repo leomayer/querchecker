@@ -3,12 +3,12 @@
     <thead>
       <tr>
         <th rowspan="2">Provider</th>
-        <th class="num">Calls</th>
+        <th rowspan="2" class="num">Calls</th>
         <th colspan="2" class="num tokens-group">Tokens</th>
         <th rowspan="2" class="quota-col">Kontingent</th>
+        <th rowspan="2">Zeitraum</th>
       </tr>
       <tr>
-        <th class="num sub">Heute</th>
         <th class="num sub">IN</th>
         <th class="num sub">OUT</th>
       </tr>
@@ -22,10 +22,7 @@
               <span class="provider-model">{{ row.p.model }}</span>
             }
           </td>
-          <td class="num two-line">
-            <span>{{ row.p.calls | number:'1.0-0':'de' }}</span>
-            <span class="sub-value">{{ row.p.callsToday | number:'1.0-0':'de' }}</span>
-          </td>
+          <td class="num">{{ row.p.calls | number:'1.0-0':'de' }}</td>
           <td class="num">
             @if (row.p.tokensIn > 0) { {{ row.p.tokensIn | number:'1.0-0':'de' }} }
             @else { <span class="na">—</span> }
@@ -41,6 +38,7 @@
               <span class="na">—</span>
             }
           </td>
+          <td class="period-col">{{ periodLabel(row.p) }}</td>
         </tr>
       }
     </tbody>

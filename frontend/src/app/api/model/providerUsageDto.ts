@@ -16,5 +16,6 @@ export interface ProviderUsageDto {
     tokensOut?: number;
     quotaUsage?: number;
     quotaLimit?: number;
+    model?: string;
 }
 

@@ -58,18 +58,10 @@
     }
   }
 
-  td.two-line {
-    display: table-cell;
-    line-height: 1.2;
-
-    span {
-      display: block;
-    }
-
-    .sub-value {
-      font-size: 0.75rem;
-      color: var(--mat-sys-on-surface-variant);
-    }
+  .period-col {
+    font-size: 0.8rem;
+    color: var(--mat-sys-on-surface-variant);
+    white-space: nowrap;
   }
 
   .na {

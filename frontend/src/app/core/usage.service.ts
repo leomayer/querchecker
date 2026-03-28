@@ -5,12 +5,12 @@ import { API_URLS } from './api-urls';
 
 export interface ProviderUsage {
   calls: number;
-  callsToday: number;
   tokensIn: number;
   tokensOut: number;
   quotaUsage: number;
   quotaLimit: number;
   model: string | null;
+  quotaPeriod: 'DAILY' | 'MONTHLY' | null;
 }
 
 export interface ApiUsageResponse {

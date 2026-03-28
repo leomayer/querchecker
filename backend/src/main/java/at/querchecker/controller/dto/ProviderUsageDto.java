@@ -7,11 +7,12 @@ import lombok.Data;
 @AllArgsConstructor
 public class ProviderUsageDto {
     private long calls;
-    private long callsToday;
     private long tokensIn;
     private long tokensOut;
     private long quotaUsage;
     private long quotaLimit;
     /** Modellname — nur bei LLM-Providern (Groq, OpenRouter), sonst null */
     private String model;
+    /** Abrechnungszeitraum — DAILY | MONTHLY, null wenn kein Kontingent */
+    private String quotaPeriod;
 }

@@ -54,7 +54,6 @@ public class ApiUsageController {
         ProviderConfig config = providerProperties.getProvider(provider);
 
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime todayStart = LocalDate.now().atStartOfDay();
         LocalDateTime periodStart;
         long quotaLimit = 0;
         LimitUnit limitUnit = LimitUnit.REQUESTS;
@@ -66,15 +65,17 @@ public class ApiUsageController {
             quotaLimit = config.getFreeLimit();
             limitUnit = config.getLimitUnit();
         } else {
-            periodStart = todayStart;
+            periodStart = LocalDate.now().atStartOfDay();
         }
 
         long calls = usageLogService.countByProviderAndPeriod(provider, periodStart, now);
-        long callsToday = usageLogService.countByProviderAndPeriod(provider, todayStart, now);
         long tokensIn = usageLogService.sumTokensInputByProviderAndPeriod(provider, periodStart, now);
         long tokensOut = usageLogService.sumTokensOutputByProviderAndPeriod(provider, periodStart, now);
         long quotaUsage = limitUnit == LimitUnit.TOKENS ? tokensIn + tokensOut : calls;
+        String quotaPeriod = (config != null && config.getFreeLimit() > 0)
+                ? config.getFreeLimitPeriod().name()
+                : null;
 
-        return new ProviderUsageDto(calls, callsToday, tokensIn, tokensOut, quotaUsage, quotaLimit, model);
+        return new ProviderUsageDto(calls, tokensIn, tokensOut, quotaUsage, quotaLimit, model, quotaPeriod);
     }
 }

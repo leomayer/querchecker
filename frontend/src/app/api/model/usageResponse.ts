@@ -11,7 +11,10 @@ import { ProviderUsageDto } from './providerUsageDto';
 
 
 export interface UsageResponse { 
+    activeSearchProvider?: string;
+    activeLlmProvider?: string;
     brave?: ProviderUsageDto;
+    googleDiscovery?: ProviderUsageDto;
     groq?: ProviderUsageDto;
     openRouter?: ProviderUsageDto;
 }

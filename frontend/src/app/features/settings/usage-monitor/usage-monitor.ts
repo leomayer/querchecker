@@ -77,4 +77,10 @@ export class UsageMonitor implements OnInit, OnDestroy {
   protected hasTokens(p: ProviderUsage): boolean {
     return p.tokensIn > 0 || p.tokensOut > 0;
   }
+
+  protected periodLabel(p: ProviderUsage): string {
+    if (p.quotaPeriod === 'DAILY') return 'täglich';
+    if (p.quotaPeriod === 'MONTHLY') return 'monatlich';
+    return '—';
+  }
 }

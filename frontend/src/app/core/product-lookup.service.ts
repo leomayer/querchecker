@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_URLS } from './api-urls';
 import { LookupResult } from './model/lookup.model';
-export { LookupResult } from './model/lookup.model';
+export type { LookupResult } from './model/lookup.model';
 
 export interface FullSpecsResult {
   icecatSpecsJson: string | null;
