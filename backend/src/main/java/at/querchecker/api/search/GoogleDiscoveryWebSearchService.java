@@ -66,7 +66,7 @@ public class GoogleDiscoveryWebSearchService implements WebSearchService {
 
                 var response = client.search(request);
 
-                usageLogService.log(Provider.GOOGLE, RequestType.SEARCH, null, 0, null, null,
+                usageLogService.log(Provider.GOOGLE_DISCOVERY, RequestType.SEARCH, null, 0, null, null,
                     System.currentTimeMillis() - start);
 
                 return mapSdkResults(response);

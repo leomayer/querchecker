@@ -1,20 +1,19 @@
 spring:
   config:
     import:
-      - optional:file:../config/secrets.yml  # API-Keys (nie in Git)
+      - optional:file:../config/secrets.yml # API-Keys (nie in Git)
 
 querchecker:
-
   # ---------------------------------------------------------------------------
   # LLM-Konfiguration (Extraction + Web-Lookup-Aufbereitung)
   # ---------------------------------------------------------------------------
   llm:
-    mode: API  # API | LOCAL — Neustart nötig bei Wechsel
+    mode: API # API | LOCAL — Neustart nötig bei Wechsel
 
     # Nur relevant bei mode: API
     # Bei API wird der suggestedTerm automatisch aus dem Provider-Namen abgeleitet
     # (GROQ → "groq", OPENROUTER → "openrouter") — kein separater source-model-Wert nötig
-    external-provider: GROQ  # GROQ | OPENROUTER
+    external-provider: GROQ # GROQ | OPENROUTER
 
     # Nur relevant bei mode: LOCAL
     # Substring-Match gegen DlModelConfig.modelName — bestimmt welches lokale Modell
@@ -31,20 +30,25 @@ querchecker:
   # ---------------------------------------------------------------------------
   api:
     search:
-      active-provider: BRAVE  # BRAVE | GOOGLE_DISCOVERY — Neustart nötig bei Wechsel
+      active-provider: BRAVE # BRAVE | GOOGLE_DISCOVERY — Neustart nötig bei Wechsel
 
     # Nur relevant bei search.active-provider: GOOGLE_DISCOVERY
     google-discovery:
-      project-id:       # GCP-Projekt-ID
-      location:         # z.B. global oder eu
-      engine-id:        # Discovery Engine App-ID
-      credentials-path: # Absoluter Pfad zur Service-Account-JSON
-      quota-limit: 1000
+      project-id: querdenker-490819
+      engine-id: querchecker-search-app_1774604635088 # Discovery Engine App-ID
+      location: global # z.B. global oder eu
+      credentials-path: ../config/querdenker-google-auth.json # relativ zum backend/-Arbeitsverzeichnis; oder absoluter Pfad
 
-    # Provider-Kontingente & Limits
-    providers:
+    # Kontingente & Limits pro Provider
+    limits:
       brave:
         free-limit: 1000
+        free-limit-period: MONTHLY
+        period-start-day: 1
+        limit-unit: REQUESTS
+        alert-at-percent: 80
+      google-discovery:
+        free-limit: 100
         free-limit-period: MONTHLY
         period-start-day: 1
         limit-unit: REQUESTS
@@ -67,5 +71,5 @@ querchecker:
   # Deep Learning
   # ---------------------------------------------------------------------------
   dl:
-    min-confidence: 0.0  # Evaluierungsphase: alle Ergebnisse speichern
-    top-k: 5             # Filter VOR DB-Insert
+    min-confidence: 0.0 # Evaluierungsphase: alle Ergebnisse speichern
+    top-k: 5 # Filter VOR DB-Insert

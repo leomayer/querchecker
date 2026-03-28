@@ -10,7 +10,7 @@ import java.util.Map;
 
 /**
  * API-Provider-Konfiguration.
- * Öffentliche Werte (Limits, Perioden) in application.yml,
+ * Kontingente & Limits in config/querchecker.yml,
  * API-Keys in config/secrets.yml (nie in Git).
  *
  * Zugriff per Provider-Enum: providerProperties.getProvider(Provider.BRAVE)
@@ -20,15 +20,15 @@ import java.util.Map;
 @Data
 public class ProviderProperties {
 
-    private Map<String, ProviderConfig> providers = new HashMap<>();
+    private Map<String, ProviderConfig> limits = new HashMap<>();
     private GoogleDiscoveryConfig googleDiscovery;
 
     /**
      * Liefert die Konfiguration für einen Provider per Enum-Key.
-     * Mapping: Provider.BRAVE → providers["brave"]
+     * Mapping: Provider.BRAVE → limits["brave"]
      */
     public ProviderConfig getProvider(Provider provider) {
-        return providers.get(provider.name().toLowerCase());
+        return limits.get(provider.name().toLowerCase());
     }
 
     @Data
@@ -37,6 +37,5 @@ public class ProviderProperties {
         private String location;
         private String engineId;
         private String credentialsPath;
-        private int quotaLimit;
     }
 }

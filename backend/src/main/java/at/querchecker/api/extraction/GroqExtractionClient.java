@@ -16,7 +16,7 @@ public class GroqExtractionClient extends AbstractLlmExtractionClient {
 
     private static final String ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
 
-    @Value("${querchecker.api.providers.groq.model:}")
+    @Value("${querchecker.api.limits.groq.model:}")
     private String model;
 
     public GroqExtractionClient(@Qualifier("groqRestClient") RestClient restClient,

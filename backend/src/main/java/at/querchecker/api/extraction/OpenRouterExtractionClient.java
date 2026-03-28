@@ -16,7 +16,7 @@ public class OpenRouterExtractionClient extends AbstractLlmExtractionClient {
 
     private static final String ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
 
-    @Value("${querchecker.api.providers.openrouter.model:}")
+    @Value("${querchecker.api.limits.openrouter.model:}")
     private String model;
 
     public OpenRouterExtractionClient(@Qualifier("openRouterRestClient") RestClient restClient,
