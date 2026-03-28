@@ -2,6 +2,8 @@ package at.querchecker.research;
 
 import at.querchecker.api.entity.Provider;
 import at.querchecker.api.extraction.ExtractionProviderRouter;
+import at.querchecker.api.search.SearchProperties;
+import at.querchecker.api.search.SearchProvider;
 import at.querchecker.api.search.WebSearchProviderRouter;
 import at.querchecker.api.service.QuotaService;
 import at.querchecker.api.service.QuotaStatus;
@@ -38,6 +40,7 @@ public class ProductLookupService {
 
     private final ProductLookupRepository repo;
     private final QuotaService quotaService;
+    private final SearchProperties searchProperties;
     private final WebSearchProviderRouter webSearchRouter;
     private final ExtractionProviderRouter extractionRouter;
     private final DlPromptResolver promptResolver;
@@ -67,8 +70,11 @@ public class ProductLookupService {
         }
 
         // 2. Kontingent-Check
+        Provider searchProvider = searchProperties.getActiveProvider() == SearchProvider.GOOGLE_DISCOVERY
+                ? Provider.GOOGLE_DISCOVERY
+                : Provider.BRAVE;
         if (
-            quotaService.checkQuota(Provider.BRAVE) ==
+            quotaService.checkQuota(searchProvider) ==
             QuotaStatus.QUOTA_EXCEEDED
         ) {
             save(lookupTerm, LookupStatus.QUOTA_EXCEEDED, null);

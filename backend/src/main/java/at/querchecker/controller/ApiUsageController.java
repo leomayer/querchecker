@@ -33,6 +33,7 @@ public class ApiUsageController {
     public UsageResponse getUsage() {
         return new UsageResponse(
                 providerUsage(Provider.BRAVE),
+                providerUsage(Provider.GOOGLE_DISCOVERY),
                 providerUsage(Provider.GROQ),
                 providerUsage(Provider.OPENROUTER)
         );

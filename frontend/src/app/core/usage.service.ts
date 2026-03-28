@@ -14,6 +14,7 @@ export interface ProviderUsage {
 
 export interface ApiUsageResponse {
   brave: ProviderUsage;
+  googleDiscovery: ProviderUsage;
   groq: ProviderUsage;
   openRouter: ProviderUsage;
 }

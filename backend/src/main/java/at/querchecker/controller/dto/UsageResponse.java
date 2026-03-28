@@ -7,6 +7,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class UsageResponse {
     private ProviderUsageDto brave;
+    private ProviderUsageDto googleDiscovery;
     private ProviderUsageDto groq;
     private ProviderUsageDto openRouter;
 }

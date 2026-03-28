@@ -51,7 +51,7 @@ export class UsageMonitor implements OnInit, OnDestroy {
   protected hasAnyWarning(): boolean {
     const d = this.usage();
     if (!d) return false;
-    return this.isOverThreshold(d.brave) || this.isOverThreshold(d.groq);
+    return this.isOverThreshold(d.brave) || this.isOverThreshold(d.googleDiscovery) || this.isOverThreshold(d.groq);
   }
 
   protected isOverThreshold(p: ProviderUsage): boolean {

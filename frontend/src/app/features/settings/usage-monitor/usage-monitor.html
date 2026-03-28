@@ -15,9 +15,10 @@
     </thead>
     <tbody>
       @for (row of [
-        { name: 'Brave',       p: data.brave },
-        { name: 'Groq',        p: data.groq },
-        { name: 'OpenRouter',  p: data.openRouter }
+        { name: 'Brave',             p: data.brave },
+        { name: 'Google Discovery',  p: data.googleDiscovery },
+        { name: 'Groq',              p: data.groq },
+        { name: 'OpenRouter',        p: data.openRouter }
       ]; track row.name) {
         <tr [class.warn-row]="isOverThreshold(row.p)">
           <td class="provider-name">{{ row.name }}</td>
