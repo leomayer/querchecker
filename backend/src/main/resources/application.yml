@@ -4,7 +4,8 @@ server:
 
 spring:
   config:
-    import: optional:file:../config/secrets.yml # dev: relative to backend/ working dir
+    import:
+      - optional:file:../config/querchecker.yml
   lifecycle:
     timeout-per-shutdown-phase: 5s # Fast DevTools restarts without waiting for long-lived connections (SSE)
   flyway:
@@ -25,50 +26,22 @@ spring:
         format_sql: false
 
 querchecker:
-  api:
-    extraction:
-      active-provider: GROQ # GROQ | OPENROUTER — Neustart nötig bei Wechsel
-    search:
-      active-provider: BRAVE # BRAVE | GOOGLE (zukünftig)
-    providers:
-      brave:
-        free-limit: 1000
-        free-limit-period: MONTHLY
-        period-start-day: 1
-        limit-unit: REQUESTS
-        alert-at-percent: 80
-      groq:
-        model: llama-3.1-8b-instant
-        free-limit: 500000
-        free-limit-period: DAILY
-        period-start-day: 1
-        limit-unit: TOKENS
-        alert-at-percent: 80
-      openrouter:
-        model: meta-llama/llama-3.3-70b-instruct:free
-        free-limit: 0
-        free-limit-period: DAILY
-        limit-unit: REQUESTS
-        alert-at-percent: 80
-  research:
-    source-model: llama # substring match against DlExtractionTerm.modelName — change to switch models
   wh:
     refresh:
-      cron: "0 0 3 * * MON" # montags um 03:00; Spring-Cron: Sek Min Std Tag Mon Wochentag
+      cron: "0 0 3 * * MON" # montags 03:00; Spring-Cron: Sek Min Std Tag Mon Wochentag
   dl:
-    min-confidence: 0.0 # Evaluierungsphase: alle Ergebnisse speichern
-    top-k: 5 # Filter VOR DB-Insert
-    gpu-layers: 0 # 0 = CPU-only; set to 999 in GPU environments (llama.cpp clamps to model layer count)
     item-text-cleanup:
       retention-days: 10 # ältere ItemText-Records löschen (nicht neuester + kein userCorrectedTerm)
-      cron: "0 0 3 * * *" # täglich um 3 Uhr nachts
+      cron: "0 0 3 * * *" # täglich 03:00
 
 logging:
   level:
-    at.querchecker.deepLearning: DEBUG
-    at.querchecker.research: DEBUG
-    at.querchecker.api.extraction: DEBUG
-    at.querchecker.willHaben: INFO
+    at.querchecker:
+      deepLearning: DEBUG
+      research: DEBUG
+      extraction: DEBUG
+      search: DEBUG
+      willHaben: INFO
 
 springdoc:
   api-docs:

@@ -5,11 +5,11 @@ import { AppSseEventName, DlExtractionDonePayload } from '../../core/sse-events'
 import { EventSourceServerService } from '../../shared/utils/event-source-server';
 import { DlExtractionService, DlExtractionStatusResponse } from '../../core/dl-extraction.service';
 import { LookupResult, ProductLookupService } from '../../core/product-lookup.service';
+import { SpecsFeatureGroup } from '../../core/model/lookup.model';
 import {
   IcecatData,
   IcecatFeatureGroup,
   IcecatResponse,
-  SpecsFeatureGroup,
 } from '../../core/model/icecat.model';
 
 interface ExtractionState {

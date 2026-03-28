@@ -11,7 +11,7 @@ import at.querchecker.dto.DlExtractionDonePayload;
 import at.querchecker.dto.DlExtractionStatusResponse;
 import at.querchecker.dto.DlExtractionTermDto;
 import at.querchecker.repository.WhItemRepository;
-import at.querchecker.research.config.ResearchConfig;
+import at.querchecker.api.config.LlmProperties;
 import at.querchecker.sse.SseHub;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +36,7 @@ public class DlExtractionController {
     private final WhItemRepository whItemRepository;
     private final DlOrchestrationService dlOrchestrationService;
     private final SseHub sseHub;
-    private final ResearchConfig researchConfig;
+    private final LlmProperties llmProperties;
 
     /**
      * Returns extraction terms + overall status for a whItemId.
@@ -104,7 +104,7 @@ public class DlExtractionController {
     }
 
     private String deriveSuggestedTerm(List<DlExtractionTermDto> terms) {
-        String sourceModel = researchConfig.getSourceModel().toLowerCase();
+        String sourceModel = llmProperties.getEffectiveSourceModel();
         return terms.stream()
             .filter(t -> t.getModelName() != null && t.getModelName().toLowerCase().contains(sourceModel))
             .max(Comparator.comparingDouble(t -> t.getConfidence() != null ? t.getConfidence() : 0.0))

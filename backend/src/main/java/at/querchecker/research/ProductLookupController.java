@@ -67,6 +67,7 @@ public class ProductLookupController {
                 .icecatSpecsJson(icecatSpecsJson)
                 .sourceType(result.getSourceType())
                 .sourceDomain(result.getSourceDomain())
+                .siteLabel(result.getSiteLabel())
                 .sourceUrl(result.getSourceUrl())
                 .featureGroupsJson(result.getFeatureGroupsJson())
                 .build();

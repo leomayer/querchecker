@@ -9,7 +9,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { WhDetailDto } from '../../../../api/model/whDetailDto';
 import { ExtractionStore } from '../../extraction.store';
-import { IcecatData, IcecatFeatureGroup, SpecsFeatureGroup } from '../../../../core/model/icecat.model';
+import { IcecatData, IcecatFeatureGroup } from '../../../../core/model/icecat.model';
+import { SpecsFeatureGroup } from '../../../../core/model/lookup.model';
 import { IcecatAccordionComponent } from './icecat-accordion/icecat-accordion.component';
 import { SpecsAccordionComponent } from './specs-accordion/specs-accordion.component';
 import { PreferenceEntry, PreferencesService } from '../../../../core/preferences.service';
@@ -138,14 +139,10 @@ export class ItemResearchComponent {
   });
 
   protected readonly lookupSourceLabel = computed<string | null>(() => {
-    const domain = this.lookupSourceDomain();
-    if (!domain) return null;
-    const labelMap: Record<string, string> = {
-      'icecat.biz': 'Icecat',
-      'gsmarena.com': 'GSMArena',
-      'flatpanelshd.com': 'FlatpanelsHD',
-    };
-    return labelMap[domain] || domain;
+    const id = this.detail().whItemId;
+    if (id == null) return null;
+    const result = this.extractionStore.lookupResults()[id];
+    return result?.siteLabel ?? result?.sourceDomain ?? null;
   });
 
   protected readonly lookupSourceUrl = computed<string | null>(() => {

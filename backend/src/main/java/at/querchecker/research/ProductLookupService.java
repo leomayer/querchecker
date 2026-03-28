@@ -2,6 +2,7 @@ package at.querchecker.research;
 
 import at.querchecker.api.entity.Provider;
 import at.querchecker.api.extraction.ExtractionProviderRouter;
+import at.querchecker.api.search.WebSearchProviderRouter;
 import at.querchecker.api.service.QuotaService;
 import at.querchecker.api.service.QuotaStatus;
 import at.querchecker.deepLearning.entity.PromptType;
@@ -37,7 +38,7 @@ public class ProductLookupService {
 
     private final ProductLookupRepository repo;
     private final QuotaService quotaService;
-    private final WebSearchService webSearchService;
+    private final WebSearchProviderRouter webSearchRouter;
     private final ExtractionProviderRouter extractionRouter;
     private final DlPromptResolver promptResolver;
     private final CategorySpecPreferenceService prefService;
@@ -99,7 +100,7 @@ public class ProductLookupService {
         PartialResult bestPartial = null;
 
         for (CategorySearchSource source : sources) {
-            List<SearchResult> braveResults = webSearchService.search(
+            List<SearchResult> braveResults = webSearchRouter.getActive().search(
                 lookupTerm,
                 source.getSiteDomain(),
                 queryKeywords,
@@ -306,6 +307,7 @@ public class ProductLookupService {
             .icecatId(icecatId)
             .sourceType(source.getSourceType())
             .sourceDomain(source.getSiteDomain())
+            .siteLabel(source.getSiteLabel())
             .sourceUrl(sourceUrl)
             .build();
     }

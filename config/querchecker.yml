@@ -1,0 +1,71 @@
+spring:
+  config:
+    import:
+      - optional:file:../config/secrets.yml  # API-Keys (nie in Git)
+
+querchecker:
+
+  # ---------------------------------------------------------------------------
+  # LLM-Konfiguration (Extraction + Web-Lookup-Aufbereitung)
+  # ---------------------------------------------------------------------------
+  llm:
+    mode: API  # API | LOCAL — Neustart nötig bei Wechsel
+
+    # Nur relevant bei mode: API
+    # Bei API wird der suggestedTerm automatisch aus dem Provider-Namen abgeleitet
+    # (GROQ → "groq", OPENROUTER → "openrouter") — kein separater source-model-Wert nötig
+    external-provider: GROQ  # GROQ | OPENROUTER
+
+    # Nur relevant bei mode: LOCAL
+    # Substring-Match gegen DlModelConfig.modelName — bestimmt welches lokale Modell
+    # den suggestedTerm liefert. Aktive Modelle: llama-3.2-3b | qwen3-4b | nuextract-1.5
+    # Kurzformen: "llama", "qwen", "nuextract"
+    local-source-model: llama
+
+    # Nur relevant bei mode: LOCAL
+    # 0 = CPU-only; 999 = alle Layer auf GPU (llama.cpp begrenzt automatisch)
+    gpu-layers: 0
+
+  # ---------------------------------------------------------------------------
+  # Web-Suche
+  # ---------------------------------------------------------------------------
+  api:
+    search:
+      active-provider: BRAVE  # BRAVE | GOOGLE_DISCOVERY — Neustart nötig bei Wechsel
+
+    # Nur relevant bei search.active-provider: GOOGLE_DISCOVERY
+    google-discovery:
+      project-id:       # GCP-Projekt-ID
+      location:         # z.B. global oder eu
+      engine-id:        # Discovery Engine App-ID
+      credentials-path: # Absoluter Pfad zur Service-Account-JSON
+      quota-limit: 1000
+
+    # Provider-Kontingente & Limits
+    providers:
+      brave:
+        free-limit: 1000
+        free-limit-period: MONTHLY
+        period-start-day: 1
+        limit-unit: REQUESTS
+        alert-at-percent: 80
+      groq:
+        model: llama-3.1-8b-instant
+        free-limit: 500000
+        free-limit-period: DAILY
+        period-start-day: 1
+        limit-unit: TOKENS
+        alert-at-percent: 80
+      openrouter:
+        model: meta-llama/llama-3.3-70b-instruct:free
+        free-limit: 0
+        free-limit-period: DAILY
+        limit-unit: REQUESTS
+        alert-at-percent: 80
+
+  # ---------------------------------------------------------------------------
+  # Deep Learning
+  # ---------------------------------------------------------------------------
+  dl:
+    min-confidence: 0.0  # Evaluierungsphase: alle Ergebnisse speichern
+    top-k: 5             # Filter VOR DB-Insert

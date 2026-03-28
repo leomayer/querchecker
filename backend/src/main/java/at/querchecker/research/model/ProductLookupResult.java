@@ -18,6 +18,7 @@ public class ProductLookupResult {
     private String icecatId;
     private SourceType sourceType;
     private String sourceDomain;
+    private String siteLabel;
     private String sourceUrl;
 
     public static ProductLookupResult failed() {

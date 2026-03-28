@@ -14,6 +14,11 @@ export interface LookupResponse {
     quickFacts?: { [key: string]: string; };
     icecatId?: string;
     icecatSpecsJson?: string;
+    sourceType?: LookupResponse.SourceTypeEnum;
+    sourceDomain?: string;
+    siteLabel?: string;
+    sourceUrl?: string;
+    featureGroupsJson?: string;
 }
 export namespace LookupResponse {
     export const LookupStatusEnum = {
@@ -22,6 +27,13 @@ export namespace LookupResponse {
         QuotaExceeded: 'QUOTA_EXCEEDED'
     } as const;
     export type LookupStatusEnum = typeof LookupStatusEnum[keyof typeof LookupStatusEnum];
+    export const SourceTypeEnum = {
+        Icecat: 'ICECAT',
+        Flatpanelshd: 'FLATPANELSHD',
+        Gsmarena: 'GSMARENA',
+        Generic: 'GENERIC'
+    } as const;
+    export type SourceTypeEnum = typeof SourceTypeEnum[keyof typeof SourceTypeEnum];
 }
 
 

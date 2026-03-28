@@ -30,7 +30,7 @@ public abstract class AbstractLlamaExtractionModel implements ExtractionModel {
     @Autowired
     private AppConfigService appConfigService;
 
-    @Value("${querchecker.dl.gpu-layers:0}")
+    @Value("${querchecker.llm.gpu-layers:0}")
     private int gpuLayers;
 
     private static final ObjectMapper MAPPER = new ObjectMapper();

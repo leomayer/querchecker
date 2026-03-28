@@ -2,7 +2,7 @@ import { Component, computed, input, output } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { SpecsFeatureGroup } from '../../../../../core/model/icecat.model';
+import { SpecsFeatureGroup } from '../../../../../core/model/lookup.model';
 
 /**
  * Generisches Spezifikations-Accordion für HTML-Fetch-Quellen (GSMArena, FlatpanelsHD).

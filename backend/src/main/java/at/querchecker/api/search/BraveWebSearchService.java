@@ -1,4 +1,4 @@
-package at.querchecker.research;
+package at.querchecker.api.search;
 
 import at.querchecker.api.config.ProviderConfig;
 import at.querchecker.api.config.ProviderProperties;
@@ -9,7 +9,6 @@ import at.querchecker.research.model.BraveApiResponse;
 import at.querchecker.research.model.SearchResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -26,10 +25,6 @@ import java.util.List;
  */
 @Slf4j
 @Service
-@ConditionalOnProperty(
-    name = "querchecker.api.search.active-provider",
-    havingValue = "BRAVE",
-    matchIfMissing = true)
 @RequiredArgsConstructor
 public class BraveWebSearchService implements WebSearchService {
 
@@ -38,6 +33,11 @@ public class BraveWebSearchService implements WebSearchService {
     private final RestTemplate restTemplate;
     private final ApiUsageLogService usageLogService;
     private final ProviderProperties providerProperties;
+
+    @Override
+    public SearchProvider getProvider() {
+        return SearchProvider.BRAVE;
+    }
 
     @Override
     public List<SearchResult> search(String lookupTerm, String siteDomain,

@@ -17,6 +17,7 @@ public class LookupResponse {
     private String icecatSpecsJson;
     private SourceType sourceType;
     private String sourceDomain;
+    private String siteLabel;
     private String sourceUrl;
     private String featureGroupsJson;
 }
