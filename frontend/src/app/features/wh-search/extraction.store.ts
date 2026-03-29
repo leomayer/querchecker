@@ -93,9 +93,17 @@ export const ExtractionStore = signalStore(
       },
       loadExistingTerms(whItemId: number): void {
         dlService.getTerms(whItemId).subscribe((response) => {
-          patchState(store, (s) => ({
-            extractionStatus: { ...s.extractionStatus, [whItemId]: response.extractionStatus },
-          }));
+          patchState(store, (s) => {
+            const current = s.extractionStatus[whItemId];
+            // Don't overwrite a terminal status (DONE/FAILED) already set by SSE
+            // — the GET response may be stale if it raced with the SSE.
+            const terminal = current === 'DONE' || current === 'FAILED';
+            return {
+              extractionStatus: terminal
+                ? s.extractionStatus
+                : { ...s.extractionStatus, [whItemId]: response.extractionStatus },
+            };
+          });
           if (response.terms && response.terms.length > 0) {
             patchState(store, (s) => ({
               results: { ...s.results, [whItemId]: response.terms },

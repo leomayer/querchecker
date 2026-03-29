@@ -19,6 +19,9 @@ public class GroqExtractionClient extends AbstractLlmExtractionClient {
     @Value("${querchecker.api.limits.groq.model:}")
     private String model;
 
+    @Value("${querchecker.api.limits.groq.api-key:}")
+    private String apiKey;
+
     public GroqExtractionClient(@Qualifier("groqRestClient") RestClient restClient,
                                  ApiUsageLogService usageLogService) {
         super(restClient, usageLogService);
@@ -26,6 +29,12 @@ public class GroqExtractionClient extends AbstractLlmExtractionClient {
 
     @Override
     public Provider getProvider() { return Provider.GROQ; }
+
+    @Override
+    protected String getApiKeyInfo() {
+        if (apiKey == null || apiKey.isBlank()) return "MISSING/EMPTY";
+        return apiKey.length() + " chars, prefix='" + apiKey.substring(0, Math.min(4, apiKey.length())) + "...'";
+    }
 
     @Override
     protected String getEndpointUrl() { return ENDPOINT; }

@@ -128,6 +128,8 @@ public class ProductLookupService {
 
         try {
         for (CategorySearchSource source : sources) {
+            log.debug("[ProductLookupService] Web search: type={}, domain={}, term='{}'",
+                source.getSourceType(), source.getSiteDomain(), lookupTerm);
             List<SearchResult> braveResults = webSearchRouter.getActive().search(
                 lookupTerm,
                 source.getSiteDomain(),
@@ -135,6 +137,8 @@ public class ProductLookupService {
                 source.getQueryExcludes(),
                 source.getSearchResultCount()
             );
+            log.debug("[ProductLookupService] Web search returned {} results for '{}' via {}",
+                braveResults.size(), lookupTerm, source.getSiteDomain());
 
             if (braveResults.isEmpty()) continue;
 

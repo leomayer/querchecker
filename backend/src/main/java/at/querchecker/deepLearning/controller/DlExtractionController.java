@@ -80,8 +80,8 @@ public class DlExtractionController {
             List<DlExtractionTermDto> allTerms = toDto(termRepo.findByWhItemId(whItemId));
             String suggestedTerm = deriveSuggestedTerm(allTerms);
 
-            log.debug("Broadcasting dl-extract: whItemId={}, model={}, terms={}, suggested={}",
-                whItemId, event.getModelName(), terms.size(), suggestedTerm);
+            log.debug("Broadcasting dl-extract: whItemId={}, model={}, terms={}, suggested={}, modelStatus={}",
+                whItemId, event.getModelName(), terms.size(), suggestedTerm, event.getModelStatus());
 
             sseHub.broadcast("dl-extract", DlExtractionDonePayload.builder()
                 .whItemId(whItemId)
@@ -106,7 +106,7 @@ public class DlExtractionController {
     }
 
     private String deriveSuggestedTerm(List<DlExtractionTermDto> terms) {
-        String sourceModel = llmProperties.getLocalSourceModel();
+        String sourceModel = llmProperties.getEffectiveSourceModel();
         return terms.stream()
             .filter(t -> t.getModelName() != null && t.getModelName().toLowerCase().contains(sourceModel))
             .max(Comparator.comparingDouble(t -> t.getConfidence() != null ? t.getConfidence() : 0.0))

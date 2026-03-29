@@ -81,7 +81,7 @@ public class ProductLookupController {
     @PostMapping("/lookup/full-specs")
     @Operation(summary = "Vollständige Icecat-Spezifikation laden und cachen")
     public FullSpecsResponse fullSpecs(@PathVariable Long id, @RequestBody FullSpecsRequest req) {
-        ProductLookup lookup = productLookupRepository.findByIcecatId(req.getIcecatId())
+        ProductLookup lookup = productLookupRepository.findFirstByIcecatIdOrderByUpdatedAtDesc(req.getIcecatId())
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Kein ProductLookup für icecatId: " + req.getIcecatId()));
 

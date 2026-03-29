@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface ProductLookupRepository extends JpaRepository<ProductLookup, Long> {
     Optional<ProductLookup> findByLookupTerm(String lookupTerm);
-    Optional<ProductLookup> findByIcecatId(String icecatId);
+    Optional<ProductLookup> findFirstByIcecatIdOrderByUpdatedAtDesc(String icecatId);
 }

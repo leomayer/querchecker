@@ -1,3 +1,18 @@
+:host {
+  display: flex;
+  flex-direction: column;
+}
+
+// --- Scrollable content area ---
+
+.scroll-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 4px;
+}
+
 // --- Search row ---
 
 .search-row {
@@ -92,13 +107,23 @@
   margin-top: 10px;
 }
 
-.full-specs-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+// --- Load details button with spinner overlay ---
+
+.load-btn-wrapper {
+  position: relative;
+
+  .btn-spinner-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
 }
 
 .load-details-btn {
+  width: 100%;
   font-size: 0.82rem;
   height: 32px;
   line-height: 32px;
@@ -140,19 +165,18 @@
   }
 }
 
-// --- Sticky footer ---
+// --- Footer (always at bottom via flex layout) ---
 
 .sticky-footer {
-  position: sticky;
-  bottom: 0;
+  flex: 0 0 auto;
   background: var(--mat-sys-surface-container);
   border: 1px solid var(--mat-sys-outline-variant);
-  border-bottom: none;
-  border-radius: 6px 6px 0 0;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   gap: 5px;
   padding: 6px 10px;
+  margin-top: 10px;
   font-size: 0.72rem;
   color: var(--mat-sys-on-surface-variant);
 

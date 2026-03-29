@@ -1,130 +1,135 @@
-<!-- 1. Search row -->
-<div class="search-row">
-  <mat-form-field class="search-field" subscriptSizing="dynamic">
-    <input matInput placeholder="Produktsuche" [(ngModel)]="searchTerm"
-           (keyup.enter)="onLookup()" [disabled]="!aiSearchEnabled() || lookupState() === 'NO_SOURCES'" />
-  </mat-form-field>
-  <button mat-icon-button (click)="onLookup()"
-          [disabled]="searchButtonDisabled()"
-          matTooltip="KI-Suche starten">
-    @if (lookupState() === 'loading') {
-      <mat-spinner diameter="16" />
-    } @else {
-      <mat-icon>auto_awesome</mat-icon>
-    }
-  </button>
-</div>
-
-<!-- 2. Main content: Placeholder XOR Quick Facts table -->
-@if (lookupState() === 'COMPLETE' && orderedQuickFacts().length > 0) {
-  <table class="quick-facts-table">
-    @for (row of quickFactsRows(); track row[0][0]) {
-      <tr>
-        @for (entry of row; track entry[0]) {
-          <td class="fact-key">{{ entry[0] }}</td>
-          <td class="fact-value">{{ entry[1] }}</td>
-        }
-      </tr>
-    }
-  </table>
-} @else {
-  <div class="placeholder">
-    @if (!aiSearchEnabled()) {
-      <mat-icon class="placeholder-icon">block</mat-icon>
-      <span>KI-Suche nicht konfiguriert</span>
-    } @else if (extractionLoading()) {
-      <mat-spinner diameter="20" />
-      <span>Produktname wird ermittelt…</span>
-    } @else if (lookupState() === 'loading') {
-      <mat-spinner diameter="20" />
-      <span>Produktdaten werden gesucht…</span>
-    } @else if (lookupState() === 'ERROR') {
-      <mat-icon class="placeholder-icon amber">error_outline</mat-icon>
-      <span>Fehler beim Laden@if (retryAfter()) { — erneut verfügbar ab {{ retryAfter() | date:'HH:mm' }}}</span>
-    } @else if (lookupState() === 'FAILED') {
-      <mat-icon class="placeholder-icon amber">search_off</mat-icon>
-      <span>Websuche hat nichts gefunden@if (retryAfter()) { — erneut verfügbar ab {{ retryAfter() | date:'HH:mm' }}}</span>
-    } @else if (lookupState() === 'QUOTA_EXCEEDED') {
-      <mat-icon class="placeholder-icon error">block</mat-icon>
-      <span>API-Kontingent überschritten</span>
-    } @else if (lookupState() === 'NO_SOURCES') {
-      <mat-icon class="placeholder-icon">block</mat-icon>
-      <span>Spec-Suche für diese Kategorie nicht verfügbar</span>
-    } @else if (lookupState() === 'COMPLETE') {
-      <mat-icon class="placeholder-icon">info</mat-icon>
-      <span>Keine Produktdaten gefunden</span>
-    } @else if (extractionFailed()) {
-      <mat-icon class="placeholder-icon">manage_search</mat-icon>
-      <span>Fehler beim Extrahieren der Produktdaten</span>
-    } @else if (searchTerm().trim()) {
-      <mat-icon class="placeholder-icon">auto_awesome</mat-icon>
-      <span>Suche starten, um Produktdaten zu laden</span>
-    } @else {
-      <mat-icon class="placeholder-icon">search</mat-icon>
-      <span>Noch kein Suchbegriff ermittelt</span>
-    }
+<div class="scroll-content">
+  <!-- 1. Search row -->
+  <div class="search-row">
+    <mat-form-field class="search-field" subscriptSizing="dynamic">
+      <input matInput placeholder="Produktsuche" [(ngModel)]="searchTerm"
+             (keyup.enter)="onLookup()" [disabled]="!aiSearchEnabled() || lookupState() === 'NO_SOURCES'" />
+    </mat-form-field>
+    <button mat-icon-button (click)="onLookup()"
+            [disabled]="searchButtonDisabled()"
+            matTooltip="KI-Suche starten">
+      @if (lookupState() === 'loading') {
+        <mat-spinner diameter="16" />
+      } @else {
+        <mat-icon>auto_awesome</mat-icon>
+      }
+    </button>
   </div>
-}
 
-<!-- 3. Action area — only when lookup was successful -->
-@if (lookupState() === 'COMPLETE') {
-  <div class="action-area">
-    @if (showFullSpecsButton() && !fullSpecsLoaded()) {
-      <button mat-stroked-button class="load-details-btn"
-              (click)="onLoadFullSpecs()"
-              [disabled]="fullSpecsLoading()">
-        @if (fullSpecsLoading()) {
-          <mat-spinner diameter="16" />
-        } @else {
-          <mat-icon>description</mat-icon>
-        }
-        Produktdetails laden
-      </button>
-    }
-
-    @if (icecatFeatureGroups().length > 0) {
-      <app-icecat-accordion
-        [groups]="icecatFeatureGroups()"
-        [preferredKeys]="preferredKeySet()"
-        [canToggle]="activeCategoryId() != null"
-        (toggle)="togglePreference($event)"
-      />
-    }
-    @if (specsFeatureGroups().length > 0) {
-      <app-specs-accordion
-        [groups]="specsFeatureGroups()"
-        [preferredKeys]="preferredKeySet()"
-        [canToggle]="activeCategoryId() != null"
-        (toggle)="togglePreference($event)"
-      />
-    }
-
-    <div class="external-links">
-      @if (geizhalUrl()) {
-        <a class="ext-link" [href]="geizhalUrl()!" target="_blank" rel="noopener">
-          <mat-icon class="link-icon">open_in_new</mat-icon>
-          Geizhals
-        </a>
+  <!-- 2. Main content: Placeholder XOR Quick Facts table -->
+  @if (lookupState() === 'COMPLETE' && orderedQuickFacts().length > 0) {
+    <table class="quick-facts-table">
+      @for (row of quickFactsRows(); track row[0][0]) {
+        <tr>
+          @for (entry of row; track entry[0]) {
+            <td class="fact-key">{{ entry[0] }}</td>
+            <td class="fact-value">{{ entry[1] }}</td>
+          }
+        </tr>
       }
-      @if (icecatPageUrl() && (lookupSourceDomain() === 'icecat.biz' || fullSpecsLoaded())) {
-        <a class="ext-link" [href]="icecatPageUrl()!" target="_blank" rel="noopener">
-          <mat-icon class="link-icon">open_in_new</mat-icon>
-          Icecat
-        </a>
-      }
-      @if (lookupSourceLabel() && lookupSourceDomain() !== 'icecat.biz') {
-        <a class="ext-link"
-           [href]="lookupSourceUrl() ?? 'https://' + lookupSourceDomain()"
-           target="_blank" rel="noopener">
-          <mat-icon class="link-icon">open_in_new</mat-icon>
-          {{ lookupSourceLabel() }}
-        </a>
+    </table>
+  } @else {
+    <div class="placeholder">
+      @if (!aiSearchEnabled()) {
+        <mat-icon class="placeholder-icon">block</mat-icon>
+        <span>KI-Suche nicht konfiguriert</span>
+      } @else if (extractionLoading()) {
+        <mat-spinner diameter="20" />
+        <span>Produktname wird ermittelt…</span>
+      } @else if (lookupState() === 'loading') {
+        <mat-spinner diameter="20" />
+        <span>Produktdaten werden gesucht…</span>
+      } @else if (lookupState() === 'ERROR') {
+        <mat-icon class="placeholder-icon amber">error_outline</mat-icon>
+        <span>Fehler beim Laden@if (retryAfter()) { — erneut verfügbar ab {{ retryAfter() | date:'HH:mm' }}}</span>
+      } @else if (lookupState() === 'FAILED') {
+        <mat-icon class="placeholder-icon amber">search_off</mat-icon>
+        <span>Websuche hat nichts gefunden@if (retryAfter()) { — erneut verfügbar ab {{ retryAfter() | date:'HH:mm' }}}</span>
+      } @else if (lookupState() === 'QUOTA_EXCEEDED') {
+        <mat-icon class="placeholder-icon error">block</mat-icon>
+        <span>API-Kontingent überschritten</span>
+      } @else if (lookupState() === 'NO_SOURCES') {
+        <mat-icon class="placeholder-icon">block</mat-icon>
+        <span>Spec-Suche für diese Kategorie nicht verfügbar</span>
+      } @else if (lookupState() === 'COMPLETE') {
+        <mat-icon class="placeholder-icon">info</mat-icon>
+        <span>Keine Produktdaten gefunden</span>
+      } @else if (extractionFailed()) {
+        <mat-icon class="placeholder-icon">manage_search</mat-icon>
+        <span>Fehler beim Extrahieren der Produktdaten</span>
+      } @else if (searchTerm().trim()) {
+        <mat-icon class="placeholder-icon">auto_awesome</mat-icon>
+        <span>Suche starten, um Produktdaten zu laden</span>
+      } @else {
+        <mat-icon class="placeholder-icon">search</mat-icon>
+        <span>Noch kein Suchbegriff ermittelt</span>
       }
     </div>
-  </div>
-}
+  }
 
-<!-- 4. Sticky footer — zeigt aktuellstes Abrufdatum -->
+  <!-- 3. Action area — only when lookup was successful -->
+  @if (lookupState() === 'COMPLETE') {
+    <div class="action-area">
+      @if (showFullSpecsButton() && !fullSpecsLoaded()) {
+        <div class="load-btn-wrapper">
+          <button mat-stroked-button class="load-details-btn"
+                  (click)="onLoadFullSpecs()"
+                  [disabled]="fullSpecsLoading()">
+            <mat-icon>description</mat-icon>
+            Produktdetails laden
+          </button>
+          @if (fullSpecsLoading()) {
+            <div class="btn-spinner-overlay">
+              <mat-spinner diameter="16" />
+            </div>
+          }
+        </div>
+      }
+
+      @if (icecatFeatureGroups().length > 0) {
+        <app-icecat-accordion
+          [groups]="icecatFeatureGroups()"
+          [preferredKeys]="preferredKeySet()"
+          [canToggle]="activeCategoryId() != null"
+          (toggle)="togglePreference($event)"
+        />
+      }
+      @if (specsFeatureGroups().length > 0) {
+        <app-specs-accordion
+          [groups]="specsFeatureGroups()"
+          [preferredKeys]="preferredKeySet()"
+          [canToggle]="activeCategoryId() != null"
+          (toggle)="togglePreference($event)"
+        />
+      }
+
+      <div class="external-links">
+        @if (geizhalUrl()) {
+          <a class="ext-link" [href]="geizhalUrl()!" target="_blank" rel="noopener">
+            <mat-icon class="link-icon">open_in_new</mat-icon>
+            Geizhals
+          </a>
+        }
+        @if (icecatPageUrl() && (lookupSourceDomain() === 'icecat.biz' || fullSpecsLoaded())) {
+          <a class="ext-link" [href]="icecatPageUrl()!" target="_blank" rel="noopener">
+            <mat-icon class="link-icon">open_in_new</mat-icon>
+            Icecat
+          </a>
+        }
+        @if (lookupSourceLabel() && lookupSourceDomain() !== 'icecat.biz') {
+          <a class="ext-link"
+             [href]="lookupSourceUrl() ?? 'https://' + lookupSourceDomain()"
+             target="_blank" rel="noopener">
+            <mat-icon class="link-icon">open_in_new</mat-icon>
+            {{ lookupSourceLabel() }}
+          </a>
+        }
+      </div>
+    </div>
+  }
+</div>
+
+<!-- 4. Footer — always at bottom, shows fetch date -->
 @if (lookupState() === 'COMPLETE' && lookupTimestamp()) {
   <div class="sticky-footer">
     <mat-icon class="footer-icon">schedule</mat-icon>

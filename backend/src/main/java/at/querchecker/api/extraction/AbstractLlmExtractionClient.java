@@ -40,6 +40,9 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     /** Vollständiger Endpunkt-URL für den jeweiligen Provider */
     protected abstract String getEndpointUrl();
 
+    /** Kurze Diagnose-Info über den API-Key — für Logging bei Fehlern. */
+    protected String getApiKeyInfo() { return "unknown"; }
+
     /** Modellname aus der Provider-Konfiguration */
     protected abstract String getModel();
 
@@ -115,7 +118,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
             return response;
         } catch (RuntimeException e) {
             long duration = System.currentTimeMillis() - start;
-            log.warn("LLM call failed (provider={}): {}", getProvider(), e.getMessage());
+            log.warn("LLM call failed (provider={}, key={}): {}", getProvider(), getApiKeyInfo(), e.getMessage());
             usageLogService.log(getProvider(), requestType, lookupTerm, 500, null, null, duration);
             throw e;
         }

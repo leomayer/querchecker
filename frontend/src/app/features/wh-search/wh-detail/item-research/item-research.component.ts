@@ -107,10 +107,10 @@ export class ItemResearchComponent {
     const facts = result.quickFacts;
     const prefKeys = Array.from(this.preferredKeySet());
     const preferred = prefKeys
-      .filter((k) => k in facts)
+      .filter((k) => k in facts && facts[k] != null && facts[k] !== '')
       .map((k) => [k, facts[k]] as [string, string]);
     const rest = Object.entries(facts)
-      .filter(([k]) => !prefKeys.includes(k))
+      .filter(([k, v]) => !prefKeys.includes(k) && v != null && v !== '')
       .sort(([a], [b]) => a.localeCompare(b)) as [string, string][];
     return [...preferred, ...rest];
   });

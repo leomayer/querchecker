@@ -29,7 +29,7 @@
 .detail-content {
   flex: 1;
   overflow: hidden;
-  padding: 16px 20px;
+  padding: 16px 20px 12px;
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -46,10 +46,24 @@
   }
 }
 
-app-wh-base         { flex: 0 1 var(--top-height); min-height: 200px; overflow-y: auto; }
-app-item-annotation { flex: 0 0 auto; overflow: hidden;
-  &.notes-open      { overflow-y: auto; } }
-app-item-research   { flex: 1 1 0; min-height: 80px; overflow-y: auto; overflow-x: hidden; margin-top: 8px; }
+app-wh-base {
+  flex: 0 1 var(--top-height);
+  min-height: 200px;
+  overflow-y: auto;
+}
+app-item-annotation {
+  flex: 0 0 auto;
+  overflow: hidden;
+  &.notes-open {
+    overflow-y: auto;
+  }
+}
+app-item-research {
+  flex: 1 1 0;
+  min-height: 80px;
+  overflow: hidden;
+  margin-top: 8px;
+}
 
 .pane-divider {
   flex-shrink: 0;
@@ -66,7 +80,9 @@ app-item-research   { flex: 1 1 0; min-height: 80px; overflow-y: auto; overflow-
     border-radius: 1px;
     background: var(--mat-sys-primary);
     opacity: 0.3;
-    transition: opacity 150ms, box-shadow 150ms;
+    transition:
+      opacity 150ms,
+      box-shadow 150ms;
   }
 
   &:hover::after {
