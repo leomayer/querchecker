@@ -12,4 +12,6 @@ public class DlExtractionDonePayload {
     private List<DlExtractionTermDto> terms;
     /** Best term from the configured source model — pre-fills the spec-lookup field. */
     private String suggestedTerm;
+    /** Extraction status of this model's run: "DONE" or "FAILED". */
+    private String modelStatus;
 }

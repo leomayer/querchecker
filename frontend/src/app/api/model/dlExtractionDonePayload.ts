@@ -14,5 +14,6 @@ export interface DlExtractionDonePayload {
     whItemId?: number;
     terms?: Array<DlExtractionTermDto>;
     suggestedTerm?: string;
+    modelStatus?: string;
 }
 

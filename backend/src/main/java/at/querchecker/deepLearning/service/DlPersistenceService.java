@@ -33,6 +33,15 @@ public class DlPersistenceService {
         runRepo.save(run);
 
         eventPublisher.publishEvent(new DlExtractionCompletedEvent(
-            run.getItemText().getId(), run.getModelConfig().getModelName()));
+            run.getItemText().getId(), run.getModelConfig().getModelName(), ExtractionStatus.DONE));
+    }
+
+    public void saveFailed(DlExtractionRun run, String errorMessage) {
+        run.setStatus(ExtractionStatus.FAILED);
+        run.setErrorMessage(errorMessage);
+        runRepo.save(run);
+
+        eventPublisher.publishEvent(new DlExtractionCompletedEvent(
+            run.getItemText().getId(), run.getModelConfig().getModelName(), ExtractionStatus.FAILED));
     }
 }

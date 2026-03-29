@@ -2,7 +2,7 @@
 <div class="search-row">
   <mat-form-field class="search-field" subscriptSizing="dynamic">
     <input matInput placeholder="Produktsuche" [(ngModel)]="searchTerm"
-           (keyup.enter)="onLookup()" [disabled]="!aiSearchEnabled()" />
+           (keyup.enter)="onLookup()" [disabled]="!aiSearchEnabled() || lookupState() === 'NO_SOURCES'" />
   </mat-form-field>
   <button mat-icon-button (click)="onLookup()"
           [disabled]="searchButtonDisabled()"
@@ -38,15 +38,24 @@
     } @else if (lookupState() === 'loading') {
       <mat-spinner diameter="20" />
       <span>Produktdaten werden gesucht…</span>
+    } @else if (lookupState() === 'ERROR') {
+      <mat-icon class="placeholder-icon amber">error_outline</mat-icon>
+      <span>Fehler beim Laden@if (retryAfter()) { — erneut verfügbar ab {{ retryAfter() | date:'HH:mm' }}}</span>
     } @else if (lookupState() === 'FAILED') {
-      <mat-icon class="placeholder-icon">search_off</mat-icon>
-      <span>Websuche hat nichts gefunden</span>
+      <mat-icon class="placeholder-icon amber">search_off</mat-icon>
+      <span>Websuche hat nichts gefunden@if (retryAfter()) { — erneut verfügbar ab {{ retryAfter() | date:'HH:mm' }}}</span>
     } @else if (lookupState() === 'QUOTA_EXCEEDED') {
-      <mat-icon class="placeholder-icon">block</mat-icon>
+      <mat-icon class="placeholder-icon error">block</mat-icon>
       <span>API-Kontingent überschritten</span>
+    } @else if (lookupState() === 'NO_SOURCES') {
+      <mat-icon class="placeholder-icon">block</mat-icon>
+      <span>Spec-Suche für diese Kategorie nicht verfügbar</span>
     } @else if (lookupState() === 'COMPLETE') {
       <mat-icon class="placeholder-icon">info</mat-icon>
       <span>Keine Produktdaten gefunden</span>
+    } @else if (extractionFailed()) {
+      <mat-icon class="placeholder-icon">manage_search</mat-icon>
+      <span>Fehler beim Extrahieren der Produktdaten</span>
     } @else if (searchTerm().trim()) {
       <mat-icon class="placeholder-icon">auto_awesome</mat-icon>
       <span>Suche starten, um Produktdaten zu laden</span>

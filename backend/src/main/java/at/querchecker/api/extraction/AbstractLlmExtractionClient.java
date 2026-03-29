@@ -113,11 +113,11 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
             usageLogService.log(getProvider(), requestType, lookupTerm, 200,
                     response.getTokensInput(), response.getTokensOutput(), duration);
             return response;
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             long duration = System.currentTimeMillis() - start;
             log.warn("LLM call failed (provider={}): {}", getProvider(), e.getMessage());
             usageLogService.log(getProvider(), requestType, lookupTerm, 500, null, null, duration);
-            return new ChatResponse();
+            throw e;
         }
     }
 

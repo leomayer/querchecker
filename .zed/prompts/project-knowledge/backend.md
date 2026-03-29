@@ -29,7 +29,8 @@ at.querchecker/
 │                   api/WhApiResponse.java
 ├── research/
 │   ├── entity/     CategorySpecPreference, CategorySpecPreferenceField, ProductLookup,
-│   │               LookupStatus (enum), FieldSource (enum: SYSTEM, USER),
+│   │               LookupStatus (enum: COMPLETE, FAILED, QUOTA_EXCEEDED, NO_SOURCES, ERROR),
+│   │               FieldSource (enum: SYSTEM, USER),
 │   │               CategorySearchSource, SourceType (enum: ICECAT, FLATPANELSHD, GSMARENA, GENERIC),
 │   │               ExtractionQuality (enum: GOOD, PARTIAL, EMPTY, FAILED_NO_CRITERIA)
 │   ├── model/      BraveApiResponse, QuickFactsResult (incl. featureGroups),
@@ -270,6 +271,10 @@ Swagger UI: `/swagger-ui.html` (dev only, in Prod via `SPRING_PROFILES_ACTIVE=pr
 - `BraveWebSearchService implements WebSearchService`: 3-stufige Suche. Kein `Accept-Encoding: gzip` Header. Ersetzt `BraveSearchService`.
 - `SearchResult` record: `(title, url, description, extraSnippets)` — generisch. Ersetzt `BraveResult`.
 - `ProductLookupService`: Multi-Source-Schleife über `CategorySearchSource`-Liste. Je Quelle: Brave → HTML-Fetch (FLATPANELSHD/GSMARENA via Jsoup-Fallback-Loop) oder Snippets (ICECAT/GENERIC) → LLM → Quality-Check → weiter bei PARTIAL/EMPTY. Speichert `sourceType`, `sourceDomain`, `sourceUrl`, `featureGroupsJson` in `ProductLookup`.
+  - Leere Quellen → `NO_SOURCES` (nicht gecacht — wird bei jedem Aufruf neu geprüft)
+  - Exception → `ERROR` (gecacht mit TTL 10min, konfigurierbar via `AppConfig key: product.lookup.error.ttl.minutes`)
+  - `FAILED`: gecacht mit TTL 24h (konfigurierbar via `AppConfig key: product.lookup.failed.ttl.hours`); nach Ablauf erneute Suche
+  - Cache-Semantik: COMPLETE = permanent; FAILED = 24h TTL; ERROR = 10min TTL; NO_SOURCES = nie gecacht; QUOTA_EXCEEDED = erneut geprüft
 - `IcecatService`: Icecat-API nach `icecatId` (numerische ID, `icecat_id` Query-Param), gibt `icecatSpecsJson` zurück. Verwendet `Provider.ICECAT`. (`IcecatClient` und `EanSearchClient` entfernt.)
 - `IcecatFetchResult` record: Komponente heißt `isNotFound` (nicht `notFound` — Namenskonflikt mit statischer Factory-Methode). Accessor: `fetch.isNotFound()`.
 - `CategorySpecPreferenceService`: verwaltet Pflichtfelder je Kategorie.
@@ -283,7 +288,7 @@ Swagger UI: `/swagger-ui.html` (dev only, in Prod via `SPRING_PROFILES_ACTIVE=pr
 - `UrlValidator`: Anti-Halluzination URL-Validierung.
   - `resolveSourceUrl(llmUrl, braveResults)` — prüft LLM-URL gegen reale Brave-Ergebnisse, Fallback auf Top-Brave-URL
   - `resolveIcecatId(llmId, braveResults)` — prüft ob icecatId in einer Brave-URL vorkommt
-  - `matchesExpectedPattern(url, SourceType)` — Regex: ICECAT `icecat.biz/p/[name]-[id].html`, GSMARENA `gsmarena.com/[name]-[id].php`, FLATPANELSHD `flatpanelshd.com/[name].php`; GENERIC passt immer
+  - `matchesExpectedPattern(url, SourceType)` — Regex: ICECAT `icecat.biz/p/[name]-[id].html`, GSMARENA `gsmarena.com/[name]-[id].php`, FLATPANELSHD `flatpanelshd.com/[\w\-]+.php` (Bindestriche erlaubt); GENERIC passt immer
 - `HtmlFetchService`: `shouldFetchFullPage(SourceType)` (true für FLATPANELSHD/GSMARENA). `fetchAndExtract(url, SourceType)`: Jsoup-Fetch mit 10s Timeout, site-spezifische CSS-Selektoren (GSMArena: `table.specs-phone-big-table`; FlatpanelsHD: `table.specsTable, div.specs, table.tv-specs` mit `main`-Fallback).
 - `UserAgentHolder`: erfasst ersten Browser-User-Agent aus eingehenden Requests; Fallback: hardcodierter Chrome-UA. `UserAgentFilter`: Jakarta Servlet Filter; speichert UA bei jedem Request in `UserAgentHolder`.
 - `RequestUserAgentResolver` (`config/`): löst den UA für ausgehende HTTP-Calls auf — liest `X-Querchecker-User-Agent` aus dem aktuellen `RequestContextHolder`, Fallback: `UserAgentHolder.get()`. Wird von `WhApiClient` und `HtmlFetchService` verwendet. Konstante: `RequestUserAgentResolver.HEADER`.

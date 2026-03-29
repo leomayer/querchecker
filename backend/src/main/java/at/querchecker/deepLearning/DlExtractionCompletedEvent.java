@@ -1,5 +1,6 @@
 package at.querchecker.deepLearning;
 
+import at.querchecker.deepLearning.ExtractionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -8,4 +9,5 @@ import lombok.Getter;
 public class DlExtractionCompletedEvent {
     private final Long itemTextId;
     private final String modelName;
+    private final ExtractionStatus modelStatus;
 }

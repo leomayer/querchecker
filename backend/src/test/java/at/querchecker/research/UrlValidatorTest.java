@@ -105,6 +105,13 @@ class UrlValidatorTest {
     }
 
     @Test
+    void matchesExpectedPattern_flatpanelshd_hyphenatedModelName_valid() {
+        assertThat(validator.matchesExpectedPattern(
+                "https://www.flatpanelshd.com/samsung-qe65qn85b.php", FLATPANELSHD))
+                .isTrue();
+    }
+
+    @Test
     void matchesExpectedPattern_flatpanelshd_reviewPage_invalid() {
         // review.php sollte durch queryExcludes schon rausgefiltert sein,
         // Pattern-Check als zusätzliches Sicherheitsnetz

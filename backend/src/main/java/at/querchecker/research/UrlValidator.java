@@ -17,7 +17,7 @@ public class UrlValidator {
             SourceType.GSMARENA,     Pattern.compile(
                     "https://(?:www\\.)?gsmarena\\.com/[\\w_]+-\\d+\\.php"),
             SourceType.FLATPANELSHD, Pattern.compile(
-                    "https://(?:www\\.)?flatpanelshd\\.com/[\\w_]+\\.php")
+                    "https://(?:www\\.)?flatpanelshd\\.com/[\\w\\-]+\\.php")
     );
 
     /**

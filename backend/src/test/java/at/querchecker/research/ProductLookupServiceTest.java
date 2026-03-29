@@ -19,6 +19,7 @@ import at.querchecker.research.model.ProductLookupResult;
 import at.querchecker.research.model.QuickFactsResult;
 import at.querchecker.research.model.SearchResult;
 import at.querchecker.research.repository.ProductLookupRepository;
+import at.querchecker.service.AppConfigService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +27,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,12 +53,15 @@ class ProductLookupServiceTest {
     @Mock ExtractionClient llmClient;
     @Mock ExtractionProviderRouter extractionRouter;
     @Mock DlPromptResolver promptResolver;
+    @Mock AppConfigService appConfigService;
     @InjectMocks ProductLookupService service;
 
     @BeforeEach
     void routerSetup() {
         lenient().when(extractionRouter.getActive()).thenReturn(llmClient);
         lenient().when(webSearchRouter.getActive()).thenReturn(webSearchService);
+        lenient().when(appConfigService.getLookupFailedTtlHours()).thenReturn(24);
+        lenient().when(appConfigService.getLookupErrorTtlMinutes()).thenReturn(10);
     }
 
     // --- HTML-Fetch Fallback-Loop ---
@@ -234,6 +239,92 @@ class ProductLookupServiceTest {
         verify(webSearchService).search(any(), any(), any(), any(), eq(3));
     }
 
+    // --- NO_SOURCES ---
+
+    @Test
+    void lookup_returnsNoSources_whenSourcesEmpty() {
+        setupNoCache(); setupQuotaOk();
+        when(sourceService.findForCategory(any())).thenReturn(List.of());
+
+        ProductLookupResult result = service.lookup("Unbekanntes Gerät", mock(WhCategory.class));
+
+        assertThat(result.getStatus()).isEqualTo(LookupStatus.NO_SOURCES);
+        verify(repo, never()).save(any());
+    }
+
+    // --- ERROR: Exception → gecacht, TTL 10min ---
+
+    @Test
+    void lookup_savesError_andReturnsError_onException() {
+        setupNoCache(); setupQuotaOk();
+        CategorySearchSource src = snippetSource("icecat.biz", ICECAT);
+        when(sourceService.findForCategory(any())).thenReturn(List.of(src));
+        when(prefService.getMandatoryFields(any())).thenReturn(List.of());
+        when(prefService.getQueryKeywords(any())).thenReturn(List.of());
+        when(webSearchService.search(any(), any(), any(), any(), anyInt()))
+            .thenThrow(new RuntimeException("Brave API nicht erreichbar"));
+
+        ProductLookupResult result = service.lookup("Samsung S25", mock(WhCategory.class));
+
+        assertThat(result.getStatus()).isEqualTo(LookupStatus.ERROR);
+        verify(repo).save(argThat(pl -> pl.getLookupStatus() == LookupStatus.ERROR));
+    }
+
+    @Test
+    void lookup_returnsErrorFromCache_whenTtlNotExpired() {
+        ProductLookup cached = cachedResult(LookupStatus.ERROR, LocalDateTime.now().minusMinutes(5));
+        when(repo.findByLookupTerm(any())).thenReturn(Optional.of(cached));
+        when(appConfigService.getLookupErrorTtlMinutes()).thenReturn(10);
+
+        ProductLookupResult result = service.lookup("Samsung S25", mock(WhCategory.class));
+
+        assertThat(result.getStatus()).isEqualTo(LookupStatus.ERROR);
+        verify(quotaService, never()).checkQuota(any());
+    }
+
+    @Test
+    void lookup_retriesAfterError_whenTtlExpired() {
+        ProductLookup cached = cachedResult(LookupStatus.ERROR, LocalDateTime.now().minusMinutes(15));
+        when(repo.findByLookupTerm(any())).thenReturn(Optional.of(cached));
+        when(appConfigService.getLookupErrorTtlMinutes()).thenReturn(10);
+        setupQuotaOk();
+        when(sourceService.findForCategory(any())).thenReturn(List.of());
+
+        ProductLookupResult result = service.lookup("Samsung S25", mock(WhCategory.class));
+
+        // TTL abgelaufen → neu gesucht (sourceService wurde aufgerufen)
+        verify(sourceService).findForCategory(any());
+        assertThat(result.getStatus()).isEqualTo(LookupStatus.NO_SOURCES);
+    }
+
+    // --- FAILED: TTL 24h ---
+
+    @Test
+    void lookup_returnsFailedFromCache_whenTtlNotExpired() {
+        ProductLookup cached = cachedResult(LookupStatus.FAILED, LocalDateTime.now().minusHours(12));
+        when(repo.findByLookupTerm(any())).thenReturn(Optional.of(cached));
+        when(appConfigService.getLookupFailedTtlHours()).thenReturn(24);
+
+        ProductLookupResult result = service.lookup("Unbekanntes TV", mock(WhCategory.class));
+
+        assertThat(result.getStatus()).isEqualTo(LookupStatus.FAILED);
+        verify(quotaService, never()).checkQuota(any());
+    }
+
+    @Test
+    void lookup_retriesAfterFailed_whenTtlExpired() {
+        ProductLookup cached = cachedResult(LookupStatus.FAILED, LocalDateTime.now().minusHours(30));
+        when(repo.findByLookupTerm(any())).thenReturn(Optional.of(cached));
+        when(appConfigService.getLookupFailedTtlHours()).thenReturn(24);
+        setupQuotaOk();
+        when(sourceService.findForCategory(any())).thenReturn(List.of());
+
+        ProductLookupResult result = service.lookup("Unbekanntes TV", mock(WhCategory.class));
+
+        verify(sourceService).findForCategory(any());
+        assertThat(result.getStatus()).isEqualTo(LookupStatus.NO_SOURCES);
+    }
+
     // --- Hilfsmethoden ---
 
     private void setupNoCache() {
@@ -262,6 +353,13 @@ class ProductLookupServiceTest {
 
     private SearchResult searchResult(String url) {
         return SearchResult.builder().url(url).extraSnippets(List.of()).build();
+    }
+
+    private ProductLookup cachedResult(LookupStatus status, LocalDateTime updatedAt) {
+        ProductLookup pl = new ProductLookup();
+        pl.setLookupStatus(status);
+        pl.setUpdatedAt(updatedAt);
+        return pl;
     }
 
     private QuickFactsResult quickFacts(Map<String, String> facts,

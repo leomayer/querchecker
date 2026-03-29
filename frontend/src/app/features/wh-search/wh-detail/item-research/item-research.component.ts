@@ -15,7 +15,7 @@ import { IcecatAccordionComponent } from './icecat-accordion/icecat-accordion.co
 import { SpecsAccordionComponent } from './specs-accordion/specs-accordion.component';
 import { PreferenceEntry, PreferencesService } from '../../../../core/preferences.service';
 
-type LookupState = 'empty' | 'loading' | 'COMPLETE' | 'FAILED' | 'QUOTA_EXCEEDED';
+type LookupState = 'empty' | 'loading' | 'COMPLETE' | 'FAILED' | 'QUOTA_EXCEEDED' | 'NO_SOURCES' | 'ERROR';
 
 @Component({
   selector: 'app-item-research',
@@ -80,6 +80,12 @@ export class ItemResearchComponent {
     if (id == null) return false;
     const status = this.extractionStore.extractionStatus()[id];
     return status == null || status === 'PENDING';
+  });
+
+  protected readonly extractionFailed = computed<boolean>(() => {
+    const id = this.detail().whItemId;
+    if (id == null) return false;
+    return this.extractionStore.extractionStatus()[id] === 'FAILED';
   });
 
   // --- Spec-Lookup ---
@@ -219,10 +225,18 @@ export class ItemResearchComponent {
     return ts ? new Date(ts) : null;
   });
 
+  protected readonly retryAfter = computed<Date | null>(() => {
+    const id = this.detail().whItemId;
+    if (id == null) return null;
+    const ts = this.extractionStore.lookupResults()[id]?.retryAfter;
+    return ts ? new Date(ts) : null;
+  });
+
   protected readonly searchButtonDisabled = computed<boolean>(() =>
     !this.aiSearchEnabled() ||
     !this.searchTerm().trim() ||
-    this.lookupState() === 'loading',
+    this.lookupState() === 'loading' ||
+    this.lookupState() === 'NO_SOURCES',
   );
 
   // --- Preferences ---

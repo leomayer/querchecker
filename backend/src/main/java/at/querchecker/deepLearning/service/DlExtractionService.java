@@ -42,10 +42,8 @@ public class DlExtractionService {
             persistenceService.saveResults(run, filtered, durationMs);
 
         } catch (Exception e) {
-            run.setStatus(ExtractionStatus.FAILED);
-            run.setErrorMessage(truncateError(e));
-            runRepo.save(run);
             log.error("Extraction failed for run {}", run.getId(), e);
+            persistenceService.saveFailed(run, truncateError(e));
         }
     }
 

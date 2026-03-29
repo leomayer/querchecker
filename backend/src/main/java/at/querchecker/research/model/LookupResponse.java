@@ -20,4 +20,6 @@ public class LookupResponse {
     private String siteLabel;
     private String sourceUrl;
     private String featureGroupsJson;
+    /** ISO datetime ab dem ein erneuter Lookup möglich ist (nur bei FAILED/ERROR). */
+    private String retryAfter;
 }

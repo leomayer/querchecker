@@ -2,6 +2,7 @@ package at.querchecker.research;
 
 import at.querchecker.entity.WhListing;
 import at.querchecker.repository.WhListingRepository;
+import at.querchecker.research.entity.LookupStatus;
 import at.querchecker.research.entity.ProductLookup;
 import at.querchecker.research.model.FullSpecsRequest;
 import at.querchecker.research.model.FullSpecsResponse;
@@ -46,8 +47,8 @@ public class ProductLookupController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Listing not found: " + id));
 
         if (listing.getWhCategory() == null) {
-            log.warn("Listing id={} has no category — returning FAILED", id);
-            return LookupResponse.builder().lookupStatus(ProductLookupResult.failed().getStatus()).quickFacts(Map.of()).build();
+            log.warn("Listing id={} has no category — returning NO_SOURCES", id);
+            return LookupResponse.builder().lookupStatus(LookupStatus.NO_SOURCES).quickFacts(Map.of()).build();
         }
         log.info("Listing found: id={}, categoryId={}, categoryName={}", listing.getId(), listing.getWhCategory().getId(), listing.getWhCategory().getName());
 
@@ -70,6 +71,7 @@ public class ProductLookupController {
                 .siteLabel(result.getSiteLabel())
                 .sourceUrl(result.getSourceUrl())
                 .featureGroupsJson(result.getFeatureGroupsJson())
+                .retryAfter(result.getRetryAfter() != null ? result.getRetryAfter().toString() : null)
                 .build();
 
         log.info("=== LOOKUP END: status={}, quickFactsCount={} ===", response.getLookupStatus(), response.getQuickFacts().size());

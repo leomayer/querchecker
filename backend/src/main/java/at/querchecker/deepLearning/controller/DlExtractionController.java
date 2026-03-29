@@ -87,6 +87,7 @@ public class DlExtractionController {
                 .whItemId(whItemId)
                 .terms(terms)
                 .suggestedTerm(suggestedTerm)
+                .modelStatus(event.getModelStatus().name())
                 .build());
         } catch (Exception e) {
             log.error("Failed to broadcast dl-extract for itemTextId={}, model={}",
@@ -100,6 +101,7 @@ public class DlExtractionController {
         if (statuses.stream().anyMatch(s -> s == ExtractionStatus.DONE)) return "DONE";
         if (statuses.stream().anyMatch(s -> s == ExtractionStatus.INIT || s == ExtractionStatus.PENDING)) return "PENDING";
         if (statuses.stream().anyMatch(s -> s == ExtractionStatus.CANCELLED)) return "CANCELLED";
+        if (statuses.stream().allMatch(s -> s == ExtractionStatus.FAILED)) return "FAILED";
         return "NONE";
     }
 

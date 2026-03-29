@@ -9,7 +9,7 @@ export interface DlSettingsDto {
 }
 
 export interface DlExtractionStatusResponse {
-  extractionStatus: 'DONE' | 'PENDING' | 'CANCELLED' | 'NONE';
+  extractionStatus: 'DONE' | 'PENDING' | 'CANCELLED' | 'NONE' | 'FAILED';
   terms: DlExtractionTermDto[];
   /** Best term from the configured source model — pre-fills the research search field. */
   suggestedTerm?: string | null;

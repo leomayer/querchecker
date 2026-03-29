@@ -18,6 +18,7 @@ import at.querchecker.research.model.ProductLookupResult;
 import at.querchecker.research.model.QuickFactsResult;
 import at.querchecker.research.model.SearchResult;
 import at.querchecker.research.repository.ProductLookupRepository;
+import at.querchecker.service.AppConfigService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
@@ -49,6 +50,7 @@ public class ProductLookupService {
     private final ExtractionQualityEvaluator qualityEvaluator;
     private final UrlValidator urlValidator;
     private final HtmlFetchService htmlFetchService;
+    private final AppConfigService appConfigService;
 
     public ProductLookupResult lookup(
         String lookupTerm,
@@ -63,9 +65,28 @@ public class ProductLookupService {
         if (cached.isPresent()) {
             LookupStatus status = cached.get().getLookupStatus();
             if (status == LookupStatus.COMPLETE) return fromCache(cached.get());
-            if (
-                status == LookupStatus.FAILED
-            ) return ProductLookupResult.failed();
+            if (status == LookupStatus.FAILED) {
+                int ttlHours = appConfigService.getLookupFailedTtlHours();
+                LocalDateTime updatedAt = cached.get().getUpdatedAt();
+                if (updatedAt.isAfter(LocalDateTime.now().minusHours(ttlHours))) {
+                    return ProductLookupResult.builder()
+                        .status(LookupStatus.FAILED)
+                        .retryAfter(updatedAt.plusHours(ttlHours))
+                        .build();
+                }
+                // TTL abgelaufen → neu suchen
+            }
+            if (status == LookupStatus.ERROR) {
+                int ttlMinutes = appConfigService.getLookupErrorTtlMinutes();
+                LocalDateTime updatedAt = cached.get().getUpdatedAt();
+                if (updatedAt.isAfter(LocalDateTime.now().minusMinutes(ttlMinutes))) {
+                    return ProductLookupResult.builder()
+                        .status(LookupStatus.ERROR)
+                        .retryAfter(updatedAt.plusMinutes(ttlMinutes))
+                        .build();
+                }
+                // TTL abgelaufen → neu suchen
+            }
             // QUOTA_EXCEEDED → weiter zu Kontingent-Check
         }
 
@@ -94,8 +115,8 @@ public class ProductLookupService {
         if (sources.isEmpty()) {
             log.warn("[ProductLookupService] NO SOURCES FOUND for category id={} name={}",
                     whCategory.getId(), whCategory.getName());
-            save(lookupTerm, LookupStatus.FAILED, null);
-            return ProductLookupResult.failed();
+            // NO_SOURCES wird nicht gecacht — beim nächsten Aufruf erneut geprüft
+            return ProductLookupResult.noSources();
         }
 
         // 4. Felder laden (einmalig — unabhängig von der Quellen-Schleife)
@@ -105,6 +126,7 @@ public class ProductLookupService {
         // 5. Quellen-Schleife
         PartialResult bestPartial = null;
 
+        try {
         for (CategorySearchSource source : sources) {
             List<SearchResult> braveResults = webSearchRouter.getActive().search(
                 lookupTerm,
@@ -272,6 +294,12 @@ public class ProductLookupService {
 
         save(lookupTerm, LookupStatus.FAILED, null);
         return ProductLookupResult.failed();
+
+        } catch (Exception e) {
+            log.error("[ProductLookupService] Unerwarteter Fehler bei Lookup für '{}': {}", lookupTerm, e.getMessage(), e);
+            save(lookupTerm, LookupStatus.ERROR, null);
+            return ProductLookupResult.error();
+        }
     }
 
     // --- private helpers ---

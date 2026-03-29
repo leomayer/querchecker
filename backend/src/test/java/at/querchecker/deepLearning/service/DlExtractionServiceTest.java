@@ -8,6 +8,7 @@ import at.querchecker.deepLearning.entity.ItemText;
 import at.querchecker.deepLearning.repository.DlExtractionRunRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -15,9 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,9 +50,9 @@ class DlExtractionServiceTest {
 
         service.runModel(run);
 
-        assertThat(run.getStatus()).isEqualTo(ExtractionStatus.FAILED);
-        assertThat(run.getErrorMessage()).contains("DJL error");
-        verify(runRepo, atLeastOnce()).save(run);
+        ArgumentCaptor<String> errorCaptor = ArgumentCaptor.forClass(String.class);
+        verify(persistenceService).saveFailed(eq(run), errorCaptor.capture());
+        assertThat(errorCaptor.getValue()).contains("DJL error");
     }
 
     @Test
@@ -78,6 +77,8 @@ class DlExtractionServiceTest {
 
         service.runModel(run);
 
-        assertThat(run.getErrorMessage()).hasSizeLessThanOrEqualTo(500);
+        ArgumentCaptor<String> errorCaptor = ArgumentCaptor.forClass(String.class);
+        verify(persistenceService).saveFailed(eq(run), errorCaptor.capture());
+        assertThat(errorCaptor.getValue()).hasSizeLessThanOrEqualTo(500);
     }
 }

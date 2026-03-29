@@ -19,12 +19,15 @@ export interface LookupResponse {
     siteLabel?: string;
     sourceUrl?: string;
     featureGroupsJson?: string;
+    retryAfter?: string;
 }
 export namespace LookupResponse {
     export const LookupStatusEnum = {
         Complete: 'COMPLETE',
         Failed: 'FAILED',
-        QuotaExceeded: 'QUOTA_EXCEEDED'
+        QuotaExceeded: 'QUOTA_EXCEEDED',
+        NoSources: 'NO_SOURCES',
+        Error: 'ERROR'
     } as const;
     export type LookupStatusEnum = typeof LookupStatusEnum[keyof typeof LookupStatusEnum];
     export const SourceTypeEnum = {

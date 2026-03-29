@@ -236,7 +236,10 @@ export const ExtractionStore = signalStore(
               ...incoming,
             ],
           },
-          extractionStatus: { ...s.extractionStatus, [whItemId]: 'DONE' as const },
+          extractionStatus: {
+            ...s.extractionStatus,
+            [whItemId]: (payload.modelStatus ?? 'DONE') as DlExtractionStatusResponse['extractionStatus'],
+          },
         };
         // Pre-fill the spec-lookup search term when suggested term arrives via SSE
         if (payload.suggestedTerm && !s.suggestedTerms[whItemId]) {

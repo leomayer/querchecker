@@ -36,6 +36,16 @@
     width: 1.75rem;
     height: 1.75rem;
     opacity: 0.45;
+
+    &.amber {
+      color: var(--color-tertiary);
+      opacity: 1;
+    }
+
+    &.error {
+      color: var(--color-rating-down);
+      opacity: 1;
+    }
   }
 }
 

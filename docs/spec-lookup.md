@@ -38,7 +38,9 @@ item-research: Suchfeld (editierbar, vorausgefüllt)
 | Quick Facts vorhanden | Tabelle (preferred fields zuerst) + Quellenangabe + Geizhals-Link |
 | HTML-Fetch-Quelle | + Specs-Accordion (GSMArena/FlatpanelsHD Feature-Gruppen) direkt sichtbar |
 | ICECAT-Quelle | + [Alle Specs] Button → Icecat-Accordion nachladbar |
-| FAILED | ⚠️ "Keine Specs gefunden" — Term editierbar |
+| FAILED | ⚠️ "Keine Specs gefunden" — Term editierbar (Retry nach TTL-Ablauf) |
+| ERROR | ⚠️ "Fehler beim Laden" — Term editierbar (Retry nach TTL-Ablauf) |
+| NO_SOURCES | ℹ️ "KI-Suche nicht konfiguriert" — kein Laden-Button (Placeholder) |
 | QUOTA_EXCEEDED | 🚫 "Kontingent erschöpft bis [Datum]" |
 
 ### Computed Signals (`item-research.component.ts`)
@@ -108,13 +110,23 @@ Präferenz-Keywords: max. 5 USER-Felder aus `CategorySpecPreference`. Stufen sin
 
 ```
 lookupTerm → DB-Lookup:
-COMPLETE       → quickFacts sofort anzeigen (kein API-Call)
-FAILED         → Hinweis, Term editierbar (kein API-Call)
+COMPLETE       → quickFacts sofort anzeigen (kein API-Call) — permanent
+FAILED         → kein API-Call, solange TTL läuft (default 24h); danach erneute Suche
+                 konfigurierbar: AppConfig key "product.lookup.failed.ttl.hours"
+ERROR          → kein API-Call, solange TTL läuft (default 10min); danach erneute Suche
+                 konfigurierbar: AppConfig key "product.lookup.error.ttl.minutes"
 QUOTA_EXCEEDED → weiter zu Kontingent-Check (wird überschrieben wenn Periode neu)
-nicht vorhanden → Kontingent-Check → Brave → LLM
+NO_SOURCES     → kein DB-Eintrag — jeder Aufruf prüft die Quellen neu (virtual status)
+nicht vorhanden → Kontingent-Check → Quellen laden → Brave → LLM
 ```
 
-Kein TTL — Specs ändern sich nach Produktrelease nicht. Löschen nur via Settings-Bereinigung.
+`COMPLETE` hat kein TTL — Specs ändern sich nach Produktrelease nicht. Löschen nur via Settings-Bereinigung.
+
+**`NO_SOURCES`** tritt auf wenn:
+- Kategorie des Listings hat keine `CategorySearchSource`-Einträge (oder alle mit `lookupEnabled=false`)
+- Listing hat keine Kategorie (`WhListing.whCategory == null`)
+
+Da keine Quellen konfiguriert sind, macht ein Cachen keinen Sinn — beim nächsten Aufruf wird die Konfiguration erneut geprüft.
 
 ---
 
@@ -135,7 +147,7 @@ Kein TTL — Specs ändern sich nach Produktrelease nicht. Löschen nur via Sett
 | Feld | Typ | Notiz |
 |---|---|---|
 | `lookupTerm` | String | Cache-Key (normalisiert) |
-| `lookupStatus` | Enum (COMPLETE, FAILED, QUOTA_EXCEEDED) | |
+| `lookupStatus` | Enum (COMPLETE, FAILED, ERROR, QUOTA_EXCEEDED) | NO_SOURCES nie in DB gespeichert |
 | `quickFactsJson` | TEXT | LLM-Extrakt |
 | `icecatId` | String (nullable) | aus LLM oder URL-Pattern |
 | `icecatUrl` | String (nullable) | |
@@ -223,6 +235,8 @@ API-Keys in `secret.yml` (nicht in Git): `querchecker.api.providers.{brave,groq,
 ## Offene Punkte
 
 ### Frontend
+- **`NO_SOURCES`-Zustand behandeln**: `item-research` zeigt noch keinen Placeholder für `NO_SOURCES` — muss analog zu "KI-Suche deaktiviert" implementiert werden (kein Spinner, kein Error, neutraler Hinweis "KI-Suche nicht konfiguriert"). Status kommt vom Backend wenn Kategorie keine Quellen hat.
+- **`ERROR`-Zustand behandeln**: Analog zu FAILED anzeigen, aber mit anderem Text ("Fehler beim Laden").
 - **Kategorie-Präferenzen Settings** (`settings/kategorie-praeferenzen/`): UI zur Verwaltung von SYSTEM/USER Feldern pro Kategorie. Max. 5 USER-Keywords als Limit-Guard. Vererbung (Elternkategorie) anzeigen.
 - **Settings als Expandable Cards**: Refactoring der Settings-Route — aktuelle Struktur durch collapsible Material-Cards ersetzen.
 

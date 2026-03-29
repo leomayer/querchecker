@@ -77,7 +77,7 @@ public class DlOrchestrationService {
                 log.debug("Skipping model {} — already DONE for itemText {}, broadcasting",
                     mc.getModelName(), itemText.getId());
                 eventPublisher.publishEvent(
-                    new DlExtractionCompletedEvent(itemText.getId(), mc.getModelName()));
+                    new DlExtractionCompletedEvent(itemText.getId(), mc.getModelName(), ExtractionStatus.DONE));
                 continue;
             }
             // Skip if already scheduled — avoid duplicates on rapid re-open
