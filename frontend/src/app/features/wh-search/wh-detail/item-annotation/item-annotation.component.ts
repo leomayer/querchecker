@@ -93,10 +93,7 @@ export class ItemAnnotationComponent {
       this.ngZone.onStable.pipe(take(1)).subscribe(() => this.notesRef?.resizeToFitContent(true));
     });
 
-    effect(
-      () => this.notesOpen.set(!!this.detail().note?.trim()),
-      { allowSignalWrites: true },
-    );
+    effect(() => this.notesOpen.set(!!this.detail().note?.trim()), { allowSignalWrites: true });
   }
 
   toggleNotes(): void {

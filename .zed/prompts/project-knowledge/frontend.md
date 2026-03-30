@@ -66,6 +66,7 @@ frontend/src/app/
 ## SearchStore (`search.store.ts`, `@ngrx/signals`)
 
 **State:**
+
 - `layoutState: LayoutState` (SEARCH | LISTINGS | DETAIL)
 - `listings: WhItemDto[]`
 - `selectedId: string | null` — ID als String (aus URL-Segment)
@@ -85,11 +86,11 @@ frontend/src/app/
 
 ## Layout-States
 
-| State | zone-left | zone-right |
-|---|---|---|
-| `SEARCH` | `app-wh-filter` | `app-placeholder` |
-| `LISTINGS` | `app-wh-filter` | Sort + `app-wh-listings` |
-| `DETAIL` | `app-wh-listings` | `app-wh-detail` |
+| State      | zone-left         | zone-right               |
+| ---------- | ----------------- | ------------------------ |
+| `SEARCH`   | `app-wh-filter`   | `app-placeholder`        |
+| `LISTINGS` | `app-wh-filter`   | Sort + `app-wh-listings` |
+| `DETAIL`   | `app-wh-listings` | `app-wh-detail`          |
 
 `MainLayoutComponent` ist die einzige Route-Komponente. Förderband-Animationen für State-Übergänge.
 Zwei `httpResource`: `allResource` (GET /api/listings?ratingFilter=UP_NULL) und `searchResource` (GET /api/wh/search).
@@ -100,6 +101,7 @@ State-Sync via `effect()` → `SearchStore.setResourceState()`.
 ## URL-Management (`core/api-urls.ts`) — nie überschreiben
 
 Aktuelle Einträge (hand-written, nie überschreiben):
+
 - `health`, `listings`, `whSearch`, `whLocations`, `whCategories`, `sse`
 - `dlExtractionTerms(whItemId)` → `/api/dl/extraction/{id}/terms`
 - `dlSettings` → `/api/dl/settings`
@@ -147,7 +149,9 @@ interface FilterNode {
 `.mat-icon` innerhalb explizit überschreiben — globale `styles.scss`-Regel (`color: var(--color-on-surface-variant)`) macht Icons auf farbigen Chips sonst unsichtbar.
 
 ### `location-filter` / `category-filter`
+
 Smart wrappers: konvertieren `FilterNode[]` aus `WhMetaService` (Root-Service, lädt Daten nur einmal).
+
 - `locationAreaId = model<number | undefined>()` / `categoryWhId = model<number | undefined>()`
 - Übergeben `[selectedId]="locationAreaId()?.toString()"` an `app-hierarchical-filter` für Restore nach Reload
 - Location: numerisches Sort nach `areaId` (Bundesländer 1–8, Wien=900, Andere=22000)
@@ -159,26 +163,27 @@ Smart wrappers: konvertieren `FilterNode[]` aus `WhMetaService` (Root-Service, l
 
 **Wichtig**: `--mat-sys-*` Tokens NICHT direkt verwenden. Immer projekteigene `--color-*` Variablen aus `styles.scss`!
 
-| Variable | Light | Dark | Verwendung |
-|---|---|---|---|
-| `--color-haggle-primary` | `#184d5c` | `#003542` | **Nur** Header/Footer-Gradient — nie für UI-Elemente in dark |
-| `--color-haggle-secondary` | `#346574` | `#184d5c` | **Nur** Header/Footer-Gradient + Chip Level 1 |
-| `--color-ui-teal` | `#184d5c` | `#9dcee0` | UI-Elemente (Icons, Borders, Expand-Zones) — adaptiert automatisch |
-| `--color-haggle-divider` | `#b9eafc` | `#9dcee0` | Diagonal-Akzent Header/Footer |
-| `--color-on-haggle-primary` | `#ffffff` | `#ffffff` | Text auf Primär-Hintergrund |
-| `--color-tertiary` | `#C8843A` | `#F0B97A` | Amber-Akzent — NUR für Hintergründe/Borders, **nicht als Textfarbe auf hellem Hintergrund** (Kontrast ~3:1) |
-| `--color-positive` | `#1D6B52` | `#81C784` | Grün für positive Aktionen (thumb_up, positive Tags) — 5.7:1 / 5.5:1 |
-| `--color-rating-down` | `#9E4C4C` | `#9E4C4C` | Rot für negative Bewertung — 5.56:1 |
-| `--color-nav-action` | `#C8843A` | `#F0B97A` | FAB / Nav-Buttons Hintergrund |
-| `--color-on-nav-action` | `#500808` | `#500808` | Icon-Farbe auf Nav-Action-Hintergrund |
-| `--color-background` | `#fcf8f8` | `#131313` | Seiten-Hintergrund |
-| `--color-surface` | `#fcf8f8` | `#131313` | Karten-Hintergrund |
-| `--color-on-surface` | `#1c1b1b` | `#e5e2e1` | Primärer Text |
-| `--color-on-surface-variant` | `#434749` | `#c4c7c9` | Sekundärer Text / Icons |
-| `--color-border` | `rgba(0,0,0,0.14)` | `rgba(255,255,255,0.14)` | Rahmen |
-| `--layout-gutter` | `24px` | — | Seitenabstand |
+| Variable                     | Light              | Dark                     | Verwendung                                                                                                  |
+| ---------------------------- | ------------------ | ------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `--color-haggle-primary`     | `#184d5c`          | `#003542`                | **Nur** Header/Footer-Gradient — nie für UI-Elemente in dark                                                |
+| `--color-haggle-secondary`   | `#346574`          | `#184d5c`                | **Nur** Header/Footer-Gradient + Chip Level 1                                                               |
+| `--color-ui-teal`            | `#184d5c`          | `#9dcee0`                | UI-Elemente (Icons, Borders, Expand-Zones) — adaptiert automatisch                                          |
+| `--color-haggle-divider`     | `#b9eafc`          | `#9dcee0`                | Diagonal-Akzent Header/Footer                                                                               |
+| `--color-on-haggle-primary`  | `#ffffff`          | `#ffffff`                | Text auf Primär-Hintergrund                                                                                 |
+| `--color-tertiary`           | `#C8843A`          | `#F0B97A`                | Amber-Akzent — NUR für Hintergründe/Borders, **nicht als Textfarbe auf hellem Hintergrund** (Kontrast ~3:1) |
+| `--color-positive`           | `#1D6B52`          | `#81C784`                | Grün für positive Aktionen (thumb_up, positive Tags) — 5.7:1 / 5.5:1                                        |
+| `--color-rating-down`        | `#9E4C4C`          | `#9E4C4C`                | Rot für negative Bewertung — 5.56:1                                                                         |
+| `--color-nav-action`         | `#C8843A`          | `#F0B97A`                | FAB / Nav-Buttons Hintergrund                                                                               |
+| `--color-on-nav-action`      | `#500808`          | `#500808`                | Icon-Farbe auf Nav-Action-Hintergrund                                                                       |
+| `--color-background`         | `#fcf8f8`          | `#131313`                | Seiten-Hintergrund                                                                                          |
+| `--color-surface`            | `#fcf8f8`          | `#131313`                | Karten-Hintergrund                                                                                          |
+| `--color-on-surface`         | `#1c1b1b`          | `#e5e2e1`                | Primärer Text                                                                                               |
+| `--color-on-surface-variant` | `#434749`          | `#c4c7c9`                | Sekundärer Text / Icons                                                                                     |
+| `--color-border`             | `rgba(0,0,0,0.14)` | `rgba(255,255,255,0.14)` | Rahmen                                                                                                      |
+| `--layout-gutter`            | `24px`             | —                        | Seitenabstand                                                                                               |
 
 **Kontrast-Hinweise:**
+
 - Amber `#C8843A` hat nur ~3:1 auf Weiß → nie als Textfarbe auf hellem Hintergrund. Als Hintergrund mit `--color-on-surface` als Text ist es korrekt.
 - Für Darkened-Amber (Text/Icons auf hellem Hintergrund): `color-mix(in srgb, var(--color-tertiary) 65%, var(--color-on-surface))` → ~4.77:1
 - Dark Mode hat kein Problem mit Amber (#F0B97A → 12.8:1 auf #131313)
@@ -208,6 +213,7 @@ Root: `flex-direction: column`, `height: 100vh`. Header/Footer: `flex: 0 0 auto`
 Verwaltet DL-Extraktion, Spec-Lookup und Icecat-Daten clientseitig. Alle State-Slices per `whItemId` (= `WhItem.id`) geindext.
 
 **State:**
+
 - `results: Record<number, DlExtractionTermDto[]>` — DL-Extraktionsergebnisse
 - `extractionStatus: Record<number, 'DONE'|'PENDING'|'CANCELLED'|'NONE'>`
 - `suggestedTerms: Record<number, string>` — vorausgefüllter Suchbegriff (aus source-model)
@@ -223,6 +229,7 @@ Verwaltet DL-Extraktion, Spec-Lookup und Icecat-Daten clientseitig. Alle State-S
 - `fullSpecsGeneralInfo: Record<number, IcecatData['GeneralInfo']>` — GeneralInfo aus Icecat Full-Specs
 
 **Methoden:**
+
 - `loadExistingTerms(whItemId)` — `GET /api/dl/extraction/{id}/terms` → aktualisiert results + extractionStatus + suggestedTerms
 - `lookup(whItemId, listingId, lookupTerm)` — `POST /api/listings/{id}/lookup` → speichert LookupResult
 - `loadFullSpecs(whItemId, listingId, icecatId)` — `POST /api/listings/{id}/lookup/full-specs` → parst `icecatSpecsJson` als `IcecatResponse`, speichert `FeaturesGroups` in `fullSpecsData`
@@ -237,6 +244,7 @@ Verwaltet DL-Extraktion, Spec-Lookup und Icecat-Daten clientseitig. Alle State-S
 ## item-research Component (`wh-detail/item-research/`)
 
 Vollständig implementiertes Feature:
+
 - Suchfeld vorausgefüllt aus `suggestedTerms`; DL-Term-Chips klickbar zum Befüllen
 - `auto_awesome` Button → `lookup()` → Spec-Lookup (Brave Search + LLM)
 - **Quick-Facts-Tabelle** — geordnet: bevorzugte Felder (aus `preferredKeySet`) zuerst, Rest alphabetisch (`orderedQuickFacts`)
@@ -260,30 +268,37 @@ Vollständig implementiertes Feature:
 ## Health & Verbindungs-Handling
 
 ### `HealthService` (`core/health.service.ts`)
+
 Signals: `backendReady()`, `connectionLost()`, `attempts()`, `serverRestartCount()`
+
 - Pollt kontinuierlich: 2s Startup, **30s Idle** (gesund), **3s Rapid-Retry** (unterbrochen)
 - `notifyServerError()` — cancelt geplanten Idle-Poll, pollt sofort; guard verhindert Doppel-Trigger
 - `notifyServerRestart()` — inkrementiert `serverRestartCount` (von SSE bei Token-Mismatch aufgerufen)
 
 ### `StartupOverlayComponent` (`core/startup-overlay/`)
+
 - Glassmorphisches Overlay: `backdrop-filter: blur(6px)` auf Overlay + `blur(24px)` auf Karte
 - `AppComponent` rendert Header/Footer **immer**; `<router-outlet>` via `@if (health.backendReady())` gegatet
 - Kein `@if/@else` mehr — App-Skeleton ist hinter dem Glas sichtbar
 
 ### `ConnectionBannerComponent` (`core/connection-banner/`)
+
 - `@if (health.connectionLost())` in `MainLayoutComponent` oberhalb der Zones
 - Zwei `mat-progress-bar` (oben + unten, untere via `scaleX(-1)` gespiegelt)
 
 ### `EventSourceServerService` (`shared/utils/event-source-server.ts`)
+
 - `onerror` → `health.notifyServerError()` für sofortige Erkennung
 - Effect: wenn `connectionLost` von `true → false` wechselt → `eventSource.close()` + `#connect()` sofort
 - Token-Mismatch (Server-Neustart): Token still akzeptiert + `health.notifyServerRestart()` — **kein `window.location.reload()`**
 - `#connect()` cleared immer zuerst `#stalenessTimer` (verhindert stale timer auf neuer Verbindung)
 
 ### `AppComponent`
+
 - `effect()` auf `health.serverRestartCount()` → MatSnackBar "Server neugestartet — Verbindung wiederhergestellt" (5s)
 
 ### HTTP Interceptors (`core/`)
+
 - `UaForwardingInterceptor` (`ua-forwarding.interceptor.ts`) — fügt `X-Querchecker-User-Agent` (`navigator.userAgent`) und `X-Querchecker-Accept-Language` (`navigator.language`) als Custom-Header an jeden Request an. Backend liest diese via `RequestUserAgentResolver` für Willhaben- und Jsoup-Calls.
 - `ServerErrorInterceptor` (`http-error.interceptor.ts`) — fängt 5xx und `status === 0`, ruft `health.notifyServerError()`. Injiziert `HealthService` lazy via `Injector` (bricht Circular-Dependency: `HealthService → HttpClient → HTTP_INTERCEPTORS → ServerErrorInterceptor → HealthService`). Beide in `app.config.ts` mit `HTTP_INTERCEPTORS` multi-Provider registriert (UaForwarding zuerst).
 

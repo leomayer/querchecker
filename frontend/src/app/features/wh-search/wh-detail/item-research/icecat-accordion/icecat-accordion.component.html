@@ -11,10 +11,11 @@
           <td class="spec-key preferred-key">{{ f.key }}</td>
           <td class="spec-value">{{ f.value }}</td>
           <td class="spec-star">
-            <button class="star-btn star-active"
-                    [disabled]="!canToggle()"
-                    matTooltip="Präferenz entfernen"
-                    (click)="toggle.emit(f.key)">
+            <button
+              class="star-btn star-active"
+              [disabled]="!canToggle()"
+              matTooltip="Präferenz entfernen"
+              (click)="toggle.emit(f.key)">
               <mat-icon>star</mat-icon>
             </button>
           </td>
@@ -36,12 +37,19 @@
             <td class="spec-key">{{ feature.Feature.Name.Value }}</td>
             <td class="spec-value">{{ feature.PresentationValue }}</td>
             <td class="spec-star">
-              <button class="star-btn"
-                      [class.star-active]="isPreferred(feature.Feature.Name.Value)"
-                      [disabled]="!canToggle()"
-                      [matTooltip]="isPreferred(feature.Feature.Name.Value) ? 'Präferenz entfernen' : 'Als Präferenz markieren'"
-                      (click)="toggle.emit(feature.Feature.Name.Value)">
-                <mat-icon>{{ isPreferred(feature.Feature.Name.Value) ? 'star' : 'star_outline' }}</mat-icon>
+              <button
+                class="star-btn"
+                [class.star-active]="isPreferred(feature.Feature.Name.Value)"
+                [disabled]="!canToggle()"
+                [matTooltip]="
+                  isPreferred(feature.Feature.Name.Value)
+                    ? 'Präferenz entfernen'
+                    : 'Als Präferenz markieren'
+                "
+                (click)="toggle.emit(feature.Feature.Name.Value)">
+                <mat-icon>{{
+                  isPreferred(feature.Feature.Name.Value) ? 'star' : 'star_outline'
+                }}</mat-icon>
               </button>
             </td>
           </tr>

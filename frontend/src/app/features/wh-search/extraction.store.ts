@@ -6,11 +6,7 @@ import { EventSourceServerService } from '../../shared/utils/event-source-server
 import { DlExtractionService, DlExtractionStatusResponse } from '../../core/dl-extraction.service';
 import { LookupResult, ProductLookupService } from '../../core/product-lookup.service';
 import { SpecsFeatureGroup } from '../../core/model/lookup.model';
-import {
-  IcecatData,
-  IcecatFeatureGroup,
-  IcecatResponse,
-} from '../../core/model/icecat.model';
+import { IcecatData, IcecatFeatureGroup, IcecatResponse } from '../../core/model/icecat.model';
 
 interface ExtractionState {
   results: Record<number, DlExtractionTermDto[]>;
@@ -246,7 +242,8 @@ export const ExtractionStore = signalStore(
           },
           extractionStatus: {
             ...s.extractionStatus,
-            [whItemId]: (payload.modelStatus ?? 'DONE') as DlExtractionStatusResponse['extractionStatus'],
+            [whItemId]: (payload.modelStatus ??
+              'DONE') as DlExtractionStatusResponse['extractionStatus'],
           },
         };
         // Pre-fill the spec-lookup search term when suggested term arrives via SSE

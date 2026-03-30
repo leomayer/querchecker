@@ -1,5 +1,7 @@
 <div class="pref-toolbar">
-  <span class="pref-count">{{ preferencesWithKeywords().length }} Kategorie(n) mit Zusatz-Präferenzen</span>
+  <span class="pref-count"
+    >{{ preferencesWithKeywords().length }} Kategorie(n) mit Zusatz-Präferenzen</span
+  >
   <button mat-button (click)="openNewForm()" [disabled]="showNewForm()">
     <mat-icon>add</mat-icon>
     Neu
@@ -30,8 +32,15 @@
       <p class="save-error">{{ newSaveError() }}</p>
     }
     <div class="edit-btns">
-      <button mat-flat-button (click)="saveNew()"
-              [disabled]="loading() || newCategoryId() == null || newDraftKeywords().length === 0 || newDraftKeywords().length > 5">
+      <button
+        mat-flat-button
+        (click)="saveNew()"
+        [disabled]="
+          loading() ||
+          newCategoryId() == null ||
+          newDraftKeywords().length === 0 ||
+          newDraftKeywords().length > 5
+        ">
         <mat-icon>save</mat-icon>
         Speichern
       </button>
@@ -50,10 +59,18 @@
           <span class="pref-category">{{ pref.categoryName }}</span>
           <div class="pref-actions">
             @if (editState()?.categoryId !== pref.categoryId && pref.fieldKeys.length > 0) {
-              <button mat-icon-button class="edit-btn" (click)="startEdit(pref)" matTooltip="Bearbeiten">
+              <button
+                mat-icon-button
+                class="edit-btn"
+                (click)="startEdit(pref)"
+                matTooltip="Bearbeiten">
                 <mat-icon>edit</mat-icon>
               </button>
-              <button mat-icon-button class="delete-btn" (click)="deletePref(pref.categoryId)" matTooltip="Löschen">
+              <button
+                mat-icon-button
+                class="delete-btn"
+                (click)="deletePref(pref.categoryId)"
+                matTooltip="Löschen">
                 <mat-icon>delete</mat-icon>
               </button>
             }
@@ -64,7 +81,12 @@
           <div class="edit-form">
             <mat-form-field class="keyword-field">
               <mat-label>Keywords (kommagetrennt, max. 5)</mat-label>
-              <input matInput [(ngModel)]="editState()!.draft" (ngModelChange)="editState.set({ categoryId: editState()!.categoryId, draft: $event })" />
+              <input
+                matInput
+                [(ngModel)]="editState()!.draft"
+                (ngModelChange)="
+                  editState.set({ categoryId: editState()!.categoryId, draft: $event })
+                " />
               <mat-hint>{{ draftKeywords().length }}/5 Keywords</mat-hint>
             </mat-form-field>
             <div class="chip-preview">
@@ -76,7 +98,12 @@
               <p class="save-error">{{ saveError() }}</p>
             }
             <div class="edit-btns">
-              <button mat-flat-button (click)="saveEdit()" [disabled]="loading() || draftKeywords().length === 0 || draftKeywords().length > 5">
+              <button
+                mat-flat-button
+                (click)="saveEdit()"
+                [disabled]="
+                  loading() || draftKeywords().length === 0 || draftKeywords().length > 5
+                ">
                 <mat-icon>save</mat-icon>
                 Speichern
               </button>

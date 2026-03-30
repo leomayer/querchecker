@@ -11,10 +11,11 @@
           <td class="spec-key preferred-key">{{ f.key }}</td>
           <td class="spec-value">{{ f.value }}</td>
           <td class="spec-star">
-            <button class="star-btn star-active"
-                    [disabled]="!canToggle()"
-                    matTooltip="Präferenz entfernen"
-                    (click)="toggle.emit(f.key)">
+            <button
+              class="star-btn star-active"
+              [disabled]="!canToggle()"
+              matTooltip="Präferenz entfernen"
+              (click)="toggle.emit(f.key)">
               <mat-icon>star</mat-icon>
             </button>
           </td>
@@ -36,11 +37,14 @@
             <td class="spec-key">{{ feature.name }}</td>
             <td class="spec-value">{{ feature.value }}</td>
             <td class="spec-star">
-              <button class="star-btn"
-                      [class.star-active]="isPreferred(feature.name)"
-                      [disabled]="!canToggle()"
-                      [matTooltip]="isPreferred(feature.name) ? 'Präferenz entfernen' : 'Als Präferenz markieren'"
-                      (click)="toggle.emit(feature.name)">
+              <button
+                class="star-btn"
+                [class.star-active]="isPreferred(feature.name)"
+                [disabled]="!canToggle()"
+                [matTooltip]="
+                  isPreferred(feature.name) ? 'Präferenz entfernen' : 'Als Präferenz markieren'
+                "
+                (click)="toggle.emit(feature.name)">
                 <mat-icon>{{ isPreferred(feature.name) ? 'star' : 'star_outline' }}</mat-icon>
               </button>
             </td>

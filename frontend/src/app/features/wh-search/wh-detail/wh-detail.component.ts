@@ -31,12 +31,7 @@ const STORAGE_KEY_TOP = 'wh-detail--top-height';
       transition(':leave', [animate('280ms ease-in', style({ transform: 'translateY(-100%)' }))]),
     ]),
   ],
-  imports: [
-    MatIconModule,
-    WhBaseComponent,
-    ItemAnnotationComponent,
-    ItemResearchComponent,
-  ],
+  imports: [MatIconModule, WhBaseComponent, ItemAnnotationComponent, ItemResearchComponent],
   templateUrl: './wh-detail.component.html',
   styleUrl: './wh-detail.component.scss',
 })
@@ -44,8 +39,10 @@ export class WhDetailComponent implements OnDestroy {
   protected readonly store = inject(SearchStore);
   private readonly listingService = inject(ListingService);
   private readonly el = inject(ElementRef<HTMLElement>);
-  private readonly sseService = inject(EventSourceServerService) as
-    EventSourceServerService<AppSseEventName, ListingRefreshedPayload>;
+  private readonly sseService = inject(EventSourceServerService) as EventSourceServerService<
+    AppSseEventName,
+    ListingRefreshedPayload
+  >;
 
   readonly detail = signal<WhDetailDto | null>(null);
 

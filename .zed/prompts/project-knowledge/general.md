@@ -1,37 +1,38 @@
 # Projektwissen: Querchecker — Allgemein
 
 ## Ziel
+
 Preisvergleichs-App für Elektronik/Hardware. Willhaben-Inserate durchsuchen, filtern, bewerten, mit Notizen versehen. Cross-Referenzierung mit Geizhals (Marktpreisvergleich) geplant.
 
 ---
 
 ## Stack
 
-| Schicht | Technologie |
-|---|---|
-| Frontend | Angular 21+, Angular Material V3, @ngrx/signals |
-| Backend | Spring Boot 3.5.3, Java 21, Lombok, SpotBugs |
-| Datenbank | PostgreSQL 16 via Docker |
+| Schicht     | Technologie                                       |
+| ----------- | ------------------------------------------------- |
+| Frontend    | Angular 21+, Angular Material V3, @ngrx/signals   |
+| Backend     | Spring Boot 3.5.3, Java 21, Lombok, SpotBugs      |
+| Datenbank   | PostgreSQL 16 via Docker                          |
 | API-Codegen | openapi-generator-cli (devDependency im Frontend) |
-| Prod | Docker, nginx, Traefik (SSL via Let's Encrypt) |
+| Prod        | Docker, nginx, Traefik (SSL via Let's Encrypt)    |
 
 ---
 
 ## Ports
 
-| Port | Service |
-|---|---|
-| `14070` | Spring Boot Backend |
+| Port    | Service                           |
+| ------- | --------------------------------- |
+| `14070` | Spring Boot Backend               |
 | `14071` | PostgreSQL (Docker, `14071:5432`) |
-| `14072` | Angular (ng serve) |
+| `14072` | Angular (ng serve)                |
 
 ---
 
 ## Naming-Konventionen
 
 | Abkürzung | Bedeutung |
-|---|---|
-| `wh` | Willhaben |
+| --------- | --------- |
+| `wh`      | Willhaben |
 
 - **PK** immer `id` (intern)
 - **FK** trägt Entitätsnamen als Prefix: `whListingId` (nicht `listingId`)

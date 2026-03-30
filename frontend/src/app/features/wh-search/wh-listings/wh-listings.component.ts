@@ -1,12 +1,4 @@
-import {
-  
-  Component,
-  computed,
-  inject,
-  model,
-  output,
-  signal,
-} from '@angular/core';
+import { Component, computed, inject, model, output, signal } from '@angular/core';
 import {
   InterestLevelChangedEvent,
   RatingChangedEvent,

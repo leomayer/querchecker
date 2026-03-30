@@ -31,17 +31,17 @@ item-research: Suchfeld (editierbar, vorausgefüllt)
 
 ### Zustände
 
-| Zustand | Anzeige |
-|---|---|
-| Noch keine Specs | Suchfeld + [Laden] + [↗ Geizhals] |
-| Loading | Spinner |
-| Quick Facts vorhanden | Tabelle (preferred fields zuerst) + Quellenangabe + Geizhals-Link |
-| HTML-Fetch-Quelle | + Specs-Accordion (GSMArena/FlatpanelsHD Feature-Gruppen) direkt sichtbar |
-| ICECAT-Quelle | + [Alle Specs] Button → Icecat-Accordion nachladbar |
-| FAILED | ⚠️ "Keine Specs gefunden" — Term editierbar (Retry nach TTL-Ablauf) |
-| ERROR | ⚠️ "Fehler beim Laden" — Term editierbar (Retry nach TTL-Ablauf) |
-| NO_SOURCES | ℹ️ "KI-Suche nicht konfiguriert" — kein Laden-Button (Placeholder) |
-| QUOTA_EXCEEDED | 🚫 "Kontingent erschöpft bis [Datum]" |
+| Zustand               | Anzeige                                                                   |
+| --------------------- | ------------------------------------------------------------------------- |
+| Noch keine Specs      | Suchfeld + [Laden] + [↗ Geizhals]                                         |
+| Loading               | Spinner                                                                   |
+| Quick Facts vorhanden | Tabelle (preferred fields zuerst) + Quellenangabe + Geizhals-Link         |
+| HTML-Fetch-Quelle     | + Specs-Accordion (GSMArena/FlatpanelsHD Feature-Gruppen) direkt sichtbar |
+| ICECAT-Quelle         | + [Alle Specs] Button → Icecat-Accordion nachladbar                       |
+| FAILED                | ⚠️ "Keine Specs gefunden" — Term editierbar (Retry nach TTL-Ablauf)       |
+| ERROR                 | ⚠️ "Fehler beim Laden" — Term editierbar (Retry nach TTL-Ablauf)          |
+| NO_SOURCES            | ℹ️ "KI-Suche nicht konfiguriert" — kein Laden-Button (Placeholder)        |
+| QUOTA_EXCEEDED        | 🚫 "Kontingent erschöpft bis [Datum]"                                     |
 
 ### Computed Signals (`item-research.component.ts`)
 
@@ -56,12 +56,12 @@ item-research: Suchfeld (editierbar, vorausgefüllt)
 
 Konfiguriert per Kategorie via `CategorySearchSource` (DB-Tabelle). Reihenfolge: `priority ASC`.
 
-| SourceType | Suchweg | LLM-Methode | UI-Ausgabe |
-|---|---|---|---|
-| `ICECAT` | Brave Snippets (site:icecat.biz) | `extractQuickFacts()` | Quick Facts + optionaler Icecat-Accordion |
-| `GSMARENA` | HTML-Fetch (Jsoup) | `extractQuickFactsFromText()` | Quick Facts + Specs-Accordion direkt |
-| `FLATPANELSHD` | HTML-Fetch (Jsoup) | `extractQuickFactsFromText()` | Quick Facts + Specs-Accordion direkt |
-| `GENERIC` | Brave Snippets | `extractQuickFacts()` | Quick Facts (kein Icecat-Button) |
+| SourceType     | Suchweg                          | LLM-Methode                   | UI-Ausgabe                                |
+| -------------- | -------------------------------- | ----------------------------- | ----------------------------------------- |
+| `ICECAT`       | Brave Snippets (site:icecat.biz) | `extractQuickFacts()`         | Quick Facts + optionaler Icecat-Accordion |
+| `GSMARENA`     | HTML-Fetch (Jsoup)               | `extractQuickFactsFromText()` | Quick Facts + Specs-Accordion direkt      |
+| `FLATPANELSHD` | HTML-Fetch (Jsoup)               | `extractQuickFactsFromText()` | Quick Facts + Specs-Accordion direkt      |
+| `GENERIC`      | Brave Snippets                   | `extractQuickFacts()`         | Quick Facts (kein Icecat-Button)          |
 
 Fallback-Logik: bei `PARTIAL` oder `EMPTY` → nächste Quelle in Liste.
 
@@ -97,12 +97,12 @@ Präferenz-Keywords: max. 5 USER-Felder aus `CategorySpecPreference`. Stufen sin
 
 `ExtractionQualityEvaluator.evaluate(QuickFactsResult, systemFields, SourceType)`:
 
-| Wert | Bedingung |
-|---|---|
-| `GOOD` | ≥60% SYSTEM-Felder befüllt (+ icecatId vorhanden bei ICECAT-Quelle) |
-| `PARTIAL` | >0% aber <60% |
-| `EMPTY` | 0% |
-| `FAILED_NO_CRITERIA` | keine SYSTEM-Felder konfiguriert |
+| Wert                 | Bedingung                                                           |
+| -------------------- | ------------------------------------------------------------------- |
+| `GOOD`               | ≥60% SYSTEM-Felder befüllt (+ icecatId vorhanden bei ICECAT-Quelle) |
+| `PARTIAL`            | >0% aber <60%                                                       |
+| `EMPTY`              | 0%                                                                  |
+| `FAILED_NO_CRITERIA` | keine SYSTEM-Felder konfiguriert                                    |
 
 ---
 
@@ -123,6 +123,7 @@ nicht vorhanden → Kontingent-Check → Quellen laden → Brave → LLM
 `COMPLETE` hat kein TTL — Specs ändern sich nach Produktrelease nicht. Löschen nur via Settings-Bereinigung.
 
 **`NO_SOURCES`** tritt auf wenn:
+
 - Kategorie des Listings hat keine `CategorySearchSource`-Einträge (oder alle mit `lookupEnabled=false`)
 - Listing hat keine Kategorie (`WhListing.whCategory == null`)
 
@@ -144,30 +145,30 @@ Da keine Quellen konfiguriert sind, macht ein Cachen keinen Sinn — beim nächs
 
 ### `ProductLookup` (Entity)
 
-| Feld | Typ | Notiz |
-|---|---|---|
-| `lookupTerm` | String | Cache-Key (normalisiert) |
-| `lookupStatus` | Enum (COMPLETE, FAILED, ERROR, QUOTA_EXCEEDED) | NO_SOURCES nie in DB gespeichert |
-| `quickFactsJson` | TEXT | LLM-Extrakt |
-| `icecatId` | String (nullable) | aus LLM oder URL-Pattern |
-| `icecatUrl` | String (nullable) | |
-| `icecatSpecsJson` | TEXT (nullable) | vollst. Icecat-Response |
-| `sourceType` | VARCHAR(30) | ICECAT/GSMARENA/FLATPANELSHD/GENERIC |
-| `sourceDomain` | VARCHAR | z.B. `gsmarena.com` |
-| `sourceUrl` | VARCHAR | validierte URL der besten Quelle |
-| `featureGroupsJson` | TEXT (nullable) | für HTML-Fetch-Quellen; null bei ICECAT/GENERIC |
+| Feld                | Typ                                            | Notiz                                           |
+| ------------------- | ---------------------------------------------- | ----------------------------------------------- |
+| `lookupTerm`        | String                                         | Cache-Key (normalisiert)                        |
+| `lookupStatus`      | Enum (COMPLETE, FAILED, ERROR, QUOTA_EXCEEDED) | NO_SOURCES nie in DB gespeichert                |
+| `quickFactsJson`    | TEXT                                           | LLM-Extrakt                                     |
+| `icecatId`          | String (nullable)                              | aus LLM oder URL-Pattern                        |
+| `icecatUrl`         | String (nullable)                              |                                                 |
+| `icecatSpecsJson`   | TEXT (nullable)                                | vollst. Icecat-Response                         |
+| `sourceType`        | VARCHAR(30)                                    | ICECAT/GSMARENA/FLATPANELSHD/GENERIC            |
+| `sourceDomain`      | VARCHAR                                        | z.B. `gsmarena.com`                             |
+| `sourceUrl`         | VARCHAR                                        | validierte URL der besten Quelle                |
+| `featureGroupsJson` | TEXT (nullable)                                | für HTML-Fetch-Quellen; null bei ICECAT/GENERIC |
 
 ### `CategorySearchSource` (Entity, V30)
 
-| Feld | Typ |
-|---|---|
-| `whCategory` | ManyToOne (nullable = default) |
-| `priority` | int |
-| `siteDomain` | String |
-| `sourceType` | SourceType |
-| `queryExcludes` | `List<String>` (TEXT[]) |
-| `searchResultCount` | int (10=snippets, 3=HTML-fetch) |
-| `lookupEnabled` | boolean |
+| Feld                | Typ                                               |
+| ------------------- | ------------------------------------------------- |
+| `whCategory`        | ManyToOne (nullable = default)                    |
+| `priority`          | int                                               |
+| `siteDomain`        | String                                            |
+| `sourceType`        | SourceType                                        |
+| `queryExcludes`     | `List<String>` (TEXT[])                           |
+| `searchResultCount` | int (10=snippets, 3=HTML-fetch)                   |
+| `lookupEnabled`     | boolean                                           |
 | `inheritFromParent` | boolean (true = level-1 als Fallback für level-2) |
 
 Seeders: `CategorySearchSourceDefinitions` + `CategorySearchSourceSeeder` — 13 Kategorien vorkonfiguriert.
@@ -199,7 +200,7 @@ ExtractionProviderRouter → aktiver Provider via querchecker.api.extraction.act
 querchecker:
   api:
     extraction:
-      active-provider: GROQ   # GROQ | OPENROUTER
+      active-provider: GROQ # GROQ | OPENROUTER
     providers:
       brave:
         free-limit: 1000
@@ -224,26 +225,29 @@ API-Keys in `secret.yml` (nicht in Git): `querchecker.api.providers.{brave,groq,
 
 ## Caching & Rechtliches
 
-| Quelle | Raw-Response cachen | LLM-Extrakt cachen |
-|---|---|---|
-| Brave | ❌ ToS-Verstoß | ✅ erlaubt |
-| Groq | — | ✅ eigenes Werk |
-| Icecat Open | ✅ explizit erlaubt | ✅ |
+| Quelle      | Raw-Response cachen | LLM-Extrakt cachen |
+| ----------- | ------------------- | ------------------ |
+| Brave       | ❌ ToS-Verstoß      | ✅ erlaubt         |
+| Groq        | —                   | ✅ eigenes Werk    |
+| Icecat Open | ✅ explizit erlaubt | ✅                 |
 
 ---
 
 ## Offene Punkte
 
 ### Frontend
+
 - **`NO_SOURCES`-Zustand behandeln**: `item-research` zeigt noch keinen Placeholder für `NO_SOURCES` — muss analog zu "KI-Suche deaktiviert" implementiert werden (kein Spinner, kein Error, neutraler Hinweis "KI-Suche nicht konfiguriert"). Status kommt vom Backend wenn Kategorie keine Quellen hat.
 - **`ERROR`-Zustand behandeln**: Analog zu FAILED anzeigen, aber mit anderem Text ("Fehler beim Laden").
 - **Kategorie-Präferenzen Settings** (`settings/kategorie-praeferenzen/`): UI zur Verwaltung von SYSTEM/USER Feldern pro Kategorie. Max. 5 USER-Keywords als Limit-Guard. Vererbung (Elternkategorie) anzeigen.
 - **Settings als Expandable Cards**: Refactoring der Settings-Route — aktuelle Struktur durch collapsible Material-Cards ersetzen.
 
 ### Backend
+
 - **Fallback bei Groq-Netzwerkfehler**: Kein Retry implementiert — Exception führt zu leerem Extraktionsergebnis. Ggf. einfaches Retry mit kurzer Wartezeit.
 - **Fehlerfall: LLM liefert kein valides JSON**: Aktuell: FAILED. Optional: Retry-Prompt mit expliziterer Anweisung.
 
 ### Zukunft (Multi-User)
+
 - Userverwaltung, Key-Verwaltung pro User, Kontingent pro User-Key
 - `ApiUsageLog` um `userId` erweitern

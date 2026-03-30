@@ -21,7 +21,8 @@ export class Theme {
       : window.matchMedia('(prefers-color-scheme: dark)').matches;
   darkMode = signal(this._storedDarkMode);
 
-  private readonly _storedFontSize = (localStorage.getItem(LS_FONT_SIZE) as FontSize | null) ?? 'medium';
+  private readonly _storedFontSize =
+    (localStorage.getItem(LS_FONT_SIZE) as FontSize | null) ?? 'medium';
   fontSize = signal<FontSize>(this._storedFontSize);
 
   constructor() {

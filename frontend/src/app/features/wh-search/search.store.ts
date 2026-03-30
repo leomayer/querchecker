@@ -53,124 +53,131 @@ export const SearchStore = signalStore(
       });
     }),
   })),
-  withMethods((store, router = inject(Router), location = inject(Location), extractionStore = inject(ExtractionStore)) => {
-    let extractionDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+  withMethods(
+    (
+      store,
+      router = inject(Router),
+      location = inject(Location),
+      extractionStore = inject(ExtractionStore),
+    ) => {
+      let extractionDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-    return {
-    search(query: SearchQuery): void {
-      patchState(store, {
-        searchQuery: query,
-        layoutState: LayoutState.LISTINGS,
-        searchPatches: {},
-      });
-      extractionStore.clear();
-      persistSearch(store.filterDraft());
-      router.navigate(['/', AppRoutePath.LISTINGS]);
-    },
-    selectListing(id: string): void {
-      // Navigation and detail panel are immediate
-      router.navigate(['/', AppRoutePath.DETAIL, id]);
-
-      // Debounce extraction scheduling: prevent queue spam from rapid detail clicks
-      if (extractionDebounceTimer) clearTimeout(extractionDebounceTimer);
-      extractionDebounceTimer = setTimeout(() => {
-        // Opening detail already calls scheduleExtraction() via openDetail().
-        // This debounce ensures rapid clicks don't create multiple extraction runs.
-        extractionDebounceTimer = null;
-      }, 400);
-    },
-    backToListings(): void {
-      router.navigate(['/', AppRoutePath.LISTINGS]);
-    },
-    setFilterDraft(patch: {
-      keyword?: string;
-      rows?: number;
-      priceFrom?: number | null;
-      priceTo?: number | null;
-      locationAreaId?: number | undefined;
-      categoryWhId?: number | undefined;
-      paylivery?: boolean;
-    }): void {
-      patchState(store, (s) => ({ filterDraft: { ...s.filterDraft, ...patch } }));
-    },
-    clearSearch(): void {
-      patchState(store, {
-        searchQuery: null,
-        listings: [],
-        selectedId: null,
-        layoutState: LayoutState.SEARCH,
-        whTotal: null,
-        searchPatches: {},
-        filterDraft: {
-          keyword: '',
-          rows: 50,
-          priceFrom: null,
-          priceTo: null,
-          locationAreaId: undefined,
-          categoryWhId: undefined,
-          paylivery: false,
+      return {
+        search(query: SearchQuery): void {
+          patchState(store, {
+            searchQuery: query,
+            layoutState: LayoutState.LISTINGS,
+            searchPatches: {},
+          });
+          extractionStore.clear();
+          persistSearch(store.filterDraft());
+          router.navigate(['/', AppRoutePath.LISTINGS]);
         },
-      });
-      extractionStore.clear();
-      router.navigate(['/']);
-    },
-    setSortColumn(col: string): void {
-      patchState(store, { sortColumn: col });
-      if (col && !store.sortDirection()) patchState(store, { sortDirection: 'asc' });
-      if (!col) patchState(store, { sortDirection: '' });
-    },
-    setSortDirection(dir: 'asc' | 'desc' | ''): void {
-      patchState(store, { sortDirection: dir });
-    },
-    // Internal: called by MainLayoutComponent to sync httpResource state
-    setResourceState(state: {
-      listings?: WhItemDto[];
-      loading?: boolean;
-      initialLoading?: boolean;
-      error?: string | null;
-      whTotal?: number | null;
-    }): void {
-      patchState(store, state);
-    },
-    // Internal: apply a patch to a single listing (rating/view updates in search mode)
-    applySearchPatch(id: number, patch: Partial<WhItemDto>): void {
-      patchState(store, (s) => ({
-        searchPatches: { ...s.searchPatches, [id]: { ...s.searchPatches[id], ...patch } },
-      }));
-    },
-    removeListing(id: number): void {
-      patchState(store, (s) => ({
-        listings: s.listings.filter((l) => l.id !== id),
-        searchPatches: (() => {
-          const { [id]: _, ...rest } = s.searchPatches;
-          return rest;
-        })(),
-      }));
-    },
-    advanceToNext(): void {
-      const listings = store.patchedListings();
-      const currentId = store.selectedId();
-      const currentIdx = listings.findIndex((l) => l.id?.toString() === currentId);
-      for (let i = currentIdx + 1; i < listings.length; i++) {
-        if (listings[i].rating !== 'DOWN') {
-          router.navigate(['/', AppRoutePath.DETAIL, listings[i].id!.toString()], {
-            replaceUrl: true,
+        selectListing(id: string): void {
+          // Navigation and detail panel are immediate
+          router.navigate(['/', AppRoutePath.DETAIL, id]);
+
+          // Debounce extraction scheduling: prevent queue spam from rapid detail clicks
+          if (extractionDebounceTimer) clearTimeout(extractionDebounceTimer);
+          extractionDebounceTimer = setTimeout(() => {
+            // Opening detail already calls scheduleExtraction() via openDetail().
+            // This debounce ensures rapid clicks don't create multiple extraction runs.
+            extractionDebounceTimer = null;
+          }, 400);
+        },
+        backToListings(): void {
+          router.navigate(['/', AppRoutePath.LISTINGS]);
+        },
+        setFilterDraft(patch: {
+          keyword?: string;
+          rows?: number;
+          priceFrom?: number | null;
+          priceTo?: number | null;
+          locationAreaId?: number | undefined;
+          categoryWhId?: number | undefined;
+          paylivery?: boolean;
+        }): void {
+          patchState(store, (s) => ({ filterDraft: { ...s.filterDraft, ...patch } }));
+        },
+        clearSearch(): void {
+          patchState(store, {
+            searchQuery: null,
+            listings: [],
+            selectedId: null,
+            layoutState: LayoutState.SEARCH,
+            whTotal: null,
+            searchPatches: {},
+            filterDraft: {
+              keyword: '',
+              rows: 50,
+              priceFrom: null,
+              priceTo: null,
+              locationAreaId: undefined,
+              categoryWhId: undefined,
+              paylivery: false,
+            },
           });
-          return;
-        }
-      }
-      for (let i = currentIdx - 1; i >= 0; i--) {
-        if (listings[i].rating !== 'DOWN') {
-          router.navigate(['/', AppRoutePath.DETAIL, listings[i].id!.toString()], {
-            replaceUrl: true,
-          });
-          return;
-        }
-      }
-      router.navigate(['/', AppRoutePath.LISTINGS]);
+          extractionStore.clear();
+          router.navigate(['/']);
+        },
+        setSortColumn(col: string): void {
+          patchState(store, { sortColumn: col });
+          if (col && !store.sortDirection()) patchState(store, { sortDirection: 'asc' });
+          if (!col) patchState(store, { sortDirection: '' });
+        },
+        setSortDirection(dir: 'asc' | 'desc' | ''): void {
+          patchState(store, { sortDirection: dir });
+        },
+        // Internal: called by MainLayoutComponent to sync httpResource state
+        setResourceState(state: {
+          listings?: WhItemDto[];
+          loading?: boolean;
+          initialLoading?: boolean;
+          error?: string | null;
+          whTotal?: number | null;
+        }): void {
+          patchState(store, state);
+        },
+        // Internal: apply a patch to a single listing (rating/view updates in search mode)
+        applySearchPatch(id: number, patch: Partial<WhItemDto>): void {
+          patchState(store, (s) => ({
+            searchPatches: { ...s.searchPatches, [id]: { ...s.searchPatches[id], ...patch } },
+          }));
+        },
+        removeListing(id: number): void {
+          patchState(store, (s) => ({
+            listings: s.listings.filter((l) => l.id !== id),
+            searchPatches: (() => {
+              const { [id]: _, ...rest } = s.searchPatches;
+              return rest;
+            })(),
+          }));
+        },
+        advanceToNext(): void {
+          const listings = store.patchedListings();
+          const currentId = store.selectedId();
+          const currentIdx = listings.findIndex((l) => l.id?.toString() === currentId);
+          for (let i = currentIdx + 1; i < listings.length; i++) {
+            if (listings[i].rating !== 'DOWN') {
+              router.navigate(['/', AppRoutePath.DETAIL, listings[i].id!.toString()], {
+                replaceUrl: true,
+              });
+              return;
+            }
+          }
+          for (let i = currentIdx - 1; i >= 0; i--) {
+            if (listings[i].rating !== 'DOWN') {
+              router.navigate(['/', AppRoutePath.DETAIL, listings[i].id!.toString()], {
+                replaceUrl: true,
+              });
+              return;
+            }
+          }
+          router.navigate(['/', AppRoutePath.LISTINGS]);
+        },
+      };
     },
-  };
-  }),
+  ),
   withHooks((store) => {
     const router = inject(Router);
     return {

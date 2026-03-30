@@ -46,10 +46,7 @@ export class WhFilterComponent {
 
   /** At least one search criterion is filled → Suchen enabled. */
   readonly canSearch = computed(
-    () =>
-      !!this.keyword().trim() ||
-      this.categoryWhId() != null ||
-      this.locationAreaId() != null,
+    () => !!this.keyword().trim() || this.categoryWhId() != null || this.locationAreaId() != null,
   );
 
   /** Any non-default filter value → show Zurücksetzen even before first search. */

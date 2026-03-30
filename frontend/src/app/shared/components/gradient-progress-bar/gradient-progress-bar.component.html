@@ -1,5 +1,10 @@
 <div class="gpb-wrapper">
-  <div class="gpb-track" role="progressbar" [attr.aria-valuenow]="pct()" aria-valuemin="0" aria-valuemax="100">
+  <div
+    class="gpb-track"
+    role="progressbar"
+    [attr.aria-valuenow]="pct()"
+    aria-valuemin="0"
+    aria-valuemax="100">
     <div class="gpb-fill" [style.width.%]="pct()" [style.background-color]="fillColor()"></div>
   </div>
   <span class="gpb-label">{{ label() }}</span>

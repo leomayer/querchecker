@@ -9,7 +9,14 @@ import { ApiUsageResponse, ProviderUsage, UsageService } from '../../../core/usa
 
 @Component({
   selector: 'app-usage-monitor',
-  imports: [DecimalPipe, MatButtonModule, MatCardModule, MatIconModule, MatProgressSpinnerModule, GradientProgressBarComponent],
+  imports: [
+    DecimalPipe,
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    GradientProgressBarComponent,
+  ],
   templateUrl: './usage-monitor.html',
   styleUrl: './usage-monitor.scss',
 })
@@ -62,7 +69,7 @@ export class UsageMonitor implements OnInit, OnDestroy {
   }
 
   protected hasAnyWarning(): boolean {
-    return this.providerRows().some(row => this.isOverThreshold(row.p));
+    return this.providerRows().some((row) => this.isOverThreshold(row.p));
   }
 
   protected isOverThreshold(p: ProviderUsage): boolean {

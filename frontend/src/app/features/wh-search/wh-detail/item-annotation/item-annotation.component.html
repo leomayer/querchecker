@@ -5,10 +5,7 @@
       class="verdict-group"
       [value]="store.verdict()"
       hideSingleSelectionIndicator>
-      <mat-button-toggle
-        value="UP"
-        matTooltip="Weiter / Interessiert"
-        (click)="onVerdict('UP')">
+      <mat-button-toggle value="UP" matTooltip="Weiter / Interessiert" (click)="onVerdict('UP')">
         <mat-icon>thumb_up</mat-icon>
       </mat-button-toggle>
       <mat-button-toggle value="DOWN" matTooltip="Überspringen" (click)="onVerdict('DOWN')">
@@ -20,10 +17,7 @@
       class="interest-group"
       [value]="store.interestLevel()"
       hideSingleSelectionIndicator>
-      <mat-button-toggle
-        value="LOW"
-        matTooltip="Kaum interessant"
-        (click)="onInterestClick('LOW')">
+      <mat-button-toggle value="LOW" matTooltip="Kaum interessant" (click)="onInterestClick('LOW')">
         <mat-icon class="interest-low">local_fire_department</mat-icon>
       </mat-button-toggle>
       <mat-button-toggle
@@ -42,7 +36,11 @@
   </div>
 
   <div class="notes-split-btn" [class.is-open]="notesOpen()">
-    <button mat-icon-button class="split-main" (click)="toggleNotes()" [matTooltip]="notesBtnTooltip()">
+    <button
+      mat-icon-button
+      class="split-main"
+      (click)="toggleNotes()"
+      [matTooltip]="notesBtnTooltip()">
       <mat-icon>{{ notesBtnIcon() }}</mat-icon>
     </button>
     <span class="split-sep" aria-hidden="true"></span>

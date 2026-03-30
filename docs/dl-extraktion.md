@@ -3,6 +3,7 @@
 Automatische Extraktion von Produktnamen/Modellbezeichnungen aus Willhaben-Inseraten für Kreuzsuchen (Geizhals, Brave etc.).
 
 **Modelle (aktiv):**
+
 - `groq` — Cloud-API via Groq, `execution_order=5` (läuft zuerst, schnell)
 - `llama` — Lokales GGUF-Modell via llama.cpp, `execution_order=10`
 - `source-model: llama` in `application.yml` → nur llamas Term wird als `suggestedTerm` gesendet (füllt Suchfeld vor)
@@ -59,6 +60,7 @@ DlExtractionRun
 ```
 
 **Status-Maschine:**
+
 ```
 INIT ──→ PENDING → DONE
                  ↘ FAILED
@@ -98,15 +100,15 @@ Resolver: `DlPromptResolver.resolve(category, promptType)` — rekursiv Elternka
 
 ## Service-Verantwortlichkeiten
 
-| Service | Verantwortung |
-|---|---|
-| `DlOrchestrationService` | Duplikat-Check, Prompt auflösen, Run anlegen, sequenziell einreihen |
-| `DlExtractionService` | Context aufbauen, Token-Kürzung, `ExtractionModel.extract()`, → Persistence |
-| `DlFilterService` | confidence↓ → top-k → min-confidence (VOR DB-Insert) |
-| `DlPersistenceService` | Terms speichern, `durationMs` setzen, Status DONE/FAILED, Event publishen |
-| `DlPromptResolver` | Kategorie-spezifisch → Eltern → Default |
-| `DlCategoryPromptSeeder` | Idempotentes Befüllen von `DlCategoryPrompt` |
-| `GroqExtractionModel` | Delegiert an `ExtractionProviderRouter`, Length-Guard 150 Zeichen |
+| Service                  | Verantwortung                                                               |
+| ------------------------ | --------------------------------------------------------------------------- |
+| `DlOrchestrationService` | Duplikat-Check, Prompt auflösen, Run anlegen, sequenziell einreihen         |
+| `DlExtractionService`    | Context aufbauen, Token-Kürzung, `ExtractionModel.extract()`, → Persistence |
+| `DlFilterService`        | confidence↓ → top-k → min-confidence (VOR DB-Insert)                        |
+| `DlPersistenceService`   | Terms speichern, `durationMs` setzen, Status DONE/FAILED, Event publishen   |
+| `DlPromptResolver`       | Kategorie-spezifisch → Eltern → Default                                     |
+| `DlCategoryPromptSeeder` | Idempotentes Befüllen von `DlCategoryPrompt`                                |
+| `GroqExtractionModel`    | Delegiert an `ExtractionProviderRouter`, Length-Guard 150 Zeichen           |
 
 ---
 
@@ -158,13 +160,13 @@ DlExtractionController.onExtractionCompleted(event)
 ```yaml
 querchecker:
   dl:
-    min-confidence: 0.0   # Evaluierungsphase — später 0.65
-    top-k: 5              # Filter VOR DB-Insert
-    source-model: llama   # Nur dieses Modell sendet suggestedTerm im SSE
+    min-confidence: 0.0 # Evaluierungsphase — später 0.65
+    top-k: 5 # Filter VOR DB-Insert
+    source-model: llama # Nur dieses Modell sendet suggestedTerm im SSE
 
   api:
     extraction:
-      active-provider: GROQ   # GROQ | OPENROUTER — Neustart bei Wechsel
+      active-provider: GROQ # GROQ | OPENROUTER — Neustart bei Wechsel
 ```
 
 ---

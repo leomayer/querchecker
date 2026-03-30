@@ -1,5 +1,4 @@
 import {
-  
   Component,
   ElementRef,
   inject,
@@ -173,7 +172,9 @@ export class HierarchicalFilterComponent {
   onPanelOpened(): void {
     // Zur selektierten Option scrollen – innerhalb dieses Panels (nicht global)
     setTimeout(() => {
-      const panel = this.autoTrigger()?.autocomplete.panel?.nativeElement as HTMLElement | undefined;
+      const panel = this.autoTrigger()?.autocomplete.panel?.nativeElement as
+        | HTMLElement
+        | undefined;
       panel
         ?.querySelector('.check-icon.visible')
         ?.closest('mat-option')

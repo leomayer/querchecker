@@ -2,9 +2,9 @@ import { Injectable, signal, inject, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { API_URLS } from './api-urls';
 
-const POLL_INTERVAL_IDLE_MS  = 30_000; // background check while healthy
-const POLL_INTERVAL_RETRY_MS =  3_000; // rapid retry while reconnecting
-const POLL_INTERVAL_INIT_MS  =  2_000; // initial startup probes
+const POLL_INTERVAL_IDLE_MS = 30_000; // background check while healthy
+const POLL_INTERVAL_RETRY_MS = 3_000; // rapid retry while reconnecting
+const POLL_INTERVAL_INIT_MS = 2_000; // initial startup probes
 
 @Injectable({ providedIn: 'root' })
 export class HealthService implements OnDestroy {

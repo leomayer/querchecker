@@ -96,7 +96,6 @@ export const ItemDetailStore = signalStore(
       setInterestLevel(level: 'LOW' | 'MEDIUM' | 'HIGH' | null): void {
         patchState(store, { interestLevel: level });
       },
-
     };
   }),
   withHooks({

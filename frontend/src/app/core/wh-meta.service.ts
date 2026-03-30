@@ -20,10 +20,9 @@ export class WhMetaService {
     { defaultValue: [] },
   );
 
-  private locationsResource = httpResource<WhLocationDto[]>(
-    () => ({ url: API_URLS.whLocations }),
-    { defaultValue: [] },
-  );
+  private locationsResource = httpResource<WhLocationDto[]>(() => ({ url: API_URLS.whLocations }), {
+    defaultValue: [],
+  });
 
   readonly categories = this.categoriesResource.value;
   readonly locations = this.locationsResource.value;

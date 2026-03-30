@@ -16,7 +16,9 @@
 .gpb-fill {
   height: 100%;
   border-radius: 4px;
-  transition: width 0.4s ease, background-color 0.4s ease;
+  transition:
+    width 0.4s ease,
+    background-color 0.4s ease;
   min-width: 2px;
 }
 

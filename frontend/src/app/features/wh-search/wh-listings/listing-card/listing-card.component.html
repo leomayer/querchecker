@@ -7,17 +7,22 @@
   [class.selected]="selected()"
   (click)="clicked.emit(listing())"
   (keydown.enter)="clicked.emit(listing())"
-  (keydown.space)="clicked.emit(listing())"
->
+  (keydown.space)="clicked.emit(listing())">
   @if (listing().thumbnailUrl) {
     <div class="thumbnail-wrapper">
-      <img class="thumbnail" [src]="listing().thumbnailUrl" [alt]="listing().title" loading="lazy" />
+      <img
+        class="thumbnail"
+        [src]="listing().thumbnailUrl"
+        [alt]="listing().title"
+        loading="lazy" />
       @if (listing().viewCount) {
         <div
           class="view-chip"
           [matTooltip]="
             listing().lastViewedAt
-              ? listing().viewCount + '× gesehen · Zuletzt: ' + (listing().lastViewedAt | date: 'dd.MM.yyyy')
+              ? listing().viewCount +
+                '× gesehen · Zuletzt: ' +
+                (listing().lastViewedAt | date: 'dd.MM.yyyy')
               : listing().viewCount + '× gesehen'
           ">
           <mat-icon>visibility</mat-icon>

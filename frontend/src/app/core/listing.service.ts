@@ -30,10 +30,7 @@ export class ListingService {
     return this.http.put<WhDetailDto>(`${API_URLS.listings}/${id}/detail/rating`, { rating });
   }
 
-  updateInterest(
-    id: number,
-    level: 'LOW' | 'MEDIUM' | 'HIGH' | null,
-  ): Observable<WhDetailDto> {
+  updateInterest(id: number, level: 'LOW' | 'MEDIUM' | 'HIGH' | null): Observable<WhDetailDto> {
     return this.http.put<WhDetailDto>(`${API_URLS.listings}/${id}/detail/interest`, { level });
   }
 

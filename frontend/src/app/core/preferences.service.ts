@@ -18,10 +18,14 @@ export class PreferencesService {
   }
 
   save(categoryId: number, fieldKeys: string[]): Observable<PreferenceEntry> {
-    return this.http.put<PreferenceEntry>(API_URLS.settingsPreferenceCategory(categoryId), { fieldKeys });
+    return this.http.put<PreferenceEntry>(API_URLS.settingsPreferenceCategory(categoryId), {
+      fieldKeys,
+    });
   }
 
   delete(categoryId: number): Observable<PreferenceEntry> {
-    return this.http.put<PreferenceEntry>(API_URLS.settingsPreferenceCategory(categoryId), { fieldKeys: [] });
+    return this.http.put<PreferenceEntry>(API_URLS.settingsPreferenceCategory(categoryId), {
+      fieldKeys: [],
+    });
   }
 }

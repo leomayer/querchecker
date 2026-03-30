@@ -22,14 +22,20 @@
               <span class="provider-model">{{ row.p.model }}</span>
             }
           </td>
-          <td class="num">{{ row.p.calls | number:'1.0-0':'de' }}</td>
+          <td class="num">{{ row.p.calls | number: '1.0-0' : 'de' }}</td>
           <td class="num">
-            @if (row.p.tokensIn > 0) { {{ row.p.tokensIn | number:'1.0-0':'de' }} }
-            @else { <span class="na">—</span> }
+            @if (row.p.tokensIn > 0) {
+              {{ row.p.tokensIn | number: '1.0-0' : 'de' }}
+            } @else {
+              <span class="na">—</span>
+            }
           </td>
           <td class="num">
-            @if (row.p.tokensOut > 0) { {{ row.p.tokensOut | number:'1.0-0':'de' }} }
-            @else { <span class="na">—</span> }
+            @if (row.p.tokensOut > 0) {
+              {{ row.p.tokensOut | number: '1.0-0' : 'de' }}
+            } @else {
+              <span class="na">—</span>
+            }
           </td>
           <td class="quota-col">
             @if (hasQuota(row.p)) {

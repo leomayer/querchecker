@@ -3,50 +3,51 @@
 }
 
 <div class="bottom">
-<div class="zone-left">
-  <div class="listing-meta">
-    @if (detail().price === 0) {
-      <span class="price free">Gratis</span>
-    } @else if (detail().price != null) {
-      <span class="price">{{ detail().price | customCurrency }}</span>
-    }
-    @if (detail().paylivery) {
-      <span class="meta-item" matTooltip="Paylivery">
-        <mat-icon>local_shipping</mat-icon>
-      </span>
-    }
-    @if (detail().location) {
-     <span class="icon-text-group">
-     <mat-icon>location_on</mat-icon>
-       <span class="meta-item location-text" matTooltip="{{ detail().location??'' }}">{{ detail().location }} </span>
-     </span>
-    }
+  <div class="zone-left">
+    <div class="listing-meta">
+      @if (detail().price === 0) {
+        <span class="price free">Gratis</span>
+      } @else if (detail().price != null) {
+        <span class="price">{{ detail().price | customCurrency }}</span>
+      }
+      @if (detail().paylivery) {
+        <span class="meta-item" matTooltip="Paylivery">
+          <mat-icon>local_shipping</mat-icon>
+        </span>
+      }
+      @if (detail().location) {
+        <span class="icon-text-group">
+          <mat-icon>location_on</mat-icon>
+          <span class="meta-item location-text" matTooltip="{{ detail().location ?? '' }}"
+            >{{ detail().location }}
+          </span>
+        </span>
+      }
     </div>
     <div class="listing-meta no-break-line">
-
-    @if (detail().listedAt) {
-      <span class="meta-item" matTooltip="Erstellt am">
-        <mat-icon>calendar_today</mat-icon>{{ detail().listedAt | date: 'dd.MM.yyyy' }}
-      </span>
-    }
-    @if (detail().viewCount) {
-      <span class="meta-item" matTooltip="Aufrufe">
-        <mat-icon>visibility</mat-icon>{{ detail().viewCount }}
-      </span>
-    }
-    @if (detail().fetchedAt) {
-      <span class="meta-item" matTooltip="Zuletzt abgerufen">
-        <mat-icon>update</mat-icon>{{ detail().fetchedAt | date: 'dd.MM.yyyy' }}
-      </span>
-    }
-</div>
-<div class="listing-meta">
-    <button mat-stroked-button class="willhaben-btn" (click)="openOnWillhaben()">
-      <mat-icon>open_in_new</mat-icon>
-      Auf Willhaben öffnen
-    </button>
+      @if (detail().listedAt) {
+        <span class="meta-item" matTooltip="Erstellt am">
+          <mat-icon>calendar_today</mat-icon>{{ detail().listedAt | date: 'dd.MM.yyyy' }}
+        </span>
+      }
+      @if (detail().viewCount) {
+        <span class="meta-item" matTooltip="Aufrufe">
+          <mat-icon>visibility</mat-icon>{{ detail().viewCount }}
+        </span>
+      }
+      @if (detail().fetchedAt) {
+        <span class="meta-item" matTooltip="Zuletzt abgerufen">
+          <mat-icon>update</mat-icon>{{ detail().fetchedAt | date: 'dd.MM.yyyy' }}
+        </span>
+      }
+    </div>
+    <div class="listing-meta">
+      <button mat-stroked-button class="willhaben-btn" (click)="openOnWillhaben()">
+        <mat-icon>open_in_new</mat-icon>
+        Auf Willhaben öffnen
+      </button>
+    </div>
+    <app-hierarchical-filter [displayOnly]="true" [displayPath]="categoryChips()" />
   </div>
-  <app-hierarchical-filter [displayOnly]="true" [displayPath]="categoryChips()" />
-</div>
   <div class="listing-description zone-right html-content" [innerHTML]="descriptionHtml()"></div>
 </div>

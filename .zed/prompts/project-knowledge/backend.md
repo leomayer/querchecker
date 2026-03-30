@@ -63,99 +63,109 @@ at.querchecker/
 ## Entities (alle mit Lombok: `@Data`, `@Builder`, `@NoArgsConstructor`, `@AllArgsConstructor`)
 
 ### `WhListing` — Kerndata vom Willhaben-Inserat
-| Feld | Typ |
-|---|---|
-| `id` | Long (PK) |
-| `whId` | String (unique, Willhaben-interne ID) |
-| `title` | String |
-| `description` | String |
-| `price` | BigDecimal |
-| `location` | String |
-| `url` | String |
-| `thumbnailUrl` | String (nullable) |
-| `listedAt` | LocalDateTime |
-| `fetchedAt` | LocalDateTime |
+
+| Feld           | Typ                                   |
+| -------------- | ------------------------------------- |
+| `id`           | Long (PK)                             |
+| `whId`         | String (unique, Willhaben-interne ID) |
+| `title`        | String                                |
+| `description`  | String                                |
+| `price`        | BigDecimal                            |
+| `location`     | String                                |
+| `url`          | String                                |
+| `thumbnailUrl` | String (nullable)                     |
+| `listedAt`     | LocalDateTime                         |
+| `fetchedAt`    | LocalDateTime                         |
 
 ### `WhListingDetail` — User-Annotationen (1:1 zu WhListing, lazy-created)
-| Feld | Typ |
-|---|---|
-| `id` | Long (PK) |
-| `whListing` | ManyToOne → WhListing |
-| `note` | String (nullable) |
-| `viewCount` | Integer (default 0) |
+
+| Feld           | Typ                      |
+| -------------- | ------------------------ |
+| `id`           | Long (PK)                |
+| `whListing`    | ManyToOne → WhListing    |
+| `note`         | String (nullable)        |
+| `viewCount`    | Integer (default 0)      |
 | `lastViewedAt` | LocalDateTime (nullable) |
-| `rating` | Enum UP/DOWN/null |
-| `createdAt` | LocalDateTime |
-| `updatedAt` | LocalDateTime |
+| `rating`       | Enum UP/DOWN/null        |
+| `createdAt`    | LocalDateTime            |
+| `updatedAt`    | LocalDateTime            |
 
 ### `WhCategory` — Hierarchischer Kategoriebaum (3 Ebenen)
-| Feld | Typ |
-|---|---|
-| `id` | Long (PK) |
-| `whId` | String (Willhaben ATTRIBUTE_TREE ID) |
-| `name` | String |
-| `level` | Integer (0=root, 1=sub, 2=sub-sub) |
-| `parent` | ManyToOne → WhCategory (nullable) |
+
+| Feld     | Typ                                  |
+| -------- | ------------------------------------ |
+| `id`     | Long (PK)                            |
+| `whId`   | String (Willhaben ATTRIBUTE_TREE ID) |
+| `name`   | String                               |
+| `level`  | Integer (0=root, 1=sub, 2=sub-sub)   |
+| `parent` | ManyToOne → WhCategory (nullable)    |
 
 ### `WhLocation` — Hierarchischer Standortbaum
-| Feld | Typ |
-|---|---|
-| `id` | Long (PK) |
-| `areaId` | Integer (Willhaben areaId) |
-| `name` | String |
-| `level` | Integer (0=Bundesland, 1=Bezirk) |
+
+| Feld     | Typ                               |
+| -------- | --------------------------------- |
+| `id`     | Long (PK)                         |
+| `areaId` | Integer (Willhaben areaId)        |
+| `name`   | String                            |
+| `level`  | Integer (0=Bundesland, 1=Bezirk)  |
 | `parent` | ManyToOne → WhLocation (nullable) |
 
 ### `AppConfig` — Key-Value Konfiguration
-| Feld | Typ |
-|---|---|
-| `key` | String (PK) |
-| `value` | String |
-| `description` | String |
-| `updatedAt` | LocalDateTime |
+
+| Feld          | Typ           |
+| ------------- | ------------- |
+| `key`         | String (PK)   |
+| `value`       | String        |
+| `description` | String        |
+| `updatedAt`   | LocalDateTime |
 
 ---
 
 ## Deep-Learning-Extraction Entities (`deepLearning/entity/`)
 
 ### `ItemText` — Normalisierter Inseratstext (Eingabe für ML)
-| Feld | Typ |
-|---|---|
-| `id` | Long (PK) |
+
+| Feld        | Typ                   |
+| ----------- | --------------------- |
+| `id`        | Long (PK)             |
 | `whListing` | ManyToOne → WhListing |
-| `text` | String |
+| `text`      | String                |
 
 ### `WhItem` — View-Entität über WhListing (Frontend-ID)
-| Feld | Typ |
-|---|---|
-| `id` | Long (PK) |
+
+| Feld        | Typ                   |
+| ----------- | --------------------- |
+| `id`        | Long (PK)             |
 | `whListing` | ManyToOne → WhListing |
 
 ### `DlModelConfig` — ML-Modell-Konfiguration
-| Feld | Typ |
-|---|---|
-| `id` | Long (PK) |
-| `name` | String |
-| `active` | boolean |
+
+| Feld             | Typ                                                                                                                 |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `id`             | Long (PK)                                                                                                           |
+| `name`           | String                                                                                                              |
+| `active`         | boolean                                                                                                             |
 | `executionOrder` | int (INT NOT NULL, kein DB-Default — muss in jeder Migration explizit gesetzt werden, Konvention: Vielfache von 10) |
 
 ### `DlExtractionRun` — Ausführungsprotokoll je Modell+Text
-| Feld | Typ |
-|---|---|
-| `id` | Long (PK) |
-| `itemText` | ManyToOne → ItemText |
-| `modelConfig` | ManyToOne → DlModelConfig |
-| `status` | Enum (VARCHAR) |
-| `durationMs` | Long (nullable, wall-clock ms) |
-| `createdAt` | LocalDateTime |
+
+| Feld          | Typ                            |
+| ------------- | ------------------------------ |
+| `id`          | Long (PK)                      |
+| `itemText`    | ManyToOne → ItemText           |
+| `modelConfig` | ManyToOne → DlModelConfig      |
+| `status`      | Enum (VARCHAR)                 |
+| `durationMs`  | Long (nullable, wall-clock ms) |
+| `createdAt`   | LocalDateTime                  |
 
 ### `DlExtractionTerm` — Erkannter Begriff je Run
-| Feld | Typ |
-|---|---|
-| `id` | Long (PK) |
-| `run` | ManyToOne → DlExtractionRun |
-| `term` | String |
-| `confidence` | Double |
+
+| Feld         | Typ                         |
+| ------------ | --------------------------- |
+| `id`         | Long (PK)                   |
+| `run`        | ManyToOne → DlExtractionRun |
+| `term`       | String                      |
+| `confidence` | Double                      |
 
 ---
 
@@ -175,6 +185,7 @@ at.querchecker/
 ## DTO-Mapping
 
 Manuell via Builder im Service — kein Mapping-Framework (kein MapStruct).
+
 - `QuercheckerListingDto` = WhListing-Felder + `hasNote`, `viewCount`, `lastViewedAt`, `rating`
 - `WhListingDetailDto` spiegelt `WhListingDetail` vollständig
 
@@ -183,37 +194,44 @@ Manuell via Builder im Service — kein Mapping-Framework (kein MapStruct).
 ## API Endpoints
 
 ### Listings (`WhListingController`)
+
 - `GET /api/listings` — alle Listings, opt. `ratingFilter` (UP | UP_NULL | DOWN | ALL)
 - `GET /api/listings/{id}` — einzelnes Listing
 - `POST /api/listings` — erstellen/speichern
 - `DELETE /api/listings/{id}` — löschen
 
 ### Listing Detail (`WhListingDetailController`)
+
 - `GET /api/listings/{id}/detail` — Detail-Metadaten
 - `PUT /api/listings/{id}/detail/note` — Notiz speichern
 - `PUT /api/listings/{id}/detail/rating` — Rating setzen (UP/DOWN/null)
 - `POST /api/listings/{id}/views` — View-Event aufzeichnen
 
 ### Willhaben Search (`WhSearchController`)
+
 - `GET /api/wh/search` — Params: `keyword`, `rows` (default 30), `priceFrom`, `priceTo`, `attributeTree`, `areaId`, `paylivery` (boolean)
 - Gibt `WhSearchResultDto` zurück, speichert Ergebnisse in DB (upsert by `whId`)
 
 ### Willhaben Meta (`WhMetaController`)
+
 - `GET /api/wh/meta/status` — `WhMetaStatusDto` (lastFetched, refreshInProgress, cron)
 - `POST /api/wh/meta/refresh` — Async-Refresh triggern
 - `GET /api/wh/meta/categories` — Kategoriebaum
 - `GET /api/wh/meta/locations` — Standortbaum
 
 ### DL Extraction (`DlExtractionController`)
+
 - `GET /api/dl/extraction/{whItemId}/terms` — `DlExtractionStatusResponse { extractionStatus, terms[], suggestedTerm? }`
   - `{whItemId}` = `WhItem.id` (nicht `ItemText.id`)
   - `suggestedTerm`: bester Term des in `application.yml` konfigurierten `source-model` (Standard: `llama`)
 
 ### Spec-Lookup (`ProductLookupController`)
+
 - `POST /api/listings/{listingId}/lookup` — Brave Search + Groq → `LookupResponse { lookupStatus, quickFacts, icecatId }`
 - `POST /api/listings/{listingId}/lookup/full-specs` — Icecat API → `FullSpecsResponse { icecatSpecsJson }`
 
 ### SSE (`SseController`)
+
 - `GET /api/sse/stream` — Server-Sent Events Stream
 - Event `dl-extract`: `DlExtractionDonePayload { whItemId: Long, terms: DlExtractionTermDto[] }`
   - Wird nach jedem Modell-Run gesendet (nicht erst am Ende aller Modelle)
@@ -298,13 +316,16 @@ Swagger UI: `/swagger-ui.html` (dev only, in Prod via `SPRING_PROFILES_ACTIVE=pr
 - `FieldSource` Enum (`research/entity/`): `SYSTEM` = benannte Felder für LLM-Pflichtfelder-Liste (nicht für Brave-Query geeignet); `USER` = Wert-Keywords für Brave-Query (nicht als quickFacts-Keys auswertbar — excluded from quality evaluation).
 
 ### CategorySearchSource Seeders (`research/seeder/`)
+
 - `CategorySearchSourceDefinitions`: `SourceConfig` record `(domain, label, type, lookupEnabled, queryExcludes, searchResultCount)`. `CONFIGS` map mit 13 Kategorien: "Notebooks", "Smartphones / Handys", "Tablets", "Monitore", "Beamer", "Drucker", "PC-Komponenten", "Netzwerke", "Kameras / Camcorder", "Fernseher", "Konsolen", "Adapter / Kabel", "Software", "Spiele". Exakte DB-Namen (z.B. "/" nicht "&"; "Tablets" plural).
 - `CategorySearchSourceSeeder`: additives Upsert beim Start. Verwendet `findAllByName` (nicht `findByName`) wegen doppelter Namen wie "Tablets" (Level-1 und Level-2). Setzt `inheritFromParent = (cat.getLevel() <= 2)` automatisch (Level-1 und Level-2 können als Fallback-Quellen für tiefere Kategorien dienen).
 - `CategorySpecPreferenceSeeder` verwendet ebenfalls `findAllByName`.
 - `WhRefreshScheduler`: `else`-Branch ruft nun nur Seeder auf (kein Willhaben-Fetch), wenn Kategorien bereits existieren. Beide Seeder (`categorySpecPreferenceSeeder.seedIfAbsent()` + `categorySearchSourceSeeder.seedIfAbsent()`) werden dort aufgerufen.
 
 ### CategorySearchSource (Flyway V30)
+
 Tabelle `category_search_source` — konfiguriert Suchquellen pro Kategorie.
+
 - `SourceType` enum: `ICECAT` | `FLATPANELSHD` | `GSMARENA` | `GENERIC`
 - Felder: `id`, `whCategory` (nullable=default), `priority`, `siteDomain`, `siteLabel`, `sourceType`, `queryExcludes TEXT[]`, `searchResultCount` (default 10), `lookupEnabled` (default true), `inheritFromParent` (default false), `active` (default true)
 - `queryExcludes`: `List<String>` mit `@Type(ListArrayType.class)` → PostgreSQL `TEXT[]` (`coreFields` wurde in V31 entfernt — Felder kommen jetzt aus `CategorySpecPreference`)

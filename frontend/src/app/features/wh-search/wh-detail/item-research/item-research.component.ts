@@ -15,7 +15,14 @@ import { IcecatAccordionComponent } from './icecat-accordion/icecat-accordion.co
 import { SpecsAccordionComponent } from './specs-accordion/specs-accordion.component';
 import { PreferenceEntry, PreferencesService } from '../../../../core/preferences.service';
 
-type LookupState = 'empty' | 'loading' | 'COMPLETE' | 'FAILED' | 'QUOTA_EXCEEDED' | 'NO_SOURCES' | 'ERROR';
+type LookupState =
+  | 'empty'
+  | 'loading'
+  | 'COMPLETE'
+  | 'FAILED'
+  | 'QUOTA_EXCEEDED'
+  | 'NO_SOURCES'
+  | 'ERROR';
 
 @Component({
   selector: 'app-item-research',
@@ -66,8 +73,10 @@ export class ItemResearchComponent {
       if (!this.searchTerm()) {
         this.searchTerm.set(suggested);
       }
-      if (!this.extractionStore.lookupResults()[id] &&
-          !this.extractionStore.lookupLoadingIds().includes(id)) {
+      if (
+        !this.extractionStore.lookupResults()[id] &&
+        !this.extractionStore.lookupLoadingIds().includes(id)
+      ) {
         this.extractionStore.lookup(id, listingId, suggested);
       }
     });
@@ -232,11 +241,12 @@ export class ItemResearchComponent {
     return ts ? new Date(ts) : null;
   });
 
-  protected readonly searchButtonDisabled = computed<boolean>(() =>
-    !this.aiSearchEnabled() ||
-    !this.searchTerm().trim() ||
-    this.lookupState() === 'loading' ||
-    this.lookupState() === 'NO_SOURCES',
+  protected readonly searchButtonDisabled = computed<boolean>(
+    () =>
+      !this.aiSearchEnabled() ||
+      !this.searchTerm().trim() ||
+      this.lookupState() === 'loading' ||
+      this.lookupState() === 'NO_SOURCES',
   );
 
   // --- Preferences ---
