@@ -6,7 +6,7 @@ services:
       POSTGRES_PASSWORD: mypassword
       POSTGRES_DB: mydb
     ports:
-      - "14071:5432"
+      - '14071:5432'
     volumes:
       - postgres-data:/var/lib/postgresql/data
 

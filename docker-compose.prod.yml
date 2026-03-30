@@ -5,11 +5,11 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.querchecker.rule=Host(`querchecker.deinedomain.at`)"
-      - "traefik.http.routers.querchecker.tls=true"
-      - "traefik.http.routers.querchecker.tls.certresolver=letsencrypt"
-      - "traefik.http.services.querchecker.loadbalancer.server.port=80"
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.querchecker.rule=Host(`querchecker.deinedomain.at`)'
+      - 'traefik.http.routers.querchecker.tls=true'
+      - 'traefik.http.routers.querchecker.tls.certresolver=letsencrypt'
+      - 'traefik.http.services.querchecker.loadbalancer.server.port=80'
     networks:
       - traefik-network
     depends_on:

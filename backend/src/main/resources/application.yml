@@ -28,11 +28,11 @@ spring:
 querchecker:
   wh:
     refresh:
-      cron: "0 0 3 * * MON" # montags 03:00; Spring-Cron: Sek Min Std Tag Mon Wochentag
+      cron: '0 0 3 * * MON' # montags 03:00; Spring-Cron: Sek Min Std Tag Mon Wochentag
   dl:
     item-text-cleanup:
       retention-days: 10 # ältere ItemText-Records löschen (nicht neuester + kein userCorrectedTerm)
-      cron: "0 0 3 * * *" # täglich 03:00
+      cron: '0 0 3 * * *' # täglich 03:00
 
 logging:
   level:
