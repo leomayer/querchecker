@@ -45,7 +45,6 @@ class ProductLookupServiceTest {
     @Mock SearchProperties searchProperties;
     @Mock WebSearchProviderRouter webSearchRouter;
     @Mock WebSearchService webSearchService;
-    @Mock HtmlFetchService htmlFetchService;
     @Mock ExtractionQualityEvaluator qualityEvaluator;
     @Mock UrlValidator urlValidator;
     @Mock CategorySearchSourceService sourceService;
@@ -64,177 +63,121 @@ class ProductLookupServiceTest {
         lenient().when(appConfigService.getLookupErrorTtlMinutes()).thenReturn(10);
     }
 
-    // --- HTML-Fetch Fallback-Loop ---
+    // --- Snippets-Pfad für alle Quellen ---
 
     @Test
-    void lookup_htmlFetch_triesNextUrl_whenFirstFetchEmpty() {
+    void lookup_gsmarenaSource_usesSnippetsPath_notHtmlFetch() {
         setupNoCache(); setupQuotaOk();
-        CategorySearchSource src = htmlSource("flatpanelshd.com", FLATPANELSHD);
+        CategorySearchSource src = source("gsmarena.com", GSMARENA);
         when(sourceService.findForCategory(any())).thenReturn(List.of(src));
-        when(prefService.getMandatoryFields(any())).thenReturn(List.of("screen_size"));
-        when(prefService.getQueryKeywords(any())).thenReturn(List.of());
 
-        List<SearchResult> brave = List.of(
-            searchResult("https://www.flatpanelshd.com/lg_c4_oled_2024.php"),
-            searchResult("https://www.flatpanelshd.com/lg_g5_oled_2025.php"));
-
+        String url = "https://www.gsmarena.com/samsung_galaxy_s25-13322.php";
         when(webSearchService.search(any(), any(), any(), any(), anyInt()))
-            .thenReturn(brave);
+            .thenReturn(List.of(searchResult(url)));
+        when(llmClient.extractQuickFacts(any(), any(), any(), any(), any(), any()))
+            .thenReturn(quickFacts(Map.of("cpu", "Snapdragon 8 Elite"), null, url));
+        when(urlValidator.resolveIcecatId(any(), any())).thenReturn(null);
+        when(urlValidator.resolveSourceUrl(any(), any())).thenReturn(url);
+        when(urlValidator.matchesExpectedPattern(url, GSMARENA)).thenReturn(true);
+        when(qualityEvaluator.evaluate(any(), any(), eq(GSMARENA)))
+            .thenReturn(ExtractionQuality.GOOD);
 
-        when(urlValidator.matchesExpectedPattern(anyString(), eq(FLATPANELSHD)))
-            .thenReturn(true);
+        ProductLookupResult result = service.lookup("Samsung Galaxy S25", mock(WhCategory.class), null);
 
-        // Erste URL → leer, zweite URL → Inhalt
-        when(htmlFetchService.shouldFetchFullPage(FLATPANELSHD)).thenReturn(true);
-        when(htmlFetchService.fetchAndExtract(
-            "https://www.flatpanelshd.com/lg_c4_oled_2024.php", FLATPANELSHD))
-            .thenReturn(Optional.empty());
-        when(htmlFetchService.fetchAndExtract(
-            "https://www.flatpanelshd.com/lg_g5_oled_2025.php", FLATPANELSHD))
-            .thenReturn(Optional.of("<table>panel_type: OLED</table>"));
+        assertThat(result.getStatus()).isEqualTo(LookupStatus.COMPLETE);
+        verify(llmClient).extractQuickFacts(any(), any(), any(), any(), any(), any());
+        verify(llmClient, never()).extractQuickFactsFromText(any(), any(), any(), any(), any());
 
-        QuickFactsResult extracted = quickFacts(
-            Map.of("screen_size", "65\"", "panel_type", "OLED"), null,
-            "https://www.flatpanelshd.com/lg_g5_oled_2025.php");
-        when(llmClient.extractQuickFactsFromText(any(), any(), any(), any(), any()))
-            .thenReturn(extracted);
+    }
+
+    @Test
+    void lookup_flatpanelshdSource_usesSnippetsPath_notHtmlFetch() {
+        setupNoCache(); setupQuotaOk();
+        CategorySearchSource src = source("flatpanelshd.com", FLATPANELSHD);
+        when(sourceService.findForCategory(any())).thenReturn(List.of(src));
+
+        String url = "https://www.flatpanelshd.com/lg_c4_oled_2024.php";
+        when(webSearchService.search(any(), any(), any(), any(), anyInt()))
+            .thenReturn(List.of(searchResult(url)));
+        when(llmClient.extractQuickFacts(any(), any(), any(), any(), any(), any()))
+            .thenReturn(quickFacts(Map.of("screen_size", "65\""), null, url));
+        when(urlValidator.resolveIcecatId(any(), any())).thenReturn(null);
+        when(urlValidator.resolveSourceUrl(any(), any())).thenReturn(url);
+        when(urlValidator.matchesExpectedPattern(url, FLATPANELSHD)).thenReturn(true);
         when(qualityEvaluator.evaluate(any(), any(), eq(FLATPANELSHD)))
             .thenReturn(ExtractionQuality.GOOD);
 
-        ProductLookupResult result = service.lookup("LG G5", mock(WhCategory.class));
+        ProductLookupResult result = service.lookup("LG C4 OLED", mock(WhCategory.class), null);
 
         assertThat(result.getStatus()).isEqualTo(LookupStatus.COMPLETE);
-        assertThat(result.getSourceUrl())
-            .isEqualTo("https://www.flatpanelshd.com/lg_g5_oled_2025.php");
+        verify(llmClient).extractQuickFacts(any(), any(), any(), any(), any(), any());
+        verify(llmClient, never()).extractQuickFactsFromText(any(), any(), any(), any(), any());
 
-        // Beide URLs wurden versucht
-        verify(htmlFetchService).fetchAndExtract(
-            "https://www.flatpanelshd.com/lg_c4_oled_2024.php", FLATPANELSHD);
-        verify(htmlFetchService).fetchAndExtract(
-            "https://www.flatpanelshd.com/lg_g5_oled_2025.php", FLATPANELSHD);
     }
 
     @Test
-    void lookup_htmlFetch_skipsUrl_whenPatternMismatch() {
+    void lookup_sourceUrl_comesFromUrlValidator() {
+        // sourceUrl comes from urlValidator (LLM return value is an input to urlValidator, not used directly)
         setupNoCache(); setupQuotaOk();
-        CategorySearchSource src = htmlSource("flatpanelshd.com", FLATPANELSHD);
+        CategorySearchSource src = source("gsmarena.com", GSMARENA);
         when(sourceService.findForCategory(any())).thenReturn(List.of(src));
-        when(prefService.getMandatoryFields(any())).thenReturn(List.of("screen_size"));
-        when(prefService.getQueryKeywords(any())).thenReturn(List.of());
-        when(htmlFetchService.shouldFetchFullPage(FLATPANELSHD)).thenReturn(true);
 
-        List<SearchResult> brave = List.of(
-            searchResult("https://www.flatpanelshd.com/review.php?id=999"),
-            searchResult("https://www.flatpanelshd.com/lg_g5_oled_2025.php"));
-
+        String validatedUrl = "https://www.gsmarena.com/samsung_galaxy_s25-13322.php";
         when(webSearchService.search(any(), any(), any(), any(), anyInt()))
-            .thenReturn(brave);
-        when(urlValidator.matchesExpectedPattern(
-            "https://www.flatpanelshd.com/review.php?id=999", FLATPANELSHD))
-            .thenReturn(false);
-        when(urlValidator.matchesExpectedPattern(
-            "https://www.flatpanelshd.com/lg_g5_oled_2025.php", FLATPANELSHD))
-            .thenReturn(true);
-        when(htmlFetchService.fetchAndExtract(
-            "https://www.flatpanelshd.com/lg_g5_oled_2025.php", FLATPANELSHD))
-            .thenReturn(Optional.of("<table>screen_size: 65\"</table>"));
+            .thenReturn(List.of(searchResult(validatedUrl)));
+        when(llmClient.extractQuickFacts(any(), any(), any(), any(), any(), any()))
+            .thenReturn(quickFacts(Map.of("cpu", "Snapdragon 8 Elite"), null, "https://halluziniert.com/falsche-url"));
+        when(urlValidator.resolveIcecatId(any(), any())).thenReturn(null);
+        when(urlValidator.resolveSourceUrl(any(), any())).thenReturn(validatedUrl);
+        when(urlValidator.matchesExpectedPattern(validatedUrl, GSMARENA)).thenReturn(true);
+        when(qualityEvaluator.evaluate(any(), any(), any())).thenReturn(ExtractionQuality.GOOD);
 
-        when(llmClient.extractQuickFactsFromText(any(), any(), any(), any(), any()))
-            .thenReturn(quickFacts(Map.of("screen_size", "65\""), null, null));
-        when(qualityEvaluator.evaluate(any(), any(), any()))
-            .thenReturn(ExtractionQuality.GOOD);
+        ProductLookupResult result = service.lookup("Samsung Galaxy S25", mock(WhCategory.class), null);
 
-        service.lookup("LG G5", mock(WhCategory.class));
-
-        // review.php wurde NICHT gefetcht
-        verify(htmlFetchService, never()).fetchAndExtract(
-            "https://www.flatpanelshd.com/review.php?id=999", FLATPANELSHD);
-        verify(htmlFetchService).fetchAndExtract(
-            "https://www.flatpanelshd.com/lg_g5_oled_2025.php", FLATPANELSHD);
+        assertThat(result.getSourceUrl()).isEqualTo(validatedUrl);
+        assertThat(result.getSourceUrl()).doesNotContain("halluziniert.com");
     }
 
     @Test
-    void lookup_htmlFetch_continuesNextSource_whenAllUrlsFail() {
+    void lookup_cascadesToNextSource_whenFirstSourceReturnsEmpty() {
         setupNoCache(); setupQuotaOk();
-        CategorySearchSource htmlSrc    = htmlSource("flatpanelshd.com", FLATPANELSHD);
-        CategorySearchSource snippetSrc = snippetSource("whathifi.com",  GENERIC);
-        when(sourceService.findForCategory(any()))
-            .thenReturn(List.of(htmlSrc, snippetSrc));
-        when(prefService.getMandatoryFields(any())).thenReturn(List.of("screen_size"));
-        when(prefService.getQueryKeywords(any())).thenReturn(List.of());
-        when(htmlFetchService.shouldFetchFullPage(FLATPANELSHD)).thenReturn(true);
-        when(htmlFetchService.shouldFetchFullPage(GENERIC)).thenReturn(false);
+        CategorySearchSource flatpanelsSrc = source("flatpanelshd.com", FLATPANELSHD);
+        CategorySearchSource genericSrc    = source("whathifi.com", GENERIC);
+        when(sourceService.findForCategory(any())).thenReturn(List.of(flatpanelsSrc, genericSrc));
 
-        // FlatpanelsHD: eine URL, Pattern ok, aber Fetch leer
         when(webSearchService.search(any(), eq("flatpanelshd.com"), any(), any(), anyInt()))
-            .thenReturn(List.of(
-                searchResult("https://www.flatpanelshd.com/lg_g5_oled_2025.php")));
-        when(urlValidator.matchesExpectedPattern(anyString(), eq(FLATPANELSHD)))
-            .thenReturn(true);
-        when(htmlFetchService.fetchAndExtract(any(), eq(FLATPANELSHD)))
-            .thenReturn(Optional.empty());
-
-        // What Hi-Fi: Snippets-Pfad → liefert Ergebnis
+            .thenReturn(List.of(searchResult("https://flatpanelshd.com/lg_g5.php")));
         when(webSearchService.search(any(), eq("whathifi.com"), any(), any(), anyInt()))
             .thenReturn(List.of(searchResult("https://whathifi.com/lg-g5-review")));
-        when(llmClient.extractQuickFacts(any(), any(), any(), any(), any()))
+
+        when(llmClient.extractQuickFacts(any(), any(), any(), any(), any(), any()))
+            .thenReturn(quickFacts(Map.of(), null, null))
             .thenReturn(quickFacts(Map.of("screen_size", "65\""), null, null));
+        when(urlValidator.resolveIcecatId(any(), any())).thenReturn(null);
+        when(urlValidator.resolveSourceUrl(any(), any())).thenReturn(null);
+        when(urlValidator.matchesExpectedPattern(isNull(), any())).thenReturn(false);
+        when(qualityEvaluator.evaluate(any(), any(), eq(FLATPANELSHD)))
+            .thenReturn(ExtractionQuality.EMPTY);
         when(qualityEvaluator.evaluate(any(), any(), eq(GENERIC)))
             .thenReturn(ExtractionQuality.GOOD);
-        when(urlValidator.resolveSourceUrl(any(), any())).thenReturn(null);
-        when(urlValidator.matchesExpectedPattern(isNull(), eq(GENERIC))).thenReturn(false);
 
-        ProductLookupResult result = service.lookup("LG G5", mock(WhCategory.class));
+        ProductLookupResult result = service.lookup("LG G5", mock(WhCategory.class), null);
 
         assertThat(result.getStatus()).isEqualTo(LookupStatus.COMPLETE);
         assertThat(result.getSourceDomain()).isEqualTo("whathifi.com");
-    }
-
-    @Test
-    void lookup_htmlFetch_sourceUrlSetByJava_notLlm() {
-        setupNoCache(); setupQuotaOk();
-        CategorySearchSource src = htmlSource("gsmarena.com", GSMARENA);
-        when(sourceService.findForCategory(any())).thenReturn(List.of(src));
-        when(prefService.getMandatoryFields(any())).thenReturn(List.of());
-        when(prefService.getQueryKeywords(any())).thenReturn(List.of());
-        when(htmlFetchService.shouldFetchFullPage(GSMARENA)).thenReturn(true);
-
-        String fetchedUrl = "https://www.gsmarena.com/samsung_galaxy_s25-13322.php";
-        when(webSearchService.search(any(), any(), any(), any(), anyInt()))
-            .thenReturn(List.of(searchResult(fetchedUrl)));
-        when(urlValidator.matchesExpectedPattern(fetchedUrl, GSMARENA)).thenReturn(true);
-        when(htmlFetchService.fetchAndExtract(fetchedUrl, GSMARENA))
-            .thenReturn(Optional.of("<table>cpu: Snapdragon 8 Elite</table>"));
-
-        // LLM gibt eine andere sourceUrl zurück (sollte ignoriert werden)
-        QuickFactsResult extracted = quickFacts(
-            Map.of("cpu", "Snapdragon 8 Elite"), null,
-            "https://halluziniert.com/falsche-url");
-        when(llmClient.extractQuickFactsFromText(any(), any(), any(), any(), any()))
-            .thenReturn(extracted);
-        when(qualityEvaluator.evaluate(any(), any(), any()))
-            .thenReturn(ExtractionQuality.GOOD);
-
-        ProductLookupResult result =
-            service.lookup("Samsung Galaxy S25", mock(WhCategory.class));
-
-        // sourceUrl muss von Java kommen, nicht vom LLM
-        assertThat(result.getSourceUrl()).isEqualTo(fetchedUrl);
-        assertThat(result.getSourceUrl()).doesNotContain("halluziniert.com");
+        verify(llmClient, times(2)).extractQuickFacts(any(), any(), any(), any(), any(), any());
     }
 
     @Test
     void lookup_usesSearchResultCount_fromSource() {
         setupNoCache(); setupQuotaOk();
-        CategorySearchSource src = htmlSource("gsmarena.com", GSMARENA);
+        CategorySearchSource src = source("gsmarena.com", GSMARENA);
         src.setSearchResultCount(3);
         when(sourceService.findForCategory(any())).thenReturn(List.of(src));
-        when(prefService.getMandatoryFields(any())).thenReturn(List.of());
-        when(prefService.getQueryKeywords(any())).thenReturn(List.of());
         when(webSearchService.search(any(), any(), any(), any(), eq(3)))
             .thenReturn(List.of());
 
-        service.lookup("Samsung S25", mock(WhCategory.class));
+        service.lookup("Samsung S25", mock(WhCategory.class), null);
 
         verify(webSearchService).search(any(), any(), any(), any(), eq(3));
     }
@@ -246,7 +189,7 @@ class ProductLookupServiceTest {
         setupNoCache(); setupQuotaOk();
         when(sourceService.findForCategory(any())).thenReturn(List.of());
 
-        ProductLookupResult result = service.lookup("Unbekanntes Gerät", mock(WhCategory.class));
+        ProductLookupResult result = service.lookup("Unbekanntes Gerät", mock(WhCategory.class), null);
 
         assertThat(result.getStatus()).isEqualTo(LookupStatus.NO_SOURCES);
         verify(repo, never()).save(any());
@@ -257,14 +200,12 @@ class ProductLookupServiceTest {
     @Test
     void lookup_savesError_andReturnsError_onException() {
         setupNoCache(); setupQuotaOk();
-        CategorySearchSource src = snippetSource("icecat.biz", ICECAT);
+        CategorySearchSource src = source("icecat.biz", ICECAT);
         when(sourceService.findForCategory(any())).thenReturn(List.of(src));
-        when(prefService.getMandatoryFields(any())).thenReturn(List.of());
-        when(prefService.getQueryKeywords(any())).thenReturn(List.of());
         when(webSearchService.search(any(), any(), any(), any(), anyInt()))
             .thenThrow(new RuntimeException("Brave API nicht erreichbar"));
 
-        ProductLookupResult result = service.lookup("Samsung S25", mock(WhCategory.class));
+        ProductLookupResult result = service.lookup("Samsung S25", mock(WhCategory.class), null);
 
         assertThat(result.getStatus()).isEqualTo(LookupStatus.ERROR);
         verify(repo).save(argThat(pl -> pl.getLookupStatus() == LookupStatus.ERROR));
@@ -276,7 +217,7 @@ class ProductLookupServiceTest {
         when(repo.findByLookupTerm(any())).thenReturn(Optional.of(cached));
         when(appConfigService.getLookupErrorTtlMinutes()).thenReturn(10);
 
-        ProductLookupResult result = service.lookup("Samsung S25", mock(WhCategory.class));
+        ProductLookupResult result = service.lookup("Samsung S25", mock(WhCategory.class), null);
 
         assertThat(result.getStatus()).isEqualTo(LookupStatus.ERROR);
         verify(quotaService, never()).checkQuota(any());
@@ -290,9 +231,8 @@ class ProductLookupServiceTest {
         setupQuotaOk();
         when(sourceService.findForCategory(any())).thenReturn(List.of());
 
-        ProductLookupResult result = service.lookup("Samsung S25", mock(WhCategory.class));
+        ProductLookupResult result = service.lookup("Samsung S25", mock(WhCategory.class), null);
 
-        // TTL abgelaufen → neu gesucht (sourceService wurde aufgerufen)
         verify(sourceService).findForCategory(any());
         assertThat(result.getStatus()).isEqualTo(LookupStatus.NO_SOURCES);
     }
@@ -305,7 +245,7 @@ class ProductLookupServiceTest {
         when(repo.findByLookupTerm(any())).thenReturn(Optional.of(cached));
         when(appConfigService.getLookupFailedTtlHours()).thenReturn(24);
 
-        ProductLookupResult result = service.lookup("Unbekanntes TV", mock(WhCategory.class));
+        ProductLookupResult result = service.lookup("Unbekanntes TV", mock(WhCategory.class), null);
 
         assertThat(result.getStatus()).isEqualTo(LookupStatus.FAILED);
         verify(quotaService, never()).checkQuota(any());
@@ -319,7 +259,7 @@ class ProductLookupServiceTest {
         setupQuotaOk();
         when(sourceService.findForCategory(any())).thenReturn(List.of());
 
-        ProductLookupResult result = service.lookup("Unbekanntes TV", mock(WhCategory.class));
+        ProductLookupResult result = service.lookup("Unbekanntes TV", mock(WhCategory.class), null);
 
         verify(sourceService).findForCategory(any());
         assertThat(result.getStatus()).isEqualTo(LookupStatus.NO_SOURCES);
@@ -337,14 +277,7 @@ class ProductLookupServiceTest {
         lenient().when(prefService.getQueryKeywords(any())).thenReturn(List.of());
     }
 
-    private CategorySearchSource htmlSource(String domain, SourceType type) {
-        return CategorySearchSource.builder()
-            .siteDomain(domain).sourceType(type)
-            .lookupEnabled(true).active(true)
-            .searchResultCount(3).build();
-    }
-
-    private CategorySearchSource snippetSource(String domain, SourceType type) {
+    private CategorySearchSource source(String domain, SourceType type) {
         return CategorySearchSource.builder()
             .siteDomain(domain).sourceType(type)
             .lookupEnabled(true).active(true)

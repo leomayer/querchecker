@@ -1,6 +1,7 @@
 package at.querchecker.research.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class QuickFactsResult {
 
+    @JsonDeserialize(using = LenientStringMapDeserializer.class)
     private Map<String, String> quickFacts = new HashMap<>();
     private List<FeatureGroup> featureGroups;
     private Sources sources = new Sources();

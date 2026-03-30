@@ -15,8 +15,9 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 /**
- * Befüllt DlCategoryPrompt additiv nach Kategorie-Refresh.
- * Mehrfachaufruf sicher — prüft pro (Kategorie, PromptType) ob bereits ein Eintrag vorhanden.
+ * Befüllt DlCategoryPrompt per Upsert beim Start.
+ * Bestehende Einträge werden mit dem aktuellen Stand aus DlCategoryPromptDefinitions überschrieben,
+ * sodass Prompt-Änderungen in Java bei jedem Neustart wirksam werden.
  */
 @Slf4j
 @Component
@@ -37,27 +38,53 @@ public class DlCategoryPromptSeeder {
 
         for (PromptType type : PromptType.values()) {
             // Default-Prompt
-            if (promptRepo.findDefaultByPromptType(type).isEmpty()) {
-                promptRepo.save(buildDefault(type));
-                log.info("Seeded default prompt for {}", type);
-            }
+            upsertDefault(type);
             // Kategorie-spezifische Prompts
             DlCategoryPromptDefinitions.CONFIGS.forEach((name, cfgs) ->
                 categoryRepo.findByName(name).ifPresent(cat ->
                     cfgs.stream()
                         .filter(cfg -> cfg.promptType() == type)
                         .findFirst()
-                        .ifPresent(cfg -> {
-                            if (promptRepo.findByWhCategoryAndPromptType(cat, type).isEmpty()) {
-                                promptRepo.save(build(cat, cfg));
-                                log.info("Seeded {} prompt for category '{}'", type, name);
-                            }
-                        })
+                        .ifPresent(cfg -> upsertCategory(cat, cfg, type, name))
                 )
             );
         }
 
         log.info("DlCategoryPromptSeeder done: {} total", promptRepo.count());
+    }
+
+    private void upsertDefault(PromptType type) {
+        DlCategoryPrompt prompt = promptRepo.findDefaultByPromptType(type)
+                .orElseGet(() -> buildDefault(type));
+        applyDefault(prompt, type);
+        promptRepo.save(prompt);
+        log.debug("Upserted default prompt for {}", type);
+    }
+
+    private void upsertCategory(WhCategory cat, PromptConfig cfg, PromptType type, String name) {
+        DlCategoryPrompt prompt = promptRepo.findByWhCategoryAndPromptType(cat, type)
+                .orElseGet(() -> build(cat, cfg));
+        prompt.setSystemPrompt(cfg.systemPrompt());
+        prompt.setUserPrompt(cfg.userPrompt());
+        promptRepo.save(prompt);
+        log.debug("Upserted {} prompt for category '{}'", type, name);
+    }
+
+    private void applyDefault(DlCategoryPrompt prompt, PromptType type) {
+        switch (type) {
+            case PRODUCT_NAME -> {
+                prompt.setSystemPrompt(DlCategoryPromptDefinitions.PRODUCT_NAME_SYSTEM);
+                prompt.setUserPrompt(DlCategoryPromptDefinitions.PRODUCT_NAME_USER_DEFAULT);
+            }
+            case QUICK_FACTS -> {
+                prompt.setSystemPrompt(DlCategoryPromptDefinitions.QUICK_FACTS_SYSTEM);
+                prompt.setUserPrompt(DlCategoryPromptDefinitions.QUICK_FACTS_USER_DEFAULT);
+            }
+            case HTML_FULL_SPECS -> {
+                prompt.setSystemPrompt(DlCategoryPromptDefinitions.HTML_FULL_SPECS_SYSTEM);
+                prompt.setUserPrompt(DlCategoryPromptDefinitions.HTML_FULL_SPECS_USER_DEFAULT);
+            }
+        }
     }
 
     private DlCategoryPrompt buildDefault(PromptType type) {

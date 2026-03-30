@@ -60,16 +60,50 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     }
 
     @Override
+    public ProductNameResult extractProductNameStructured(String title, String description,
+                                                          String categoryName, DlCategoryPrompt prompt) {
+        String userPrompt = prompt.getUserPrompt()
+                .replace("{title}", title)
+                .replace("{description}", truncate(description, 800))
+                .replace("{category}", categoryName);
+
+        ChatResponse response = callLlm(RequestType.EXTRACTION, null,
+                prompt.getSystemPrompt(), userPrompt);
+        String raw = response.firstChoice().trim();
+
+        try {
+            ProductNameResult parsed = MAPPER.readValue(raw, ProductNameResult.class);
+            if (parsed.extractedModel() != null && !parsed.extractedModel().isBlank()) {
+                log.debug("extractProductNameStructured: extractedModel='{}', condensedSpec keys={}",
+                        parsed.extractedModel(),
+                        parsed.condensedSpec() != null ? parsed.condensedSpec().keySet() : "none");
+                return parsed;
+            }
+        } catch (Exception e) {
+            log.debug("extractProductNameStructured: JSON parse failed ({}), treating as plain term", e.getMessage());
+        }
+        // Fallback: treat as plain term (e.g. model returned non-JSON despite system prompt)
+        if (raw.length() > 150) {
+            log.warn("extractProductNameStructured fallback: response too long ({} chars) — discarding", raw.length());
+            return new ProductNameResult(null, null);
+        }
+        return new ProductNameResult(raw, null);
+    }
+
+    @Override
     public QuickFactsResult extractQuickFacts(String lookupTerm, String categoryName,
                                               List<SearchResult> braveResults,
                                               List<String> mandatoryFields,
-                                              DlCategoryPrompt prompt) {
+                                              DlCategoryPrompt prompt,
+                                              String condensedSpecContext) {
         String snippetsBlock = formatSnippets(braveResults);
+        String condensedBlock = condensedSpecContext != null ? condensedSpecContext : "";
         String userPrompt = prompt.getUserPrompt()
                 .replace("{lookupTerm}", lookupTerm)
                 .replace("{category}", categoryName)
                 .replace("{snippets}", snippetsBlock)
-                .replace("{mandatoryFields}", String.join(", ", mandatoryFields));
+                .replace("{mandatoryFields}", String.join(", ", mandatoryFields))
+                .replace("{condensedSpec}", condensedBlock);
 
         ChatResponse response = callLlm(RequestType.EXTRACTION, lookupTerm,
                 prompt.getSystemPrompt(), userPrompt);
@@ -88,7 +122,8 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
                 .replace("{lookupTerm}", lookupTerm)
                 .replace("{category}", categoryName)
                 .replace("{snippets}", pageText)
-                .replace("{mandatoryFields}", String.join(", ", mandatoryFields));
+                .replace("{mandatoryFields}", String.join(", ", mandatoryFields))
+                .replace("{condensedSpec}", "");
 
         ChatResponse response = callLlm(RequestType.EXTRACTION, lookupTerm,
                 prompt.getSystemPrompt(), userPrompt);

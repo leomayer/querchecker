@@ -1,5 +1,6 @@
 package at.querchecker.deepLearning.service;
 
+import at.querchecker.deepLearning.DlCategoryPromptDefinitions;
 import at.querchecker.deepLearning.entity.DlCategoryPrompt;
 import at.querchecker.deepLearning.entity.PromptType;
 import at.querchecker.deepLearning.repository.DlCategoryPromptRepository;
@@ -12,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -30,55 +32,20 @@ class DlCategoryPromptSeederTest {
     }
 
     @Test
-    void seedIfAbsent_doesNothing_whenAllDefaultsAlreadySeeded() {
+    void seedIfAbsent_upsertsAllDefaults_evenWhenAlreadyPresent() {
         when(categoryRepo.count()).thenReturn(5L);
-        // All defaults present — findByName returns empty by default (no category-specific saves)
-        when(promptRepo.findDefaultByPromptType(PromptType.PRODUCT_NAME))
-            .thenReturn(Optional.of(mock(DlCategoryPrompt.class)));
-        when(promptRepo.findDefaultByPromptType(PromptType.QUICK_FACTS))
-            .thenReturn(Optional.of(mock(DlCategoryPrompt.class)));
-        when(promptRepo.findDefaultByPromptType(PromptType.HTML_FULL_SPECS))
-            .thenReturn(Optional.of(mock(DlCategoryPrompt.class)));
-        seeder.seedIfAbsent();
-        verify(promptRepo, never()).save(any());
-    }
-
-    @Test
-    void seedIfAbsent_savesDefaultProductNamePrompt_whenMissing() {
-        when(categoryRepo.count()).thenReturn(5L);
-        // PRODUCT_NAME default missing, others already present
-        when(promptRepo.findDefaultByPromptType(PromptType.PRODUCT_NAME)).thenReturn(Optional.empty());
-        when(promptRepo.findDefaultByPromptType(PromptType.QUICK_FACTS))
-            .thenReturn(Optional.of(mock(DlCategoryPrompt.class)));
-        when(promptRepo.findDefaultByPromptType(PromptType.HTML_FULL_SPECS))
+        when(promptRepo.findDefaultByPromptType(any()))
             .thenReturn(Optional.of(mock(DlCategoryPrompt.class)));
 
         seeder.seedIfAbsent();
 
-        verify(promptRepo, times(1)).save(argThat(p ->
-            p.getWhCategory() == null && p.getPromptType() == PromptType.PRODUCT_NAME));
+        // Upsert: always saves all 3 defaults to apply current definitions
+        verify(promptRepo, times(3)).save(any());
     }
 
     @Test
-    void seedIfAbsent_savesDefaultQuickFactsPrompt_whenMissing() {
+    void seedIfAbsent_insertsAllDefaults_whenAllMissing() {
         when(categoryRepo.count()).thenReturn(5L);
-        // QUICK_FACTS default missing, others already present
-        when(promptRepo.findDefaultByPromptType(PromptType.PRODUCT_NAME))
-            .thenReturn(Optional.of(mock(DlCategoryPrompt.class)));
-        when(promptRepo.findDefaultByPromptType(PromptType.QUICK_FACTS)).thenReturn(Optional.empty());
-        when(promptRepo.findDefaultByPromptType(PromptType.HTML_FULL_SPECS))
-            .thenReturn(Optional.of(mock(DlCategoryPrompt.class)));
-
-        seeder.seedIfAbsent();
-
-        verify(promptRepo, times(1)).save(argThat(p ->
-            p.getWhCategory() == null && p.getPromptType() == PromptType.QUICK_FACTS));
-    }
-
-    @Test
-    void seedIfAbsent_savesAllDefaults_whenAllMissing() {
-        when(categoryRepo.count()).thenReturn(5L);
-        // All defaults missing, findByName returns empty → no category-specific saves
         when(promptRepo.findDefaultByPromptType(any())).thenReturn(Optional.empty());
 
         seeder.seedIfAbsent();
@@ -89,5 +56,39 @@ class DlCategoryPromptSeederTest {
             p.getWhCategory() == null && p.getPromptType() == PromptType.QUICK_FACTS));
         verify(promptRepo, times(1)).save(argThat(p ->
             p.getWhCategory() == null && p.getPromptType() == PromptType.HTML_FULL_SPECS));
+    }
+
+    @Test
+    void seedIfAbsent_appliesCurrentDefinition_toExistingDefault() {
+        when(categoryRepo.count()).thenReturn(5L);
+        DlCategoryPrompt existing = new DlCategoryPrompt();
+        when(promptRepo.findDefaultByPromptType(PromptType.QUICK_FACTS))
+            .thenReturn(Optional.of(existing));
+        when(promptRepo.findDefaultByPromptType(PromptType.PRODUCT_NAME))
+            .thenReturn(Optional.of(mock(DlCategoryPrompt.class)));
+        when(promptRepo.findDefaultByPromptType(PromptType.HTML_FULL_SPECS))
+            .thenReturn(Optional.of(mock(DlCategoryPrompt.class)));
+
+        seeder.seedIfAbsent();
+
+        assertThat(existing.getSystemPrompt()).isEqualTo(DlCategoryPromptDefinitions.QUICK_FACTS_SYSTEM);
+        assertThat(existing.getUserPrompt()).isEqualTo(DlCategoryPromptDefinitions.QUICK_FACTS_USER_DEFAULT);
+    }
+
+    @Test
+    void seedIfAbsent_insertsDefault_whenMissing_andUpdatesOthers() {
+        when(categoryRepo.count()).thenReturn(5L);
+        when(promptRepo.findDefaultByPromptType(PromptType.PRODUCT_NAME)).thenReturn(Optional.empty());
+        when(promptRepo.findDefaultByPromptType(PromptType.QUICK_FACTS))
+            .thenReturn(Optional.of(mock(DlCategoryPrompt.class)));
+        when(promptRepo.findDefaultByPromptType(PromptType.HTML_FULL_SPECS))
+            .thenReturn(Optional.of(mock(DlCategoryPrompt.class)));
+
+        seeder.seedIfAbsent();
+
+        // All 3 are saved: 1 new insert + 2 updates
+        verify(promptRepo, times(3)).save(any());
+        verify(promptRepo, times(1)).save(argThat(p ->
+            p.getWhCategory() == null && p.getPromptType() == PromptType.PRODUCT_NAME));
     }
 }

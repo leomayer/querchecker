@@ -3,6 +3,8 @@ package at.querchecker.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.Map;
+
 @Data
 @Builder
 public class DlExtractionTermDto {
@@ -10,4 +12,5 @@ public class DlExtractionTermDto {
     private String term;
     private Float confidence;
     private Long durationMs;
+    private Map<String, String> condensedSpec;
 }

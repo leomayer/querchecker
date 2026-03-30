@@ -31,10 +31,6 @@ public interface ItemTextRepository extends JpaRepository<ItemText, Long> {
             GROUP BY it2.whListing
             HAVING MAX(it2.fetchedAt) = MAX(it2.fetchedAt)
         )
-        AND it.id NOT IN (
-            SELECT t.run.itemText.id FROM DlExtractionTerm t
-            WHERE t.userCorrectedTerm IS NOT NULL
-        )
         """)
     void deleteOutdatedOlderThan(@Param("cutoff") LocalDateTime cutoff);
 }

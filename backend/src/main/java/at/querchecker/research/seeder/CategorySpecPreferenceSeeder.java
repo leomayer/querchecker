@@ -35,17 +35,17 @@ public class CategorySpecPreferenceSeeder {
     // Kategorienamen müssen exakt mit WhCategory.name übereinstimmen.
     // Mehrfacheinträge (z.B. "Tablets" auf level=1 und level=2) werden alle geseedet.
     private static final Map<String, List<String>> SYSTEM_FIELDS = Map.ofEntries(
-        entry("Notebooks",            List.of("cpu", "ram", "display", "storage", "gpu", "battery", "weight")),
-        entry("Smartphones / Handys", List.of("cpu", "ram", "storage", "display", "battery", "camera")),
-        entry("Tablets",              List.of("cpu", "ram", "storage", "display")),
-        entry("Monitore",             List.of("screen_size", "resolution", "panel_type", "refresh_rate")),
-        entry("Beamer",               List.of("resolution", "technology")),
-        entry("Drucker",              List.of("technology", "duplex", "ppm_mono")),
+        entry("Notebooks",            List.of("cpu", "ram", "display", "storage", "gpu", "battery", "weight", "release_year")),
+        entry("Smartphones / Handys", List.of("cpu", "ram", "storage", "display", "battery", "camera", "release_year")),
+        entry("Tablets",              List.of("cpu", "ram", "storage", "display", "release_year")),
+        entry("Monitore",             List.of("screen_size", "resolution", "panel_type", "refresh_rate", "release_year")),
+        entry("Beamer",               List.of("resolution", "technology", "release_year")),
+        entry("Drucker",              List.of("technology", "duplex", "ppm_mono", "release_year")),
         entry("PC-Komponenten",       List.of("type", "interface", "capacity")),
         entry("Netzwerke",            List.of("type", "ports", "throughput")),
-        entry("Kameras / Camcorder",  List.of("sensor", "megapixel", "lens_mount")),
-        entry("Fernseher",            List.of("screen_size", "panel_type", "resolution", "hdmi", "refresh_rate")),
-        entry("Konsolen",             List.of("platform", "storage"))
+        entry("Kameras / Camcorder",  List.of("sensor", "megapixel", "lens_mount", "release_year")),
+        entry("Fernseher",            List.of("screen_size", "panel_type", "resolution", "hdmi", "refresh_rate", "release_year")),
+        entry("Konsolen",             List.of("platform", "storage", "release_year"))
     );
 
     @Transactional

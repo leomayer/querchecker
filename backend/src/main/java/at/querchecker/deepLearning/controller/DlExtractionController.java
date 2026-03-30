@@ -13,6 +13,8 @@ import at.querchecker.dto.DlExtractionTermDto;
 import at.querchecker.repository.WhItemRepository;
 import at.querchecker.api.config.LlmProperties;
 import at.querchecker.sse.SseHub;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -37,6 +40,8 @@ public class DlExtractionController {
     private final DlOrchestrationService dlOrchestrationService;
     private final SseHub sseHub;
     private final LlmProperties llmProperties;
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
      * Returns extraction terms + overall status for a whItemId.
@@ -121,7 +126,18 @@ public class DlExtractionController {
                 .term(t.getTerm())
                 .confidence(t.getConfidence())
                 .durationMs(t.getRun().getDurationMs())
+                .condensedSpec(parseCondensedSpec(t.getCondensedSpecsJson()))
                 .build())
             .toList();
+    }
+
+    private Map<String, String> parseCondensedSpec(String json) {
+        if (json == null || json.isBlank()) return null;
+        try {
+            return MAPPER.readValue(json, new TypeReference<Map<String, String>>() {});
+        } catch (Exception e) {
+            log.warn("Failed to parse condensedSpecsJson: {}", e.getMessage());
+            return null;
+        }
     }
 }

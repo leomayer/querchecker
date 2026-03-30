@@ -3,8 +3,6 @@ package at.querchecker.deepLearning.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "dl_extraction_term")
 @Data
@@ -26,9 +24,6 @@ public class DlExtractionTerm {
 
     private Float confidence;
 
-    private String userCorrectedTerm;
-
-    private LocalDateTime userCorrectedAt;
-
-    private String correctionNote;
+    @Column(columnDefinition = "TEXT")
+    private String condensedSpecsJson;
 }

@@ -1,6 +1,7 @@
 package at.querchecker.deepLearning.service;
 
 import at.querchecker.api.extraction.ExtractionProviderRouter;
+import at.querchecker.api.extraction.ProductNameResult;
 import at.querchecker.deepLearning.ExtractionResult;
 import at.querchecker.deepLearning.entity.DlCategoryPrompt;
 import at.querchecker.deepLearning.entity.ItemText;
@@ -22,7 +23,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class GroqExtractionModel implements ExtractionModel {
 
-    static final String MODEL_NAME = "groq";
+    public static final String MODEL_NAME = "groq";
 
     private final ExtractionProviderRouter providerRouter;
     private final DlPromptResolver promptResolver;
@@ -42,10 +43,11 @@ public class GroqExtractionModel implements ExtractionModel {
         String categoryName = category != null && category.getName() != null
             ? category.getName() : "Produkt";
 
-        String term = providerRouter.getActive()
-            .extractProductName(input.getTitle(), input.getDescription(), categoryName, dlPrompt);
+        ProductNameResult structured = providerRouter.getActive()
+            .extractProductNameStructured(input.getTitle(), input.getDescription(), categoryName, dlPrompt);
 
-        if (term == null || term.isBlank()) return List.of();
+        String term = structured.extractedModel();
+        if (term == null || term.isBlank() || "UNBEKANNT".equalsIgnoreCase(term.trim())) return List.of();
         // Discard hallucinated generic responses — real product names are short
         if (term.length() > 150) {
             log.warn("Groq returned suspiciously long term ({} chars) for itemText={} — discarding",
@@ -56,6 +58,7 @@ public class GroqExtractionModel implements ExtractionModel {
         return List.of(ExtractionResult.builder()
             .term(term.trim())
             .confidence(1.0)
+            .condensedSpec(structured.condensedSpec())
             .build());
     }
 }

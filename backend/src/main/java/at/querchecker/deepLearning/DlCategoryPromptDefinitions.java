@@ -20,9 +20,17 @@ public final class DlCategoryPromptDefinitions {
 
     public static final String PRODUCT_NAME_SYSTEM =
         """
-        Du extrahierst Produktbezeichnungen aus Kleinanzeigen-Texten.
-        Antworte NUR mit dem Produktnamen aus dem gegebenen Inserat — kein erklärender Text, keine Listen, keine Sätze.
-        Erfinde keinen Produktnamen. Wenn kein eindeutiger Produktname im Inserat erkennbar ist, antworte mit: UNBEKANNT
+        Du extrahierst Produktinformationen aus Kleinanzeigen-Texten.
+        Antworte NUR mit validem JSON — kein erklärender Text, keine Markdown-Backticks.
+        Gib folgendes JSON zurück:
+        {
+          "extractedModel": "Hersteller + genaue Modellbezeichnung",
+          "condensedSpec": { "feld": "wert" }
+        }
+        extractedModel: Hersteller und exakte Modellbezeichnung des verkauften Produkts. Wenn nicht erkennbar: "UNBEKANNT".
+        condensedSpec: Die wichtigsten technischen Eckdaten direkt aus dem Inseratstext als flaches String-Map. Nur Felder die im Inserat explizit genannt werden.
+        Alle Werte MÜSSEN Strings sein — keine Zahlen, keine verschachtelten Objekte. Wenn ein Wert fehlt, lass das Feld weg.
+        Normalisiere Einheiten: TB statt GB ab 1000 GB, GHz statt MHz. Jedes Feld darf NUR EINMAL erscheinen.
         """;
 
     public static final String PRODUCT_NAME_USER_DEFAULT =
@@ -46,15 +54,21 @@ public final class DlCategoryPromptDefinitions {
         """
         Du extrahierst technische Spezifikationen aus Produktseiten-Snippets.
         Antworte NUR mit validem JSON — kein erklärender Text, keine Markdown-Backticks.
-        Wenn ein Wert nicht erkennbar ist, lass das Feld weg (kein null, kein "unbekannt").
+        Wenn ein Wert nicht erkennbar ist, lass das Feld weg (kein null, kein "unbekannt", kein "kein Wert erkennbar").
         Feldnamen im quickFacts-Objekt: Kleinbuchstaben, Englisch, keine Sonderzeichen.
+        Alle Werte im quickFacts-Objekt MÜSSEN Strings sein — keine Zahlen, keine verschachtelten Objekte, keine Arrays.
+        Falsch: "ram": 16          Richtig: "ram": "16 GB"
+        Falsch: "display": {"size": 14, "resolution": "1920x1080"}   Richtig: "display": "14 Zoll 1920x1080"
+        Jedes Feld darf NUR EINMAL erscheinen — keine nummerierten Duplikate wie cpu2, ram3, display4.
+        Wenn die Snippets mehrere Varianten desselben Produkts enthalten, wähle den häufigsten oder repräsentativsten Wert.
+        Normalisiere Einheiten: Verwende stets die größte sinnvolle Einheit (TB statt GB ab 1000 GB, GB statt MB ab 1000 MB, GHz statt MHz). Äquivalente Werte (z.B. 1 TB und 1000 GB, 16 GB und 16384 MB) gelten als Duplikate — nur einmal ausgeben.
         """;
 
     public static final String QUICK_FACTS_USER_DEFAULT =
         """
         Produkt: {lookupTerm}
         Kategorie: {category}
-
+        {condensedSpec}
         Suchergebnisse:
         {snippets}
 
@@ -224,7 +238,7 @@ public final class DlCategoryPromptDefinitions {
                 """
                 Produkt: {lookupTerm}
                 Kategorie: Laptop / Notebook
-
+                {condensedSpec}
                 Suchergebnisse:
                 {snippets}
 
@@ -248,7 +262,7 @@ public final class DlCategoryPromptDefinitions {
                 """
                 Produkt: {lookupTerm}
                 Kategorie: Drucker & Scanner
-
+                {condensedSpec}
                 Suchergebnisse:
                 {snippets}
 

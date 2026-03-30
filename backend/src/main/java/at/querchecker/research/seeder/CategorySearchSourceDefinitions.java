@@ -47,20 +47,20 @@ public final class CategorySearchSourceDefinitions {
 
             // --- Lookup aktiviert ---
             entry("Notebooks", List.of(
-                    new SourceConfig("icecat.biz",   "Icecat",   ICECAT,   true, ICECAT_EXCLUDES, SNIPPETS_COUNT),
-                    new SourceConfig("gsmarena.com", "GSMArena", GSMARENA, true, null,             HTML_FETCH_COUNT))),
+                    new SourceConfig("icecat.biz",        "Icecat",        ICECAT,   true, ICECAT_EXCLUDES, SNIPPETS_COUNT),
+                    new SourceConfig("notebookcheck.net", "Notebookcheck", GENERIC,  true, null,             SNIPPETS_COUNT))),
 
             entry("Smartphones / Handys", List.of(   // level=1 → Apple, Samsung etc. erben
                     new SourceConfig("icecat.biz",   "Icecat",   ICECAT,   true, ICECAT_EXCLUDES, SNIPPETS_COUNT),
-                    new SourceConfig("gsmarena.com", "GSMArena", GSMARENA, true, null,             HTML_FETCH_COUNT))),
+                    new SourceConfig("gsmarena.com", "GSMArena", GSMARENA, true, null,             SNIPPETS_COUNT))),
 
             entry("Tablets", List.of(                 // level=1 + level=2 – alle Treffer werden geseedet
                     new SourceConfig("icecat.biz",   "Icecat",   ICECAT,   true, ICECAT_EXCLUDES, SNIPPETS_COUNT),
-                    new SourceConfig("gsmarena.com", "GSMArena", GSMARENA, true, null,             HTML_FETCH_COUNT))),
+                    new SourceConfig("gsmarena.com", "GSMArena", GSMARENA, true, null,             SNIPPETS_COUNT))),
 
             entry("Monitore", List.of(
                     new SourceConfig("icecat.biz",       "Icecat",       ICECAT,       true, ICECAT_EXCLUDES,       SNIPPETS_COUNT),
-                    new SourceConfig("flatpanelshd.com", "FlatpanelsHD", FLATPANELSHD, true, FLATPANELSHD_EXCLUDES, HTML_FETCH_COUNT))),
+                    new SourceConfig("flatpanelshd.com", "FlatpanelsHD", FLATPANELSHD, true, FLATPANELSHD_EXCLUDES, SNIPPETS_COUNT))),
 
             entry("Beamer", List.of(
                     new SourceConfig("icecat.biz", "Icecat", ICECAT, true, ICECAT_EXCLUDES, SNIPPETS_COUNT))),
@@ -78,7 +78,7 @@ public final class CategorySearchSourceDefinitions {
                     new SourceConfig("icecat.biz", "Icecat", ICECAT, true, ICECAT_EXCLUDES, SNIPPETS_COUNT))),
 
             entry("Fernseher", List.of(               // level=1 → LCD-Fernseher, LED etc. erben
-                    new SourceConfig("flatpanelshd.com", "FlatpanelsHD", FLATPANELSHD, true, FLATPANELSHD_EXCLUDES, HTML_FETCH_COUNT),
+                    new SourceConfig("flatpanelshd.com", "FlatpanelsHD", FLATPANELSHD, true, FLATPANELSHD_EXCLUDES, SNIPPETS_COUNT),
                     new SourceConfig("whathifi.com",     "What Hi-Fi",   GENERIC,      true, null,                  SNIPPETS_COUNT))),
 
             entry("Konsolen", List.of(                // level=1 → Playstation, Xbox, Nintendo erben

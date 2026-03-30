@@ -23,6 +23,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,12 +50,12 @@ public class ProductLookupService {
     private final CategorySearchSourceService sourceService;
     private final ExtractionQualityEvaluator qualityEvaluator;
     private final UrlValidator urlValidator;
-    private final HtmlFetchService htmlFetchService;
     private final AppConfigService appConfigService;
 
     public ProductLookupResult lookup(
         String lookupTerm,
-        WhCategory whCategory
+        WhCategory whCategory,
+        Map<String, String> condensedSpec
     ) {
         log.info("[ProductLookupService] === LOOKUP START ===");
         log.info("[ProductLookupService] Category: id={}, name={}, level={}",
@@ -122,8 +123,9 @@ public class ProductLookupService {
         // 4. Felder laden (einmalig — unabhängig von der Quellen-Schleife)
         List<String> mandatory = prefService.getMandatoryFields(whCategory);
         List<String> queryKeywords = prefService.getQueryKeywords(whCategory);
+        String condensedSpecContext = formatCondensedSpec(condensedSpec);
 
-        // 5. Quellen-Schleife
+        // 5. Quellen-Schleife (Snippets-Pfad für alle Quellen)
         PartialResult bestPartial = null;
 
         try {
@@ -142,138 +144,40 @@ public class ProductLookupService {
 
             if (braveResults.isEmpty()) continue;
 
-            // Extraktion: HTML-Fetch oder Snippets
-            QuickFactsResult extracted;
-            String resolvedFetchUrl = null;
+            QuickFactsResult extracted = extractionRouter
+                .getActive()
+                .extractQuickFacts(
+                    lookupTerm,
+                    whCategory != null ? whCategory.getName() : "",
+                    braveResults,
+                    mandatory,
+                    promptResolver.resolve(whCategory, PromptType.QUICK_FACTS),
+                    condensedSpecContext
+                );
 
-            if (htmlFetchService.shouldFetchFullPage(source.getSourceType())) {
-                // HTML-Fetch-Pfad: Fallback-Loop über alle Brave-Treffer
-                Optional<String> html = Optional.empty();
-                for (SearchResult candidate : braveResults) {
-                    if (
-                        !urlValidator.matchesExpectedPattern(
-                            candidate.getUrl(),
-                            source.getSourceType()
-                        )
-                    ) {
-                        log.debug(
-                            "URL-Pattern nicht erwartet, übersprungen: {}",
-                            candidate.getUrl()
-                        );
-                        continue;
-                    }
-                    html = htmlFetchService.fetchAndExtract(
-                        candidate.getUrl(),
-                        source.getSourceType()
-                    );
-                    if (html.isPresent()) {
-                        resolvedFetchUrl = candidate.getUrl();
-                        log.debug(
-                            "HTML-Fetch erfolgreich: {}",
-                            resolvedFetchUrl
-                        );
-                        break;
-                    }
-                    log.debug(
-                        "HTML-Fetch leer/fehlgeschlagen: {}",
-                        candidate.getUrl()
-                    );
-                }
-
-                if (html.isEmpty()) {
-                    log.info(
-                        "Alle {} Brave-Treffer für '{}' via {} fehlgeschlagen",
-                        braveResults.size(),
-                        lookupTerm,
-                        source.getSiteDomain()
-                    );
-                    continue;
-                }
-
-                extracted = extractionRouter
-                    .getActive()
-                    .extractQuickFactsFromText(
-                        lookupTerm,
-                        whCategory != null ? whCategory.getName() : "",
-                        html.get(),
-                        mandatory,
-                        promptResolver.resolve(
-                            whCategory,
-                            PromptType.HTML_FULL_SPECS
-                        )
-                    );
-            } else {
-                // Snippets-Pfad: alle braveResults ans LLM
-                extracted = extractionRouter
-                    .getActive()
-                    .extractQuickFacts(
-                        lookupTerm,
-                        whCategory != null ? whCategory.getName() : "",
-                        braveResults,
-                        mandatory,
-                        promptResolver.resolve(
-                            whCategory,
-                            PromptType.QUICK_FACTS
-                        )
-                    );
-            }
-
-            // URL-Validierung
             String icecatId = urlValidator.resolveIcecatId(
-                extracted.getSources() != null
-                    ? extracted.getSources().getIcecatId()
-                    : null,
+                extracted.getSources() != null ? extracted.getSources().getIcecatId() : null,
                 braveResults
             );
 
-            // HTML-Fetch: sourceUrl von Java (resolvedFetchUrl), nicht vom LLM
-            String sourceUrl =
-                resolvedFetchUrl != null
-                    ? resolvedFetchUrl
-                    : urlValidator.resolveSourceUrl(
-                          extracted.getSources() != null
-                              ? extracted.getSources().getSourceUrl()
-                              : null,
-                          braveResults
-                      );
+            String sourceUrl = urlValidator.resolveSourceUrl(
+                extracted.getSources() != null ? extracted.getSources().getSourceUrl() : null,
+                braveResults
+            );
 
-            // Pattern-Check nur beim Snippets-Pfad nötig (HTML-Fetch hat bereits gecheckt)
-            if (
-                resolvedFetchUrl == null &&
-                !urlValidator.matchesExpectedPattern(
-                    sourceUrl,
-                    source.getSourceType()
-                )
-            ) {
+            if (!urlValidator.matchesExpectedPattern(sourceUrl, source.getSourceType())) {
                 sourceUrl = null;
             }
 
-            // Qualitätsprüfung
-            ExtractionQuality quality = qualityEvaluator.evaluate(
-                extracted,
-                mandatory,
-                source.getSourceType()
-            );
+            ExtractionQuality quality = qualityEvaluator.evaluate(extracted, mandatory, source.getSourceType());
 
             switch (quality) {
                 case GOOD -> {
-                    return saveAndReturn(
-                        lookupTerm,
-                        extracted,
-                        icecatId,
-                        sourceUrl,
-                        source,
-                        LookupStatus.COMPLETE
-                    );
+                    return saveAndReturn(lookupTerm, extracted, icecatId, sourceUrl, source, LookupStatus.COMPLETE);
                 }
                 case PARTIAL -> {
                     if (bestPartial == null) {
-                        bestPartial = new PartialResult(
-                            extracted,
-                            icecatId,
-                            sourceUrl,
-                            source
-                        );
+                        bestPartial = new PartialResult(extracted, icecatId, sourceUrl, source);
                     }
                 }
                 case FAILED_NO_CRITERIA -> {
@@ -383,6 +287,13 @@ public class ProductLookupService {
             log.warn("Failed to serialize to JSON: {}", e.getMessage());
             return "{}";
         }
+    }
+
+    private String formatCondensedSpec(Map<String, String> condensedSpec) {
+        if (condensedSpec == null || condensedSpec.isEmpty()) return "";
+        StringBuilder sb = new StringBuilder("\nKontext aus Inserat (Variantenauswahl):\n");
+        condensedSpec.forEach((k, v) -> sb.append(k).append(": ").append(v).append("\n"));
+        return sb.toString();
     }
 
     private record PartialResult(

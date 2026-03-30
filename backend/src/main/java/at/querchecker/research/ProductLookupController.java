@@ -1,5 +1,8 @@
 package at.querchecker.research;
 
+import at.querchecker.deepLearning.entity.DlExtractionTerm;
+import at.querchecker.deepLearning.repository.DlExtractionTermRepository;
+import at.querchecker.deepLearning.service.GroqExtractionModel;
 import at.querchecker.entity.WhListing;
 import at.querchecker.repository.WhListingRepository;
 import at.querchecker.research.entity.LookupStatus;
@@ -37,6 +40,7 @@ public class ProductLookupController {
     private final ProductLookupRepository productLookupRepository;
     private final ProductLookupService productLookupService;
     private final IcecatService icecatService;
+    private final DlExtractionTermRepository dlExtractionTermRepository;
 
     @PostMapping("/lookup")
     @Operation(summary = "Quick-Facts für ein Inserat per Brave+LLM ermitteln")
@@ -52,7 +56,8 @@ public class ProductLookupController {
         }
         log.info("Listing found: id={}, categoryId={}, categoryName={}", listing.getId(), listing.getWhCategory().getId(), listing.getWhCategory().getName());
 
-        ProductLookupResult result = productLookupService.lookup(req.getLookupTerm(), listing.getWhCategory());
+        Map<String, String> condensedSpec = resolveCondensedSpec(id);
+        ProductLookupResult result = productLookupService.lookup(req.getLookupTerm(), listing.getWhCategory(), condensedSpec);
         log.info("Lookup result: status={}, quickFacts={}, sourceType={}, sourceDomain={}",
                 result.getStatus(), result.getQuickFactsJson(), result.getSourceType(), result.getSourceDomain());
 
@@ -113,6 +118,27 @@ public class ProductLookupController {
     }
 
     // --- private helpers ---
+
+    private Map<String, String> resolveCondensedSpec(Long listingId) {
+        try {
+            return dlExtractionTermRepository
+                .findByListingIdAndModelNameWithCondensedSpec(listingId, GroqExtractionModel.MODEL_NAME)
+                .stream().findFirst()
+                .map(DlExtractionTerm::getCondensedSpecsJson)
+                .map(json -> {
+                    try {
+                        return MAPPER.<Map<String, String>>readValue(json, new TypeReference<>() {});
+                    } catch (Exception e) {
+                        log.warn("Failed to parse condensedSpecsJson for listingId={}: {}", listingId, e.getMessage());
+                        return null;
+                    }
+                })
+                .orElse(null);
+        } catch (Exception e) {
+            log.warn("Could not resolve condensedSpec for listingId={}: {}", listingId, e.getMessage());
+            return null;
+        }
+    }
 
     @SuppressWarnings("unchecked")
     private Map<String, String> parseQuickFacts(String quickFactsJson) {
