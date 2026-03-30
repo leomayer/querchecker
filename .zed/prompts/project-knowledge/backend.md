@@ -276,12 +276,21 @@ Swagger UI: `/swagger-ui.html` (dev only, in Prod via `SPRING_PROFILES_ACTIVE=pr
 - `DlPromptResolver.resolve(WhCategory, PromptType)`: traversiert Kategoriehierarchie, Fallback auf Default
 - **QUICK_FACTS icecatId**: "die rein numerische ID am Ende der icecat-URL, direkt vor .html"
 
+## Conditional Model Registration (`DlModelConfiguration`)
+
+- Modelle sind **NICHT** als `@Component`-Beans registriert. Stattdessen: `DlModelConfiguration` mit `@EventListener(ApplicationReadyEvent.class)` registriert Modelle NACH vollständiger Context-Initialisierung (Datenbank verfügbar).
+- **API-Mode** (`querchecker.llm.mode=API`): nur `GroqExtractionModel` wird registriert
+- **LOCAL-Mode** (`querchecker.llm.mode=LOCAL`): Datenbankabfrage `DlModelConfigRepository.findByActiveTrueOrderByExecutionOrderAsc()`, nur aktive Modelle als Singletons registriert
+- `DlOrchestrationService` nutzt `ObjectProvider<List<ExtractionModel>>` für lazy Dependency-Resolution (statt `@Autowired List`)
+- **Vorteil**: Keine unnötige Modell-Initialisierung — lokale GGUF-Dateien werden nicht geladen, wenn Modelle nicht aktiv sind
+
 ## GroqExtractionModel
 
 - Implementiert `ExtractionModel`, delegiert an `ExtractionProviderRouter.getActive().extractProductName()`
 - Length-Guard: Terme > 150 Zeichen werden verworfen (verhindert generische Halluzinationen)
 - DB: `model_name='groq'`, `source='API'`, `execution_order=5`
 - `ModelSource` Enum: `HUGGINGFACE`, `LOCAL`, `API`
+- Wird in API-Mode via `DlModelConfiguration` als Singleton registriert
 
 ## Research-Package (`research/`)
 

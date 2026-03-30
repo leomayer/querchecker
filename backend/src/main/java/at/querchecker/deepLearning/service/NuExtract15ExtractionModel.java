@@ -16,7 +16,6 @@ import java.util.List;
  * Download: run backend/src/main/resources/models/download_nuextract15.py
  */
 @Slf4j
-@Component
 public class NuExtract15ExtractionModel extends AbstractLlamaExtractionModel {
 
     private static final String MODEL_NAME = "nuextract-1.5";

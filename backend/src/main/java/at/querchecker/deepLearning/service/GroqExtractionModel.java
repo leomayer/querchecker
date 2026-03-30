@@ -19,7 +19,6 @@ import java.util.Optional;
  * Mapped to dl_model_config.model_name = 'groq'.
  */
 @Slf4j
-@Component
 @RequiredArgsConstructor
 public class GroqExtractionModel implements ExtractionModel {
 

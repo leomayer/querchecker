@@ -19,7 +19,6 @@ import java.util.List;
  * Qwen2.5-3B-Instruct is used as a replacement until de.kherud:llama ships a newer build.
  */
 @Slf4j
-@Component
 public class Qwen25ExtractionModel extends AbstractLlamaExtractionModel {
 
     private static final String MODEL_NAME = "qwen2.5-3b";

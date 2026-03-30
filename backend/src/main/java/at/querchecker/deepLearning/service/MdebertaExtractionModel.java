@@ -12,7 +12,6 @@ import java.nio.file.Paths;
 import java.util.List;
 
 @Slf4j
-@Component
 public class MdebertaExtractionModel extends AbstractExtractionModel {
 
     private static final String MODEL_NAME = "mdeberta-v3-base-squad2";

@@ -7,6 +7,7 @@ import at.querchecker.deepLearning.entity.DlExtractionRun;
 import at.querchecker.deepLearning.repository.DlExtractionRunRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DlExtractionService {
 
-    private final List<ExtractionModel> models;
+    private final ObjectProvider<List<ExtractionModel>> modelsProvider;
     private final DlFilterService filterService;
     private final DlPersistenceService persistenceService;
     private final DlExtractionRunRepository runRepo;
@@ -28,6 +29,7 @@ public class DlExtractionService {
         runRepo.save(run);
 
         try {
+            List<ExtractionModel> models = modelsProvider.getIfAvailable(() -> List.of());
             ExtractionModel model = models.stream()
                 .filter(m -> m.getName().equals(run.getModelConfig().getModelName()))
                 .findFirst().orElseThrow();

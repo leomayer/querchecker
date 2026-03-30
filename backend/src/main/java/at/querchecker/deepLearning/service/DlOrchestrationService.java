@@ -12,7 +12,7 @@ import at.querchecker.repository.AppConfigRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -44,8 +44,10 @@ public class DlOrchestrationService {
     private final DlExtractionService extractionService;
     private final ApplicationEventPublisher eventPublisher;
     private final AppConfigRepository appConfigRepo;
+    private final ObjectProvider<List<ExtractionModel>> modelsProvider;
 
-    @Autowired
+    // Lazily resolved list of models — available after bean registration
+    // Package-private for testing
     List<ExtractionModel> models;
 
     // Unbounded deque — limit enforced manually via pollLast() in scheduleExtraction()
@@ -59,11 +61,22 @@ public class DlOrchestrationService {
         // Pre-start the single worker thread so it blocks on queue.take().
         // Without this, addFirst() has no thread to wake up → tasks never run.
         extractionExecutor.prestartCoreThread();
+
+        // Lazily resolve models — they are registered after context is ready
+        this.models = modelsProvider.getIfAvailable(() -> List.of());
+        if (models.isEmpty()) {
+            log.warn("No extraction models registered at init time. Models will be registered by DlModelConfiguration after context is ready.");
+        }
     }
 
     public synchronized void scheduleExtraction(ItemText itemText) {
         String prompt = promptResolver.resolve(itemText);
         String inputHash = sha256(itemText.getTitle() + itemText.getDescription());
+
+        // Ensure models are resolved (in case this is called before ApplicationReadyEvent)
+        if (models.isEmpty()) {
+            this.models = modelsProvider.getIfAvailable(() -> List.of());
+        }
 
         var activeModels = modelConfigRepo.findByActiveTrueOrderByExecutionOrderAsc();
         log.debug("scheduleExtraction: itemText={}, active models={}, registered components={}",

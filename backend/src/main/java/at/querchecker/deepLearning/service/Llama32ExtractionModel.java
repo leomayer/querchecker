@@ -16,7 +16,6 @@ import java.util.List;
  * Download: run backend/src/main/resources/models/download_llama32.py
  */
 @Slf4j
-@Component
 public class Llama32ExtractionModel extends AbstractLlamaExtractionModel {
 
     private static final String MODEL_NAME = "llama-3.2-3b";

@@ -112,6 +112,15 @@ Resolver: `DlPromptResolver.resolve(category, promptType)` — rekursiv Elternka
 
 ---
 
+## Modell-Registrierung (`DlModelConfiguration`)
+
+- Modelle sind **NICHT** als `@Component` Beans registriert
+- `DlModelConfiguration` mit `@EventListener(ApplicationReadyEvent.class)` registriert Modelle NACH Context-Initialisierung
+- **API-Mode** (`querchecker.llm.mode=API`): nur `GroqExtractionModel` wird als Singleton registriert
+- **LOCAL-Mode** (`querchecker.llm.mode=LOCAL`): `findByActiveTrueOrderByExecutionOrderAsc()` aus DB, nur aktive Modelle registriert
+- `DlOrchestrationService` nutzt `ObjectProvider<List<ExtractionModel>>` für lazy Resolution
+- **Vorteil**: keine GGUF-Dateien geladen, wenn Modelle nicht aktiv/konfiguriert
+
 ## Queue-Architektur (`DlOrchestrationService`)
 
 - `LinkedBlockingDeque<Runnable>` (unbounded) + `ThreadPoolExecutor(1,1)` — global strikt sequenziell
