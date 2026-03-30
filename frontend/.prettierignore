@@ -7,5 +7,6 @@ api/
 
 # Ignore specific files
 *.min.js
+**/tokenizer.json
 *.spec.ts.snap
 angular.json
