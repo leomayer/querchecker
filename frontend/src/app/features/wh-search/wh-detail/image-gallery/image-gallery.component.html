@@ -6,6 +6,7 @@
         class="main-img"
         [src]="img.fullUrl"
         [alt]="'Bild ' + (activeIndex() + 1)"
+        loading="lazy"
         (click)="openLightbox()" />
     }
 
@@ -41,7 +42,7 @@
           [class.active]="$index === activeIndex()"
           (click)="select($index)"
           [attr.aria-label]="'Bild ' + ($index + 1)">
-          <img class="thumb-img" [src]="img.thumbUrl" [alt]="'Vorschau ' + ($index + 1)" />
+          <img class="thumb-img" [src]="img.thumbUrl" [alt]="'Vorschau ' + ($index + 1)" loading="lazy" />
         </button>
       }
     </div>
