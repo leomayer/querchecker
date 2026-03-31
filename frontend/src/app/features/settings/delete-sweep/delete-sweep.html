@@ -18,3 +18,25 @@
     <span class="result-message">{{ deleteResult() }}</span>
   }
 </div>
+
+<mat-divider class="section-divider" />
+
+<p class="section-description">
+  Lösche den lokal gespeicherten Suchverlauf
+  @if (historyCount() > 0) {
+    <span>({{ historyCount() }} {{ historyCount() === 1 ? 'Eintrag' : 'Einträge' }})</span>
+  }.
+</p>
+<div class="panel-actions">
+  <button
+    mat-stroked-button
+    class="history-clear-btn"
+    [disabled]="historyCount() === 0"
+    (click)="clearHistory()">
+    <mat-icon>history</mat-icon>
+    Suchverlauf löschen
+  </button>
+  @if (historyCleared()) {
+    <span class="result-message">Suchverlauf gelöscht.</span>
+  }
+</div>

@@ -50,3 +50,12 @@
     color: var(--color-on-negative);
   }
 }
+
+.section-divider {
+  margin: 20px 0 16px;
+}
+
+.history-clear-btn {
+  color: var(--mat-sys-on-surface-variant);
+  border-color: var(--color-border);
+}

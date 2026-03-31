@@ -9,7 +9,39 @@
         [value]="keyword()"
         (input)="onKeywordInput($event)"
         placeholder="z.B. RTX 4070"
-        maxlength="100" />
+        maxlength="100"
+        [matAutocomplete]="keywordAuto" />
+      <mat-autocomplete
+        #keywordAuto="matAutocomplete"
+        [displayWith]="displayEntry"
+        (optionSelected)="onKeywordSelected($event.option.value)">
+        @for (entry of keywordSuggestions(); track entry.keyword) {
+          <mat-option [value]="entry">
+            <span class="history-option">
+              <mat-icon class="history-icon">history</mat-icon>
+              <span class="history-keyword">{{ entry.keyword }}</span>
+              <span class="history-tags">
+                @if (entry.locationAreaId) {
+                  <span class="history-tag">
+                    <mat-icon class="tag-icon">location_on</mat-icon>
+                  </span>
+                }
+                @if (entry.categoryWhId) {
+                  <span class="history-tag">
+                    <mat-icon class="tag-icon">category</mat-icon>
+                  </span>
+                }
+                @if (formatPriceRange(entry); as price) {
+                  <span class="history-tag">{{ price }}</span>
+                }
+                @if (entry.paylivery) {
+                  <span class="history-tag">Paylivery</span>
+                }
+              </span>
+            </span>
+          </mat-option>
+        }
+      </mat-autocomplete>
     </mat-form-field>
 
     <div class="search-row">
