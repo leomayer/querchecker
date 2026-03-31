@@ -185,6 +185,11 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
                                   String systemPrompt, String userPrompt) {
         ChatRequest request = buildRequest(systemPrompt, userPrompt);
 
+        // Estimate token count before calling LLM (for TPM monitoring)
+        int estimatedInputTokens = estimateTokens(systemPrompt) + estimateTokens(userPrompt);
+        log.debug("[LLM] Estimated request tokens: {} (system: {}, user: {})",
+                estimatedInputTokens, estimateTokens(systemPrompt), estimateTokens(userPrompt));
+
         long start = System.currentTimeMillis();
         try {
             ChatResponse response = restClient.post()
@@ -196,6 +201,11 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
             long duration = System.currentTimeMillis() - start;
 
             if (response == null) response = new ChatResponse();
+            // Log actual vs estimated tokens for TPM monitoring
+            int actualInputTokens = response.getTokensInput();
+            int actualOutputTokens = response.getTokensOutput();
+            log.debug("[LLM] Actual tokens — Input: {} (estimate: {}), Output: {}, Duration: {}ms",
+                    actualInputTokens, estimatedInputTokens, actualOutputTokens, duration);
             usageLogService.log(getProvider(), requestType, lookupTerm, 200,
                     response.getTokensInput(), response.getTokensOutput(), duration);
             return response;
@@ -331,5 +341,16 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     private static String truncate(String text, int maxChars) {
         if (text == null) return "";
         return text.length() <= maxChars ? text : text.substring(0, maxChars);
+    }
+
+    /**
+     * Rough token estimate: ~4 characters per token (typical for English/JSON).
+     * Used for pre-call logging to monitor TPM usage patterns.
+     * Not 100% accurate but good enough for capacity planning.
+     */
+    private static int estimateTokens(String text) {
+        if (text == null || text.isEmpty()) return 0;
+        // Count: roughly 4 characters per token, minimum 1
+        return Math.max(1, text.length() / 4);
     }
 }
