@@ -12,8 +12,8 @@
 
   <mat-button-toggle-group
     class="rating-filter"
-    [value]="ratingFilter()"
-    (change)="ratingFilter.set($event.value)"
+    [value]="store.listingRatingFilter()"
+    (change)="store.setListingRatingFilter($event.value)"
     hideSingleSelectionIndicator>
     <mat-button-toggle value="KEEP">
       <mat-icon>checklist</mat-icon>
@@ -38,15 +38,15 @@
       <mat-label>Filtern</mat-label>
       <input
         matInput
-        [value]="filterText()"
+        [value]="store.listingFilterText()"
         (input)="onFilterInput($event)"
         placeholder="Titel oder Standort..." />
       <mat-icon matSuffix>filter_list</mat-icon>
     </mat-form-field>
 
     <mat-slide-toggle
-      [checked]="freeOnly()"
-      (change)="freeOnly.set($event.checked)"
+      [checked]="store.listingFreeOnly()"
+      (change)="store.setListingFreeOnly($event.checked)"
       class="free-toggle">
       Nur „Zu verschenken"
     </mat-slide-toggle>

@@ -40,6 +40,9 @@ export const SearchStore = signalStore(
       categoryWhId: undefined as number | undefined,
       paylivery: false,
     },
+    listingFilterText: '',
+    listingFreeOnly: false,
+    listingRatingFilter: 'KEEP' as 'LIKE' | 'KEEP' | 'DISLIKE' | 'ALL',
   }),
   withComputed((store) => ({
     searchMode: computed(() => store.searchQuery() !== null),
@@ -107,6 +110,9 @@ export const SearchStore = signalStore(
             layoutState: LayoutState.SEARCH,
             whTotal: null,
             searchPatches: {},
+            listingFilterText: '',
+            listingFreeOnly: false,
+            listingRatingFilter: 'KEEP',
             filterDraft: {
               keyword: '',
               rows: 50,
@@ -127,6 +133,15 @@ export const SearchStore = signalStore(
         },
         setSortDirection(dir: 'asc' | 'desc' | ''): void {
           patchState(store, { sortDirection: dir });
+        },
+        setListingFilterText(text: string): void {
+          patchState(store, { listingFilterText: text });
+        },
+        setListingFreeOnly(freeOnly: boolean): void {
+          patchState(store, { listingFreeOnly: freeOnly });
+        },
+        setListingRatingFilter(filter: 'LIKE' | 'KEEP' | 'DISLIKE' | 'ALL'): void {
+          patchState(store, { listingRatingFilter: filter });
         },
         // Internal: called by MainLayoutComponent to sync httpResource state
         setResourceState(state: {

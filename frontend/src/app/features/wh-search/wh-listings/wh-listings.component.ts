@@ -34,18 +34,14 @@ export type RatingFilter = 'LIKE' | 'KEEP' | 'DISLIKE' | 'ALL';
 export class WhListingsComponent {
   protected readonly store = inject(SearchStore);
 
-  filterText = model('');
-  freeOnly = model(false);
-  ratingFilter = model<RatingFilter>('KEEP');
-
   removingIds = signal<Set<number>>(new Set());
 
   ratingChanged = output<RatingChangedEvent>();
 
   private filteredListings = computed(() => {
-    const filter = this.filterText().toLowerCase();
-    const free = this.freeOnly();
-    const ratingF = this.ratingFilter();
+    const filter = this.store.listingFilterText().toLowerCase();
+    const free = this.store.listingFreeOnly();
+    const ratingF = this.store.listingRatingFilter();
     const searchMode = this.store.searchMode();
     return this.store.patchedListings().filter((l) => {
       if (searchMode) {
@@ -84,7 +80,7 @@ export class WhListingsComponent {
   count = computed(() => this.filteredListings().length);
 
   onFilterInput(e: Event): void {
-    this.filterText.set((e.target as HTMLInputElement).value);
+    this.store.setListingFilterText((e.target as HTMLInputElement).value);
   }
 
   onCardClicked(listing: WhItemDto): void {
@@ -92,7 +88,7 @@ export class WhListingsComponent {
   }
 
   private cardLeavesView(newRating: string | null): boolean {
-    switch (this.ratingFilter()) {
+    switch (this.store.listingRatingFilter()) {
       case 'LIKE':
         return newRating !== 'UP';
       case 'DISLIKE':
