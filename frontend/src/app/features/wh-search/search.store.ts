@@ -43,8 +43,7 @@ export const SearchStore = signalStore(
     listingFilterText: '',
     listingFreeOnly: false,
     listingRatingFilter: 'KEEP' as 'LIKE' | 'KEEP' | 'DISLIKE' | 'ALL',
-    lastFetchedSearchKey: null as string | null,
-    lastSearchTimestamp: null as number | null,
+    cachedSearchKey: null as string | null,
   }),
   withComputed((store) => ({
     searchMode: computed(() => store.searchQuery() !== null),
@@ -69,13 +68,11 @@ export const SearchStore = signalStore(
 
       return {
         search(query: SearchQuery): void {
-          const searchKey = JSON.stringify(query);
           patchState(store, {
             searchQuery: query,
             layoutState: LayoutState.LISTINGS,
             searchPatches: {},
-            lastFetchedSearchKey: searchKey,
-            lastSearchTimestamp: Date.now(),
+            cachedSearchKey: null, // force re-fetch for new search
           });
           extractionStore.clear();
           persistSearch(store.filterDraft(), {
@@ -119,7 +116,7 @@ export const SearchStore = signalStore(
             layoutState: LayoutState.SEARCH,
             whTotal: null,
             searchPatches: {},
-            lastFetchedSearchKey: null,
+            cachedSearchKey: null,
             listingFilterText: '',
             listingFreeOnly: false,
             listingRatingFilter: 'KEEP',
@@ -153,8 +150,9 @@ export const SearchStore = signalStore(
         setListingRatingFilter(filter: 'LIKE' | 'KEEP' | 'DISLIKE' | 'ALL'): void {
           patchState(store, { listingRatingFilter: filter });
         },
-        setLastFetchedSearchKey(key: string | null): void {
-          patchState(store, { lastFetchedSearchKey: key });
+        // Internal: called by MainLayoutComponent after a successful fetch
+        setCachedSearchKey(key: string): void {
+          patchState(store, { cachedSearchKey: key });
         },
         // Internal: called by MainLayoutComponent to sync httpResource state
         setResourceState(state: {

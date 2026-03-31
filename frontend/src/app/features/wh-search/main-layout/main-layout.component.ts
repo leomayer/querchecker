@@ -1,4 +1,4 @@
-import { Component, effect, inject } from '@angular/core';
+import { Component, effect, inject, untracked } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 import { trigger, transition, style, animate, group, query } from '@angular/animations';
 import { MatButtonModule } from '@angular/material/button';
@@ -108,6 +108,9 @@ export class MainLayoutComponent {
   private readonly searchResource = httpResource<WhSearchResultDto>(() => {
     const q = this.store.searchQuery();
     if (!q) return undefined;
+    // Skip fetch if we already have cached results for this exact query
+    const searchKey = JSON.stringify(q);
+    if (this.store.cachedSearchKey() === searchKey) return undefined;
     const params: Record<string, string | number> = { keyword: q.keyword, rows: q.rows };
     if (q.priceFrom != null) params['priceFrom'] = q.priceFrom;
     if (q.priceTo != null) params['priceTo'] = q.priceTo;
@@ -119,34 +122,32 @@ export class MainLayoutComponent {
 
   constructor() {
     effect(() => {
-      const searchMode = this.store.searchMode();
-      const q = this.store.searchQuery();
-      const searchKey = q ? JSON.stringify(q) : null;
-      const lastFetched = this.store.lastFetchedSearchKey();
-      const lastTimestamp = this.store.lastSearchTimestamp();
-      const CACHE_TTL_MS = 60 * 1000; // 60 seconds
+      if (this.store.searchMode()) {
+        const value = this.searchResource.value();
+        const isLoading = this.searchResource.isLoading();
+        const error = this.searchResource.error();
 
-      if (searchMode) {
-        // Only refetch if search changed OR cached results are stale (>60s old)
-        const searchChanged = searchKey !== lastFetched;
-        const cacheStale = lastTimestamp == null || (Date.now() - lastTimestamp) > CACHE_TTL_MS;
-        const needsFetch = searchChanged || cacheStale;
-
-        if (needsFetch) {
-          // Trigger the refetch
-          this.searchResource.reload();
-          if (searchChanged) {
-            this.store.setLastFetchedSearchKey(searchKey);
-          }
+        if (value != null) {
+          // Fresh data arrived — update store and mark as cached
+          this.store.setResourceState({
+            listings: value.listings ?? [],
+            loading: false,
+            initialLoading: false,
+            error: null,
+            whTotal: value.totalCount ?? null,
+          });
+          const q = untracked(() => this.store.searchQuery());
+          if (q) this.store.setCachedSearchKey(JSON.stringify(q));
+        } else if (isLoading) {
+          this.store.setResourceState({ loading: true, initialLoading: false, error: null });
+        } else if (error) {
+          this.store.setResourceState({
+            loading: false,
+            initialLoading: false,
+            error: this.errorMessage(error),
+          });
         }
-
-        this.store.setResourceState({
-          listings: this.searchResource.value()?.listings ?? [],
-          loading: this.searchResource.isLoading(),
-          initialLoading: false,
-          error: this.errorMessage(this.searchResource.error()),
-          whTotal: this.searchResource.value()?.totalCount ?? null,
-        });
+        // else: cache hit — keep existing store data untouched
       } else {
         this.store.setResourceState({
           listings: this.allResource.value() ?? [],
