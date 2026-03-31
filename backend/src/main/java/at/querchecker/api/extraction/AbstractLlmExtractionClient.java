@@ -86,8 +86,15 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
         }
         // Fallback: treat as plain term (e.g. model returned non-JSON despite system prompt)
         if (raw.length() > 150) {
-            log.warn("extractProductNameStructured fallback: response too long ({} chars) — discarding", raw.length());
-            return new ProductNameResult(null, null);
+            String truncated = raw.substring(0, 150).trim();
+            // Try to cut at sentence boundary for better results
+            int lastDot = truncated.lastIndexOf('.');
+            if (lastDot > 50) { // Only use sentence break if it's not too close to start
+                truncated = truncated.substring(0, lastDot).trim();
+            }
+            log.warn("extractProductNameStructured fallback: response too long ({} chars) — truncating to: '{}'",
+                    raw.length(), truncated);
+            return new ProductNameResult(truncated, null);
         }
         return new ProductNameResult(raw, null);
     }
