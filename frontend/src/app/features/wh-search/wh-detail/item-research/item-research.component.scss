@@ -17,9 +17,13 @@
 
 .search-row {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 4px;
   margin-bottom: 8px;
+
+  .release-year-badge {
+    margin-left: auto; // push to the right
+  }
 }
 
 .search-field {
@@ -32,31 +36,26 @@
   }
 }
 
-// --- Release Year Info ---
+// --- Release Year Badge (in search row) ---
 
-.release-year-info {
-  display: flex;
+.release-year-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  margin-bottom: 12px;
-  background: color-mix(in srgb, var(--mat-sys-primary) 10%, transparent);
-  border-left: 3px solid var(--mat-sys-primary);
+  gap: 4px;
+  padding: 4px 8px;
+  background: color-mix(in srgb, var(--mat-sys-primary) 12%, transparent);
   border-radius: 4px;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: var(--mat-sys-on-surface);
+  white-space: nowrap;
+  cursor: help; // indicate it has tooltip
 
-  .release-icon {
-    font-size: 1.1rem;
-    width: 1.1rem;
-    height: 1.1rem;
+  .release-year-icon {
+    font-size: 0.95rem;
+    width: 0.95rem;
+    height: 0.95rem;
     color: var(--mat-sys-primary);
-    flex-shrink: 0;
-  }
-
-  .release-year-text {
-    flex: 1;
   }
 }
 

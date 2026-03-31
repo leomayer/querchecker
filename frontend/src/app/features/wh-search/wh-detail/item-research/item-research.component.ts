@@ -125,7 +125,15 @@ export class ItemResearchComponent {
     const id = this.detail().whItemId;
     if (id == null) return null;
     const result = this.extractionStore.lookupResults()[id];
-    return result?.quickFacts?.['release_year'] ?? null;
+    const year = result?.quickFacts?.['release_year'];
+    // Validate: must be 4-digit year (1900-2099)
+    if (year && /^\d{4}$/.test(year)) {
+      const numYear = parseInt(year, 10);
+      if (numYear >= 1900 && numYear <= 2099) {
+        return year;
+      }
+    }
+    return null;
   });
 
   protected readonly orderedQuickFacts = computed<[string, string][]>(() => {

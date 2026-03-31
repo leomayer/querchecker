@@ -20,18 +20,17 @@
         <mat-icon>auto_awesome</mat-icon>
       }
     </button>
+    @if (lookupState() === 'COMPLETE' && releaseYear()) {
+      <span class="release-year-badge" [matTooltip]="'Release-Jahr des Produktes'">
+        <mat-icon class="release-year-icon">event_year</mat-icon>
+        {{ releaseYear() }}
+      </span>
+    }
   </div>
 
   <!-- 2. Main content: Placeholder XOR Quick Facts table -->
-  @if (lookupState() === 'COMPLETE' && (orderedQuickFacts().length > 0 || releaseYear())) {
-    @if (releaseYear()) {
-      <div class="release-year-info">
-        <mat-icon class="release-icon">event_year</mat-icon>
-        <span class="release-year-text">Released {{ releaseYear() }}</span>
-      </div>
-    }
-    @if (orderedQuickFacts().length > 0) {
-      <table class="quick-facts-table">
+  @if (lookupState() === 'COMPLETE' && orderedQuickFacts().length > 0) {
+    <table class="quick-facts-table">
       @for (row of quickFactsRows(); track row[0][0]) {
         <tr>
           @for (entry of row; track entry[0]) {
@@ -41,7 +40,6 @@
         </tr>
       }
       </table>
-    }
   } @else {
     <div class="placeholder">
       @if (!aiSearchEnabled()) {

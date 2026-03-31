@@ -62,6 +62,7 @@ public final class DlCategoryPromptDefinitions {
         Jedes Feld darf NUR EINMAL erscheinen — keine nummerierten Duplikate wie cpu2, ram3, display4.
         Wenn die Snippets mehrere Varianten desselben Produkts enthalten, wähle den häufigsten oder repräsentativsten Wert.
         Normalisiere Einheiten: Verwende stets die größte sinnvolle Einheit (TB statt GB ab 1000 GB, GB statt MB ab 1000 MB, GHz statt MHz). Äquivalente Werte (z.B. 1 TB und 1000 GB, 16 GB und 16384 MB) gelten als Duplikate — nur einmal ausgeben.
+        Spezial: Für "release_year" — nur 4-stellige Jahrzahl (z.B. "2023"). Keine Ranges, Approximationen oder Text. Wenn unbekannt, lass das Feld weg.
         """;
 
     public static final String QUICK_FACTS_USER_DEFAULT =
