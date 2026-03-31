@@ -15,6 +15,7 @@ import { EventSourceServerService } from './shared/utils/event-source-server';
 import { ServerErrorInterceptor } from './core/http-error.interceptor';
 import { UaForwardingInterceptor } from './core/ua-forwarding.interceptor';
 import { HealthService } from './core/health.service';
+import { ErrorNotificationService } from './core/error-notification.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -31,6 +32,7 @@ export const appConfig: ApplicationConfig = {
       theme.darkMode(); // Trigger initialization
       inject(EventSourceServerService); // Open SSE connection eagerly at startup
       inject(HealthService); // Start health polling immediately
+      inject(ErrorNotificationService); // Start error notification listener
     }),
   ],
 };

@@ -14,6 +14,7 @@ import { SpecsFeatureGroup } from '../../../../core/model/lookup.model';
 import { IcecatAccordionComponent } from './icecat-accordion/icecat-accordion.component';
 import { SpecsAccordionComponent } from './specs-accordion/specs-accordion.component';
 import { PreferenceEntry, PreferencesService } from '../../../../core/preferences.service';
+import { HealthService } from '../../../../core/health.service';
 
 type LookupState =
   | 'empty'
@@ -22,7 +23,8 @@ type LookupState =
   | 'FAILED'
   | 'QUOTA_EXCEEDED'
   | 'NO_SOURCES'
-  | 'ERROR';
+  | 'ERROR'
+  | 'RATE_LIMITED';
 
 @Component({
   selector: 'app-item-research',
@@ -48,6 +50,7 @@ export class ItemResearchComponent {
   readonly aiSearchEnabled = input(true);
 
   private readonly extractionStore = inject(ExtractionStore);
+  private readonly health = inject(HealthService);
 
   protected readonly searchTerm = signal('');
 
@@ -55,6 +58,16 @@ export class ItemResearchComponent {
     this.loadPreferences();
 
     effect(() => {
+      const id = this.detail().whItemId;
+      if (id != null) {
+        this.extractionStore.loadExistingTerms(id);
+      }
+    });
+
+    // Re-fetch terms after a server restart — the dl-extract SSE event may have been
+    // broadcast during the reconnection window and missed by the frontend.
+    effect(() => {
+      if (this.health.serverRestartCount() === 0) return;
       const id = this.detail().whItemId;
       if (id != null) {
         this.extractionStore.loadExistingTerms(id);
@@ -239,6 +252,24 @@ export class ItemResearchComponent {
     if (id == null) return null;
     const ts = this.extractionStore.lookupResults()[id]?.retryAfter;
     return ts ? new Date(ts) : null;
+  });
+
+  protected readonly retryAfterSeconds = computed<number | null>(() => {
+    const id = this.detail().whItemId;
+    if (id == null) return null;
+    return this.extractionStore.lookupResults()[id]?.retryAfterSeconds ?? null;
+  });
+
+  protected readonly retryProvider = computed<string | null>(() => {
+    const id = this.detail().whItemId;
+    if (id == null) return null;
+    return this.extractionStore.lookupResults()[id]?.retryProvider ?? null;
+  });
+
+  protected readonly retryModel = computed<string | null>(() => {
+    const id = this.detail().whItemId;
+    if (id == null) return null;
+    return this.extractionStore.lookupResults()[id]?.retryModel ?? null;
   });
 
   protected readonly searchButtonDisabled = computed<boolean>(

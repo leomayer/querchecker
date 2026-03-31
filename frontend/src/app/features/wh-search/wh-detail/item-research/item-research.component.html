@@ -64,6 +64,17 @@
       } @else if (lookupState() === 'QUOTA_EXCEEDED') {
         <mat-icon class="placeholder-icon error">block</mat-icon>
         <span>API-Kontingent überschritten</span>
+      } @else if (lookupState() === 'RATE_LIMITED') {
+        <mat-icon class="placeholder-icon amber">timer</mat-icon>
+        <span>
+          Rate-Limit erreicht
+          @if (retryAfterSeconds(); as secs) {
+            — erneuter Versuch in ~{{ secs }}s
+          }
+          @if (retryProvider(); as provider) {
+            <br /><small>{{ provider }}{{ retryModel() ? ': ' + retryModel() : '' }}</small>
+          }
+        </span>
       } @else if (lookupState() === 'NO_SOURCES') {
         <mat-icon class="placeholder-icon">block</mat-icon>
         <span>Spec-Suche für diese Kategorie nicht verfügbar</span>

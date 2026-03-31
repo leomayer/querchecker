@@ -57,7 +57,7 @@ public class ProductLookupController {
         log.info("Listing found: id={}, categoryId={}, categoryName={}", listing.getId(), listing.getWhCategory().getId(), listing.getWhCategory().getName());
 
         Map<String, String> condensedSpec = resolveCondensedSpec(id);
-        ProductLookupResult result = productLookupService.lookup(req.getLookupTerm(), listing.getWhCategory(), condensedSpec);
+        ProductLookupResult result = productLookupService.lookup(id, req.getLookupTerm(), listing.getWhCategory(), condensedSpec);
         log.info("Lookup result: status={}, quickFacts={}, sourceType={}, sourceDomain={}",
                 result.getStatus(), result.getQuickFactsJson(), result.getSourceType(), result.getSourceDomain());
 
@@ -77,6 +77,9 @@ public class ProductLookupController {
                 .sourceUrl(result.getSourceUrl())
                 .featureGroupsJson(result.getFeatureGroupsJson())
                 .retryAfter(result.getRetryAfter() != null ? result.getRetryAfter().toString() : null)
+                .retryAfterSeconds(result.getRetryAfterSeconds())
+                .retryProvider(result.getRetryProvider())
+                .retryModel(result.getRetryModel())
                 .build();
 
         log.info("=== LOOKUP END: status={}, quickFactsCount={} ===", response.getLookupStatus(), response.getQuickFacts().size());

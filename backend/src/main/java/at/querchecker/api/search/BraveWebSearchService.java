@@ -4,6 +4,7 @@ import at.querchecker.api.config.ProviderConfig;
 import at.querchecker.api.config.ProviderProperties;
 import at.querchecker.api.entity.Provider;
 import at.querchecker.api.entity.RequestType;
+import at.querchecker.api.exception.RateLimitException;
 import at.querchecker.api.service.ApiUsageLogService;
 import at.querchecker.research.model.BraveApiResponse;
 import at.querchecker.research.model.SearchResult;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -80,6 +82,19 @@ public class BraveWebSearchService implements WebSearchService {
                     extractResults(response.getBody()).size(), duration);
 
             return extractResults(response.getBody());
+        } catch (HttpClientErrorException e) {
+            long duration = System.currentTimeMillis() - start;
+            int status = e.getStatusCode().value();
+            usageLogService.log(Provider.BRAVE, RequestType.SEARCH, lookupTerm, status, null, null, duration);
+            if (status == 429) {
+                String retryAfterHeader = e.getResponseHeaders() != null
+                        ? e.getResponseHeaders().getFirst("Retry-After") : null;
+                int retryAfterSeconds = RateLimitException.parseRetryAfter(retryAfterHeader);
+                log.warn("Brave search rate limited — retryAfter={}s", retryAfterSeconds);
+                throw new RateLimitException(retryAfterSeconds, Provider.BRAVE, null);
+            }
+            log.warn("Brave search failed for query='{}' (status={}): {}", query, status, e.getMessage());
+            return List.of();
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - start;
             log.warn("Brave search failed for query='{}': {}", query, e.getMessage());

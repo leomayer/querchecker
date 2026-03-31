@@ -22,4 +22,10 @@ public class LookupResponse {
     private String featureGroupsJson;
     /** ISO datetime ab dem ein erneuter Lookup möglich ist (nur bei FAILED/ERROR). */
     private String retryAfter;
+    /** Sekunden bis zum nächsten Retry (nur bei RATE_LIMITED). Ergebnis kommt danach via SSE lookup-result. */
+    private Integer retryAfterSeconds;
+    /** Provider-Anzeigename (nur bei RATE_LIMITED), z.B. "Groq". */
+    private String retryProvider;
+    /** Modellname (nur bei RATE_LIMITED), z.B. "llama-3.1-8b-instant". */
+    private String retryModel;
 }

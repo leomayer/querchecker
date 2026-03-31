@@ -4,7 +4,7 @@ export interface SpecsFeatureGroup {
 }
 
 export interface LookupResult {
-  lookupStatus: 'COMPLETE' | 'FAILED' | 'QUOTA_EXCEEDED' | 'NO_SOURCES' | 'ERROR';
+  lookupStatus: 'COMPLETE' | 'FAILED' | 'QUOTA_EXCEEDED' | 'NO_SOURCES' | 'ERROR' | 'RATE_LIMITED';
   quickFacts: Record<string, string>;
   icecatId: string | null;
   icecatSpecsJson?: string | null;
@@ -17,6 +17,12 @@ export interface LookupResult {
   featureGroups: SpecsFeatureGroup[] | null;
   /** ISO datetime ab dem ein erneuter Lookup möglich ist (nur bei FAILED/ERROR). */
   retryAfter?: string | null;
+  /** Sekunden bis zum Backend-Retry (nur bei RATE_LIMITED). */
+  retryAfterSeconds?: number | null;
+  /** Provider-Anzeigename (nur bei RATE_LIMITED), z.B. "Groq". */
+  retryProvider?: string | null;
+  /** Modellname (nur bei RATE_LIMITED), z.B. "llama-3.1-8b-instant". */
+  retryModel?: string | null;
   /** Frontend-only: the term that was used for this lookup */
   lookupTerm?: string;
 }

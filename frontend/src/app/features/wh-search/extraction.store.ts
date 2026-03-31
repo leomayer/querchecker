@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
 import { DlExtractionTermDto } from '../../api/model/dlExtractionTermDto';
-import { AppSseEventName, DlExtractionDonePayload } from '../../core/sse-events';
+import { AppSseEventName, DlExtractionDonePayload, ErrorNotificationPayload, LookupResultPayload, SseEvent } from '../../core/sse-events';
 import { EventSourceServerService } from '../../shared/utils/event-source-server';
 import { DlExtractionService, DlExtractionStatusResponse } from '../../core/dl-extraction.service';
 import { LookupResult, ProductLookupService } from '../../core/product-lookup.service';
@@ -15,6 +15,8 @@ interface ExtractionState {
   lookupResults: Record<number, LookupResult>;
   lookupLoadingIds: number[];
   lookupTimestamps: Record<number, number>;
+  /** Maps listingId → whItemId so SSE lookup-result events can update the store. */
+  listingToWhItemId: Record<number, number>;
   fullSpecsLoadingIds: number[];
   fullSpecsLoaded: Record<number, boolean>;
   fullSpecsTimestamps: Record<number, number>;
@@ -32,6 +34,7 @@ export const ExtractionStore = signalStore(
     lookupResults: {},
     lookupLoadingIds: [],
     lookupTimestamps: {},
+    listingToWhItemId: {},
     fullSpecsLoadingIds: [],
     fullSpecsLoaded: {},
     fullSpecsTimestamps: {},
@@ -50,6 +53,9 @@ export const ExtractionStore = signalStore(
           const { [whItemId]: _t, ...restSuggested } = s.suggestedTerms;
           const { [whItemId]: _l, ...restLookup } = s.lookupResults;
           const { [whItemId]: _lt, ...restLookupTimestamps } = s.lookupTimestamps;
+          const restListingMap = Object.fromEntries(
+            Object.entries(s.listingToWhItemId).filter(([, v]) => v !== whItemId),
+          );
           const { [whItemId]: _fs, ...restFullSpecs } = s.fullSpecsLoaded;
           const { [whItemId]: _ft, ...restFullSpecsTimestamps } = s.fullSpecsTimestamps;
           const { [whItemId]: _fd, ...restFullSpecsData } = s.fullSpecsData;
@@ -61,6 +67,7 @@ export const ExtractionStore = signalStore(
             suggestedTerms: restSuggested,
             lookupResults: restLookup,
             lookupTimestamps: restLookupTimestamps,
+            listingToWhItemId: restListingMap,
             fullSpecsLoaded: restFullSpecs,
             fullSpecsTimestamps: restFullSpecsTimestamps,
             fullSpecsData: restFullSpecsData,
@@ -79,6 +86,7 @@ export const ExtractionStore = signalStore(
           lookupResults: {},
           lookupLoadingIds: [],
           lookupTimestamps: {},
+          listingToWhItemId: {},
           fullSpecsLoadingIds: [],
           fullSpecsLoaded: {},
           fullSpecsTimestamps: {},
@@ -115,6 +123,7 @@ export const ExtractionStore = signalStore(
       lookup(whItemId: number, listingId: number, lookupTerm: string): void {
         patchState(store, (s) => ({
           lookupLoadingIds: [...s.lookupLoadingIds, whItemId],
+          listingToWhItemId: { ...s.listingToWhItemId, [listingId]: whItemId },
         }));
         productLookupService.lookup(listingId, lookupTerm).subscribe({
           next: (result) => {
@@ -148,6 +157,8 @@ export const ExtractionStore = signalStore(
               ...result,
               lookupTerm,
               featureGroups: featureGroups ?? result.featureGroups ?? null,
+              retryProvider: result.retryProvider ?? null,
+              retryModel: result.retryModel ?? null,
             };
 
             patchState(store, (s) => {
@@ -258,12 +269,56 @@ export const ExtractionStore = signalStore(
       });
     };
 
+    const onLookupResult = (payload: LookupResultPayload): void => {
+      const listingId = payload?.listingId;
+      if (listingId == null) return;
+      const whItemId = store.listingToWhItemId()[listingId];
+      if (whItemId == null) return;
+
+      let featureGroups = null;
+      if (payload.featureGroupsJson) {
+        try {
+          featureGroups = JSON.parse(payload.featureGroupsJson);
+        } catch { /* ignore */ }
+      }
+
+      const lookupResult: LookupResult = {
+        lookupStatus: payload.lookupStatus as LookupResult['lookupStatus'],
+        quickFacts: payload.quickFacts ?? {},
+        icecatId: payload.icecatId,
+        sourceType: payload.sourceType,
+        sourceDomain: payload.sourceDomain,
+        siteLabel: payload.siteLabel,
+        sourceUrl: payload.sourceUrl,
+        featureGroupsJson: payload.featureGroupsJson,
+        featureGroups,
+        lookupTerm: store.lookupResults()[whItemId]?.lookupTerm,
+        retryProvider: payload.retryProvider,
+        retryModel: payload.retryModel,
+      };
+
+      patchState(store, (s) => ({
+        lookupResults: { ...s.lookupResults, [whItemId]: lookupResult },
+        lookupTimestamps: { ...s.lookupTimestamps, [whItemId]: Date.now() },
+      }));
+    };
+
+    const onErrorNotification = (event: SseEvent<ErrorNotificationPayload>): void => {
+      // Error notifications are handled by the error notification service
+      // which displays snackbars. The store just logs them for now.
+      console.log(`[ExtractionStore.onErrorNotification] ${event.payload.errorType}: ${event.payload.message}`);
+    };
+
     return {
       onInit() {
         sseService.addEventListener('dl-extract', onDlExtract);
+        sseService.addEventListener('lookup-result', onLookupResult as never);
+        sseService.addEventListener('error-notification', onErrorNotification as never);
       },
       onDestroy() {
         sseService.deleteEventListener('dl-extract', onDlExtract);
+        sseService.deleteEventListener('lookup-result', onLookupResult as never);
+        sseService.deleteEventListener('error-notification', onErrorNotification as never);
       },
     };
   }),

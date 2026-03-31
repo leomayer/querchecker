@@ -1,6 +1,7 @@
 package at.querchecker.api.extraction;
 
 import at.querchecker.api.entity.RequestType;
+import at.querchecker.api.exception.RateLimitException;
 import at.querchecker.api.model.ChatRequest;
 import at.querchecker.api.model.ChatResponse;
 import at.querchecker.api.service.ApiUsageLogService;
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import java.util.ArrayList;
@@ -105,10 +107,8 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
                 .replace("{mandatoryFields}", String.join(", ", mandatoryFields))
                 .replace("{condensedSpec}", condensedBlock);
 
-        ChatResponse response = callLlm(RequestType.EXTRACTION, lookupTerm,
+        QuickFactsResult result = callLlmWithJsonRetry(RequestType.EXTRACTION, lookupTerm,
                 prompt.getSystemPrompt(), userPrompt);
-
-        QuickFactsResult result = parseJson(response.firstChoice());
         return applyIcecatIdSafetyCheck(result, braveResults, lookupTerm);
     }
 
@@ -125,13 +125,61 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
                 .replace("{mandatoryFields}", String.join(", ", mandatoryFields))
                 .replace("{condensedSpec}", "");
 
-        ChatResponse response = callLlm(RequestType.EXTRACTION, lookupTerm,
+        return callLlmWithJsonRetry(RequestType.EXTRACTION, lookupTerm,
                 prompt.getSystemPrompt(), userPrompt);
-
-        return parseJson(response.firstChoice());
     }
 
     // --- private helpers ---
+
+    /**
+     * Calls LLM and parses JSON response. If parsing fails, retries once with explicit
+     * JSON-only instruction. Returns empty result if both attempts fail.
+     */
+    private QuickFactsResult callLlmWithJsonRetry(RequestType requestType, String lookupTerm,
+                                                    String systemPrompt, String userPrompt) {
+        ChatResponse response = callLlm(requestType, lookupTerm, systemPrompt, userPrompt);
+        String firstAttempt = response.firstChoice();
+
+        // Try parsing the initial response
+        QuickFactsResult result = tryParseJson(firstAttempt);
+        if (result != null) {
+            return result; // Success on first try
+        }
+
+        // First parse failed — retry with explicit JSON-only instruction
+        log.warn("LLM response was invalid JSON (provider={}, requestType={}), retrying with explicit JSON instruction",
+                getProvider(), requestType);
+        String jsonOnlyPrompt = userPrompt + "\n\n⚠️ WICHTIG: Antworte NUR mit validem JSON, KEINE weiteren Erklärungen!";
+        ChatResponse retryResponse = callLlm(requestType, lookupTerm, systemPrompt, jsonOnlyPrompt);
+        String retryAttempt = retryResponse.firstChoice();
+
+        result = tryParseJson(retryAttempt);
+        if (result != null) {
+            return result; // Success on retry
+        }
+
+        // Both attempts failed — give up and return empty
+        log.error("LLM response still invalid JSON after retry (provider={}, requestType={}), returning empty result",
+                getProvider(), requestType);
+        return new QuickFactsResult();
+    }
+
+    /**
+     * Attempts to parse JSON response. Returns null if parsing fails (caller can retry).
+     */
+    private QuickFactsResult tryParseJson(String json) {
+        try {
+            log.debug("QuickFacts raw LLM response (provider={}): {}", getProvider(), json);
+            QuickFactsResult result = MAPPER.readValue(json, QuickFactsResult.class);
+            if (result.getSources() == null) {
+                result.setSources(new QuickFactsResult.Sources());
+            }
+            return result;
+        } catch (Exception e) {
+            // Return null to signal retry should be attempted; don't log here (let caller decide)
+            return null;
+        }
+    }
 
     private ChatResponse callLlm(RequestType requestType, String lookupTerm,
                                   String systemPrompt, String userPrompt) {
@@ -151,6 +199,19 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
             usageLogService.log(getProvider(), requestType, lookupTerm, 200,
                     response.getTokensInput(), response.getTokensOutput(), duration);
             return response;
+        } catch (HttpClientErrorException e) {
+            long duration = System.currentTimeMillis() - start;
+            int status = e.getStatusCode().value();
+            usageLogService.log(getProvider(), requestType, lookupTerm, status, null, null, duration);
+            if (status == 429) {
+                String retryAfterHeader = e.getResponseHeaders() != null
+                        ? e.getResponseHeaders().getFirst("Retry-After") : null;
+                int retryAfterSeconds = RateLimitException.parseRetryAfter(retryAfterHeader);
+                log.warn("LLM rate limited (provider={}, retryAfter={}s)", getProvider(), retryAfterSeconds);
+                throw new RateLimitException(retryAfterSeconds, getProvider(), getModel());
+            }
+            log.warn("LLM call failed (provider={}, key={}, status={}): {}", getProvider(), getApiKeyInfo(), status, e.getMessage());
+            throw e;
         } catch (RuntimeException e) {
             long duration = System.currentTimeMillis() - start;
             log.warn("LLM call failed (provider={}, key={}): {}", getProvider(), getApiKeyInfo(), e.getMessage());

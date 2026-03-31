@@ -33,6 +33,9 @@ querchecker:
     item-text-cleanup:
       retention-days: 10 # ältere ItemText-Records löschen (nicht neuester + kein userCorrectedTerm)
       cron: '0 0 3 * * *' # täglich 03:00
+  http:
+    connect-timeout-ms: 10000 # TCP-Verbindungs-Timeout für externe APIs (Groq, OpenRouter, Brave, Icecat)
+    read-timeout-ms: 30000 # Lese-Timeout für komplette Antwort
 
 logging:
   level:

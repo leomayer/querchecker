@@ -19,6 +19,7 @@ at.querchecker/
 ├── sse/            SseController, SseHub
 ├── api/
 │   ├── entity/     ApiUsageLog, Provider (enum: BRAVE, GROQ, OPENROUTER, ICECAT), RequestType (enum)
+│   ├── exception/  RateLimitException (retryAfterSeconds, provider; parseRetryAfter() statisch)
 │   ├── extraction/ ExtractionClient (interface), AbstractLlmExtractionClient,
 │   │               GroqExtractionClient, OpenRouterExtractionClient,
 │   │               ExtractionProviderRouter
@@ -29,18 +30,22 @@ at.querchecker/
 │                   api/WhApiResponse.java
 ├── research/
 │   ├── entity/     CategorySpecPreference, CategorySpecPreferenceField, ProductLookup,
-│   │               LookupStatus (enum: COMPLETE, FAILED, QUOTA_EXCEEDED, NO_SOURCES, ERROR),
+│   │               LookupStatus (enum: COMPLETE, FAILED, QUOTA_EXCEEDED, NO_SOURCES, ERROR,
+│   │                             RATE_LIMITED [virtuell, nie in DB]),
 │   │               FieldSource (enum: SYSTEM, USER),
 │   │               CategorySearchSource, SourceType (enum: ICECAT, FLATPANELSHD, GSMARENA, GENERIC),
 │   │               ExtractionQuality (enum: GOOD, PARTIAL, EMPTY, FAILED_NO_CRITERIA)
 │   ├── model/      BraveApiResponse, QuickFactsResult (incl. featureGroups),
-│   │               LookupRequest/Response, FullSpecsRequest/Response, ProductLookupResult,
+│   │               LookupRequest/Response (+ retryAfterSeconds), FullSpecsRequest/Response,
+│   │               ProductLookupResult (+ retryAfterSeconds, rateLimited() factory),
+│   │               LookupResultPayload (SSE-Event für lookup-result),
 │   │               SearchResult (generic: title, url, description, extraSnippets)
 │   ├── repository/ CategorySpecPreferenceRepository, CategorySpecPreferenceFieldRepository,
 │   │               ProductLookupRepository, CategorySearchSourceRepository
 │   ├── config/     ResearchConfig
 │   ├── seeder/     CategorySearchSourceDefinitions, CategorySearchSourceSeeder,
 │   │               CategorySpecPreferenceSeeder, CategorySpecPreferenceDefinitions
+│   ├── SearchResultCacheService (In-Memory ConcurrentHashMap, Key=lookupTerm|sourceDomain)
 │   └── services:   WebSearchService (interface), BraveWebSearchService, ProductLookupService,
 │                   IcecatService, CategorySpecPreferenceService, CategorySearchSourceService,
 │                   ExtractionQualityEvaluator, UrlValidator, HtmlFetchService

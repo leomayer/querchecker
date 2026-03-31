@@ -183,6 +183,21 @@ a {
 .mat-mdc-mini-fab .mat-icon {
   color: inherit;
 }
+
+// Snack notification styling — override Material defaults
+.snack-notification-panel {
+  .mat-mdc-snack-bar-container {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 8px 0 !important;
+  }
+
+  .mdc-snackbar__surface {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+}
 // Lightbox Dialog Styles - previews for image gallery
 .lightbox-dialog {
   .mat-mdc-dialog-container {

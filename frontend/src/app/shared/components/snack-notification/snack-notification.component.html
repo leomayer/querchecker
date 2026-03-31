@@ -1,0 +1,11 @@
+<div class="snack-container" [class]="data.type">
+  <div class="snack-content">
+    @if (data.title) {
+      <div class="snack-title">{{ data.title }}</div>
+    }
+    <div class="snack-message">{{ data.message }}</div>
+  </div>
+  <button mat-icon-button class="close-button" (click)="close()" aria-label="Close">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>

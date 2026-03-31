@@ -1,6 +1,46 @@
+server:
+  port: 14070
+  shutdown: graceful
+
+spring:
+  config:
+    import:
+      - optional:file:../config/querchecker.yml
+  lifecycle:
+    timeout-per-shutdown-phase: 30s # Längerer Shutdown in Prod
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baselineOnMigrate: true
+    out-of-order: true
+  datasource:
+    url: jdbc:postgresql://${QUERCHECKER_DB_HOST:localhost:5432}/querchecker
+    username: ${QUERCHECKER_DB_USER:myuser}
+    password: ${QUERCHECKER_DB_PASSWORD:mypassword}
+  jpa:
+    hibernate:
+      ddl-auto: validate # Strikt in Prod: keine Änderungen ohne Migration
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
 querchecker:
+  wh:
+    refresh:
+      cron: '0 0 3 * * MON' # Montags 03:00
   dl:
     gpu-layers: 999 # Offload all layers to GPU; llama.cpp clamps to actual model layer count
+    item-text-cleanup:
+      retention-days: 10
+      cron: '0 0 3 * * *' # Täglich 03:00
+  http:
+    connect-timeout-ms: 10000
+    read-timeout-ms: 30000
+
+logging:
+  level:
+    at.querchecker: INFO # Nur INFO in Prod
 
 springdoc:
   api-docs:

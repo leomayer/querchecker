@@ -10,6 +10,7 @@ import at.querchecker.api.service.QuotaService;
 import at.querchecker.api.service.QuotaStatus;
 import at.querchecker.deepLearning.service.DlPromptResolver;
 import at.querchecker.entity.WhCategory;
+import at.querchecker.repository.WhItemRepository;
 import at.querchecker.research.entity.CategorySearchSource;
 import at.querchecker.research.entity.ExtractionQuality;
 import at.querchecker.research.entity.LookupStatus;
@@ -53,6 +54,9 @@ class ProductLookupServiceTest {
     @Mock ExtractionProviderRouter extractionRouter;
     @Mock DlPromptResolver promptResolver;
     @Mock AppConfigService appConfigService;
+    @Mock SearchResultCacheService searchResultCacheService;
+    @Mock at.querchecker.sse.SseHub sseHub;
+    @Mock WhItemRepository whItemRepository;
     @InjectMocks ProductLookupService service;
 
     @BeforeEach
@@ -82,7 +86,7 @@ class ProductLookupServiceTest {
         when(qualityEvaluator.evaluate(any(), any(), eq(GSMARENA)))
             .thenReturn(ExtractionQuality.GOOD);
 
-        ProductLookupResult result = service.lookup("Samsung Galaxy S25", mock(WhCategory.class), null);
+        ProductLookupResult result = service.lookup(null, "Samsung Galaxy S25", mock(WhCategory.class), null);
 
         assertThat(result.getStatus()).isEqualTo(LookupStatus.COMPLETE);
         verify(llmClient).extractQuickFacts(any(), any(), any(), any(), any(), any());
@@ -107,7 +111,7 @@ class ProductLookupServiceTest {
         when(qualityEvaluator.evaluate(any(), any(), eq(FLATPANELSHD)))
             .thenReturn(ExtractionQuality.GOOD);
 
-        ProductLookupResult result = service.lookup("LG C4 OLED", mock(WhCategory.class), null);
+        ProductLookupResult result = service.lookup(null, "LG C4 OLED", mock(WhCategory.class), null);
 
         assertThat(result.getStatus()).isEqualTo(LookupStatus.COMPLETE);
         verify(llmClient).extractQuickFacts(any(), any(), any(), any(), any(), any());
@@ -132,7 +136,7 @@ class ProductLookupServiceTest {
         when(urlValidator.matchesExpectedPattern(validatedUrl, GSMARENA)).thenReturn(true);
         when(qualityEvaluator.evaluate(any(), any(), any())).thenReturn(ExtractionQuality.GOOD);
 
-        ProductLookupResult result = service.lookup("Samsung Galaxy S25", mock(WhCategory.class), null);
+        ProductLookupResult result = service.lookup(null, "Samsung Galaxy S25", mock(WhCategory.class), null);
 
         assertThat(result.getSourceUrl()).isEqualTo(validatedUrl);
         assertThat(result.getSourceUrl()).doesNotContain("halluziniert.com");
@@ -161,7 +165,7 @@ class ProductLookupServiceTest {
         when(qualityEvaluator.evaluate(any(), any(), eq(GENERIC)))
             .thenReturn(ExtractionQuality.GOOD);
 
-        ProductLookupResult result = service.lookup("LG G5", mock(WhCategory.class), null);
+        ProductLookupResult result = service.lookup(null, "LG G5", mock(WhCategory.class), null);
 
         assertThat(result.getStatus()).isEqualTo(LookupStatus.COMPLETE);
         assertThat(result.getSourceDomain()).isEqualTo("whathifi.com");
@@ -177,7 +181,7 @@ class ProductLookupServiceTest {
         when(webSearchService.search(any(), any(), any(), any(), eq(3)))
             .thenReturn(List.of());
 
-        service.lookup("Samsung S25", mock(WhCategory.class), null);
+        service.lookup(null, "Samsung S25", mock(WhCategory.class), null);
 
         verify(webSearchService).search(any(), any(), any(), any(), eq(3));
     }
@@ -189,7 +193,7 @@ class ProductLookupServiceTest {
         setupNoCache(); setupQuotaOk();
         when(sourceService.findForCategory(any())).thenReturn(List.of());
 
-        ProductLookupResult result = service.lookup("Unbekanntes Gerät", mock(WhCategory.class), null);
+        ProductLookupResult result = service.lookup(null, "Unbekanntes Gerät", mock(WhCategory.class), null);
 
         assertThat(result.getStatus()).isEqualTo(LookupStatus.NO_SOURCES);
         verify(repo, never()).save(any());
@@ -205,7 +209,7 @@ class ProductLookupServiceTest {
         when(webSearchService.search(any(), any(), any(), any(), anyInt()))
             .thenThrow(new RuntimeException("Brave API nicht erreichbar"));
 
-        ProductLookupResult result = service.lookup("Samsung S25", mock(WhCategory.class), null);
+        ProductLookupResult result = service.lookup(null, "Samsung S25", mock(WhCategory.class), null);
 
         assertThat(result.getStatus()).isEqualTo(LookupStatus.ERROR);
         verify(repo).save(argThat(pl -> pl.getLookupStatus() == LookupStatus.ERROR));
@@ -217,7 +221,7 @@ class ProductLookupServiceTest {
         when(repo.findByLookupTerm(any())).thenReturn(Optional.of(cached));
         when(appConfigService.getLookupErrorTtlMinutes()).thenReturn(10);
 
-        ProductLookupResult result = service.lookup("Samsung S25", mock(WhCategory.class), null);
+        ProductLookupResult result = service.lookup(null, "Samsung S25", mock(WhCategory.class), null);
 
         assertThat(result.getStatus()).isEqualTo(LookupStatus.ERROR);
         verify(quotaService, never()).checkQuota(any());
@@ -231,7 +235,7 @@ class ProductLookupServiceTest {
         setupQuotaOk();
         when(sourceService.findForCategory(any())).thenReturn(List.of());
 
-        ProductLookupResult result = service.lookup("Samsung S25", mock(WhCategory.class), null);
+        ProductLookupResult result = service.lookup(null, "Samsung S25", mock(WhCategory.class), null);
 
         verify(sourceService).findForCategory(any());
         assertThat(result.getStatus()).isEqualTo(LookupStatus.NO_SOURCES);
@@ -245,7 +249,7 @@ class ProductLookupServiceTest {
         when(repo.findByLookupTerm(any())).thenReturn(Optional.of(cached));
         when(appConfigService.getLookupFailedTtlHours()).thenReturn(24);
 
-        ProductLookupResult result = service.lookup("Unbekanntes TV", mock(WhCategory.class), null);
+        ProductLookupResult result = service.lookup(null, "Unbekanntes TV", mock(WhCategory.class), null);
 
         assertThat(result.getStatus()).isEqualTo(LookupStatus.FAILED);
         verify(quotaService, never()).checkQuota(any());
@@ -259,7 +263,7 @@ class ProductLookupServiceTest {
         setupQuotaOk();
         when(sourceService.findForCategory(any())).thenReturn(List.of());
 
-        ProductLookupResult result = service.lookup("Unbekanntes TV", mock(WhCategory.class), null);
+        ProductLookupResult result = service.lookup(null, "Unbekanntes TV", mock(WhCategory.class), null);
 
         verify(sourceService).findForCategory(any());
         assertThat(result.getStatus()).isEqualTo(LookupStatus.NO_SOURCES);

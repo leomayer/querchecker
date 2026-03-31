@@ -63,7 +63,7 @@ public class DlOrchestrationService {
         extractionExecutor.prestartCoreThread();
 
         // Lazily resolve models — they are registered after context is ready
-        this.models = modelsProvider.getIfAvailable(() -> List.of());
+        this.models = modelsProvider != null ? modelsProvider.getIfAvailable(() -> List.of()) : List.of();
         if (models.isEmpty()) {
             log.warn("No extraction models registered at init time. Models will be registered by DlModelConfiguration after context is ready.");
         }
@@ -74,7 +74,7 @@ public class DlOrchestrationService {
         String inputHash = sha256(itemText.getTitle() + itemText.getDescription());
 
         // Ensure models are resolved (in case this is called before ApplicationReadyEvent)
-        if (models.isEmpty()) {
+        if (models.isEmpty() && modelsProvider != null) {
             this.models = modelsProvider.getIfAvailable(() -> List.of());
         }
 
