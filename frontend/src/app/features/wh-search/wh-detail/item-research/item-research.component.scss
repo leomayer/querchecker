@@ -32,6 +32,34 @@
   }
 }
 
+// --- Release Year Info ---
+
+.release-year-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  background: color-mix(in srgb, var(--mat-sys-primary) 10%, transparent);
+  border-left: 3px solid var(--mat-sys-primary);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface);
+
+  .release-icon {
+    font-size: 1.1rem;
+    width: 1.1rem;
+    height: 1.1rem;
+    color: var(--mat-sys-primary);
+    flex-shrink: 0;
+  }
+
+  .release-year-text {
+    flex: 1;
+  }
+}
+
 // --- Placeholder ---
 
 .placeholder {

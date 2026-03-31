@@ -121,6 +121,13 @@ export class ItemResearchComponent {
     return result.lookupStatus as LookupState;
   });
 
+  protected readonly releaseYear = computed<string | null>(() => {
+    const id = this.detail().whItemId;
+    if (id == null) return null;
+    const result = this.extractionStore.lookupResults()[id];
+    return result?.quickFacts?.['release_year'] ?? null;
+  });
+
   protected readonly orderedQuickFacts = computed<[string, string][]>(() => {
     const id = this.detail().whItemId;
     if (id == null) return [];
@@ -129,10 +136,10 @@ export class ItemResearchComponent {
     const facts = result.quickFacts;
     const prefKeys = Array.from(this.preferredKeySet());
     const preferred = prefKeys
-      .filter((k) => k in facts && facts[k] != null && facts[k] !== '')
+      .filter((k) => k in facts && facts[k] != null && facts[k] !== '' && k !== 'release_year')
       .map((k) => [k, facts[k]] as [string, string]);
     const rest = Object.entries(facts)
-      .filter(([k, v]) => !prefKeys.includes(k) && v != null && v !== '')
+      .filter(([k, v]) => !prefKeys.includes(k) && v != null && v !== '' && k !== 'release_year')
       .sort(([a], [b]) => a.localeCompare(b)) as [string, string][];
     return [...preferred, ...rest];
   });
