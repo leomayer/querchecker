@@ -117,7 +117,7 @@
 // ── Release Year Badge ────────────────────────────────────────────────────────
 
 .release-year-badge {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 4px;
   padding: 4px 8px;
@@ -128,7 +128,7 @@
   color: var(--mat-sys-on-surface);
   white-space: nowrap;
   cursor: help; // indicate it has tooltip
-  margin-left: auto; // right-align in action-row
+  margin-left: auto; // push to far right
 
   .release-year-icon {
     font-size: 0.95rem;
