@@ -50,7 +50,6 @@ Mehr zu Produktdatenquellen und Fallback-Logik: → [docs/spec-lookup.md](docs/s
 
 ## Geplante Features
 
-- [ ] Mehrere Suchprofile / gespeicherte Suchen
 - [ ] Mobile-optimiertes Layout
 - [ ] Lokales Modell als Fallback — wenn die Remote-LLM-API nicht erreichbar ist, automatisch auf das lokal verfügbare Modell ausweichen (nahtlose Redundanz)
 
