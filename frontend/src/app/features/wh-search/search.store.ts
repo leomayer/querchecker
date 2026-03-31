@@ -13,7 +13,7 @@ import {
 import { filter } from 'rxjs';
 import { WhItemDto } from '../../api/model/whItemDto';
 import { AppRoutePath } from '../../core/app-route-paths';
-import { persistSearch, loadPersistedSearch } from '../../core/search-persistence';
+import { persistSearch, loadPersistedSearch, loadPersistedListingFilters } from '../../core/search-persistence';
 import { SearchQuery } from './search-query.model';
 import { LayoutState } from './layout-state.enum';
 
@@ -43,6 +43,8 @@ export const SearchStore = signalStore(
     listingFilterText: '',
     listingFreeOnly: false,
     listingRatingFilter: 'KEEP' as 'LIKE' | 'KEEP' | 'DISLIKE' | 'ALL',
+    lastFetchedSearchKey: null as string | null,
+    lastSearchTimestamp: null as number | null,
   }),
   withComputed((store) => ({
     searchMode: computed(() => store.searchQuery() !== null),
@@ -67,13 +69,20 @@ export const SearchStore = signalStore(
 
       return {
         search(query: SearchQuery): void {
+          const searchKey = JSON.stringify(query);
           patchState(store, {
             searchQuery: query,
             layoutState: LayoutState.LISTINGS,
             searchPatches: {},
+            lastFetchedSearchKey: searchKey,
+            lastSearchTimestamp: Date.now(),
           });
           extractionStore.clear();
-          persistSearch(store.filterDraft());
+          persistSearch(store.filterDraft(), {
+            filterText: store.listingFilterText(),
+            freeOnly: store.listingFreeOnly(),
+            ratingFilter: store.listingRatingFilter(),
+          });
           router.navigate(['/', AppRoutePath.LISTINGS]);
         },
         selectListing(id: string): void {
@@ -110,6 +119,7 @@ export const SearchStore = signalStore(
             layoutState: LayoutState.SEARCH,
             whTotal: null,
             searchPatches: {},
+            lastFetchedSearchKey: null,
             listingFilterText: '',
             listingFreeOnly: false,
             listingRatingFilter: 'KEEP',
@@ -142,6 +152,9 @@ export const SearchStore = signalStore(
         },
         setListingRatingFilter(filter: 'LIKE' | 'KEEP' | 'DISLIKE' | 'ALL'): void {
           patchState(store, { listingRatingFilter: filter });
+        },
+        setLastFetchedSearchKey(key: string | null): void {
+          patchState(store, { lastFetchedSearchKey: key });
         },
         // Internal: called by MainLayoutComponent to sync httpResource state
         setResourceState(state: {
@@ -203,6 +216,15 @@ export const SearchStore = signalStore(
           // which would break ngrx/signals deep signal proxies for those keys.
           patchState(store, {
             filterDraft: { locationAreaId: undefined, categoryWhId: undefined, ...saved },
+          });
+        }
+
+        const savedFilters = loadPersistedListingFilters();
+        if (savedFilters) {
+          patchState(store, {
+            listingFilterText: savedFilters.filterText,
+            listingFreeOnly: savedFilters.freeOnly,
+            listingRatingFilter: savedFilters.ratingFilter,
           });
         }
 

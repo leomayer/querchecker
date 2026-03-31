@@ -120,7 +120,26 @@ export class MainLayoutComponent {
   constructor() {
     effect(() => {
       const searchMode = this.store.searchMode();
+      const q = this.store.searchQuery();
+      const searchKey = q ? JSON.stringify(q) : null;
+      const lastFetched = this.store.lastFetchedSearchKey();
+      const lastTimestamp = this.store.lastSearchTimestamp();
+      const CACHE_TTL_MS = 60 * 1000; // 60 seconds
+
       if (searchMode) {
+        // Only refetch if search changed OR cached results are stale (>60s old)
+        const searchChanged = searchKey !== lastFetched;
+        const cacheStale = lastTimestamp == null || (Date.now() - lastTimestamp) > CACHE_TTL_MS;
+        const needsFetch = searchChanged || cacheStale;
+
+        if (needsFetch) {
+          // Trigger the refetch
+          this.searchResource.reload();
+          if (searchChanged) {
+            this.store.setLastFetchedSearchKey(searchKey);
+          }
+        }
+
         this.store.setResourceState({
           listings: this.searchResource.value()?.listings ?? [],
           loading: this.searchResource.isLoading(),
