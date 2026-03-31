@@ -36,6 +36,7 @@ import java.util.Optional;
 import static at.querchecker.research.entity.SourceType.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -65,6 +66,7 @@ class ProductLookupServiceTest {
         lenient().when(webSearchRouter.getActive()).thenReturn(webSearchService);
         lenient().when(appConfigService.getLookupFailedTtlHours()).thenReturn(24);
         lenient().when(appConfigService.getLookupErrorTtlMinutes()).thenReturn(10);
+        lenient().doCallRealMethod().when(urlValidator).normalizeUrl(any());
     }
 
     // --- Snippets-Pfad für alle Quellen ---

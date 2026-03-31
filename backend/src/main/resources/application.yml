@@ -45,6 +45,7 @@ logging:
       extraction: DEBUG
       search: DEBUG
       willHaben: INFO
+      api.extraction: DEBUG
 
 springdoc:
   api-docs:

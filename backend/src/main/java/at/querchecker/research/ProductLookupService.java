@@ -200,6 +200,7 @@ public class ProductLookupService {
                 extracted.getSources() != null ? extracted.getSources().getSourceUrl() : null,
                 braveResults
             );
+            sourceUrl = urlValidator.normalizeUrl(sourceUrl);
 
             if (!urlValidator.matchesExpectedPattern(sourceUrl, source.getSourceType())) {
                 sourceUrl = null;
@@ -328,6 +329,7 @@ public class ProductLookupService {
                             extracted.getSources() != null ? extracted.getSources().getIcecatId() : null, results);
                     String sourceUrl = urlValidator.resolveSourceUrl(
                             extracted.getSources() != null ? extracted.getSources().getSourceUrl() : null, results);
+                    sourceUrl = urlValidator.normalizeUrl(sourceUrl);
                     if (!urlValidator.matchesExpectedPattern(sourceUrl, source.getSourceType())) sourceUrl = null;
 
                     ExtractionQuality quality = qualityEvaluator.evaluate(extracted, mandatory, source.getSourceType());

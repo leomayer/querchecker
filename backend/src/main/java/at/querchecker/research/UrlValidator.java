@@ -13,7 +13,7 @@ public class UrlValidator {
 
     private static final Map<SourceType, Pattern> URL_PATTERNS = Map.of(
             SourceType.ICECAT,       Pattern.compile(
-                    "https://icecat\\.biz/p/[\\w\\-]+-\\d+\\.html"),
+                    "https://icecat\\.biz(?:/[a-z]{2}(?:-[a-z]{2})?)?/p/.*-\\d+\\.html"),
             SourceType.GSMARENA,     Pattern.compile(
                     "https://(?:www\\.)?gsmarena\\.com/[\\w_]+-\\d+\\.php"),
             SourceType.FLATPANELSHD, Pattern.compile(
@@ -52,5 +52,21 @@ public class UrlValidator {
         if (url == null) return false;
         Pattern pattern = URL_PATTERNS.get(sourceType);
         return pattern == null || pattern.matcher(url).matches();
+    }
+
+    /**
+     * Normalisiert relative URLs zu absoluten URLs.
+     * - Protocol-relative URLs (//icecat.biz/...) → https://icecat.biz/...
+     * - Null oder leere URLs → unverändert (null)
+     * - Absolute URLs → unverändert
+     */
+    public String normalizeUrl(String url) {
+        if (url == null || url.isBlank()) {
+            return null;
+        }
+        if (url.startsWith("//")) {
+            return "https:" + url;
+        }
+        return url;
     }
 }

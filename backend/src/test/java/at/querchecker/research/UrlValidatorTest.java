@@ -77,9 +77,30 @@ class UrlValidatorTest {
     // --- matchesExpectedPattern ---
 
     @Test
-    void matchesExpectedPattern_icecat_validUrl() {
+    void matchesExpectedPattern_icecat_simpleFormat() {
         assertThat(validator.matchesExpectedPattern(
                 "https://icecat.biz/p/lenovo-thinkpad-x1-12345.html", ICECAT))
+                .isTrue();
+    }
+
+    @Test
+    void matchesExpectedPattern_icecat_withLanguageCode() {
+        assertThat(validator.matchesExpectedPattern(
+                "https://icecat.biz/de-ch/p/lenovo-thinkpad-12345.html", ICECAT))
+                .isTrue();
+    }
+
+    @Test
+    void matchesExpectedPattern_icecat_withLanguageCodeAndBrandPath() {
+        assertThat(validator.matchesExpectedPattern(
+                "https://icecat.biz/de-ch/p/lenovo/20l90043ge/thinkpad-notebooks-t580-73311950.html", ICECAT))
+                .isTrue();
+    }
+
+    @Test
+    void matchesExpectedPattern_icecat_enLanguageCode() {
+        assertThat(validator.matchesExpectedPattern(
+                "https://icecat.biz/en/p/samsung-galaxy-s25-13322.html", ICECAT))
                 .isTrue();
     }
 
@@ -130,6 +151,36 @@ class UrlValidatorTest {
     @Test
     void matchesExpectedPattern_nullUrl_returnsFalse() {
         assertThat(validator.matchesExpectedPattern(null, ICECAT)).isFalse();
+    }
+
+    // --- normalizeUrl ---
+
+    @Test
+    void normalizeUrl_convertsProtocolRelativeUrl() {
+        assertThat(validator.normalizeUrl("//icecat.biz/p/lenovo-12345.html"))
+                .isEqualTo("https://icecat.biz/p/lenovo-12345.html");
+    }
+
+    @Test
+    void normalizeUrl_convertsProtocolRelativeUrlWithLanguageCode() {
+        assertThat(validator.normalizeUrl("//icecat.biz/de-ch/p/lenovo/20l90043ge/thinkpad-t580-73311950.html"))
+                .isEqualTo("https://icecat.biz/de-ch/p/lenovo/20l90043ge/thinkpad-t580-73311950.html");
+    }
+
+    @Test
+    void normalizeUrl_passesThroughAbsoluteUrl() {
+        String absoluteUrl = "https://gsmarena.com/samsung_galaxy_s25-13322.php";
+        assertThat(validator.normalizeUrl(absoluteUrl)).isEqualTo(absoluteUrl);
+    }
+
+    @Test
+    void normalizeUrl_returnsNullForNullInput() {
+        assertThat(validator.normalizeUrl(null)).isNull();
+    }
+
+    @Test
+    void normalizeUrl_returnsNullForBlankInput() {
+        assertThat(validator.normalizeUrl("   ")).isNull();
     }
 
     private SearchResult result(String url) {
