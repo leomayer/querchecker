@@ -146,12 +146,26 @@ public class BraveWebSearchService implements WebSearchService {
     private List<SearchResult> extractResults(BraveApiResponse body) {
         if (body == null || body.getWeb() == null) return List.of();
         return body.getWeb().getResults().stream()
+                .limit(5) // Limit to top 5 results to reduce payload size
                 .map(r -> SearchResult.builder()
                         .title(r.getTitle())
                         .url(r.getUrl())
-                        .description(r.getDescription())
-                        .extraSnippets(r.getExtraSnippets() != null ? r.getExtraSnippets() : List.of())
+                        .description(truncateString(r.getDescription(), 250)) // Truncate to 250 chars
+                        .extraSnippets(truncateSnippets(r.getExtraSnippets(), 2, 200)) // Max 2 snippets, 200 chars each
                         .build())
+                .toList();
+    }
+
+    private String truncateString(String text, int maxLength) {
+        if (text == null || text.length() <= maxLength) return text;
+        return text.substring(0, maxLength) + "...";
+    }
+
+    private List<String> truncateSnippets(List<String> snippets, int maxSnippets, int maxCharsPerSnippet) {
+        if (snippets == null || snippets.isEmpty()) return List.of();
+        return snippets.stream()
+                .limit(maxSnippets)
+                .map(s -> truncateString(s, maxCharsPerSnippet))
                 .toList();
     }
 }
