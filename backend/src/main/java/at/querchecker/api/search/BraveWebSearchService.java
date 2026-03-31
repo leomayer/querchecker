@@ -151,7 +151,7 @@ public class BraveWebSearchService implements WebSearchService {
                         .title(r.getTitle())
                         .url(r.getUrl())
                         .description(truncateString(r.getDescription(), 250)) // Truncate to 250 chars
-                        .extraSnippets(truncateSnippets(r.getExtraSnippets(), 2, 200)) // Max 2 snippets, 200 chars each
+                        .extraSnippets(truncateSnippets(r.getExtraSnippets(), 7, 250)) // Max 7 snippets, 250 chars each
                         .build())
                 .toList();
     }
