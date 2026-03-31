@@ -122,6 +122,16 @@
   }
 }
 
+// --- Retry button in placeholder ---
+
+.retry-button {
+  margin-top: 8px;
+
+  mat-icon {
+    margin-right: 4px;
+  }
+}
+
 .load-details-btn {
   width: 100%;
   font-size: 0.82rem;

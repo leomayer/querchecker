@@ -253,9 +253,20 @@ public class ProductLookupService {
             return ProductLookupResult.rateLimited(rle.getRetryAfterSeconds(),
                     rle.getProvider().getDisplayName(), rle.getModelName());
         } catch (Exception e) {
-            log.error("[ProductLookupService] Unerwarteter Fehler bei Lookup für '{}': {}", lookupTerm, e.getMessage(), e);
+            String errorMsg = e.getMessage() != null ? e.getMessage() : "";
+
+            // Detect rate limit errors hidden in HTTP responses (e.g., 413 Payload Too Large with rate_limit_exceeded)
+            if (errorMsg.contains("rate_limit_exceeded")) {
+                log.warn("[ProductLookupService] Rate limit detected in error response: {}", errorMsg);
+                save(lookupTerm, LookupStatus.ERROR, null);
+                broadcastErrorNotification(listingId, "RATE_LIMITED",
+                    "LLM-Kontingent erreicht — bitte später erneut versuchen", 60L); // Default 60s retry
+                return ProductLookupResult.rateLimited(60, "Provider", "Unknown");
+            }
+
+            log.error("[ProductLookupService] Unerwarteter Fehler bei Lookup für '{}': {}", lookupTerm, errorMsg, e);
             save(lookupTerm, LookupStatus.ERROR, null);
-            String errorType = e.getMessage() != null && e.getMessage().contains("timeout") ? "API_TIMEOUT" : "LOOKUP_FAILED";
+            String errorType = errorMsg.contains("timeout") ? "API_TIMEOUT" : "LOOKUP_FAILED";
             String message = errorType.equals("API_TIMEOUT")
                 ? "Anfrage-Timeout — Server antwortet nicht rechtzeitig"
                 : "Produktsuche fehlgeschlagen — bitte später erneut versuchen";

@@ -50,9 +50,15 @@
         <span
           >Fehler beim Laden
           @if (retryAfter()) {
-            — erneut verfügbar ab {{ retryAfter() | date: 'HH:mm' }}
+            — verfügbar in {{ retryAfterDisplay() }}
           }
         </span>
+        @if (retryAfter() && !retryButtonDisabled()) {
+          <button mat-raised-button class="retry-button" (click)="onLookup()">
+            <mat-icon>refresh</mat-icon>
+            Wiederholen
+          </button>
+        }
       } @else if (lookupState() === 'FAILED') {
         <mat-icon class="placeholder-icon amber">search_off</mat-icon>
         <span
@@ -67,14 +73,17 @@
       } @else if (lookupState() === 'RATE_LIMITED') {
         <mat-icon class="placeholder-icon amber">timer</mat-icon>
         <span>
-          Rate-Limit erreicht
-          @if (retryAfterSeconds(); as secs) {
-            — erneuter Versuch in ~{{ secs }}s
-          }
+          Rate-Limit erreicht — verfügbar in ~{{ retryAfterSeconds() }}s
           @if (retryProvider(); as provider) {
             <br /><small>{{ provider }}{{ retryModel() ? ': ' + retryModel() : '' }}</small>
           }
         </span>
+        @if (!retryButtonDisabled()) {
+          <button mat-raised-button class="retry-button" (click)="onLookup()">
+            <mat-icon>refresh</mat-icon>
+            Wiederholen
+          </button>
+        }
       } @else if (lookupState() === 'NO_SOURCES') {
         <mat-icon class="placeholder-icon">block</mat-icon>
         <span>Spec-Suche für diese Kategorie nicht verfügbar</span>

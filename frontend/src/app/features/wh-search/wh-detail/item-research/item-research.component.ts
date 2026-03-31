@@ -280,6 +280,29 @@ export class ItemResearchComponent {
       this.lookupState() === 'NO_SOURCES',
   );
 
+  protected readonly retryAfterDisplay = computed<string>(() => {
+    const after = this.retryAfter();
+    if (!after) return '';
+    const now = new Date();
+    const diffMs = after.getTime() - now.getTime();
+    if (diffMs <= 0) return '';
+    const diffSecs = Math.ceil(diffMs / 1000);
+    if (diffSecs < 60) return `~${diffSecs}s`;
+    const diffMins = Math.ceil(diffSecs / 60);
+    return `~${diffMins} min`;
+  });
+
+  protected readonly retryButtonDisabled = computed<boolean>(() => {
+    const state = this.lookupState();
+    if (state === 'RATE_LIMITED') {
+      return (this.retryAfterSeconds() ?? 0) > 0;
+    }
+    if (state === 'ERROR') {
+      return (this.retryAfter()?.getTime() ?? 0) > new Date().getTime();
+    }
+    return true;
+  });
+
   // --- Preferences ---
 
   private readonly prefService = inject(PreferencesService);
