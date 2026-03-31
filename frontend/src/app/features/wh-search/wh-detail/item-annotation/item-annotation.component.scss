@@ -113,3 +113,27 @@
     color: var(--mat-sys-error);
   }
 }
+
+// ── Release Year Badge ────────────────────────────────────────────────────────
+
+.release-year-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: color-mix(in srgb, var(--mat-sys-primary) 12%, transparent);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface);
+  white-space: nowrap;
+  cursor: help; // indicate it has tooltip
+  margin-left: auto; // right-align in action-row
+
+  .release-year-icon {
+    font-size: 0.95rem;
+    width: 0.95rem;
+    height: 0.95rem;
+    color: var(--mat-sys-primary);
+  }
+}

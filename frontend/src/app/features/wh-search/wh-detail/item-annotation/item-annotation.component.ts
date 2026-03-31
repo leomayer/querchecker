@@ -22,6 +22,7 @@ import { take } from 'rxjs/operators';
 import { WhDetailDto } from '../../../../api/model/whDetailDto';
 import { ListingService } from '../../../../core/listing.service';
 import { SearchStore } from '../../search.store';
+import { ExtractionStore } from '../../extraction.store';
 import { ItemDetailStore } from './item-detail.store';
 
 @Component({
@@ -49,10 +50,26 @@ export class ItemAnnotationComponent {
   private readonly searchStore = inject(SearchStore);
   private readonly listingService = inject(ListingService);
   private readonly ngZone = inject(NgZone);
+  private readonly extractionStore = inject(ExtractionStore);
 
   @ViewChild('notesRef') notesRef!: CdkTextareaAutosize;
 
   readonly notesOpen = signal(false);
+
+  protected readonly releaseYear = computed<string | null>(() => {
+    const id = this.detail().whItemId;
+    if (id == null) return null;
+    const result = this.extractionStore.lookupResults()[id];
+    const year = result?.quickFacts?.['release_year'];
+    // Validate: must be 4-digit year (1900-2099)
+    if (year && /^\d{4}$/.test(year)) {
+      const numYear = parseInt(year, 10);
+      if (numYear >= 1900 && numYear <= 2099) {
+        return year;
+      }
+    }
+    return null;
+  });
 
   readonly hasNote = computed(() => !!this.store.notes().trim());
   readonly notesBtnIcon = computed(() => (this.hasNote() ? 'sticky_note_2' : 'article'));

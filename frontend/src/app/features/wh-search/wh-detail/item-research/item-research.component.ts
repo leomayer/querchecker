@@ -121,21 +121,6 @@ export class ItemResearchComponent {
     return result.lookupStatus as LookupState;
   });
 
-  protected readonly releaseYear = computed<string | null>(() => {
-    const id = this.detail().whItemId;
-    if (id == null) return null;
-    const result = this.extractionStore.lookupResults()[id];
-    const year = result?.quickFacts?.['release_year'];
-    // Validate: must be 4-digit year (1900-2099)
-    if (year && /^\d{4}$/.test(year)) {
-      const numYear = parseInt(year, 10);
-      if (numYear >= 1900 && numYear <= 2099) {
-        return year;
-      }
-    }
-    return null;
-  });
-
   protected readonly orderedQuickFacts = computed<[string, string][]>(() => {
     const id = this.detail().whItemId;
     if (id == null) return [];

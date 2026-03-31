@@ -48,6 +48,13 @@
       <mat-icon>keyboard_arrow_down</mat-icon>
     </button>
   </div>
+
+  @if (releaseYear()) {
+    <span class="release-year-badge" [matTooltip]="'Release-Jahr des Produktes'">
+      <mat-icon class="release-year-icon">event_year</mat-icon>
+      {{ releaseYear() }}
+    </span>
+  }
 </div>
 
 <!-- Row 2: notes (collapsible) -->
