@@ -82,7 +82,7 @@ public class WhListingRefreshService {
                 previews = images.stream()
                         .filter(img -> img.getReferenceImageUrl() != null && img.getThumbnailImageUrl() != null)
                         .map(img -> WhPreviewDto.builder()
-                                .thumbUrl(img.getThumbnailImageUrl())
+                                .thumbUrl(normalizeThumbnailUrl(img.getThumbnailImageUrl()))
                                 .fullUrl(img.getReferenceImageUrl())
                                 .build())
                         .collect(Collectors.toList());
@@ -130,6 +130,16 @@ public class WhListingRefreshService {
                 .build());
 
         log.debug("listing-refreshed broadcast: whItemId={}, listingId={}", whItemId, listingId);
+    }
+
+    /**
+     * Normalizes thumbnail URLs from Willhaben API by removing variant suffixes.
+     * Example: "…/248_449701018_hoved_thumb.jpg" → "…/248_449701018_thumb.jpg"
+     */
+    private static String normalizeThumbnailUrl(String url) {
+        if (url == null) return null;
+        // Remove variant suffixes like "_hoved_" that appear before "_thumb"
+        return url.replaceAll("(_[a-z]+)?_thumb", "_thumb");
     }
 
     private List<WhCategoryDto> buildCategoryPath(WhListing listing) {
