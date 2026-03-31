@@ -23,7 +23,7 @@
 
   // delete-sweep.component.scss
   .warn-icon {
-    color: var(--color-rating-down) !important;
+    color: var(--color-negative) !important;
   }
 
   mat-slider {
@@ -43,10 +43,10 @@
 }
 
 .delete-btn {
-  background-color: var(--mat-sys-error) !important;
-  color: var(--mat-sys-on-error) !important;
+  background-color: var(--color-negative) !important;
+  color: var(--color-on-negative) !important;
 
   mat-icon {
-    color: var(--mat-sys-on-error);
+    color: var(--color-on-negative);
   }
 }

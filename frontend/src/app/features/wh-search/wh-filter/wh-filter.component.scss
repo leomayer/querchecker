@@ -63,12 +63,12 @@
 }
 
 .reset-btn {
-  color: var(--color-error);
-  border-color: var(--color-error);
+  color: var(--color-negative);
+  border-color: var(--color-negative);
 }
 
 .error-message {
-  color: var(--color-error);
+  color: var(--color-negative);
   margin: 4px 0 0;
   font-size: 0.85rem;
 }

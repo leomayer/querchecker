@@ -19,8 +19,8 @@
   --color-on-surface-variant: #434749; // TealMist on-surface-variant
 
   --color-positive: #1d6b52; // teal-green — 5.7:1 on light surface
-  --color-rating-down: #9e4c4c;
-  --color-error: var(--mat-sys-error, #9e4c4c);
+  --color-negative: #9e4c4c; // 5.56:1 on light surface
+  --color-on-negative: #ffffff; // 5.3:1 on #9e4c4c
 
   --color-nav-action: #c8843a; // amber accent
   --color-on-nav-action: #500808;
@@ -42,7 +42,8 @@ body.dark-theme {
 
   --color-tertiary: #f0b97a;
   --color-positive: #81c784; // light green — 5.5:1 on dark surface
-  --color-rating-down: #e07070; // lighter red — 5.8:1 on dark surface
+  --color-negative: #e07070; // lighter red — 5.8:1 on dark surface
+  --color-on-negative: #500808; // 4.8:1 on #e07070
 
   --color-background: #131313;
   --color-surface: #131313;

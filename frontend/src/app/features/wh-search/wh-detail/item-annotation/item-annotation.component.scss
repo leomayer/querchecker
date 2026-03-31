@@ -26,7 +26,7 @@
     color: var(--color-positive);
   }
   mat-button-toggle[value='DOWN'] mat-icon {
-    color: var(--color-rating-down);
+    color: var(--color-negative);
   }
 }
 
@@ -41,7 +41,7 @@
     color: color-mix(in srgb, var(--color-tertiary) 65%, var(--color-on-surface));
   }
   .interest-high {
-    color: var(--color-rating-down);
+    color: var(--color-negative);
   }
 }
 
@@ -110,7 +110,7 @@
     color: var(--color-tertiary);
   }
   &.save-error {
-    color: var(--mat-sys-error);
+    color: var(--color-negative);
   }
 }
 

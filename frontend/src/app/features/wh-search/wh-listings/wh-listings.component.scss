@@ -74,7 +74,7 @@
 }
 
 .error-message {
-  color: var(--color-error);
+  color: var(--color-negative);
   padding: 16px 0;
 }
 
@@ -124,6 +124,6 @@
     color: var(--color-positive);
   }
   mat-button-toggle[value='DISLIKE'] mat-icon {
-    color: var(--color-rating-down);
+    color: var(--color-negative);
   }
 }

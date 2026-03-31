@@ -11,9 +11,9 @@
 
   /* Error: TealMist error red */
   &.error {
-    --snack-bg-color: color-mix(in srgb, var(--color-error) 8%, var(--color-surface));
-    --snack-text-color: var(--color-error);
-    --snack-border-color: var(--color-error);
+    --snack-bg-color: color-mix(in srgb, var(--color-negative) 8%, var(--color-surface));
+    --snack-text-color: var(--color-negative);
+    --snack-border-color: var(--color-negative);
   }
 
   /* Success: TealMist positive green */

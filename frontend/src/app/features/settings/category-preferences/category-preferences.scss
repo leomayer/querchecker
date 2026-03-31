@@ -108,7 +108,7 @@
 
 .save-error {
   font-size: 0.8rem;
-  color: var(--color-rating-down);
+  color: var(--color-negative);
   margin: 0;
 }
 
@@ -121,7 +121,7 @@ button mat-icon {
 }
 
 .delete-btn {
-  color: var(--color-rating-down);
+  color: var(--color-negative);
 }
 
 .cancel-btn {
