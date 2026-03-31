@@ -301,7 +301,14 @@ Swagger UI: `/swagger-ui.html` (dev only, in Prod via `SPRING_PROFILES_ACTIVE=pr
 
 - `WebSearchService` (Interface): `search(lookupTerm, siteDomain, keywords, queryExcludes, resultCount)` → `List<SearchResult>`. Aktivierung per `querchecker.api.search.active-provider` (default: `BRAVE`).
 - `BraveWebSearchService implements WebSearchService`: 3-stufige Suche. Kein `Accept-Encoding: gzip` Header. Ersetzt `BraveSearchService`.
+  - **Snippet-Truncation** (2026-03-31): Begrenzt Payload um Token-Overflow zu verhindern (HTTP 413 bei Groq bei >6000 TPM):
+    - Top 5 Suchergebnisse (von allen)
+    - Descriptions: 250 chars max
+    - ExtraSnippets: 7 pro Ergebnis × 250 chars max (war: 2 × 200)
+    - Token-Rechnung: ~505 Tokens pro Ergebnis, ~2525 Tokens für 5 Ergebnisse + ~600 Prompt = ~3125 Tokens (unter 6000 Limit mit Spielraum)
+    - Implementierung: `truncateString()`, `truncateSnippets()` Hilfsmethoden
 - `SearchResult` record: `(title, url, description, extraSnippets)` — generisch. Ersetzt `BraveResult`.
+  - Hinweis: `extraSnippets` ist **Brave-spezifisch**. Google Discovery hat nur ein einzelnes `snippets` Feld (in description), kein Array von extraSnippets.
 - `ProductLookupService`: Multi-Source-Schleife über `CategorySearchSource`-Liste. Je Quelle: Brave → HTML-Fetch (FLATPANELSHD/GSMARENA via Jsoup-Fallback-Loop) oder Snippets (ICECAT/GENERIC) → LLM → Quality-Check → weiter bei PARTIAL/EMPTY. Speichert `sourceType`, `sourceDomain`, `sourceUrl`, `featureGroupsJson` in `ProductLookup`.
   - Leere Quellen → `NO_SOURCES` (nicht gecacht — wird bei jedem Aufruf neu geprüft)
   - Exception → `ERROR` (gecacht mit TTL 10min, konfigurierbar via `AppConfig key: product.lookup.error.ttl.minutes`)
@@ -375,6 +382,19 @@ Tabelle `category_search_source` — konfiguriert Suchquellen pro Kategorie.
 - `ApiUsageController` (`GET /api/usage`): Periode/Limits kommen aus `QuotaService.getPeriodStart()` + `ProviderProperties` (nicht hardcodiert).
 - `ProviderUsageDto`: `{ callsThisPeriod, callsToday, tokensIn, tokensOut, quotaUsage, quotaLimit }`. Kein `avgDurationMs`.
 - `UsageResponse`: `{ brave, groq, openRouter }` — ICECAT entfernt (kein Kontingent, kein Monitor-Eintrag).
+
+## Token-Management für LLM-Requests
+
+**Problem**: Groq hat 6000 TPM (Tokens Per Minute) limit. Vollständige Brave-Suchergebnisse können 6695 Tokens überschreiten → HTTP 413 "Payload Too Large"
+
+**Lösung (2026-03-31, Commits 42d23ac + 343fb87)**: Lokale Snippet-Truncation ohne Token-Counter:
+- **Warum kein Token-Counter**: Würde externe Library erfordern; TPM-Limits sind provider/modell-spezifisch; Simple Truncation ist 80/20-Lösung
+- **Implementierung**: `BraveWebSearchService.extractResults()` mit Helper-Methoden `truncateString()`, `truncateSnippets()`
+- **Parameter**: 5 Results × 250 char description + 7 snippets × 250 chars = ~3125 Tokens total (mit Prompt ~600 Tokens)
+- **Headroom**: ~2875 Tokens frei (unter Limit mit Spielraum)
+- **Google Discovery**: Unaffected (nur 1 snippet field, kein extraSnippets Array)
+
+Die ersten 200-250 Zeichen eines Snippets enthalten typischerweise die wichtigste Info (Titel, initiale Kontext, Kernspezifikationen). Längere Snippets fügen wenig hinzu.
 
 ## Bug Fixes (Bekannte Fixes)
 
