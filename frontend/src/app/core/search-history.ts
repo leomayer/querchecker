@@ -16,7 +16,7 @@ export function addToSearchHistory(entry: SearchHistoryEntry): void {
   if (!trimmed) return;
   try {
     const history = loadSearchHistory();
-    const deduped = history.filter(e => e.keyword.toLowerCase() !== trimmed.toLowerCase());
+    const deduped = history.filter((e) => e.keyword.toLowerCase() !== trimmed.toLowerCase());
     localStorage.setItem(
       HISTORY_KEY,
       JSON.stringify([{ ...entry, keyword: trimmed }, ...deduped].slice(0, MAX_ENTRIES)),
@@ -33,7 +33,10 @@ export function loadSearchHistory(): SearchHistoryEntry[] {
     const parsed: unknown = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
     return (parsed as unknown[]).filter(
-      (e): e is SearchHistoryEntry => typeof e === 'object' && e !== null && typeof (e as SearchHistoryEntry).keyword === 'string',
+      (e): e is SearchHistoryEntry =>
+        typeof e === 'object' &&
+        e !== null &&
+        typeof (e as SearchHistoryEntry).keyword === 'string',
     );
   } catch {
     return [];

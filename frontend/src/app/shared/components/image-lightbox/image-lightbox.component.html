@@ -54,7 +54,11 @@
           class="thumb-btn"
           [class.active]="$index === activeIndex()"
           (click)="select($index)">
-          <img class="thumb-img" [src]="img.thumbUrl" [alt]="'Vorschau ' + ($index + 1)" loading="lazy" />
+          <img
+            class="thumb-img"
+            [src]="img.thumbUrl"
+            [alt]="'Vorschau ' + ($index + 1)"
+            loading="lazy" />
         </button>
       }
     </div>

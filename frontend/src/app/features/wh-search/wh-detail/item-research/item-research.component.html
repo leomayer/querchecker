@@ -33,7 +33,7 @@
           }
         </tr>
       }
-      </table>
+    </table>
   } @else {
     <div class="placeholder">
       @if (!aiSearchEnabled()) {
@@ -147,7 +147,11 @@
           </a>
         }
         @if (lookupSourceDomain() === 'icecat.biz' && (lookupSourceUrl() || icecatPageUrl())) {
-          <a class="ext-link" [href]="lookupSourceUrl() ?? icecatPageUrl()!" target="_blank" rel="noopener">
+          <a
+            class="ext-link"
+            [href]="lookupSourceUrl() ?? icecatPageUrl()!"
+            target="_blank"
+            rel="noopener">
             <mat-icon class="link-icon">open_in_new</mat-icon>
             Icecat
           </a>

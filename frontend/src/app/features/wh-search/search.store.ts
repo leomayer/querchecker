@@ -13,7 +13,11 @@ import {
 import { filter } from 'rxjs';
 import { WhItemDto } from '../../api/model/whItemDto';
 import { AppRoutePath } from '../../core/app-route-paths';
-import { persistSearch, loadPersistedSearch, loadPersistedListingFilters } from '../../core/search-persistence';
+import {
+  persistSearch,
+  loadPersistedSearch,
+  loadPersistedListingFilters,
+} from '../../core/search-persistence';
 import { SearchQuery } from './search-query.model';
 import { LayoutState } from './layout-state.enum';
 

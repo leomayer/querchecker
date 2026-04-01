@@ -2,7 +2,11 @@
  * Typed SSE event names and payloads used with EventSourceServerService.
  * Payload types are generated from the backend OpenAPI spec where available.
  */
-export type AppSseEventName = 'dl-extract' | 'listing-refreshed' | 'lookup-result' | 'error-notification';
+export type AppSseEventName =
+  | 'dl-extract'
+  | 'listing-refreshed'
+  | 'lookup-result'
+  | 'error-notification';
 
 export type { DlExtractionDonePayload } from '../api/model/dlExtractionDonePayload';
 

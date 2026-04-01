@@ -24,7 +24,10 @@ export class ErrorNotificationService implements OnDestroy {
       displayMessage = `${message} — Retry in ~${retryAfterSeconds}s`;
     }
 
-    console.warn(`[ErrorNotificationService] Unbekannter Fehlertyp: ${errorType}`, { message, retryAfterSeconds });
+    console.warn(`[ErrorNotificationService] Unbekannter Fehlertyp: ${errorType}`, {
+      message,
+      retryAfterSeconds,
+    });
 
     const title = this.getErrorTitle(errorType);
     this.snackService.error(displayMessage, title, 0);

@@ -10,7 +10,11 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { LocationFilterComponent } from '../location-filter/location-filter.component';
 import { CategoryFilterComponent } from '../category-filter/category-filter.component';
 import { SearchStore } from '../search.store';
-import { addToSearchHistory, loadSearchHistory, SearchHistoryEntry } from '../../../core/search-history';
+import {
+  addToSearchHistory,
+  loadSearchHistory,
+  SearchHistoryEntry,
+} from '../../../core/search-history';
 
 @Component({
   selector: 'app-wh-filter',
@@ -53,7 +57,7 @@ export class WhFilterComponent {
     const q = this.keyword().toLowerCase().trim();
     const history = this.keywordHistory();
     if (!q) return history;
-    return history.filter(e => e.keyword.toLowerCase().includes(q));
+    return history.filter((e) => e.keyword.toLowerCase().includes(q));
   });
 
   /** At least one search criterion is filled → Suchen enabled. */

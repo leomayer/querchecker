@@ -46,6 +46,9 @@
         <mat-icon>open_in_new</mat-icon>
         Auf Willhaben öffnen
       </button>
+      <button mat-icon-button matTooltip="Link kopieren" (click)="copyLink()">
+        <mat-icon>share</mat-icon>
+      </button>
     </div>
     <app-hierarchical-filter [displayOnly]="true" [displayPath]="categoryChips()" />
   </div>

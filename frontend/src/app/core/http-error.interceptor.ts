@@ -6,11 +6,11 @@ import {
   HttpRequest,
 } from '@angular/common/http';
 import { Injectable, Injector, inject } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { HealthService } from './health.service';
 import { API_URLS } from './api-urls';
+import { SnackService } from '../shared/services/snack.service';
 
 /**
  * Detects server errors and network failures, then notifies the HealthService
@@ -32,12 +32,11 @@ export class ServerErrorInterceptor implements HttpInterceptor {
         }
         if (error.status >= 500 || error.status === 0) {
           this.injector.get(HealthService).notifyServerError();
-          // Show snackbar for network/server errors
-          const snackBar = this.injector.get(MatSnackBar);
-          const message = error.status === 0
-            ? 'Netzwerkfehler — Verbindung unterbrochen'
-            : `Serverfehler (${error.status}) — bitte später erneut versuchen`;
-          snackBar.open(message, 'Schließen', { duration: 0 });
+          const message =
+            error.status === 0
+              ? 'Netzwerkfehler — Verbindung unterbrochen'
+              : `Serverfehler (${error.status}) — bitte später erneut versuchen`;
+          this.injector.get(SnackService).error(message);
         }
         return throwError(() => error);
       }),

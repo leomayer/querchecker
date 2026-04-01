@@ -23,7 +23,10 @@ interface StorageEntry {
   savedAt: number;
 }
 
-export function persistSearch(filterDraft: PersistedFilterDraft, listingFilters?: PersistedListingFilters): void {
+export function persistSearch(
+  filterDraft: PersistedFilterDraft,
+  listingFilters?: PersistedListingFilters,
+): void {
   try {
     const entry: StorageEntry = { filterDraft, listingFilters, savedAt: Date.now() };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(entry));

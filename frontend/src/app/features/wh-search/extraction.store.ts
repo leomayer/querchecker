@@ -1,7 +1,13 @@
 import { inject } from '@angular/core';
 import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
 import { DlExtractionTermDto } from '../../api/model/dlExtractionTermDto';
-import { AppSseEventName, DlExtractionDonePayload, ErrorNotificationPayload, LookupResultPayload, SseEvent } from '../../core/sse-events';
+import {
+  AppSseEventName,
+  DlExtractionDonePayload,
+  ErrorNotificationPayload,
+  LookupResultPayload,
+  SseEvent,
+} from '../../core/sse-events';
 import { EventSourceServerService } from '../../shared/utils/event-source-server';
 import { DlExtractionService, DlExtractionStatusResponse } from '../../core/dl-extraction.service';
 import { LookupResult, ProductLookupService } from '../../core/product-lookup.service';
@@ -215,9 +221,18 @@ export const ExtractionStore = signalStore(
             }));
           },
           error: () => {
-            patchState(store, (s) => ({
-              fullSpecsLoadingIds: s.fullSpecsLoadingIds.filter((id) => id !== whItemId),
-            }));
+            // Mark as loaded (with no data) so the button does not reappear and re-trigger the
+            // same failing request. Also clear icecatId so showFullSpecsButton() returns false.
+            patchState(store, (s) => {
+              const existing = s.lookupResults[whItemId];
+              return {
+                fullSpecsLoadingIds: s.fullSpecsLoadingIds.filter((id) => id !== whItemId),
+                fullSpecsLoaded: { ...s.fullSpecsLoaded, [whItemId]: true },
+                lookupResults: existing
+                  ? { ...s.lookupResults, [whItemId]: { ...existing, icecatId: null } }
+                  : s.lookupResults,
+              };
+            });
           },
         });
       },
@@ -279,7 +294,9 @@ export const ExtractionStore = signalStore(
       if (payload.featureGroupsJson) {
         try {
           featureGroups = JSON.parse(payload.featureGroupsJson);
-        } catch { /* ignore */ }
+        } catch {
+          /* ignore */
+        }
       }
 
       const lookupResult: LookupResult = {
@@ -306,7 +323,9 @@ export const ExtractionStore = signalStore(
     const onErrorNotification = (event: SseEvent<ErrorNotificationPayload>): void => {
       // Error notifications are handled by the error notification service
       // which displays snackbars. The store just logs them for now.
-      console.log(`[ExtractionStore.onErrorNotification] ${event.payload.errorType}: ${event.payload.message}`);
+      console.log(
+        `[ExtractionStore.onErrorNotification] ${event.payload.errorType}: ${event.payload.message}`,
+      );
     };
 
     return {

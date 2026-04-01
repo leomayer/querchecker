@@ -9,6 +9,7 @@ import { CustomCurrencyPipe } from '../../../../shared/pipes/custom-currency/cus
 import { ImageGalleryComponent } from '../image-gallery/image-gallery.component';
 import { HierarchicalFilterComponent } from '../../../../shared/components/hierarchical-filter-component/hierarchical-filter-component';
 import { FilterNode } from '../../../../shared/components/hierarchical-filter-component/hierarchical-filter-component.model';
+import { SnackService } from '../../../../shared/services/snack.service';
 
 @Component({
   selector: 'app-wh-base',
@@ -28,6 +29,7 @@ export class WhBaseComponent {
   readonly detail = input.required<WhDetailDto>();
 
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly snackService = inject(SnackService);
 
   readonly descriptionHtml = computed(() =>
     this.sanitizer.bypassSecurityTrustHtml(this.detail().description ?? ''),
@@ -44,5 +46,13 @@ export class WhBaseComponent {
   openOnWillhaben(): void {
     const url = this.detail().url;
     if (url) window.open(url, '_blank', 'noopener');
+  }
+
+  copyLink(): void {
+    const url = this.detail().url;
+    if (!url) return;
+    navigator.clipboard.writeText(url).then(() => {
+      this.snackService.success('Link kopiert');
+    });
   }
 }
