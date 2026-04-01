@@ -87,8 +87,12 @@ public class ProductLookupService {
         Map<String, String> condensedSpec
     ) {
         log.info("[ProductLookupService] === LOOKUP START ===");
-        log.info("[ProductLookupService] Category: id={}, name={}, level={}",
-                whCategory.getId(), whCategory.getName(), whCategory.getLevel());
+        if (whCategory != null) {
+            log.info("[ProductLookupService] Category: id={}, name={}, level={}",
+                    whCategory.getId(), whCategory.getName(), whCategory.getLevel());
+        } else {
+            log.info("[ProductLookupService] Category: null");
+        }
 
         // A new lookup call means the user moved to a new item — all pending retries are stale
         if (listingId != null) {
@@ -141,7 +145,8 @@ public class ProductLookupService {
         List<CategorySearchSource> sources = sourceService.findForCategory(
             whCategory
         );
-        log.info("[ProductLookupService] Found {} sources for category {}", sources.size(), whCategory.getName());
+        log.info("[ProductLookupService] Found {} sources for category {}", sources.size(),
+                whCategory != null ? whCategory.getName() : "null");
         for (CategorySearchSource src : sources) {
             log.info("[ProductLookupService]   - Source: type={}, domain={}, inherit={}",
                     src.getSourceType(), src.getSiteDomain(), src.isInheritFromParent());
@@ -149,7 +154,8 @@ public class ProductLookupService {
 
         if (sources.isEmpty()) {
             log.warn("[ProductLookupService] NO SOURCES FOUND for category id={} name={}",
-                    whCategory.getId(), whCategory.getName());
+                    whCategory != null ? whCategory.getId() : null,
+                    whCategory != null ? whCategory.getName() : null);
             return ProductLookupResult.noSources();
         }
 

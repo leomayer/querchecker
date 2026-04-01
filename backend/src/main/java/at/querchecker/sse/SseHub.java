@@ -57,7 +57,7 @@ public class SseHub {
     public void destroy() {
         log.debug("SseHub shutting down — completing {} emitter(s)", emitters.size());
         emitters.forEach((id, emitter) -> {
-            try { emitter.complete(); } catch (Exception ignored) {}
+            try { emitter.complete(); } catch (Exception e) { log.debug("Error completing emitter on shutdown", e); }
         });
         emitters.clear();
     }

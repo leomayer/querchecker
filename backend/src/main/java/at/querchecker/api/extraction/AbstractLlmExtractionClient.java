@@ -10,6 +10,7 @@ import at.querchecker.research.model.QuickFactsResult;
 import at.querchecker.research.model.SearchResult;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -239,7 +240,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
         result.setSources(new QuickFactsResult.Sources());
       }
       return result;
-    } catch (Exception e) {
+    } catch (IOException e) {
       // Return null to signal retry should be attempted; don't log here (let caller decide)
       return null;
     }
@@ -300,8 +301,8 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
       int status = e.getStatusCode().value();
       usageLogService.log(getProvider(), requestType, lookupTerm, status, null, null, duration);
       if (status == 429) {
-        String retryAfterHeader =
-          e.getResponseHeaders() != null ? e.getResponseHeaders().getFirst("Retry-After") : null;
+        var headers = e.getResponseHeaders();
+        String retryAfterHeader = headers != null ? headers.getFirst("Retry-After") : null;
         int retryAfterSeconds = RateLimitException.parseRetryAfter(retryAfterHeader);
         log.warn(
           "LLM rate limited (provider={}, retryAfter={}s)",

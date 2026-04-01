@@ -114,7 +114,7 @@ public class DlExtractionController {
         String sourceModel = llmProperties.getEffectiveSourceModel();
         return terms.stream()
             .filter(t -> t.getModelName() != null && t.getModelName().toLowerCase().contains(sourceModel))
-            .max(Comparator.comparingDouble(t -> t.getConfidence() != null ? t.getConfidence() : 0.0))
+            .max(Comparator.comparingDouble(t -> t.getConfidence() != null ? t.getConfidence().doubleValue() : 0.0))
             .map(DlExtractionTermDto::getTerm)
             .orElse(null);
     }
