@@ -89,22 +89,34 @@ public class ProductLookupController {
     @PostMapping("/lookup/full-specs")
     @Operation(summary = "Vollständige Icecat-Spezifikation laden und cachen")
     public FullSpecsResponse fullSpecs(@PathVariable Long id, @RequestBody FullSpecsRequest req) {
+        log.info("=== FULL-SPECS START: listingId={}, icecatId={} ===", id, req.getIcecatId());
         ProductLookup lookup = productLookupRepository.findFirstByIcecatIdOrderByUpdatedAtDesc(req.getIcecatId())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Kein ProductLookup für icecatId: " + req.getIcecatId()));
+                .orElse(null);
+
+        if (lookup == null) {
+            // No ProductLookup entry exists for this icecatId — stale ID from frontend store.
+            log.warn("=== FULL-SPECS END: No ProductLookup found for icecatId={} — returning empty ===", req.getIcecatId());
+            return new FullSpecsResponse(null);
+        }
 
         // Return cached specs immediately — no Icecat API call needed.
         if (lookup.getIcecatSpecsJson() != null) {
-            log.debug("Returning cached Icecat specs for icecatId={}", req.getIcecatId());
+            log.info("=== FULL-SPECS END: Returning cached specs for icecatId={} ===", req.getIcecatId());
             return new FullSpecsResponse(lookup.getIcecatSpecsJson());
         }
 
-        IcecatFetchResult fetch = icecatService.fetchFullSpecs(req.getIcecatId());
+        IcecatFetchResult fetch;
+        try {
+            fetch = icecatService.fetchFullSpecs(req.getIcecatId());
+        } catch (Exception e) {
+            log.warn("=== FULL-SPECS END: Icecat fetch failed for icecatId={}: {} ===", req.getIcecatId(), e.getMessage());
+            return new FullSpecsResponse(null);
+        }
 
         if (fetch.isNotFound()) {
             // Icecat reported 404 → the stored icecatId is invalid (e.g. extracted from a file URL).
             // Clear it so this bad ID is never retried.
-            log.warn("Icecat returned 404 for icecatId={} — clearing from ProductLookup", req.getIcecatId());
+            log.warn("=== FULL-SPECS END: Icecat 404 for icecatId={} — clearing from ProductLookup ===", req.getIcecatId());
             lookup.setIcecatId(null);
             lookup.setIcecatUrl(null);
             productLookupRepository.save(lookup);
@@ -117,6 +129,8 @@ public class ProductLookupController {
             productLookupRepository.save(lookup);
         }
 
+        log.info("=== FULL-SPECS END: icecatId={}, jsonLength={} ===",
+                req.getIcecatId(), fetch.json() != null ? fetch.json().length() : 0);
         return new FullSpecsResponse(fetch.json());
     }
 

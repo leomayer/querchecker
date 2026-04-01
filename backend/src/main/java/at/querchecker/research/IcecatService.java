@@ -6,11 +6,18 @@ import at.querchecker.api.service.ApiUsageLogService;
 import at.querchecker.research.model.IcecatFetchResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.List;
 
 /**
  * Lädt vollständige Produktspezifikationen von Icecat (kein LLM-Extrakt).
@@ -41,10 +48,21 @@ public class IcecatService {
                 .build()
                 .toUriString();
 
+        // Use Accept: */* so StringHttpMessageConverter handles the response body as raw text.
+        // Without this, Jackson is selected for application/json responses and fails to parse
+        // a JSON object into String.class (Jackson expects a JSON string literal, not an object).
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(List.of(MediaType.ALL));
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+        log.info("[Icecat] Fetching full specs for icecatId={}", icecatId);
         long start = System.currentTimeMillis();
         try {
-            String response = restTemplate.getForObject(url, String.class);
+            ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
+            String response = responseEntity.getBody();
             long duration = System.currentTimeMillis() - start;
+            log.info("[Icecat] Fetch OK for icecatId={}, duration={}ms, bodyLength={}",
+                    icecatId, duration, response != null ? response.length() : 0);
             usageLogService.log(Provider.ICECAT, RequestType.SPEC_DETAIL,
                     icecatId, 200, null, null, duration);
             return IcecatFetchResult.found(response);

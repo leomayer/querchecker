@@ -50,6 +50,10 @@ public final class CategorySearchSourceDefinitions {
                     new SourceConfig("icecat.biz",        "Icecat",        ICECAT,   true, ICECAT_EXCLUDES, SNIPPETS_COUNT),
                     new SourceConfig("notebookcheck.net", "Notebookcheck", GENERIC,  true, null,             SNIPPETS_COUNT))),
 
+            entry("Netbooks", List.of(
+                    new SourceConfig("icecat.biz",        "Icecat",        ICECAT,   true, ICECAT_EXCLUDES, SNIPPETS_COUNT),
+                    new SourceConfig("notebookcheck.net", "Notebookcheck", GENERIC,  true, null,             SNIPPETS_COUNT))),
+
             entry("Smartphones / Handys", List.of(   // level=1 → Apple, Samsung etc. erben
                     new SourceConfig("icecat.biz",   "Icecat",   ICECAT,   true, ICECAT_EXCLUDES, SNIPPETS_COUNT),
                     new SourceConfig("gsmarena.com", "GSMArena", GSMARENA, true, null,             SNIPPETS_COUNT))),

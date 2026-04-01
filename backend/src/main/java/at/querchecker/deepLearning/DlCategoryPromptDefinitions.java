@@ -147,7 +147,7 @@ public final class DlCategoryPromptDefinitions {
                 Beschreibung:
                 {description}
 
-                Welches {category} wird verkauft? Nenne Hersteller und Modellbezeichnung.
+                Welches Produkt in der Kategorie '{category}' wird verkauft? Nenne Hersteller und Modellbezeichnung.
                 """)
         )),
         Map.entry("Smartphones / Telefonie", List.of(
@@ -159,7 +159,7 @@ public final class DlCategoryPromptDefinitions {
                 Beschreibung:
                 {description}
 
-                Welches {category} wird verkauft? Nenne Hersteller und Modellbezeichnung.
+                Welches Produkt in der Kategorie '{category}' wird verkauft? Nenne Hersteller und Modellbezeichnung.
                 """)
         )),
         Map.entry("Kameras / TV / Multimedia", List.of(
@@ -171,7 +171,7 @@ public final class DlCategoryPromptDefinitions {
                 Beschreibung:
                 {description}
 
-                Welches {category} wird angeboten? Nenne Hersteller und Modellbezeichnung.
+                Welches Produkt in der Kategorie '{category}' wird angeboten? Nenne Hersteller und Modellbezeichnung.
                 """)
         )),
         Map.entry("Games / Konsolen", List.of(
@@ -183,7 +183,7 @@ public final class DlCategoryPromptDefinitions {
                 Beschreibung:
                 {description}
 
-                Welches {category} wird angeboten? Nenne den genauen Namen.
+                Welches Produkt in der Kategorie '{category}' wird angeboten? Nenne den genauen Namen.
                 """)
         )),
         Map.entry("Wohnen / Haushalt / Gastronomie", List.of(
@@ -195,7 +195,7 @@ public final class DlCategoryPromptDefinitions {
                 Beschreibung:
                 {description}
 
-                Welches {category} wird angeboten? Nenne Hersteller und Modellbezeichnung.
+                Welches Produkt in der Kategorie '{category}' wird angeboten? Nenne Hersteller und Modellbezeichnung.
                 """)
         )),
         Map.entry("Haus / Garten / Werkstatt", List.of(
@@ -207,7 +207,7 @@ public final class DlCategoryPromptDefinitions {
                 Beschreibung:
                 {description}
 
-                Welches {category} wird angeboten? Nenne Hersteller und Modellbezeichnung.
+                Welches Produkt in der Kategorie '{category}' wird angeboten? Nenne Hersteller und Modellbezeichnung.
                 """)
         )),
         Map.entry("Freizeit / Instrumente / Kulinarik", List.of(
@@ -219,7 +219,7 @@ public final class DlCategoryPromptDefinitions {
                 Beschreibung:
                 {description}
 
-                Welches {category} wird angeboten? Nenne den genauen Produktnamen.
+                Welches Produkt in der Kategorie '{category}' wird angeboten? Nenne den genauen Produktnamen.
                 """)
         )),
         Map.entry("Sport / Sportgeräte", List.of(
@@ -231,7 +231,7 @@ public final class DlCategoryPromptDefinitions {
                 Beschreibung:
                 {description}
 
-                Welches {category} wird angeboten? Nenne Hersteller und Modellbezeichnung.
+                Welches Produkt in der Kategorie '{category}' wird angeboten? Nenne Hersteller und Modellbezeichnung.
                 """)
         )),
         Map.entry("Laptop / Notebook", List.of(

@@ -358,17 +358,10 @@ public class ProductLookupService {
                 sseHub.broadcast("lookup-result", buildSsePayload(listingId, ProductLookupResult.failed(), null, null));
 
             } catch (RateLimitException rle) {
-                log.warn("[ProductLookupService] Rate-limit retry hit a second limit for listingId={}: retryAfter={}s",
+                log.warn("[ProductLookupService] Rate-limit retry hit a second limit for listingId={}: retryAfter={}s — giving up",
                         listingId, rle.getRetryAfterSeconds());
-                if (rle.getRetryAfterSeconds() <= MAX_AUTO_RETRY_SECONDS) {
-                    scheduleRetry(listingId, lookupTerm, whCategory, condensedSpec,
-                            mandatory, queryKeywords, condensedSpecContext, sources, rle.getRetryAfterSeconds());
-                } else {
-                    log.warn("[ProductLookupService] Giving up — retryAfter={}s exceeds cap of {}s",
-                            rle.getRetryAfterSeconds(), MAX_AUTO_RETRY_SECONDS);
-                    save(lookupTerm, LookupStatus.ERROR, null);
-                    sseHub.broadcast("lookup-result", buildSsePayload(listingId, ProductLookupResult.error(), null, null));
-                }
+                save(lookupTerm, LookupStatus.ERROR, null);
+                sseHub.broadcast("lookup-result", buildSsePayload(listingId, ProductLookupResult.error(), null, null));
             } catch (Exception e) {
                 log.warn("[ProductLookupService] Rate-limit retry failed for listingId={}: {}", listingId, e.getMessage());
                 save(lookupTerm, LookupStatus.ERROR, null);

@@ -34,12 +34,17 @@ public class UrlValidator {
 
     /**
      * Validiert die vom LLM gelieferte icecatId gegen die Brave-URLs.
-     * Verhindert Halluzinationen — ID muss in mindestens einer URL vorkommen.
+     * Die ID muss als echte Icecat-Produkt-ID am Ende eines /p/-URLs vorkommen:
+     * icecat.biz/.../p/...-{id}.html — verhindert Substring-Zufallstreffer.
      */
     public String resolveIcecatId(String llmId, List<SearchResult> braveResults) {
         if (llmId == null) return null;
+        String suffix = "-" + llmId + ".html";
         boolean valid = braveResults.stream()
-                .anyMatch(r -> r.getUrl().contains(llmId));
+                .anyMatch(r -> {
+                    String url = r.getUrl();
+                    return url.contains("icecat.biz") && url.contains("/p/") && url.endsWith(suffix);
+                });
         return valid ? llmId : null;
     }
 

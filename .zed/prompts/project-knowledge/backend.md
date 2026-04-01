@@ -388,6 +388,7 @@ Tabelle `category_search_source` — konfiguriert Suchquellen pro Kategorie.
 **Problem**: Groq hat 6000 TPM (Tokens Per Minute) limit. Vollständige Brave-Suchergebnisse können 6695 Tokens überschreiten → HTTP 413 "Payload Too Large"
 
 **Lösung (2026-03-31, Commits 42d23ac + 343fb87)**: Lokale Snippet-Truncation ohne Token-Counter:
+
 - **Warum kein Token-Counter**: Würde externe Library erfordern; TPM-Limits sind provider/modell-spezifisch; Simple Truncation ist 80/20-Lösung
 - **Implementierung**: `BraveWebSearchService.extractResults()` mit Helper-Methoden `truncateString()`, `truncateSnippets()`
 - **Parameter**: 5 Results × 250 char description + 7 snippets × 250 chars = ~3125 Tokens total (mit Prompt ~600 Tokens)
