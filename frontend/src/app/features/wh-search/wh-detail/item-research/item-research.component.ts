@@ -110,6 +110,27 @@ export class ItemResearchComponent {
     return this.extractionStore.extractionStatus()[id] === 'FAILED';
   });
 
+  /** Merged condensedSpec from all extracted terms for the current item. */
+  protected readonly extractedCondensedSpec = computed<[string, string][]>(() => {
+    const id = this.detail().whItemId;
+    if (id == null) return [];
+    const terms = this.extractionStore.results()[id] ?? [];
+    const merged: Record<string, string> = {};
+    for (const term of terms) {
+      if (term.condensedSpec) Object.assign(merged, term.condensedSpec);
+    }
+    return Object.entries(merged);
+  });
+
+  /** Extraction finished but the LLM couldn't identify a product name. */
+  protected readonly extractionDoneNoTerm = computed<boolean>(() => {
+    const id = this.detail().whItemId;
+    if (id == null) return false;
+    const status = this.extractionStore.extractionStatus()[id];
+    if (status !== 'DONE') return false;
+    return !this.extractionStore.suggestedTerms()[id] && !this.searchTerm().trim();
+  });
+
   // --- Spec-Lookup ---
 
   protected readonly lookupState = computed<LookupState>(() => {

@@ -28,7 +28,7 @@ public final class DlCategoryPromptDefinitions {
           "condensedSpec": { "feld": "wert" }
         }
         extractedModel: Hersteller und exakte Modellbezeichnung des verkauften Produkts. Wenn nicht erkennbar: "UNBEKANNT".
-        condensedSpec: Die wichtigsten technischen Eckdaten direkt aus dem Inseratstext als flaches String-Map. Nur Felder die im Inserat explizit genannt werden.
+        condensedSpec: Die wichtigsten technischen Eckdaten direkt aus dem Inseratstext als flaches String-Map. Nur Felder die im Inserat explizit genannt werden. Die Werte stammen aus der Beschreibung.
         Alle Werte MÜSSEN Strings sein — keine Zahlen, keine verschachtelten Objekte. Wenn ein Wert fehlt, lass das Feld weg.
         Normalisiere Einheiten: TB statt GB ab 1000 GB, GHz statt MHz. Jedes Feld darf NUR EINMAL erscheinen.
         """;

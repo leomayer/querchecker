@@ -20,16 +20,4 @@ export * from './willhabenMeta.service';
 import { WillhabenMetaService } from './willhabenMeta.service';
 export * from './willhabenSearch.service';
 import { WillhabenSearchService } from './willhabenSearch.service';
-export const APIS = [
-  DlExtractionControllerService,
-  DlSettingsControllerService,
-  HealthControllerService,
-  ListingDetailService,
-  ListingsService,
-  ProductLookupService,
-  SettingsPreferencesService,
-  SseControllerService,
-  UsageService,
-  WillhabenMetaService,
-  WillhabenSearchService,
-];
+export const APIS = [DlExtractionControllerService, DlSettingsControllerService, HealthControllerService, ListingDetailService, ListingsService, ProductLookupService, SettingsPreferencesService, SseControllerService, UsageService, WillhabenMetaService, WillhabenSearchService];

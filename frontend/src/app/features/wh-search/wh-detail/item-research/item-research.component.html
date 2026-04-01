@@ -34,6 +34,16 @@
         </tr>
       }
     </table>
+  } @else if (lookupState() === 'NO_SOURCES' && extractedCondensedSpec().length > 0) {
+    <div class="condensed-spec-note">Aus Inseratstext</div>
+    <table class="quick-facts-table">
+      @for (entry of extractedCondensedSpec(); track entry[0]) {
+        <tr>
+          <td class="fact-key">{{ entry[0] }}</td>
+          <td class="fact-value">{{ entry[1] }}</td>
+        </tr>
+      }
+    </table>
   } @else {
     <div class="placeholder">
       @if (!aiSearchEnabled()) {
@@ -93,6 +103,9 @@
       } @else if (extractionFailed()) {
         <mat-icon class="placeholder-icon">manage_search</mat-icon>
         <span>Fehler beim Extrahieren der Produktdaten</span>
+      } @else if (extractionDoneNoTerm()) {
+        <mat-icon class="placeholder-icon">help_outline</mat-icon>
+        <span>Produktname nicht erkennbar — bitte manuell eingeben</span>
       } @else if (searchTerm().trim()) {
         <mat-icon class="placeholder-icon">auto_awesome</mat-icon>
         <span>Suche starten, um Produktdaten zu laden</span>
