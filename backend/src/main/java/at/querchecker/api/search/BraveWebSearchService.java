@@ -87,8 +87,8 @@ public class BraveWebSearchService implements WebSearchService {
             int status = e.getStatusCode().value();
             usageLogService.log(Provider.BRAVE, RequestType.SEARCH, lookupTerm, status, null, null, duration);
             if (status == 429) {
-                var headers = e.getResponseHeaders();
-                String retryAfterHeader = headers != null ? headers.getFirst("Retry-After") : null;
+                var responseHeaders = e.getResponseHeaders();
+                String retryAfterHeader = responseHeaders != null ? responseHeaders.getFirst("Retry-After") : null;
                 int retryAfterSeconds = RateLimitException.parseRetryAfter(retryAfterHeader);
                 log.warn("Brave search rate limited — retryAfter={}s", retryAfterSeconds);
                 throw new RateLimitException(retryAfterSeconds, Provider.BRAVE, null);

@@ -150,10 +150,10 @@ export class ItemResearchComponent {
     const facts = result.quickFacts;
     const prefKeys = Array.from(this.preferredKeySet());
     const preferred = prefKeys
-      .filter((k) => k in facts && facts[k] != null && facts[k] !== '' && k !== 'release_year')
+      .filter((k) => k in facts && facts[k] != null && facts[k] !== '' && k !== 'Erscheinungsjahr')
       .map((k) => [k, facts[k]] as [string, string]);
     const rest = Object.entries(facts)
-      .filter(([k, v]) => !prefKeys.includes(k) && v != null && v !== '' && k !== 'release_year')
+      .filter(([k, v]) => !prefKeys.includes(k) && v != null && v !== '' && k !== 'Erscheinungsjahr')
       .sort(([a], [b]) => a.localeCompare(b)) as [string, string][];
     return [...preferred, ...rest];
   });

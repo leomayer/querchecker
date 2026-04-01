@@ -20,17 +20,30 @@ public final class DlCategoryPromptDefinitions {
 
     public static final String PRODUCT_NAME_SYSTEM =
         """
-        Du extrahierst Produktinformationen aus Kleinanzeigen-Texten.
-        Antworte NUR mit validem JSON — kein erklärender Text, keine Markdown-Backticks.
-        Gib folgendes JSON zurück:
+        Du bist ein Experte für die Extraktion von strukturierten Produktdaten aus Kleinanzeigen.
+        Deine Aufgabe ist es, aus dem Titel und der Beschreibung die Kerninformationen zu extrahieren.
+
+        Antworte AUSSCHLIESSLICH mit einem validen JSON-Objekt. Verwende keine Markdown-Formatierung (wie ```json), keine Einleitung und keinen Schlusssatz.
+
+        Das JSON muss exakt dieses Format haben:
         {
-          "extractedModel": "Hersteller + genaue Modellbezeichnung",
-          "condensedSpec": { "feld": "wert" }
+          "extractedModel": "Hersteller + exakte Modellbezeichnung",
+          "condensedSpec": { "Merkmal Name": "Wert" }
         }
-        extractedModel: Hersteller und exakte Modellbezeichnung des verkauften Produkts. Wenn nicht erkennbar: "UNBEKANNT".
-        condensedSpec: Die wichtigsten technischen Eckdaten direkt aus dem Inseratstext als flaches String-Map. Nur Felder die im Inserat explizit genannt werden. Die Werte stammen aus der Beschreibung.
-        Alle Werte MÜSSEN Strings sein — keine Zahlen, keine verschachtelten Objekte. Wenn ein Wert fehlt, lass das Feld weg.
-        Normalisiere Einheiten: TB statt GB ab 1000 GB, GHz statt MHz. Jedes Feld darf NUR EINMAL erscheinen.
+
+        REGELN:
+        1. extractedModel: Identifiziere den Hersteller und das spezifische Modell des Produkts in der genannten Kategorie. Wenn nicht zweifelsfrei erkennbar, setze den Wert auf "UNBEKANNT".
+        2. condensedSpec: Ein flaches JSON-Objekt (String-Map) der wichtigsten produktspezifischen Merkmale (z.B. technische Daten, Maße, Gewicht, Material, Farbe). Wähle nur die relevantesten Angaben aus dem Text.
+        3. Werte in condensedSpec:
+           - Nur Felder extrahieren, die explizit im Text genannt werden.
+           - Alle Werte MÜSSEN Strings sein — keine Zahlen, keine verschachtelten Objekte. Wenn ein Wert fehlt, lass das Feld weg.
+           - Normalisiere Einheiten (z.B. "TB" statt "1000 GB", "GHz" statt "MHz").
+        4. Keys in condensedSpec: Kurze deutsche Bezeichnungen, erster Buchstabe groß, Wörter mit Leerzeichen getrennt (z.B. "Durchmesser", "Gewicht", "Größe"). Jeder Key darf nur einmal erscheinen.
+
+        BEISPIELE FÜR extractedModel:
+        - Tech: "Lenovo ThinkPad X1 Carbon Gen 12"
+        - Spielzeug: "Henrys Diabolo Kolibri"
+        - Sport: "Nike Vapen X Boa"
         """;
 
     public static final String PRODUCT_NAME_USER_DEFAULT =
@@ -40,29 +53,38 @@ public final class DlCategoryPromptDefinitions {
 
         Beschreibung:
         {description}
-
-        Extrahiere den genauen Produktnamen oder die Modellbezeichnung.
-        Beispiele für gute Antworten:
-        - ThinkPad X1 Carbon Gen 12
-        - Samsung Galaxy S24 Ultra
-        - HP LaserJet Pro M404dn
         """;
 
     // ─── QUICK_FACTS ─────────────────────────────────────────────────────────
 
     public static final String QUICK_FACTS_SYSTEM =
         """
-        Du extrahierst technische Spezifikationen aus Produktseiten-Snippets.
-        Antworte NUR mit validem JSON — kein erklärender Text, keine Markdown-Backticks.
-        Wenn ein Wert nicht erkennbar ist, lass das Feld weg (kein null, kein "unbekannt", kein "kein Wert erkennbar").
-        Feldnamen im quickFacts-Objekt: Kleinbuchstaben, Englisch, keine Sonderzeichen.
-        Alle Werte im quickFacts-Objekt MÜSSEN Strings sein — keine Zahlen, keine verschachtelten Objekte, keine Arrays.
-        Falsch: "ram": 16          Richtig: "ram": "16 GB"
-        Falsch: "display": {"size": 14, "resolution": "1920x1080"}   Richtig: "display": "14 Zoll 1920x1080"
-        Jedes Feld darf NUR EINMAL erscheinen — keine nummerierten Duplikate wie cpu2, ram3, display4.
-        Wenn die Snippets mehrere Varianten desselben Produkts enthalten, wähle den häufigsten oder repräsentativsten Wert.
-        Normalisiere Einheiten: Verwende stets die größte sinnvolle Einheit (TB statt GB ab 1000 GB, GB statt MB ab 1000 MB, GHz statt MHz). Äquivalente Werte (z.B. 1 TB und 1000 GB, 16 GB und 16384 MB) gelten als Duplikate — nur einmal ausgeben.
-        Spezial: Für "release_year" — nur 4-stellige Jahrzahl (z.B. "2023"). Keine Ranges, Approximationen oder Text. Wenn unbekannt, lass das Feld weg.
+        Du bist ein Daten-Analyst. Deine Aufgabe ist es, technische Spezifikationen aus verschiedenen Snippets von Produktseiten zu einer konsistenten Übersicht zusammenzuf��hren.
+
+        Antworte AUSSCHLIESSLICH mit einem validen JSON-Objekt ohne Markdown-Backticks oder begleitenden Text.
+
+        Format:
+        {
+          "quickFacts": { "Feldname": "Wert" },
+          "sources": {
+            "icecatId": "Rein numerische ID (z.B. '123456') extrahiert aus der Icecat-URL, sonst null",
+            "sourceUrl": "Vollständige URL des relevantesten Treffers"
+          }
+        }
+
+        REGELN:
+        1. Konsolidierung: Wenn Snippets unterschiedliche Werte liefern, wähle den häufigsten oder repräsentativsten Wert. Jedes Merkmal darf NUR EINMAL erscheinen — keine Duplikate (z.B. nicht 'Display 1', 'Display 2').
+        2. Formatierung Keys: Kurze deutsche Bezeichnungen, erster Buchstabe groß, Wörter mit Leerzeichen (z.B. "Prozessor", "Arbeitsspeicher", "Akku Kapazität").
+        3. Formatierung Werte:
+           - Alle Werte MÜSSEN flache Strings sein (keine Objekte, keine Arrays, keine reinen Zahlen).
+           - Falsch: "Arbeitsspeicher": 16  |  Richtig: "Arbeitsspeicher": "16 GB"
+           - Beispiel: "Display": "14 Zoll, 1920x1080" statt verschachtelter Objekte.
+        4. Einheiten & Normalisierung: Verwende die größte sinnvolle Einheit (TB statt GB ab 1000 GB, GB statt MB ab 1000 MB, GHz statt MHz). Äquivalente Werte gelten als Duplikate.
+        5. Spezialfall Erscheinungsjahr: Nur die 4-stellige Jahreszahl (z.B. "2023"). Keine Zeitspannen. Wenn unbekannt, Feld weglassen.
+        6. Vollständigkeit: Wenn ein Wert nicht erkennbar ist, lass das Feld komplett weg (kein null, kein "unbekannt" innerhalb von quickFacts).
+        7. Sources:
+           - icecatId: Suche in den URLs nach Mustern wie '...-123456.html'. Extrahiere NUR die Ziffern am Ende vor der Dateiendung. Wenn keine Icecat-URL vorhanden ist, setze null.
+           - sourceUrl: Die URL der Primärquelle, aus der die meisten Daten stammen.
         """;
 
     public static final String QUICK_FACTS_USER_DEFAULT =
@@ -75,18 +97,6 @@ public final class DlCategoryPromptDefinitions {
 
         Pflichtfelder (müssen erscheinen wenn erkennbar):
         {mandatoryFields}
-
-        Antworte mit diesem JSON-Schema:
-        {
-          "quickFacts": {
-            "field_name": "extracted value",
-            "another_field": "extracted value"
-          },
-          "sources": {
-            "icecatId": "die rein numerische ID am Ende der icecat-URL, direkt vor .html — Beispiel: aus '...lenovo-thinkpad-x1-carbon-123456.html' ist die icecatId '123456'",
-            "sourceUrl": "vollständige URL des relevantesten Treffers (egal welche Quelle)"
-          }
-        }
         """;
 
     // ─── HTML_FULL_SPECS ──────────────────────────────────────────────────────
@@ -138,102 +148,6 @@ public final class DlCategoryPromptDefinitions {
      * DlCategoryPromptSeeder iteriert über PromptType.values() und prüft pro Eintrag.
      */
     public static final Map<String, List<PromptConfig>> CONFIGS = Map.ofEntries(
-        Map.entry("Computer / Software", List.of(
-            new PromptConfig(PromptType.PRODUCT_NAME, PRODUCT_NAME_SYSTEM,
-                """
-                Kategorie: {category}
-                Titel: {title}
-
-                Beschreibung:
-                {description}
-
-                Welches Produkt in der Kategorie '{category}' wird verkauft? Nenne Hersteller und Modellbezeichnung.
-                """)
-        )),
-        Map.entry("Smartphones / Telefonie", List.of(
-            new PromptConfig(PromptType.PRODUCT_NAME, PRODUCT_NAME_SYSTEM,
-                """
-                Kategorie: {category}
-                Titel: {title}
-
-                Beschreibung:
-                {description}
-
-                Welches Produkt in der Kategorie '{category}' wird verkauft? Nenne Hersteller und Modellbezeichnung.
-                """)
-        )),
-        Map.entry("Kameras / TV / Multimedia", List.of(
-            new PromptConfig(PromptType.PRODUCT_NAME, PRODUCT_NAME_SYSTEM,
-                """
-                Kategorie: {category}
-                Titel: {title}
-
-                Beschreibung:
-                {description}
-
-                Welches Produkt in der Kategorie '{category}' wird angeboten? Nenne Hersteller und Modellbezeichnung.
-                """)
-        )),
-        Map.entry("Games / Konsolen", List.of(
-            new PromptConfig(PromptType.PRODUCT_NAME, PRODUCT_NAME_SYSTEM,
-                """
-                Kategorie: {category}
-                Titel: {title}
-
-                Beschreibung:
-                {description}
-
-                Welches Produkt in der Kategorie '{category}' wird angeboten? Nenne den genauen Namen.
-                """)
-        )),
-        Map.entry("Wohnen / Haushalt / Gastronomie", List.of(
-            new PromptConfig(PromptType.PRODUCT_NAME, PRODUCT_NAME_SYSTEM,
-                """
-                Kategorie: {category}
-                Titel: {title}
-
-                Beschreibung:
-                {description}
-
-                Welches Produkt in der Kategorie '{category}' wird angeboten? Nenne Hersteller und Modellbezeichnung.
-                """)
-        )),
-        Map.entry("Haus / Garten / Werkstatt", List.of(
-            new PromptConfig(PromptType.PRODUCT_NAME, PRODUCT_NAME_SYSTEM,
-                """
-                Kategorie: {category}
-                Titel: {title}
-
-                Beschreibung:
-                {description}
-
-                Welches Produkt in der Kategorie '{category}' wird angeboten? Nenne Hersteller und Modellbezeichnung.
-                """)
-        )),
-        Map.entry("Freizeit / Instrumente / Kulinarik", List.of(
-            new PromptConfig(PromptType.PRODUCT_NAME, PRODUCT_NAME_SYSTEM,
-                """
-                Kategorie: {category}
-                Titel: {title}
-
-                Beschreibung:
-                {description}
-
-                Welches Produkt in der Kategorie '{category}' wird angeboten? Nenne den genauen Produktnamen.
-                """)
-        )),
-        Map.entry("Sport / Sportgeräte", List.of(
-            new PromptConfig(PromptType.PRODUCT_NAME, PRODUCT_NAME_SYSTEM,
-                """
-                Kategorie: {category}
-                Titel: {title}
-
-                Beschreibung:
-                {description}
-
-                Welches Produkt in der Kategorie '{category}' wird angeboten? Nenne Hersteller und Modellbezeichnung.
-                """)
-        )),
         Map.entry("Laptop / Notebook", List.of(
             new PromptConfig(PromptType.QUICK_FACTS, QUICK_FACTS_SYSTEM,
                 """
@@ -246,16 +160,7 @@ public final class DlCategoryPromptDefinitions {
                 Pflichtfelder (müssen erscheinen wenn erkennbar):
                 {mandatoryFields}
 
-                Relevante Felder für Laptops: cpu, ram, storage, display, battery, weight, os
-
-                Antworte mit diesem JSON-Schema:
-                {
-                  "quickFacts": { "cpu": "...", "ram": "...", "display": "..." },
-                  "sources": {
-                    "icecatId": "die rein numerische ID am Ende der icecat-URL, direkt vor .html — Beispiel: aus '...thinkpad-t14-123456.html' ist die icecatId '123456'",
-                    "sourceUrl": "vollständige URL des relevantesten Treffers (egal welche Quelle)"
-                  }
-                }
+                Relevante Felder für Laptops: Prozessor, Arbeitsspeicher, Speicher, Display, Akku, Gewicht, Betriebssystem
                 """)
         )),
         Map.entry("Drucker & Scanner", List.of(
@@ -270,13 +175,7 @@ public final class DlCategoryPromptDefinitions {
                 Pflichtfelder (müssen erscheinen wenn erkennbar):
                 {mandatoryFields}
 
-                Relevante Felder für Drucker: technology, color, duplex, adf, ppm_mono, ppm_color, connectivity
-
-                Antworte mit diesem JSON-Schema:
-                {
-                  "quickFacts": { "technology": "...", "duplex": "...", "ppm_mono": "..." },
-                  "sources": { "icecatId": "...", "sourceUrl": "..." }
-                }
+                Relevante Felder für Drucker: Technologie, Farbe, Duplex, ADF, PPM Mono, PPM Farbe, Konnektivität
                 """)
         ))
     );

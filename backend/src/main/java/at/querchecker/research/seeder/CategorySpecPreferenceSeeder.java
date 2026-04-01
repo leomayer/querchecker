@@ -35,17 +35,17 @@ public class CategorySpecPreferenceSeeder {
     // Kategorienamen müssen exakt mit WhCategory.name übereinstimmen.
     // Mehrfacheinträge (z.B. "Tablets" auf level=1 und level=2) werden alle geseedet.
     private static final Map<String, List<String>> SYSTEM_FIELDS = Map.ofEntries(
-        entry("Notebooks",            List.of("cpu", "ram", "display", "storage", "gpu", "battery", "weight", "release_year")),
-        entry("Smartphones / Handys", List.of("cpu", "ram", "storage", "display", "battery", "camera", "release_year")),
-        entry("Tablets",              List.of("cpu", "ram", "storage", "display", "release_year")),
-        entry("Monitore",             List.of("screen_size", "resolution", "panel_type", "refresh_rate", "release_year")),
-        entry("Beamer",               List.of("resolution", "technology", "release_year")),
-        entry("Drucker",              List.of("technology", "duplex", "ppm_mono", "release_year")),
-        entry("PC-Komponenten",       List.of("type", "interface", "capacity")),
-        entry("Netzwerke",            List.of("type", "ports", "throughput")),
-        entry("Kameras / Camcorder",  List.of("sensor", "megapixel", "lens_mount", "release_year")),
-        entry("Fernseher",            List.of("screen_size", "panel_type", "resolution", "hdmi", "refresh_rate", "release_year")),
-        entry("Konsolen",             List.of("platform", "storage", "release_year"))
+        entry("Notebooks",            List.of("Prozessor", "Arbeitsspeicher", "Display", "Speicher", "Grafikkarte", "Akku", "Gewicht", "Erscheinungsjahr")),
+        entry("Smartphones / Handys", List.of("Prozessor", "Arbeitsspeicher", "Speicher", "Display", "Akku", "Kamera", "Erscheinungsjahr")),
+        entry("Tablets",              List.of("Prozessor", "Arbeitsspeicher", "Speicher", "Display", "Erscheinungsjahr")),
+        entry("Monitore",             List.of("Bildschirmgröße", "Auflösung", "Panel Typ", "Bildwiederholrate", "Erscheinungsjahr")),
+        entry("Beamer",               List.of("Auflösung", "Technologie", "Erscheinungsjahr")),
+        entry("Drucker",              List.of("Technologie", "Duplex", "PPM Mono", "Erscheinungsjahr")),
+        entry("PC-Komponenten",       List.of("Typ", "Schnittstelle", "Kapazität")),
+        entry("Netzwerke",            List.of("Typ", "Anschlüsse", "Durchsatz")),
+        entry("Kameras / Camcorder",  List.of("Sensor", "Megapixel", "Objektivbajonett", "Erscheinungsjahr")),
+        entry("Fernseher",            List.of("Bildschirmgröße", "Panel Typ", "Auflösung", "HDMI", "Bildwiederholrate", "Erscheinungsjahr")),
+        entry("Konsolen",             List.of("Plattform", "Speicher", "Erscheinungsjahr"))
     );
 
     @Transactional

@@ -60,7 +60,7 @@ export class ItemAnnotationComponent {
     const id = this.detail().whItemId;
     if (id == null) return null;
     const result = this.extractionStore.lookupResults()[id];
-    const year = result?.quickFacts?.['release_year'];
+    const year = result?.quickFacts?.['Erscheinungsjahr'];
     // Validate: must be 4-digit year (1900-2099)
     if (year && /^\d{4}$/.test(year)) {
       const numYear = parseInt(year, 10);
