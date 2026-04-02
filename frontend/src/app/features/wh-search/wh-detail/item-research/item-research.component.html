@@ -25,8 +25,8 @@
   <!-- 2. Main content: Placeholder XOR Quick Facts table -->
   @if (lookupState() === 'COMPLETE' && orderedQuickFacts().length > 0) {
     <div class="source-header">
-      @if (lookupSourceUrl()) {
-        <a mat-stroked-button class="source-action" [href]="lookupSourceUrl()" target="_blank" rel="noopener">
+      @if (effectiveSourceUrl()) {
+        <a mat-stroked-button class="source-action" [href]="effectiveSourceUrl()!" target="_blank" rel="noopener">
           <mat-icon>open_in_new</mat-icon>{{ lookupSourceLabel() || 'Web-Suche' }}
         </a>
       } @else {

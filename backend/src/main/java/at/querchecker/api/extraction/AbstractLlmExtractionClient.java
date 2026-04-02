@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -146,13 +147,14 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
       .replace("{lookupTerm}", lookupTerm)
       .replace("{category}", categoryName)
       .replace("{snippets}", snippetsBlock)
-      .replace("{mandatoryFields}", String.join(", ", mandatoryFields))
       .replace("{condensedSpec}", condensedBlock);
+
+    String systemPrompt = buildSystemPrompt(prompt.getSystemPrompt(), mandatoryFields);
 
     QuickFactsResult result = callLlmWithJsonRetry(
       RequestType.EXTRACTION,
       lookupTerm,
-      prompt.getSystemPrompt(),
+      systemPrompt,
       userPrompt
     );
     return applyIcecatIdSafetyCheck(result, braveResults, lookupTerm);
@@ -172,18 +174,104 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
       .replace("{lookupTerm}", lookupTerm)
       .replace("{category}", categoryName)
       .replace("{snippets}", pageText)
-      .replace("{mandatoryFields}", String.join(", ", mandatoryFields))
       .replace("{condensedSpec}", "");
+
+    String systemPrompt = buildSystemPrompt(prompt.getSystemPrompt(), mandatoryFields);
 
     return callLlmWithJsonRetry(
       RequestType.EXTRACTION,
       lookupTerm,
-      prompt.getSystemPrompt(),
+      systemPrompt,
       userPrompt
     );
   }
 
   // --- private helpers ---
+
+  /**
+   * Appends mandatory fields as a rule to the system prompt.
+   * If the list is empty, the system prompt is returned unchanged.
+   */
+  /**
+   * LLM-Füllwerte, die inhaltlich "keine Angabe" bedeuten.
+   * Solche Einträge werden aus quickFacts entfernt, damit sie nicht als
+   * abgedeckte Pflichtfelder in der Qualitätsbewertung zählen.
+   */
+  private static final java.util.Set<String> FILLER_VALUES = java.util.Set.of(
+    "unbekannt", "unknown", "-", "–", "n/a", "n.a.", "k.a.", "keine angabe",
+    "nicht angegeben", "nicht verfügbar", "nicht bekannt"
+  );
+
+  /** Tech-Akronyme und Markennamen mit kanonischer Schreibweise. */
+  private static final Map<String, String> CANONICAL_FORMS = Map.ofEntries(
+    Map.entry("hdmi",         "HDMI"),
+    Map.entry("usb",          "USB"),
+    Map.entry("dvi",          "DVI"),
+    Map.entry("vga",          "VGA"),
+    Map.entry("displayport",  "DisplayPort"),
+    Map.entry("thunderbolt",  "Thunderbolt"),
+    Map.entry("bluetooth",    "Bluetooth"),
+    Map.entry("wlan",         "WLAN"),
+    Map.entry("lan",          "LAN"),
+    Map.entry("oled",         "OLED"),
+    Map.entry("qled",         "QLED"),
+    Map.entry("lcd",          "LCD"),
+    Map.entry("ips",          "IPS"),
+    Map.entry("tn",           "TN"),
+    Map.entry("va",           "VA"),
+    Map.entry("hdr",          "HDR"),
+    Map.entry("sdr",          "SDR"),
+    Map.entry("uhd",          "UHD"),
+    Map.entry("qhd",          "QHD"),
+    Map.entry("fhd",          "FHD"),
+    Map.entry("cpu",          "CPU"),
+    Map.entry("gpu",          "GPU"),
+    Map.entry("ram",          "RAM"),
+    Map.entry("ssd",          "SSD"),
+    Map.entry("hdd",          "HDD"),
+    Map.entry("nvme",         "NVMe"),
+    Map.entry("sata",         "SATA"),
+    Map.entry("wifi",         "WiFi")
+  );
+
+  /**
+   * Kapitalisiert jeden Wort-Teil eines Feldsschlüssels nach deutschen Konventionen.
+   * Bekannte Akronyme/Markennamen werden in kanonischer Form geschrieben
+   * (z.B. "hdmi" → "HDMI", "displayport" → "DisplayPort"),
+   * alle anderen Wörter erhalten einen Großbuchstaben am Anfang.
+   */
+  private static String capitalizeFieldKey(String key) {
+    if (key == null || key.isEmpty()) return key;
+    // Split preserving separators (space, hyphen)
+    String[] parts = key.split("(?<=[ -])|(?=[ -])");
+    StringBuilder sb = new StringBuilder();
+    for (String part : parts) {
+      if (part.equals(" ") || part.equals("-")) {
+        sb.append(part);
+      } else {
+        String lower = part.toLowerCase();
+        String canonical = CANONICAL_FORMS.get(lower);
+        if (canonical != null) {
+          sb.append(canonical);
+        } else if (!part.isEmpty()) {
+          sb.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1));
+        }
+      }
+    }
+    return sb.toString();
+  }
+
+  private String buildSystemPrompt(String baseSystemPrompt, List<String> mandatoryFields) {
+    if (mandatoryFields == null || mandatoryFields.isEmpty()) {
+      return baseSystemPrompt;
+    }
+    String fields = mandatoryFields.stream()
+      .map(AbstractLlmExtractionClient::capitalizeFieldKey)
+      .collect(Collectors.joining(", "));
+    return baseSystemPrompt.stripTrailing()
+      + "\n8. Pflichtfelder (MÜSSEN in quickFacts erscheinen, sofern im Text erkennbar): "
+      + fields;
+  }
 
   /**
    * Calls LLM and parses JSON response. If parsing fails, retries once with explicit
@@ -238,6 +326,11 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
       QuickFactsResult result = MAPPER.readValue(json, QuickFactsResult.class);
       if (result.getSources() == null) {
         result.setSources(new QuickFactsResult.Sources());
+      }
+      if (result.getQuickFacts() != null) {
+        result.getQuickFacts().entrySet().removeIf(e ->
+          e.getValue() == null || FILLER_VALUES.contains(e.getValue().toLowerCase(java.util.Locale.ROOT).trim())
+        );
       }
       return result;
     } catch (IOException e) {

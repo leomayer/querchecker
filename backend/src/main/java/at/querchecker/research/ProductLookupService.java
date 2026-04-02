@@ -249,6 +249,12 @@ public class ProductLookupService {
         } catch (RateLimitException rle) {
             log.warn("[ProductLookupService] Rate limited by {} — retryAfter={}s, listingId={}",
                     rle.getProvider(), rle.getRetryAfterSeconds(), listingId);
+            // Partial result from a previous source is good enough — skip retry entirely
+            if (bestPartial != null) {
+                log.info("[ProductLookupService] Using bestPartial despite rate limit — saving as COMPLETE");
+                return saveAndReturn(lookupTerm, bestPartial.result(), bestPartial.icecatId(),
+                        bestPartial.sourceUrl(), bestPartial.source(), LookupStatus.COMPLETE);
+            }
             if (listingId != null && rle.getRetryAfterSeconds() <= MAX_AUTO_RETRY_SECONDS) {
                 scheduleRetry(listingId, lookupTerm, whCategory, condensedSpec,
                         mandatory, queryKeywords, condensedSpecContext, sources, rle.getRetryAfterSeconds());
@@ -303,6 +309,7 @@ public class ProductLookupService {
             pendingRetries.remove(listingId);
             log.info("[ProductLookupService] Retrying rate-limited lookup: listingId={}, term='{}' after {}s",
                     listingId, lookupTerm, delaySeconds);
+            PartialResult bestPartial = null;
             try {
                 // Short-circuit if the term was already completed (e.g. by another listing's retry)
                 Optional<ProductLookup> cached = repo.findByLookupTerm(lookupTerm);
@@ -311,8 +318,6 @@ public class ProductLookupService {
                     sseHub.broadcast("lookup-result", buildSsePayload(listingId, fromCache(cached.get()), null, null));
                     return;
                 }
-
-                PartialResult bestPartial = null;
 
                 for (CategorySearchSource source : sources) {
                     // Use cached results first; fall back to web search
@@ -364,8 +369,15 @@ public class ProductLookupService {
                 sseHub.broadcast("lookup-result", buildSsePayload(listingId, ProductLookupResult.failed(), null, null));
 
             } catch (RateLimitException rle) {
-                log.warn("[ProductLookupService] Rate-limit retry hit a second limit for listingId={}: retryAfter={}s — giving up",
+                log.warn("[ProductLookupService] Rate-limit retry hit a second limit for listingId={}: retryAfter={}s",
                         listingId, rle.getRetryAfterSeconds());
+                if (bestPartial != null) {
+                    log.info("[ProductLookupService] Using bestPartial from retry despite second rate limit — saving as COMPLETE");
+                    ProductLookupResult result = saveAndReturn(lookupTerm, bestPartial.result(),
+                            bestPartial.icecatId(), bestPartial.sourceUrl(), bestPartial.source(), LookupStatus.COMPLETE);
+                    sseHub.broadcast("lookup-result", buildSsePayload(listingId, result, null, null));
+                    return;
+                }
                 save(lookupTerm, LookupStatus.ERROR, null);
                 sseHub.broadcast("lookup-result", buildSsePayload(listingId, ProductLookupResult.error(), null, null));
             } catch (Exception e) {

@@ -105,7 +105,7 @@
 
 .quick-facts-grid {
   display: grid;
-  grid-template-columns: repeat(3, auto minmax(max-content, 1fr));
+  grid-template-columns: repeat(3, auto minmax(min-content, 1fr));
   column-gap: 4px;
   row-gap: 3px;
   align-items: start;
@@ -130,7 +130,6 @@
   padding: 3px 8px;
   border-radius: 4px;
   hyphens: auto;
-  white-space: nowrap;
 }
 
 // --- Action area ---

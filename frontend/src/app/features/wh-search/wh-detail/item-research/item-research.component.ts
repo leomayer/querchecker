@@ -190,6 +190,14 @@ export class ItemResearchComponent {
     return this.extractionStore.lookupResults()[id]?.sourceUrl ?? null;
   });
 
+  /** sourceUrl with fallback to Icecat search URL when Brave returned no product page. */
+  protected readonly effectiveSourceUrl = computed<string | null>(() => {
+    const url = this.lookupSourceUrl();
+    if (url) return url;
+    if (this.lookupSourceDomain()?.includes('icecat')) return this.icecatPageUrl();
+    return null;
+  });
+
   protected readonly lookupTerm = computed<string>(() => {
     const id = this.detail().whItemId;
     if (id == null) return '';
