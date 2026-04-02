@@ -64,45 +64,73 @@
   }
 }
 
-// --- Quick Facts table (3-column) ---
+// --- Source header (above quick-facts table) ---
 
-.condensed-spec-note {
-  font-size: 0.7rem;
-  color: var(--mat-sys-on-surface-variant);
-  margin-bottom: 4px;
-  opacity: 0.7;
+.source-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
 }
 
-.quick-facts-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 4px 3px;
+.source-action {
+  height: 28px;
+  line-height: 28px;
+  font-size: 0.78rem;
+  padding: 0 10px;
+
+  mat-icon {
+    font-size: 0.9rem;
+    width: 0.9rem;
+    height: 0.9rem;
+    margin-right: 4px;
+  }
+
+  mat-spinner {
+    margin-right: 4px;
+  }
+}
+
+.source-label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface-variant);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 4px;
+  padding: 3px 10px;
+}
+
+// --- Quick Facts grid (3-column key-value pairs) ---
+
+.quick-facts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, auto minmax(max-content, 1fr));
+  column-gap: 4px;
+  row-gap: 3px;
+  align-items: start;
   font-size: 0.8rem;
+}
 
-  .fact-key {
-    font-weight: 600;
-    color: var(--mat-sys-on-surface-variant);
-    white-space: normal;
-    padding: 3px 4px;
-    vertical-align: top;
-    width: 1%; // shrink-wrap
+.fact-key {
+  font-weight: 600;
+  color: var(--mat-sys-on-surface-variant);
+  hyphens: auto;
+  padding: 3px 4px;
 
-    // Extra left gap for 2nd and 3rd column keys to visually separate groups
-    &:not(:first-child) {
-      padding-left: 12px;
-    }
+  // Extra left gap for 2nd and 3rd key in each row
+  &:nth-child(6n + 3),
+  &:nth-child(6n + 5) {
+    padding-left: 12px;
   }
+}
 
-  .fact-value {
-    background: color-mix(in srgb, var(--mat-sys-surface-variant) 45%, transparent);
-    padding: 3px 8px;
-    border-radius: 4px;
-    vertical-align: top;
-
-    &:last-child {
-      padding-right: 6px;
-    }
-  }
+.fact-value {
+  background: color-mix(in srgb, var(--mat-sys-surface-variant) 45%, transparent);
+  padding: 3px 8px;
+  border-radius: 4px;
+  hyphens: auto;
+  white-space: nowrap;
 }
 
 // --- Action area ---
@@ -114,21 +142,6 @@
   margin-top: 10px;
 }
 
-// --- Load details button with spinner overlay ---
-
-.load-btn-wrapper {
-  position: relative;
-
-  .btn-spinner-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-  }
-}
-
 // --- Retry button in placeholder ---
 
 .retry-button {
@@ -136,19 +149,6 @@
 
   mat-icon {
     margin-right: 4px;
-  }
-}
-
-.load-details-btn {
-  width: 100%;
-  font-size: 0.82rem;
-  height: 32px;
-  line-height: 32px;
-
-  mat-icon {
-    font-size: 1rem;
-    width: 1rem;
-    height: 1rem;
   }
 }
 

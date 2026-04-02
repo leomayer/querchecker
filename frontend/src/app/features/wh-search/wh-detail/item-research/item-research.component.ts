@@ -158,16 +158,6 @@ export class ItemResearchComponent {
     return [...preferred, ...rest];
   });
 
-  /** Quick facts chunked into rows of 3 for the 3-column table layout. */
-  protected readonly quickFactsRows = computed<[string, string][][]>(() => {
-    const facts = this.orderedQuickFacts();
-    const rows: [string, string][][] = [];
-    for (let i = 0; i < facts.length; i += 3) {
-      rows.push(facts.slice(i, i + 3));
-    }
-    return rows;
-  });
-
   protected readonly lookupIcecatId = computed<string | null>(() => {
     const id = this.detail().whItemId;
     if (id == null) return null;

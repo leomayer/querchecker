@@ -24,26 +24,41 @@
 
   <!-- 2. Main content: Placeholder XOR Quick Facts table -->
   @if (lookupState() === 'COMPLETE' && orderedQuickFacts().length > 0) {
-    <table class="quick-facts-table">
-      @for (row of quickFactsRows(); track row[0][0]) {
-        <tr>
-          @for (entry of row; track entry[0]) {
-            <td class="fact-key">{{ entry[0] }}</td>
-            <td class="fact-value">{{ entry[1] }}</td>
+    <div class="source-header">
+      @if (lookupSourceUrl()) {
+        <a mat-stroked-button class="source-action" [href]="lookupSourceUrl()" target="_blank" rel="noopener">
+          <mat-icon>open_in_new</mat-icon>{{ lookupSourceLabel() || 'Web-Suche' }}
+        </a>
+      } @else {
+        <span class="source-label">{{ lookupSourceLabel() || 'Web-Suche' }}</span>
+      }
+      @if (showFullSpecsButton() && !fullSpecsLoaded()) {
+        <button mat-stroked-button class="source-action" (click)="onLoadFullSpecs()" [disabled]="fullSpecsLoading()">
+          @if (fullSpecsLoading()) {
+            <mat-spinner diameter="14" />
+          } @else {
+            <mat-icon>description</mat-icon>
           }
-        </tr>
+          Vollspezifikation
+        </button>
       }
-    </table>
+    </div>
+    <div class="quick-facts-grid">
+      @for (entry of orderedQuickFacts(); track entry[0]) {
+        <span class="fact-key">{{ entry[0] }}</span>
+        <span class="fact-value">{{ entry[1] }}</span>
+      }
+    </div>
   } @else if (lookupState() === 'NO_SOURCES' && extractedCondensedSpec().length > 0) {
-    <div class="condensed-spec-note">Aus Inseratstext</div>
-    <table class="quick-facts-table">
+    <div class="source-header">
+      <span class="source-label">WH-Inserat</span>
+    </div>
+    <div class="quick-facts-grid">
       @for (entry of extractedCondensedSpec(); track entry[0]) {
-        <tr>
-          <td class="fact-key">{{ entry[0] }}</td>
-          <td class="fact-value">{{ entry[1] }}</td>
-        </tr>
+        <span class="fact-key">{{ entry[0] }}</span>
+        <span class="fact-value">{{ entry[1] }}</span>
       }
-    </table>
+    </div>
   } @else {
     <div class="placeholder">
       @if (!aiSearchEnabled()) {
@@ -119,24 +134,6 @@
   <!-- 3. Action area — only when lookup was successful -->
   @if (lookupState() === 'COMPLETE') {
     <div class="action-area">
-      @if (showFullSpecsButton() && !fullSpecsLoaded()) {
-        <div class="load-btn-wrapper">
-          <button
-            mat-stroked-button
-            class="load-details-btn"
-            (click)="onLoadFullSpecs()"
-            [disabled]="fullSpecsLoading()">
-            <mat-icon>description</mat-icon>
-            Produktdetails laden
-          </button>
-          @if (fullSpecsLoading()) {
-            <div class="btn-spinner-overlay">
-              <mat-spinner diameter="16" />
-            </div>
-          }
-        </div>
-      }
-
       @if (icecatFeatureGroups().length > 0) {
         <app-icecat-accordion
           [groups]="icecatFeatureGroups()"
@@ -151,35 +148,14 @@
           [canToggle]="activeCategoryId() != null"
           (toggle)="togglePreference($event)" />
       }
-
-      <div class="external-links">
-        @if (geizhalUrl()) {
+      @if (geizhalUrl()) {
+        <div class="external-links">
           <a class="ext-link" [href]="geizhalUrl()!" target="_blank" rel="noopener">
             <mat-icon class="link-icon">open_in_new</mat-icon>
             Geizhals
           </a>
-        }
-        @if (lookupSourceDomain() === 'icecat.biz' && (lookupSourceUrl() || icecatPageUrl())) {
-          <a
-            class="ext-link"
-            [href]="lookupSourceUrl() ?? icecatPageUrl()!"
-            target="_blank"
-            rel="noopener">
-            <mat-icon class="link-icon">open_in_new</mat-icon>
-            Icecat
-          </a>
-        }
-        @if (lookupSourceLabel() && lookupSourceDomain() !== 'icecat.biz') {
-          <a
-            class="ext-link"
-            [href]="lookupSourceUrl() ?? 'https://' + lookupSourceDomain()"
-            target="_blank"
-            rel="noopener">
-            <mat-icon class="link-icon">open_in_new</mat-icon>
-            {{ lookupSourceLabel() }}
-          </a>
-        }
-      </div>
+        </div>
+      }
     </div>
   }
 </div>
@@ -188,9 +164,6 @@
 @if (lookupState() === 'COMPLETE' && lookupTimestamp()) {
   <div class="sticky-footer">
     <mat-icon class="footer-icon">schedule</mat-icon>
-    <span
-      >Daten vom
-      {{ fullSpecsTimestamp() ?? lookupTimestamp() | date: 'dd.MM.yyyy, HH:mm' }} Uhr</span
-    >
+    <span>Stand: {{ fullSpecsTimestamp() ?? lookupTimestamp() | date: 'dd.MM.yyyy, HH:mm' }} Uhr</span>
   </div>
 }
