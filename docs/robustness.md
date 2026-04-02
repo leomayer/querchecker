@@ -299,11 +299,3 @@ Easier to trace cross-service request flows.
 - [ ] **Error rate**: Track FAILED extractions by model (degraded LLM quality?)
 - [ ] **Database size**: `ProductLookup` table grows over time (monitor retention)
 
----
-
-## Future Improvements
-
-- [ ] Metrics export (Prometheus format) for monitoring
-- [ ] Dead-letter queue for failed DL runs (manual review)
-- [ ] Automatic model fallback (if Groq unavailable → try local Llama)
-- [ ] User-per-quota (multi-tenant support)
