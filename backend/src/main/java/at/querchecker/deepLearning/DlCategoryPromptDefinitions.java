@@ -38,6 +38,7 @@ public final class DlCategoryPromptDefinitions {
            - Nur Felder extrahieren, die explizit im Text genannt werden.
            - Alle Werte MÜSSEN Strings sein — keine Zahlen, keine verschachtelten Objekte. Wenn ein Wert fehlt, lass das Feld weg.
            - Normalisiere Einheiten (z.B. "TB" statt "1000 GB", "GHz" statt "MHz").
+           - Kein Zoll-Zeichen in Werten: schreibe "24 Zoll" statt "24\"" — ein rohes Anführungszeichen macht das JSON ungültig.
         4. Keys in condensedSpec: Kurze deutsche Bezeichnungen, erster Buchstabe groß, Wörter mit Leerzeichen getrennt (z.B. "Durchmesser", "Gewicht", "Größe"). Jeder Key darf nur einmal erscheinen.
 
         BEISPIELE FÜR extractedModel:
