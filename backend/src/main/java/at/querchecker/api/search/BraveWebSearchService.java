@@ -105,7 +105,7 @@ public class BraveWebSearchService implements WebSearchService {
     }
 
     private String buildUrl(String query, int count) {
-        return UriComponentsBuilder.fromHttpUrl(BRAVE_API_URL)
+        return UriComponentsBuilder.fromUriString(BRAVE_API_URL)
                 .queryParam("q", query)
                 .queryParam("count", count)
                 .queryParam("extra_snippets", true)

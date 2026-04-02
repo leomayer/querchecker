@@ -1,13 +1,19 @@
 package at.querchecker.deepLearning.service;
 
-import at.querchecker.deepLearning.ExtractionStatus;
-import at.querchecker.deepLearning.entity.DlExtractionRun;
+import static at.querchecker.deepLearning.ExtractionStatus.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
+
 import at.querchecker.deepLearning.entity.DlModelConfig;
 import at.querchecker.deepLearning.entity.ItemText;
 import at.querchecker.deepLearning.repository.DlExtractionRunRepository;
 import at.querchecker.deepLearning.repository.DlExtractionTermRepository;
 import at.querchecker.deepLearning.repository.DlModelConfigRepository;
 import at.querchecker.repository.AppConfigRepository;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,109 +22,111 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
-import java.util.List;
-
-import static at.querchecker.deepLearning.ExtractionStatus.*;
-import at.querchecker.deepLearning.entity.ItemText;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.lenient;
-
 @ExtendWith(MockitoExtension.class)
 class DlOrchestrationServiceTest {
 
-    @Mock DlModelConfigRepository modelConfigRepo;
-    @Mock DlExtractionRunRepository runRepo;
-    @Mock DlExtractionTermRepository termRepo;
-    @Mock DlPromptResolver promptResolver;
-    @Mock DlExtractionService extractionService;
-    @Mock ApplicationEventPublisher eventPublisher;
-    @Mock AppConfigRepository appConfigRepository;
-    @InjectMocks DlOrchestrationService service;
+  @Mock
+  DlModelConfigRepository modelConfigRepo;
 
-    @BeforeEach
-    void setUp() {
-        lenient().when(promptResolver.resolve(any(ItemText.class))).thenReturn("prompt");
-        lenient().when(runRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        service.init();
-    }
+  @Mock
+  DlExtractionRunRepository runRepo;
 
-    @Test
-    void scheduleExtraction_setsNoImplementation_whenComponentMissing() {
-        DlModelConfig mc = modelConfig("unknown-model");
-        when(modelConfigRepo.findByActiveTrueOrderByExecutionOrderAsc()).thenReturn(List.of(mc));
-        when(runRepo.existsByItemTextAndModelConfigAndStatus(any(), any(), eq(DONE)))
-            .thenReturn(false);
-        when(runRepo.existsByItemTextAndModelConfigAndStatusIn(any(), any(), anyList()))
-            .thenReturn(false);
-        service.models = List.of(); // no @Component registered
+  @Mock
+  DlExtractionTermRepository termRepo;
 
-        service.scheduleExtraction(itemText());
+  @Mock
+  DlPromptResolver promptResolver;
 
-        verify(runRepo).save(argThat(run ->
-            run.getStatus() == NO_IMPLEMENTATION));
-    }
+  @Mock
+  DlExtractionService extractionService;
 
-    @Test
-    void scheduleExtraction_skipsDoneRuns() {
-        DlModelConfig mc = modelConfig("gelectra-large-germanquad");
-        when(modelConfigRepo.findByActiveTrueOrderByExecutionOrderAsc()).thenReturn(List.of(mc));
-        when(runRepo.existsByItemTextAndModelConfigAndStatus(any(), eq(mc), eq(DONE)))
-            .thenReturn(true);
-        service.models = List.of();
+  @Mock
+  ApplicationEventPublisher eventPublisher;
 
-        service.scheduleExtraction(itemText());
+  @Mock
+  AppConfigRepository appConfigRepository;
 
-        verify(runRepo, never()).save(any());
-    }
+  @InjectMocks
+  DlOrchestrationService service;
 
-    @Test
-    void scheduleExtraction_doesNotCreateRun_beforeComponentCheck() {
-        DlModelConfig mc = modelConfig("missing-model");
-        when(modelConfigRepo.findByActiveTrueOrderByExecutionOrderAsc()).thenReturn(List.of(mc));
-        when(runRepo.existsByItemTextAndModelConfigAndStatus(any(), any(), eq(DONE)))
-            .thenReturn(false);
-        when(runRepo.existsByItemTextAndModelConfigAndStatusIn(any(), any(), anyList()))
-            .thenReturn(false);
-        service.models = List.of(); // no @Component
+  @BeforeEach
+  void setUp() {
+    lenient().when(promptResolver.resolve(any(ItemText.class))).thenReturn("prompt");
+    lenient()
+      .when(runRepo.save(any()))
+      .thenAnswer((inv) -> inv.getArgument(0));
+    service.init();
+  }
 
-        service.scheduleExtraction(itemText());
+  @Test
+  void scheduleExtraction_setsNoImplementation_whenComponentMissing() {
+    DlModelConfig mc = modelConfig("unknown-model");
+    when(modelConfigRepo.findByActiveTrueOrderByExecutionOrderAsc()).thenReturn(List.of(mc));
+    when(runRepo.existsByItemTextAndModelConfigAndStatus(any(), any(), eq(DONE))).thenReturn(false);
+    when(runRepo.existsByItemTextAndModelConfigAndStatusIn(any(), any(), anyList())).thenReturn(
+      false
+    );
+    service.models = List.of(); // no @Component registered
 
-        verify(runRepo).save(argThat(run ->
-            run.getStatus() != INIT));
-    }
+    service.scheduleExtraction(itemText());
 
-    @Test
-    void scheduleExtraction_createsRunWithInit_whenComponentExists() {
-        ExtractionModel model = mock(ExtractionModel.class);
-        when(model.getName()).thenReturn("gelectra-large-germanquad");
-        service.models = List.of(model);
+    verify(runRepo).save(argThat((run) -> run.getStatus() == NO_IMPLEMENTATION));
+  }
 
-        DlModelConfig mc = modelConfig("gelectra-large-germanquad");
-        when(modelConfigRepo.findByActiveTrueOrderByExecutionOrderAsc()).thenReturn(List.of(mc));
-        when(runRepo.existsByItemTextAndModelConfigAndStatus(any(), any(), eq(DONE)))
-            .thenReturn(false);
-        when(runRepo.existsByItemTextAndModelConfigAndStatusIn(any(), any(), anyList()))
-            .thenReturn(false);
+  @Test
+  void scheduleExtraction_skipsDoneRuns() {
+    DlModelConfig mc = modelConfig("gelectra-large-germanquad");
+    when(modelConfigRepo.findByActiveTrueOrderByExecutionOrderAsc()).thenReturn(List.of(mc));
+    when(runRepo.existsByItemTextAndModelConfigAndStatus(any(), eq(mc), eq(DONE))).thenReturn(true);
+    service.models = List.of();
 
-        service.scheduleExtraction(itemText());
+    service.scheduleExtraction(itemText());
 
-        verify(runRepo).save(argThat(run ->
-            run.getStatus() == INIT));
-    }
+    verify(runRepo, never()).save(any());
+  }
 
-    private DlModelConfig modelConfig(String name) {
-        return DlModelConfig.builder().modelName(name).active(true).executionOrder(10).build();
-    }
+  @Test
+  void scheduleExtraction_doesNotCreateRun_beforeComponentCheck() {
+    DlModelConfig mc = modelConfig("missing-model");
+    when(modelConfigRepo.findByActiveTrueOrderByExecutionOrderAsc()).thenReturn(List.of(mc));
+    when(runRepo.existsByItemTextAndModelConfigAndStatus(any(), any(), eq(DONE))).thenReturn(false);
+    when(runRepo.existsByItemTextAndModelConfigAndStatusIn(any(), any(), anyList())).thenReturn(
+      false
+    );
+    service.models = List.of(); // no @Component
 
-    private ItemText itemText() {
-        ItemText it = new ItemText();
-        it.setId(1L);
-        it.setTitle("title");
-        it.setDescription("desc");
-        return it;
-    }
+    service.scheduleExtraction(itemText());
+
+    verify(runRepo).save(argThat((run) -> run.getStatus() != INIT));
+  }
+
+  @Test
+  void scheduleExtraction_createsRunWithInit_whenComponentExists() {
+    ExtractionModel model = mock(ExtractionModel.class);
+    when(model.getName()).thenReturn("gelectra-large-germanquad");
+    service.models = List.of(model);
+
+    DlModelConfig mc = modelConfig("gelectra-large-germanquad");
+    when(modelConfigRepo.findByActiveTrueOrderByExecutionOrderAsc()).thenReturn(List.of(mc));
+    when(runRepo.existsByItemTextAndModelConfigAndStatus(any(), any(), eq(DONE))).thenReturn(false);
+    when(runRepo.existsByItemTextAndModelConfigAndStatusIn(any(), any(), anyList())).thenReturn(
+      false
+    );
+
+    service.scheduleExtraction(itemText());
+
+    verify(runRepo).save(argThat((run) -> run.getStatus() == INIT));
+  }
+
+  private DlModelConfig modelConfig(String name) {
+    return DlModelConfig.builder().modelName(name).active(true).executionOrder(10).build();
+  }
+
+  private ItemText itemText() {
+    ItemText it = new ItemText();
+    it.setId(1L);
+    it.setTitle("title");
+    it.setDescription("desc");
+    return it;
+  }
 }

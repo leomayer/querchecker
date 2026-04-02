@@ -41,7 +41,7 @@ public class IcecatService {
      * @return {@link IcecatFetchResult} — unterscheidet "gefunden", "404 nicht gefunden" und "Fehler"
      */
     public IcecatFetchResult fetchFullSpecs(String icecatId) {
-        String url = UriComponentsBuilder.fromHttpUrl(ICECAT_API_URL)
+        String url = UriComponentsBuilder.fromUriString(ICECAT_API_URL)
                 .queryParam("icecat_id", icecatId)
                 .queryParam("lang", "DE")
                 .queryParam("shopname", OPEN_USER)

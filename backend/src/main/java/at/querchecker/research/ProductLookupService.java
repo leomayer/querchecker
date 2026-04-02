@@ -227,7 +227,7 @@ public class ProductLookupService {
                     save(lookupTerm, LookupStatus.FAILED, null);
                     return ProductLookupResult.failed();
                 }
-                // EMPTY → nächste Quelle
+                case EMPTY -> {} // nächste Quelle
             }
         }
 

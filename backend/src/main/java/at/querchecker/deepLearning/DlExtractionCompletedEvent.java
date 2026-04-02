@@ -1,6 +1,5 @@
 package at.querchecker.deepLearning;
 
-import at.querchecker.deepLearning.ExtractionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
