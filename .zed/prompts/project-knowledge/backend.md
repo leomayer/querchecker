@@ -277,9 +277,12 @@ Swagger UI: `/swagger-ui.html` (dev only, in Prod via `SPRING_PROFILES_ACTIVE=pr
 ## DL Category Prompts
 
 - `DlCategoryPromptDefinitions`: Java-Konstanten für alle Prompts. Enthält `PromptConfig` record `(PromptType, systemPrompt, userPrompt)`. Default-Konstanten: `PRODUCT_NAME_SYSTEM`, `PRODUCT_NAME_USER_DEFAULT`, `QUICK_FACTS_SYSTEM`, `QUICK_FACTS_USER_DEFAULT`. Kategorie-spezifische Prompts in unified `CONFIGS: Map<String, List<PromptConfig>>` (ersetzt die früheren getrennten `*_BY_CATEGORY`-Maps).
+- **PRODUCT_NAME**: Reicherer System-Prompt mit nummerierten Regeln, Persona, vielen Beispielen. `condensedSpec`-Keys sind Deutsch, groß geschrieben, mit Leerzeichen getrennt (z.B. "Akku Kapazität", "Bildschirmgröße", "Prozessor"). User-Prompt nur Daten (Kategorie, Titel, Beschreibung). Inch-Mark-Sanitisierungsregel hinzugefügt (verhindert LLM-Fehler wie `"24""` statt `"24 Zoll"`).
+- **QUICK_FACTS**: System-Prompt mit Konsolidierungsregel, German-Key-Namen (groß geschrieben), Sources-Block mit icecatId-URL-Muster, GB→MB-Normalisierung, Falsch/Richtig-Beispiele. User-Prompt nur Daten. `condensedSpec`-Keys sind Deutsch.
 - `DlCategoryPromptSeeder`: Additives Per-Entry-Upsert beim Start — prüft jedes `(Kategorie, PromptType)`-Paar einzeln via `findDefaultByPromptType` + `findByWhCategoryAndPromptType`. Überschreibt niemals vorhandene Einträge. Re-seed: `DELETE FROM dl_category_prompt` + Neustart.
 - `DlPromptResolver.resolve(WhCategory, PromptType)`: traversiert Kategoriehierarchie, Fallback auf Default
 - **QUICK_FACTS icecatId**: "die rein numerische ID am Ende der icecat-URL, direkt vor .html"
+- **AbstractLlmExtractionClient**: Entfernt Füllwerte ("unbekannt", "-", "n/a", "unknown", etc.) aus `quickFacts` nach dem Parsing, damit sie nicht als erfüllte Pflichtfelder in der Quality-Bewertung zählen. Sanitisiert Raw-LLM-Ausgabe vor JSON-Parsing für Inch-Mark-Fehler (Ziffer + nackte Quote → "Ziffer Zoll,").
 
 ## Conditional Model Registration (`DlModelConfiguration`)
 

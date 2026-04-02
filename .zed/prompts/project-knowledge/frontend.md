@@ -247,14 +247,17 @@ Vollständig implementiertes Feature:
 
 - Suchfeld vorausgefüllt aus `suggestedTerms`; DL-Term-Chips klickbar zum Befüllen
 - `auto_awesome` Button → `lookup()` → Spec-Lookup (Brave Search + LLM)
-- **Quick-Facts-Tabelle** — geordnet: bevorzugte Felder (aus `preferredKeySet`) zuerst, Rest alphabetisch (`orderedQuickFacts`)
-- **Quellenangabe** — "Daten von {domain} ↗" unter der Tabelle, verlinkt auf `sourceUrl` oder `https://{sourceDomain}` (`lookupSourceDomain` + `lookupSourceUrl` Signals)
+- **Quick-Facts-Tabelle** — geordnet: bevorzugte Felder (aus `preferredKeySet`) zuerst, Rest alphabetisch (`orderedQuickFacts`). Filtert `'Erscheinungsjahr'` aus der Tabellenansicht aus (wird stattdessen im Badge angezeigt).
+- **Quellenangabe** — "Daten von {domain} ↗" unter der Tabelle, verlinkt auf `sourceUrl` oder `https://{sourceDomain}` (`lookupSourceDomain` + `lookupSourceUrl` Signals). Icecat-Quellenbezeichnung verlinkt auf Such-URL-Fallback.
 - Geizhals-Link (öffnet Suche in neuem Tab)
 - Icecat-Full-Specs-Button (`description` Icon) → `loadFullSpecs()` — nur wenn `showFullSpecsButton()` = true (= `icecatId != null && sourceType === 'ICECAT'`)
 - **Icecat-Accordion** (`icecat-accordion/`) — Feature-Gruppen aus Icecat Full-Specs API
 - **Specs-Accordion** (`specs-accordion/`) — Feature-Gruppen aus HTML-Fetch-Quellen (GSMArena, FlatpanelsHD); erscheint direkt nach Lookup, kein separater Button
+- **Layout**: Grid mit `minmax(min-content, 1fr)` Spalten (keine fixen Breiten, Werte wrappen frei)
 - `noIcecatData`-Guard: kein quickFacts + keine icecatId + keine featureGroups
 - `upc-search/` und `icecat-spec/` Sub-Komponenten entfernt (EAN/UPC-Feature gelöscht)
+
+**German Keys**: Alle `quickFacts`-Keys sind jetzt Deutsch und groß geschrieben (z.B. `'Erscheinungsjahr'` statt `'release_year'`, `'Arbeitsspeicher'` statt `'memory'`, `'Bildschirmgröße'` statt `'screen_size'`). Alle Feld-Name-Referenzen müssen auf German-Äquivalente aus den Backend-Systemfeldern aktualisiert werden.
 
 **Computed Signals:** `state`, `termGroups`, `lookupState`, `orderedQuickFacts`, `lookupIcecatId`, `showFullSpecsButton`, `lookupTerm`, `lookupSourceDomain`, `lookupSourceUrl`, `geizhalUrl`, `fullSpecsLoading`, `fullSpecsLoaded`, `icecatFeatureGroups`, `icecatGeneralInfo`, `specsFeatureGroups`, `noIcecatData`, `icecatPageUrl`, `icecatMismatch`, `activeCategoryId`, `preferredKeySet`, `quickFactsRows`, `searchButtonDisabled`
 

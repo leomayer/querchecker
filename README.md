@@ -114,3 +114,13 @@ docker compose -f docker-compose.prod.yml up -d
 ```
 
 Traefik-Labels in `docker-compose.prod.yml` anpassen (Domain, certresolver).
+
+---
+
+## Für Entwickler & Ops
+
+Falls dich die technischen Details interessieren:
+
+- 🏗️ [Architecture & Design Decisions](docs/architecture.md) — wie die App gebaut ist (SignalStore, SSE, conditional model registration, OpenAPI workflow, etc.)
+- 🛡️ [Robustness & Error Handling](docs/robustness.md) — wie es mit API-Ausfällen, Rate-Limiting, Quota-Verwaltung und Server-Restarts umgeht
+- 📚 [API-Setup](docs/api-setup.md) — KI-Modelle und Brave Search konfigurieren (lokal vs. remote)
