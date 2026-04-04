@@ -70,7 +70,8 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
       RequestType.EXTRACTION,
       null,
       prompt.getSystemPrompt(),
-      userPrompt
+      userPrompt,
+      false
     );
     return response.firstChoice().trim();
   }
@@ -92,7 +93,8 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
       RequestType.EXTRACTION,
       null,
       prompt.getSystemPrompt(),
-      userPrompt
+      userPrompt,
+      true
     );
     String raw = response.firstChoice().trim();
 
@@ -281,7 +283,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     String systemPrompt,
     String userPrompt
   ) {
-    ChatResponse response = callLlm(requestType, lookupTerm, systemPrompt, userPrompt);
+    ChatResponse response = callLlm(requestType, lookupTerm, systemPrompt, userPrompt, true);
     String firstAttempt = response.firstChoice();
 
     // Try parsing the initial response
@@ -298,7 +300,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     );
     String jsonOnlyPrompt =
       userPrompt + "\n\n⚠️ WICHTIG: Antworte NUR mit validem JSON, KEINE weiteren Erklärungen!";
-    ChatResponse retryResponse = callLlm(requestType, lookupTerm, systemPrompt, jsonOnlyPrompt);
+    ChatResponse retryResponse = callLlm(requestType, lookupTerm, systemPrompt, jsonOnlyPrompt, true);
     String retryAttempt = retryResponse.firstChoice();
 
     result = tryParseJson(retryAttempt);
@@ -341,9 +343,10 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     RequestType requestType,
     String lookupTerm,
     String systemPrompt,
-    String userPrompt
+    String userPrompt,
+    boolean expectJson
   ) {
-    ChatRequest request = buildRequest(systemPrompt, userPrompt);
+    ChatRequest request = buildRequest(systemPrompt, userPrompt, expectJson);
 
     // Estimate token count before calling LLM (for TPM monitoring)
     int estimatedInputTokens = estimateTokens(systemPrompt) + estimateTokens(userPrompt);
@@ -423,14 +426,16 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     }
   }
 
-  private ChatRequest buildRequest(String systemPrompt, String userPrompt) {
+  private static final Map<String, String> JSON_RESPONSE_FORMAT = Map.of("type", "json_object");
+
+  private ChatRequest buildRequest(String systemPrompt, String userPrompt, boolean expectJson) {
     List<ChatRequest.Message> messages = new ArrayList<>();
     if (systemPrompt != null && !systemPrompt.isBlank()) {
       messages.add(new ChatRequest.Message("system", systemPrompt));
     }
     messages.add(new ChatRequest.Message("user", userPrompt));
-    // adjust the temperature if required
-    return new ChatRequest(getModel(), messages, 0.0, 1024);
+    return new ChatRequest(getModel(), messages, 0.0, 1024,
+        expectJson ? JSON_RESPONSE_FORMAT : null);
   }
 
   protected QuickFactsResult parseJson(String json) {
