@@ -99,7 +99,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     String raw = response.firstChoice().trim();
 
     try {
-      ProductNameResult parsed = MAPPER.readValue(sanitizeRawJson(raw), ProductNameResult.class);
+      ProductNameResult parsed = MAPPER.readValue(raw, ProductNameResult.class);
       log.debug(
         "extractProductNameStructured: extractedModel='{}', condensedSpec keys={}",
         parsed.extractedModel(),
@@ -323,7 +323,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
   private QuickFactsResult tryParseJson(String json) {
     try {
       log.debug("QuickFacts raw LLM response (provider={}): {}", getProvider(), json);
-      QuickFactsResult result = MAPPER.readValue(sanitizeRawJson(json), QuickFactsResult.class);
+      QuickFactsResult result = MAPPER.readValue(json, QuickFactsResult.class);
       if (result.getSources() == null) {
         result.setSources(new QuickFactsResult.Sources());
       }
@@ -441,7 +441,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
   protected QuickFactsResult parseJson(String json) {
     try {
       log.debug("QuickFacts raw LLM response (provider={}): {}", getProvider(), json);
-      QuickFactsResult result = MAPPER.readValue(sanitizeRawJson(json), QuickFactsResult.class);
+      QuickFactsResult result = MAPPER.readValue(json, QuickFactsResult.class);
       if (result.getSources() == null) {
         result.setSources(new QuickFactsResult.Sources());
       }
@@ -573,17 +573,6 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
             : "\nExtra: " + String.join(" | ", r.getExtraSnippets()))
       )
       .collect(Collectors.joining("\n"));
-  }
-
-  /**
-   * Fixes a common LLM output error: inch marks written as ASCII double-quotes inside
-   * JSON string values (e.g. {@code "24""} instead of {@code "24 Zoll"}).
-   * Replaces {@code digit"} followed by a JSON structural character (comma, whitespace,
-   * closing brace/bracket) with {@code digit Zoll"}.
-   */
-  private static String sanitizeRawJson(String json) {
-    if (json == null) return null;
-    return json.replaceAll("(\\d)\"([,\\s}\\]])", "$1 Zoll\"$2");
   }
 
   private static String truncate(String text, int maxChars) {
