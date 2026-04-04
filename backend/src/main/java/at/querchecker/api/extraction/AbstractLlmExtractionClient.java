@@ -98,14 +98,12 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
 
     try {
       ProductNameResult parsed = MAPPER.readValue(sanitizeRawJson(raw), ProductNameResult.class);
-      if (parsed.extractedModel() != null && !parsed.extractedModel().isBlank()) {
-        log.debug(
-          "extractProductNameStructured: extractedModel='{}', condensedSpec keys={}",
-          parsed.extractedModel(),
-          parsed.condensedSpec() != null ? parsed.condensedSpec().keySet() : "none"
-        );
-        return parsed;
-      }
+      log.debug(
+        "extractProductNameStructured: extractedModel='{}', condensedSpec keys={}",
+        parsed.extractedModel(),
+        parsed.condensedSpec() != null ? parsed.condensedSpec().keySet() : "none"
+      );
+      return parsed;
     } catch (Exception e) {
       log.debug(
         "extractProductNameStructured: JSON parse failed ({}), treating as plain term",
@@ -432,7 +430,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     }
     messages.add(new ChatRequest.Message("user", userPrompt));
     // adjust the temperature if required
-    return new ChatRequest(getModel(), messages, 0.0, 256);
+    return new ChatRequest(getModel(), messages, 0.0, 1024);
   }
 
   protected QuickFactsResult parseJson(String json) {

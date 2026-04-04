@@ -75,9 +75,11 @@ public class WhListingRefreshService {
             img.getMainImageUrl().endsWith(".jpg")
         )
         .map((img) ->
-          img
-            .getMainImageUrl()
-            .substring(WhConstants.WH_IMAGE_BASE.length(), img.getMainImageUrl().length() - 4)
+          normalizeImageStem(
+            img
+              .getMainImageUrl()
+              .substring(WhConstants.WH_IMAGE_BASE.length(), img.getMainImageUrl().length() - 4)
+          )
         )
         .collect(Collectors.toCollection(ArrayList::new));
       if (!freshPaths.isEmpty() && !freshPaths.equals(listing.getImagePaths())) {
@@ -158,6 +160,15 @@ public class WhListingRefreshService {
     if (url == null) return null;
     // Remove variant suffixes like "_hoved_" that appear before "_thumb"
     return url.replaceAll("(_[a-z]+)?_thumb", "_thumb");
+  }
+
+  /**
+   * Strips variant suffixes from a mainImageUrl stem before storing in DB.
+   * Example: "4/110/541/4274_-1166483518_hoved" → "4/110/541/4274_-1166483518"
+   */
+  private static String normalizeImageStem(String stem) {
+    if (stem == null) return null;
+    return stem.replaceAll("_[a-z]+$", "");
   }
 
   private List<WhCategoryDto> buildCategoryPath(WhListing listing) {

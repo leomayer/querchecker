@@ -5,6 +5,7 @@ import at.querchecker.deepLearning.ExtractionResult;
 import at.querchecker.deepLearning.ExtractionStatus;
 import at.querchecker.deepLearning.config.DlConfig;
 import at.querchecker.deepLearning.entity.DlExtractionRun;
+import at.querchecker.deepLearning.extraction.ExtractionModel;
 import at.querchecker.deepLearning.repository.DlExtractionRunRepository;
 import at.querchecker.repository.WhItemRepository;
 import at.querchecker.sse.ErrorNotificationPayload;

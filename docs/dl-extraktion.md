@@ -108,7 +108,7 @@ Resolver: `DlPromptResolver.resolve(category, promptType)` — rekursiv Elternka
 | `DlPersistenceService`   | Terms speichern, `durationMs` setzen, Status DONE/FAILED, Event publishen   |
 | `DlPromptResolver`       | Kategorie-spezifisch → Eltern → Default                                     |
 | `DlCategoryPromptSeeder` | Idempotentes Befüllen von `DlCategoryPrompt`                                |
-| `GroqExtractionModel`    | Delegiert an `ExtractionProviderRouter`, Length-Guard 150 Zeichen           |
+| `LlmApiExtractionModel`  | Delegiert an `ExtractionProviderRouter` (Groq oder OpenRouter), Length-Guard 150 Zeichen |
 
 ---
 
@@ -116,7 +116,7 @@ Resolver: `DlPromptResolver.resolve(category, promptType)` — rekursiv Elternka
 
 - Modelle sind **NICHT** als `@Component` Beans registriert
 - `DlModelConfiguration` mit `@EventListener(ApplicationReadyEvent.class)` registriert Modelle NACH Context-Initialisierung
-- **API-Mode** (`querchecker.llm.mode=API`): nur `GroqExtractionModel` wird als Singleton registriert
+- **API-Mode** (`querchecker.llm.mode=API`): nur `LlmApiExtractionModel` wird als Singleton registriert
 - **LOCAL-Mode** (`querchecker.llm.mode=LOCAL`): `findByActiveTrueOrderByExecutionOrderAsc()` aus DB, nur aktive Modelle registriert
 - `DlOrchestrationService` nutzt `ObjectProvider<List<ExtractionModel>>` für lazy Resolution
 - **Vorteil**: keine GGUF-Dateien geladen, wenn Modelle nicht aktiv/konfiguriert

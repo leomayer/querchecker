@@ -1,4 +1,4 @@
-package at.querchecker.deepLearning.service;
+package at.querchecker.deepLearning.extraction;
 
 import ai.djl.huggingface.tokenizers.Encoding;
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;

@@ -32,7 +32,7 @@ public final class DlCategoryPromptDefinitions {
         }
 
         REGELN:
-        1. extractedModel: Identifiziere den Hersteller und das spezifische Modell des Produkts in der genannten Kategorie. Wenn nicht zweifelsfrei erkennbar, setze den Wert auf "UNBEKANNT".
+        1. extractedModel: Identifiziere den Hersteller und das spezifische Modell des Produkts in der genannten Kategorie. Wenn nicht zweifelsfrei erkennbar, lass das Feld weg.
         2. condensedSpec: Ein flaches JSON-Objekt (String-Map) der wichtigsten produktspezifischen Merkmale (z.B. technische Daten, Maße, Gewicht, Material, Farbe). Wähle nur die relevantesten Angaben aus dem Text. Jeden Key nur einmal.
         3. Werte in condensedSpec:
            - Nur Felder extrahieren, die explizit im Text genannt werden.

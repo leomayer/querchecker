@@ -5,6 +5,7 @@ import at.querchecker.deepLearning.config.DlConfig;
 import at.querchecker.deepLearning.entity.DlExtractionRun;
 import at.querchecker.deepLearning.entity.DlModelConfig;
 import at.querchecker.deepLearning.entity.ItemText;
+import at.querchecker.deepLearning.extraction.ExtractionModel;
 import at.querchecker.deepLearning.repository.DlExtractionRunRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

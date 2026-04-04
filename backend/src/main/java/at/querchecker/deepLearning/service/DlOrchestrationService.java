@@ -6,6 +6,7 @@ import at.querchecker.deepLearning.entity.DlExtractionRun;
 import at.querchecker.deepLearning.entity.ItemText;
 import at.querchecker.deepLearning.repository.DlExtractionRunRepository;
 import at.querchecker.deepLearning.repository.DlExtractionTermRepository;
+import at.querchecker.deepLearning.extraction.ExtractionModel;
 import at.querchecker.deepLearning.repository.DlModelConfigRepository;
 import at.querchecker.entity.AppConfig;
 import at.querchecker.repository.AppConfigRepository;

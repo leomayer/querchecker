@@ -2,7 +2,7 @@ package at.querchecker.research;
 
 import at.querchecker.deepLearning.entity.DlExtractionTerm;
 import at.querchecker.deepLearning.repository.DlExtractionTermRepository;
-import at.querchecker.deepLearning.service.GroqExtractionModel;
+import at.querchecker.deepLearning.extraction.LlmApiExtractionModel;
 import at.querchecker.entity.WhListing;
 import at.querchecker.repository.WhListingRepository;
 import at.querchecker.research.entity.LookupStatus;
@@ -181,7 +181,7 @@ public class ProductLookupController {
   private Map<String, String> resolveCondensedSpec(Long listingId) {
     try {
       return dlExtractionTermRepository
-        .findByListingIdAndModelNameWithCondensedSpec(listingId, GroqExtractionModel.MODEL_NAME)
+        .findByListingIdAndModelNameWithCondensedSpec(listingId, LlmApiExtractionModel.MODEL_NAME)
         .stream()
         .findFirst()
         .map(DlExtractionTerm::getCondensedSpecsJson)

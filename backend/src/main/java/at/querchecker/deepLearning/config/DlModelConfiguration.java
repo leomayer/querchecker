@@ -5,14 +5,14 @@ import at.querchecker.api.config.LlmProperties;
 import at.querchecker.api.extraction.ExtractionProviderRouter;
 import at.querchecker.deepLearning.entity.DlModelConfig;
 import at.querchecker.deepLearning.repository.DlModelConfigRepository;
+import at.querchecker.deepLearning.extraction.ExtractionModel;
+import at.querchecker.deepLearning.extraction.Llama32ExtractionModel;
+import at.querchecker.deepLearning.extraction.LlmApiExtractionModel;
+import at.querchecker.deepLearning.extraction.MdebertaExtractionModel;
+import at.querchecker.deepLearning.extraction.NuExtract15ExtractionModel;
+import at.querchecker.deepLearning.extraction.NuExtractExtractionModel;
+import at.querchecker.deepLearning.extraction.Qwen25ExtractionModel;
 import at.querchecker.deepLearning.service.DlPromptResolver;
-import at.querchecker.deepLearning.service.ExtractionModel;
-import at.querchecker.deepLearning.service.GroqExtractionModel;
-import at.querchecker.deepLearning.service.Llama32ExtractionModel;
-import at.querchecker.deepLearning.service.MdebertaExtractionModel;
-import at.querchecker.deepLearning.service.NuExtract15ExtractionModel;
-import at.querchecker.deepLearning.service.NuExtractExtractionModel;
-import at.querchecker.deepLearning.service.Qwen25ExtractionModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -47,7 +47,7 @@ public class DlModelConfiguration {
     private static final Map<String, Class<? extends ExtractionModel>> MODEL_REGISTRY = new HashMap<>();
 
     static {
-        MODEL_REGISTRY.put("groq", GroqExtractionModel.class);
+        MODEL_REGISTRY.put("groq", LlmApiExtractionModel.class);
         MODEL_REGISTRY.put("llama-3.2-3b", Llama32ExtractionModel.class);
         MODEL_REGISTRY.put("nuextract-1.5-tiny", NuExtractExtractionModel.class);
         MODEL_REGISTRY.put("nuextract-1.5", NuExtract15ExtractionModel.class);
@@ -71,15 +71,15 @@ public class DlModelConfiguration {
     }
 
     /**
-     * API mode: Register only GroqExtractionModel as a singleton.
+     * API mode: Register only LlmApiExtractionModel as a singleton.
      */
     private void registerApiModels() {
-        log.info("API mode: Registering GroqExtractionModel");
+        log.info("API mode: Registering LlmApiExtractionModel");
 
-        ExtractionModel groqModel = new GroqExtractionModel(providerRouter, promptResolver);
+        ExtractionModel groqModel = new LlmApiExtractionModel(providerRouter, promptResolver);
         ((ConfigurableApplicationContext) applicationContext).getBeanFactory().registerSingleton("groqExtractionModel", groqModel);
 
-        log.info("API mode: Registered GroqExtractionModel");
+        log.info("API mode: Registered LlmApiExtractionModel");
     }
 
     /**
@@ -118,8 +118,8 @@ public class DlModelConfiguration {
      */
     private ExtractionModel instantiateModel(Class<? extends ExtractionModel> modelClass)
         throws Exception {
-        if (modelClass == GroqExtractionModel.class) {
-            return new GroqExtractionModel(providerRouter, promptResolver);
+        if (modelClass == LlmApiExtractionModel.class) {
+            return new LlmApiExtractionModel(providerRouter, promptResolver);
         } else {
             // Local models (Llama, Qwen, NuExtract, Mdeberta) use no-arg constructors
             return modelClass.getDeclaredConstructor().newInstance();

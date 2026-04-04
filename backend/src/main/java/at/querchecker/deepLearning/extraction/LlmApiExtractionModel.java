@@ -1,4 +1,4 @@
-package at.querchecker.deepLearning.service;
+package at.querchecker.deepLearning.extraction;
 
 import at.querchecker.api.extraction.ExtractionProviderRouter;
 import at.querchecker.api.extraction.ProductNameResult;
@@ -6,6 +6,7 @@ import at.querchecker.deepLearning.ExtractionResult;
 import at.querchecker.deepLearning.entity.DlCategoryPrompt;
 import at.querchecker.deepLearning.entity.ItemText;
 import at.querchecker.deepLearning.entity.PromptType;
+import at.querchecker.deepLearning.service.DlPromptResolver;
 import at.querchecker.entity.WhCategory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,7 @@ import java.util.Optional;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class GroqExtractionModel implements ExtractionModel {
+public class LlmApiExtractionModel implements ExtractionModel {
 
     public static final String MODEL_NAME = "groq";
 
@@ -45,7 +46,7 @@ public class GroqExtractionModel implements ExtractionModel {
             .extractProductNameStructured(input.getTitle(), input.getDescription(), categoryName, dlPrompt);
 
         String term = structured.extractedModel();
-        if (term == null || term.isBlank() || "UNBEKANNT".equalsIgnoreCase(term.trim())) return List.of();
+        if (term == null || term.isBlank()) return List.of();
         // Discard hallucinated generic responses — real product names are short
         if (term.length() > 150) {
             log.warn("Groq returned suspiciously long term ({} chars) for itemText={} — discarding",

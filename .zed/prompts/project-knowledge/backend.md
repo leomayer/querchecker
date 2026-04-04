@@ -56,9 +56,12 @@ at.querchecker/
     │               DlExtractionTermRepository, ItemTextRepository, WhItemRepository
     ├── service/    DlOrchestrationService, DlExtractionService, DlPersistenceService,
     │               DlPromptResolver, DlCategoryPromptSeeder, DlFilterService,
-    │               ExtractionModel (interface), ExtractionTask, GroqExtractionModel,
-    │               AbstractExtractionModel, AbstractLlamaExtractionModel,
-    │               Llama32ExtractionModel, MdebertaExtractionModel, ...
+    │               ExtractionTask, ItemTextService, ItemTextCleanupScheduler,
+    │               KeywordExtractionService, TokenAnalyzer
+    ├── extraction/ ExtractionModel (interface), AbstractExtractionModel,
+    │               AbstractLlamaExtractionModel, LlmApiExtractionModel,
+    │               Llama32ExtractionModel, MdebertaExtractionModel,
+    │               NuExtractExtractionModel, NuExtract15ExtractionModel, Qwen25ExtractionModel
     ├── controller/ DlExtractionController
     └── DlCategoryPromptDefinitions (Konstanten für alle Prompts)
 ```
@@ -277,7 +280,7 @@ Swagger UI: `/swagger-ui.html` (dev only, in Prod via `SPRING_PROFILES_ACTIVE=pr
 ## DL Category Prompts
 
 - `DlCategoryPromptDefinitions`: Java-Konstanten für alle Prompts. Enthält `PromptConfig` record `(PromptType, systemPrompt, userPrompt)`. Default-Konstanten: `PRODUCT_NAME_SYSTEM`, `PRODUCT_NAME_USER_DEFAULT`, `QUICK_FACTS_SYSTEM`, `QUICK_FACTS_USER_DEFAULT`. Kategorie-spezifische Prompts in unified `CONFIGS: Map<String, List<PromptConfig>>` (ersetzt die früheren getrennten `*_BY_CATEGORY`-Maps).
-- **PRODUCT_NAME**: Reicherer System-Prompt mit nummerierten Regeln, Persona, vielen Beispielen. `condensedSpec`-Keys sind Deutsch, groß geschrieben, mit Leerzeichen getrennt (z.B. "Akku Kapazität", "Bildschirmgröße", "Prozessor"). User-Prompt nur Daten (Kategorie, Titel, Beschreibung). Inch-Mark-Sanitisierungsregel hinzugefügt (verhindert LLM-Fehler wie `"24""` statt `"24 Zoll"`).
+- **PRODUCT_NAME**: Reicherer System-Prompt mit nummerierten Regeln, Persona, vielen Beispielen. `condensedSpec`-Keys sind Deutsch, groß geschrieben, mit Leerzeichen getrennt (z.B. "Akku Kapazität", "Bildschirmgröße", "Prozessor"). User-Prompt nur Daten (Kategorie, Titel, Beschreibung). Inch-Mark-Sanitisierungsregel hinzugefügt. Regel 1: wenn `extractedModel` nicht erkennbar → **Feld weglassen** (nicht "UNBEKANNT") — spart Tokens. `extractProductNameStructured` gibt bei erfolgreichem JSON-Parse immer das Ergebnis zurück (auch wenn `extractedModel` fehlt); `null` → `LlmApiExtractionModel` gibt `List.of()` zurück. `max_completion_tokens` = 1024 (war 256).
 - **QUICK_FACTS**: System-Prompt mit Konsolidierungsregel, German-Key-Namen (groß geschrieben), Sources-Block mit icecatId-URL-Muster, GB→MB-Normalisierung, Falsch/Richtig-Beispiele. User-Prompt nur Daten. `condensedSpec`-Keys sind Deutsch.
 - `DlCategoryPromptSeeder`: Additives Per-Entry-Upsert beim Start — prüft jedes `(Kategorie, PromptType)`-Paar einzeln via `findDefaultByPromptType` + `findByWhCategoryAndPromptType`. Überschreibt niemals vorhandene Einträge. Re-seed: `DELETE FROM dl_category_prompt` + Neustart.
 - `DlPromptResolver.resolve(WhCategory, PromptType)`: traversiert Kategoriehierarchie, Fallback auf Default
@@ -287,14 +290,15 @@ Swagger UI: `/swagger-ui.html` (dev only, in Prod via `SPRING_PROFILES_ACTIVE=pr
 ## Conditional Model Registration (`DlModelConfiguration`)
 
 - Modelle sind **NICHT** als `@Component`-Beans registriert. Stattdessen: `DlModelConfiguration` mit `@EventListener(ApplicationReadyEvent.class)` registriert Modelle NACH vollständiger Context-Initialisierung (Datenbank verfügbar).
-- **API-Mode** (`querchecker.llm.mode=API`): nur `GroqExtractionModel` wird registriert
+- **API-Mode** (`querchecker.llm.mode=API`): nur `LlmApiExtractionModel` wird registriert
 - **LOCAL-Mode** (`querchecker.llm.mode=LOCAL`): Datenbankabfrage `DlModelConfigRepository.findByActiveTrueOrderByExecutionOrderAsc()`, nur aktive Modelle als Singletons registriert
 - `DlOrchestrationService` nutzt `ObjectProvider<List<ExtractionModel>>` für lazy Dependency-Resolution (statt `@Autowired List`)
 - **Vorteil**: Keine unnötige Modell-Initialisierung — lokale GGUF-Dateien werden nicht geladen, wenn Modelle nicht aktiv sind
 
-## GroqExtractionModel
+## LlmApiExtractionModel (`deepLearning/extraction/`)
 
-- Implementiert `ExtractionModel`, delegiert an `ExtractionProviderRouter.getActive().extractProductName()`
+- Umbenannt von `GroqExtractionModel` — Name war irreführend; delegiert an `ExtractionProviderRouter.getActive()` (Groq **oder** OpenRouter)
+- `MODEL_NAME = "groq"` bleibt unverändert für DB-Kompatibilität
 - Length-Guard: Terme > 150 Zeichen werden verworfen (verhindert generische Halluzinationen)
 - DB: `model_name='groq'`, `source='API'`, `execution_order=5`
 - `ModelSource` Enum: `HUGGINGFACE`, `LOCAL`, `API`

@@ -1,4 +1,4 @@
-package at.querchecker.deepLearning.service;
+package at.querchecker.deepLearning.extraction;
 
 import at.querchecker.deepLearning.ExtractionResult;
 import at.querchecker.deepLearning.entity.ItemText;
