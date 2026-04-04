@@ -3,23 +3,14 @@
   flex-direction: column;
 }
 
-// --- Scrollable content area ---
-
-.scroll-content {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-bottom: 4px;
-}
-
-// --- Search row ---
+// --- Search row (always visible at top) ---
 
 .search-row {
+  flex: 0 0 auto;
   display: flex;
   align-items: baseline;
   gap: 4px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .search-field {
@@ -32,41 +23,10 @@
   }
 }
 
-// --- Placeholder ---
-
-.placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 16px 12px;
-  text-align: center;
-  color: var(--mat-sys-on-surface-variant);
-  font-size: 0.85rem;
-  font-style: italic;
-
-  .placeholder-icon {
-    font-size: 1.75rem;
-    width: 1.75rem;
-    height: 1.75rem;
-    opacity: 0.45;
-
-    &.amber {
-      color: var(--color-tertiary);
-      opacity: 1;
-    }
-
-    &.error {
-      color: var(--color-negative);
-      opacity: 1;
-    }
-  }
-}
-
-// --- Source header (above quick-facts table) ---
+// --- Source header (always visible below search row) ---
 
 .source-header {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -101,7 +61,53 @@
   padding: 3px 10px;
 }
 
-// --- Quick Facts grid (3-column key-value pairs) ---
+// --- Scrollable content area ---
+
+.scroll-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 4px;
+  container-type: inline-size;
+}
+
+// --- Placeholder ---
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 12px;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85rem;
+  font-style: italic;
+
+  .placeholder-icon {
+    font-size: 1.75rem;
+    width: 1.75rem;
+    height: 1.75rem;
+    opacity: 0.45;
+
+    &.amber {
+      color: var(--color-tertiary);
+      opacity: 1;
+    }
+
+    &.error {
+      color: var(--color-negative);
+      opacity: 1;
+    }
+  }
+}
+
+// --- Quick Facts grid ---
+// Default: 3 columns.
+// .cols-2 (JS heuristic: long keys or values) switches to 2 columns.
+// ≥ 720px: always 3 columns regardless of .cols-2.
 
 .quick-facts-grid {
   display: grid;
@@ -110,6 +116,41 @@
   row-gap: 3px;
   align-items: start;
   font-size: 0.8rem;
+
+  // 2-col override (JS heuristic: long keys or values)
+  &.cols-2 {
+    grid-template-columns: repeat(2, auto minmax(min-content, 1fr));
+  }
+
+  // 3-col padding (default)
+  .fact-key:nth-child(6n + 3),
+  .fact-key:nth-child(6n + 5) {
+    padding-left: 12px;
+  }
+
+  // 2-col: swap padding pattern
+  &.cols-2 .fact-key:nth-child(6n + 3),
+  &.cols-2 .fact-key:nth-child(6n + 5) {
+    padding-left: 4px;
+  }
+  &.cols-2 .fact-key:nth-child(4n + 3) {
+    padding-left: 12px;
+  }
+
+  // ≥ 720px: always 3 columns — match .cols-2 explicitly to win the specificity battle
+  @container (min-width: 720px) {
+    &, &.cols-2 {
+      grid-template-columns: repeat(3, auto minmax(min-content, 1fr));
+    }
+
+    &.cols-2 .fact-key:nth-child(4n + 3) {
+      padding-left: 4px;
+    }
+    .fact-key:nth-child(6n + 3),
+    .fact-key:nth-child(6n + 5) {
+      padding-left: 12px;
+    }
+  }
 }
 
 .fact-key {
@@ -117,12 +158,6 @@
   color: var(--mat-sys-on-surface-variant);
   hyphens: auto;
   padding: 3px 4px;
-
-  // Extra left gap for 2nd and 3rd key in each row
-  &:nth-child(6n + 3),
-  &:nth-child(6n + 5) {
-    padding-left: 12px;
-  }
 }
 
 .fact-value {
@@ -132,7 +167,7 @@
   hyphens: auto;
 }
 
-// --- Action area ---
+// --- Action area (accordions only) ---
 
 .action-area {
   display: flex;
@@ -151,12 +186,16 @@
   }
 }
 
+// --- Geizhals link (always visible at bottom) ---
+
 .external-links {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
-  padding-top: 4px;
+  padding-top: 6px;
+  margin-top: 4px;
   border-top: 1px solid color-mix(in srgb, var(--mat-sys-outline) 25%, transparent);
 }
 
@@ -191,7 +230,7 @@
   align-items: center;
   gap: 5px;
   padding: 6px 10px;
-  margin-top: 10px;
+  margin-top: 6px;
   font-size: 0.72rem;
   color: var(--mat-sys-on-surface-variant);
 

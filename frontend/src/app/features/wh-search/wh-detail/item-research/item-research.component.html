@@ -1,59 +1,64 @@
-<div class="scroll-content">
-  <!-- 1. Search row -->
-  <div class="search-row">
-    <mat-form-field class="search-field" subscriptSizing="dynamic">
-      <input
-        matInput
-        placeholder="Produktsuche"
-        [(ngModel)]="searchTerm"
-        (keyup.enter)="onLookup()"
-        [disabled]="!aiSearchEnabled() || lookupState() === 'NO_SOURCES'" />
-    </mat-form-field>
-    <button
-      mat-icon-button
-      (click)="onLookup()"
-      [disabled]="searchButtonDisabled()"
-      matTooltip="KI-Suche starten">
-      @if (lookupState() === 'loading') {
-        <mat-spinner diameter="16" />
-      } @else {
-        <mat-icon>auto_awesome</mat-icon>
-      }
-    </button>
-  </div>
+<!-- 1. Search row — always visible at top -->
+<div class="search-row">
+  <mat-form-field class="search-field" subscriptSizing="dynamic">
+    <input
+      matInput
+      placeholder="Produktsuche"
+      [(ngModel)]="searchTerm"
+      (keyup.enter)="onLookup()"
+      [disabled]="!aiSearchEnabled() || lookupState() === 'NO_SOURCES'" />
+  </mat-form-field>
+  <button
+    mat-icon-button
+    (click)="onLookup()"
+    [disabled]="searchButtonDisabled()"
+    matTooltip="KI-Suche starten">
+    @if (lookupState() === 'loading') {
+      <mat-spinner diameter="16" />
+    } @else {
+      <mat-icon>auto_awesome</mat-icon>
+    }
+  </button>
+</div>
 
-  <!-- 2. Main content: Placeholder XOR Quick Facts table -->
+<!-- 2. Source header — always visible when data is present -->
+@if (lookupState() === 'COMPLETE' && orderedQuickFacts().length > 0) {
+  <div class="source-header">
+    @if (effectiveSourceUrl()) {
+      <a mat-stroked-button class="source-action" [href]="effectiveSourceUrl()!" target="_blank" rel="noopener">
+        <mat-icon>open_in_new</mat-icon>{{ lookupSourceLabel() || 'Web-Suche' }}
+      </a>
+    } @else {
+      <span class="source-label">{{ lookupSourceLabel() || 'Web-Suche' }}</span>
+    }
+    @if (showFullSpecsButton() && !fullSpecsLoaded()) {
+      <button mat-stroked-button class="source-action" (click)="onLoadFullSpecs()" [disabled]="fullSpecsLoading()">
+        @if (fullSpecsLoading()) {
+          <mat-spinner diameter="14" />
+        } @else {
+          <mat-icon>description</mat-icon>
+        }
+        Vollspezifikation
+      </button>
+    }
+  </div>
+} @else if (lookupState() === 'NO_SOURCES' && extractedCondensedSpec().length > 0) {
+  <div class="source-header">
+    <span class="source-label">WH-Inserat</span>
+  </div>
+}
+
+<!-- 3. Scrollable content — quick facts grid + accordions -->
+<div class="scroll-content">
   @if (lookupState() === 'COMPLETE' && orderedQuickFacts().length > 0) {
-    <div class="source-header">
-      @if (effectiveSourceUrl()) {
-        <a mat-stroked-button class="source-action" [href]="effectiveSourceUrl()!" target="_blank" rel="noopener">
-          <mat-icon>open_in_new</mat-icon>{{ lookupSourceLabel() || 'Web-Suche' }}
-        </a>
-      } @else {
-        <span class="source-label">{{ lookupSourceLabel() || 'Web-Suche' }}</span>
-      }
-      @if (showFullSpecsButton() && !fullSpecsLoaded()) {
-        <button mat-stroked-button class="source-action" (click)="onLoadFullSpecs()" [disabled]="fullSpecsLoading()">
-          @if (fullSpecsLoading()) {
-            <mat-spinner diameter="14" />
-          } @else {
-            <mat-icon>description</mat-icon>
-          }
-          Vollspezifikation
-        </button>
-      }
-    </div>
-    <div class="quick-facts-grid">
+    <div class="quick-facts-grid" [class.cols-2]="quickFactsColumns() === 2">
       @for (entry of orderedQuickFacts(); track entry[0]) {
         <span class="fact-key">{{ entry[0] }}</span>
         <span class="fact-value">{{ entry[1] }}</span>
       }
     </div>
   } @else if (lookupState() === 'NO_SOURCES' && extractedCondensedSpec().length > 0) {
-    <div class="source-header">
-      <span class="source-label">WH-Inserat</span>
-    </div>
-    <div class="quick-facts-grid">
+    <div class="quick-facts-grid" [class.cols-2]="quickFactsColumns() === 2">
       @for (entry of extractedCondensedSpec(); track entry[0]) {
         <span class="fact-key">{{ entry[0] }}</span>
         <span class="fact-value">{{ entry[1] }}</span>
@@ -131,7 +136,6 @@
     </div>
   }
 
-  <!-- 3. Action area — only when lookup was successful -->
   @if (lookupState() === 'COMPLETE') {
     <div class="action-area">
       @if (icecatFeatureGroups().length > 0) {
@@ -148,19 +152,21 @@
           [canToggle]="activeCategoryId() != null"
           (toggle)="togglePreference($event)" />
       }
-      @if (geizhalUrl()) {
-        <div class="external-links">
-          <a class="ext-link" [href]="geizhalUrl()!" target="_blank" rel="noopener">
-            <mat-icon class="link-icon">open_in_new</mat-icon>
-            Geizhals
-          </a>
-        </div>
-      }
     </div>
   }
 </div>
 
-<!-- 4. Footer — always at bottom, shows fetch date -->
+<!-- 4. Geizhals — always visible at bottom -->
+@if (lookupState() === 'COMPLETE' && geizhalUrl()) {
+  <div class="external-links">
+    <a class="ext-link" [href]="geizhalUrl()!" target="_blank" rel="noopener">
+      <mat-icon class="link-icon">open_in_new</mat-icon>
+      Geizhals
+    </a>
+  </div>
+}
+
+<!-- 5. Footer — always at bottom, shows fetch date -->
 @if (lookupState() === 'COMPLETE' && lookupTimestamp()) {
   <div class="sticky-footer">
     <mat-icon class="footer-icon">schedule</mat-icon>

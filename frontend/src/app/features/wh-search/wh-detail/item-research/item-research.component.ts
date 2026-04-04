@@ -311,6 +311,12 @@ export class ItemResearchComponent {
     return `~${diffMins} min`;
   });
 
+  protected readonly quickFactsColumns = computed<2 | 3>(() => {
+    const facts = this.orderedQuickFacts();
+    const entries = facts.length > 0 ? facts : this.extractedCondensedSpec();
+    return entries.some(([k, v]) => k.length > 15 || v.length > 25) ? 2 : 3;
+  });
+
   protected readonly retryButtonDisabled = computed<boolean>(() => {
     const state = this.lookupState();
     if (state === 'RATE_LIMITED') {
