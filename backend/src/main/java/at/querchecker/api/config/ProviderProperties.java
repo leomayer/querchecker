@@ -28,7 +28,7 @@ public class ProviderProperties {
      * Mapping: Provider.BRAVE → limits["brave"]
      */
     public ProviderConfig getProvider(Provider provider) {
-        return limits.get(provider.name().toLowerCase());
+        return limits.get(provider.name().toLowerCase().replace('_', '-'));
     }
 
     @Data
@@ -37,5 +37,7 @@ public class ProviderProperties {
         private String location;
         private String engineId;
         private String credentialsPath;
+        /** BCP-47 language code passed to Discovery Engine (e.g. "de", "en"). Empty = not set. */
+        private String languageCode = "";
     }
 }

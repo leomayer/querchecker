@@ -62,8 +62,8 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
   ) {
     String userPrompt = prompt
       .getUserPrompt()
-      .replace("{title}", title)
-      .replace("{description}", truncate(description, 800))
+      .replace("{title}", sanitizeInput(title))
+      .replace("{description}", sanitizeInput(truncate(description, 800)))
       .replace("{category}", categoryName);
 
     ChatResponse response = callLlm(
@@ -85,8 +85,8 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
   ) {
     String userPrompt = prompt
       .getUserPrompt()
-      .replace("{title}", title)
-      .replace("{description}", truncate(description, 800))
+      .replace("{title}", sanitizeInput(title))
+      .replace("{description}", sanitizeInput(truncate(description, 800)))
       .replace("{category}", categoryName);
 
     ChatResponse response = callLlm(
@@ -144,7 +144,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     String condensedBlock = condensedSpecContext != null ? condensedSpecContext : "";
     String userPrompt = prompt
       .getUserPrompt()
-      .replace("{lookupTerm}", lookupTerm)
+      .replace("{lookupTerm}", sanitizeInput(lookupTerm))
       .replace("{category}", categoryName)
       .replace("{snippets}", snippetsBlock)
       .replace("{condensedSpec}", condensedBlock);
@@ -171,7 +171,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     // Identisch zu extractQuickFacts(), aber {snippets} wird mit pageText befüllt
     String userPrompt = prompt
       .getUserPrompt()
-      .replace("{lookupTerm}", lookupTerm)
+      .replace("{lookupTerm}", sanitizeInput(lookupTerm))
       .replace("{category}", categoryName)
       .replace("{snippets}", pageText)
       .replace("{condensedSpec}", "");
@@ -578,6 +578,18 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
   private static String truncate(String text, int maxChars) {
     if (text == null) return "";
     return text.length() <= maxChars ? text : text.substring(0, maxChars);
+  }
+
+  /**
+   * Sanitizes user-supplied text before injecting it into LLM prompts.
+   * Prevents the LLM from copying problematic characters into its JSON output:
+   * - " (straight double quote / inch mark) → ″ (U+2033 DOUBLE PRIME): visually identical,
+   *   the LLM still understands "21,5 Zoll" context but won't break JSON strings
+   * - \ (backslash) → / : prevents accidental JSON escape sequences (\n, \t, etc.)
+   */
+  private static String sanitizeInput(String text) {
+    if (text == null) return "";
+    return text.replace('"', '″').replace('\\', '/');
   }
 
   /**

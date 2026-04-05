@@ -30,7 +30,8 @@ querchecker:
   # ---------------------------------------------------------------------------
   api:
     search:
-      active-provider: BRAVE # BRAVE | GOOGLE_DISCOVERY — Neustart nötig bei Wechsel
+      #active-provider: BRAVE # BRAVE | GOOGLE_DISCOVERY — Neustart nötig bei Wechsel
+      active-provider: GOOGLE_DISCOVERY # BRAVE | GOOGLE_DISCOVERY — Neustart nötig bei Wechsel
 
     # Nur relevant bei search.active-provider: GOOGLE_DISCOVERY
     google-discovery:
@@ -38,6 +39,7 @@ querchecker:
       engine-id: querchecker-search-app_1774604635088 # Discovery Engine App-ID
       location: global # z.B. global oder eu
       credentials-path: ../config/querdenker-google-auth.json # relativ zum backend/-Arbeitsverzeichnis; oder absoluter Pfad
+      language-code: # BCP-47 — beeinflusst Query-Interpretation; leer lassen = nicht gesetzt
 
     # Kontingente & Limits pro Provider
     limits:

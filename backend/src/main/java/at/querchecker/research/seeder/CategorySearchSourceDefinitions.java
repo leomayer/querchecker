@@ -88,7 +88,8 @@ public final class CategorySearchSourceDefinitions {
           true,
           FLATPANELSHD_EXCLUDES,
           SNIPPETS_COUNT
-        )
+        ),
+        new SourceConfig("prad.de", "PRAD", GENERIC, true, null, SNIPPETS_COUNT)
       )
     ),
     entry(
@@ -136,7 +137,8 @@ public final class CategorySearchSourceDefinitions {
           FLATPANELSHD_EXCLUDES,
           SNIPPETS_COUNT
         ),
-        new SourceConfig("whathifi.com", "What Hi-Fi", GENERIC, true, null, SNIPPETS_COUNT)
+        new SourceConfig("whathifi.com", "What Hi-Fi", GENERIC, true, null, SNIPPETS_COUNT),
+        new SourceConfig("displayspecifications.com", "DisplaySpecifications", GENERIC, true, null, SNIPPETS_COUNT)
       )
     ),
     entry(

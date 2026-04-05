@@ -116,12 +116,8 @@
     <dependency>
         <groupId>com.google.cloud</groupId>
         <artifactId>google-cloud-discoveryengine</artifactId>
-        <version>0.84.0</version>  </dependency>
-        <dependency>
-            <groupId>com.google.auth</groupId>
-            <artifactId>google-auth-library-oauth2-http</artifactId>
-            <version>1.23.0</version>
-        </dependency>
+        <version>0.84.0</version>
+    </dependency>
 
     <!-- Test -->
     <dependency>

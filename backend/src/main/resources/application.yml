@@ -43,7 +43,7 @@ logging:
       deepLearning: DEBUG
       research: DEBUG
       extraction: DEBUG
-      search: DEBUG
+      api.search: TRACE
       willHaben: INFO
       api.extraction: TRACE
 

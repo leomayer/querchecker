@@ -39,6 +39,7 @@ public class GoogleDiscoveryWebSearchService implements WebSearchService {
                                      int resultCount) {
         var cfg = providerProperties.getGoogleDiscovery();
         String query = buildQuery(term, domain, keywords, excludes);
+        log.trace("[GoogleDiscovery] query='{}', resultCount={}", query, resultCount);
         long start = System.currentTimeMillis();
 
         try {
@@ -58,11 +59,14 @@ public class GoogleDiscoveryWebSearchService implements WebSearchService {
                     cfg.getEngineId()
                 );
 
-                SearchRequest request = SearchRequest.newBuilder()
+                SearchRequest.Builder requestBuilder = SearchRequest.newBuilder()
                     .setServingConfig(servingConfig)
                     .setQuery(query)
-                    .setPageSize(resultCount)
-                    .build();
+                    .setPageSize(resultCount);
+                if (cfg.getLanguageCode() != null && !cfg.getLanguageCode().isBlank()) {
+                    requestBuilder.setLanguageCode(cfg.getLanguageCode());
+                }
+                SearchRequest request = requestBuilder.build();
 
                 var response = client.search(request);
 
@@ -92,9 +96,10 @@ public class GoogleDiscoveryWebSearchService implements WebSearchService {
     }
 
     private String buildQuery(String term, String domain, List<String> kws, List<String> ex) {
+        // Discovery Engine is semantic — language-specific keywords (e.g. German USER fields)
+        // hurt results on English-only sites. Use term + site filter + excludes only.
         StringBuilder sb = new StringBuilder(term);
         if (domain != null) sb.append(" site:").append(domain);
-        if (kws != null) kws.forEach(k -> sb.append(" ").append(k));
         if (ex != null) ex.forEach(e -> sb.append(" -").append(e));
         return sb.toString();
     }

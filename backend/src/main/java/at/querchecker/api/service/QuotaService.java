@@ -26,6 +26,7 @@ public class QuotaService {
     public QuotaStatus checkQuota(Provider provider) {
         if (provider == Provider.ICECAT) return QuotaStatus.OK; // kein Kontingent
         ProviderConfig config = providerProperties.getProvider(provider);
+        if (config == null) return QuotaStatus.OK; // kein Kontingent konfiguriert
         long usage = currentUsage(provider, config);
         return usage >= config.getFreeLimit() ? QuotaStatus.QUOTA_EXCEEDED : QuotaStatus.OK;
     }
@@ -34,6 +35,7 @@ public class QuotaService {
     public boolean isWarningThreshold(Provider provider) {
         if (provider == Provider.ICECAT) return false;
         ProviderConfig config = providerProperties.getProvider(provider);
+        if (config == null) return false;
         long usage = currentUsage(provider, config);
         long threshold = (long) (config.getFreeLimit() * (config.getAlertAtPercent() / 100.0));
         return usage >= threshold;
@@ -61,6 +63,7 @@ public class QuotaService {
     /** Nächstes Reset-Datum (Ende der aktuellen Periode + 1 Tag). */
     public LocalDate getQuotaResetDate(Provider provider) {
         ProviderConfig config = providerProperties.getProvider(provider);
+        if (config == null) return LocalDate.now().plusDays(1);
         LocalDate periodStart = getPeriodStart(config.getFreeLimitPeriod(), config.getPeriodStartDay());
         if (config.getFreeLimitPeriod() == FreeLimitPeriod.DAILY) {
             return periodStart.plusDays(1);
