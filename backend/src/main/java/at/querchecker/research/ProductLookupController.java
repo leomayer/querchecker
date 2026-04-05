@@ -3,7 +3,9 @@ package at.querchecker.research;
 import at.querchecker.deepLearning.entity.DlExtractionTerm;
 import at.querchecker.deepLearning.repository.DlExtractionTermRepository;
 import at.querchecker.deepLearning.extraction.LlmApiExtractionModel;
+import at.querchecker.entity.WhItem;
 import at.querchecker.entity.WhListing;
+import at.querchecker.repository.WhItemRepository;
 import at.querchecker.repository.WhListingRepository;
 import at.querchecker.research.entity.LookupStatus;
 import at.querchecker.research.entity.ProductLookup;
@@ -36,6 +38,7 @@ public class ProductLookupController {
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
   private final WhListingRepository listingRepository;
+  private final WhItemRepository whItemRepository;
   private final ProductLookupRepository productLookupRepository;
   private final ProductLookupService productLookupService;
   private final IcecatService icecatService;
@@ -80,6 +83,16 @@ public class ProductLookupController {
       result.getSourceType(),
       result.getSourceDomain()
     );
+
+    // Persist the resolved lookup term on WhItem so the listing→ProductLookup link is queryable.
+    // Only written on COMPLETE — FAILED/ERROR/etc. mean the term produced no usable result.
+    if (result.getStatus() == LookupStatus.COMPLETE) {
+      whItemRepository.findByWhListingId(id).ifPresent(whItem -> {
+        whItem.setLookupTerm(req.getLookupTerm());
+        whItem.setUpdatedAt(java.time.LocalDateTime.now());
+        whItemRepository.save(whItem);
+      });
+    }
 
     ProductLookup saved = productLookupRepository
       .findByLookupTerm(req.getLookupTerm())

@@ -1,6 +1,6 @@
-# Spec-Lookup & Item Research — Konzept & Architektur
+# Automatische KI-Produktanalyse — Konzept & Architektur
 
-Technische Spezifikationen zu einem Inserat laden: Brave Search → LLM-Extraktion → Quick Facts anzeigen.
+KI erkennt den Produktnamen aus dem Inseratstext und ermittelt technische Spezifikationen: Brave Search → LLM-Extraktion → Quick Facts anzeigen.
 
 ---
 
@@ -27,9 +27,9 @@ item-research: Suchfeld (editierbar, vorausgefüllt)
 
 ---
 
-## UI: item-research
+## KI-Ergebnisanzeige (Detailansicht)
 
-### Zustände
+Die Ergebnisanzeige im Detailbereich zeigt die vom KI-Lookup ermittelten Produktdaten. Preferred fields (USER-Präferenzen der Kategorie) erscheinen immer zuerst, der Rest alphabetisch.
 
 | Zustand               | Anzeige                                                                   |
 | --------------------- | ------------------------------------------------------------------------- |
@@ -42,13 +42,6 @@ item-research: Suchfeld (editierbar, vorausgefüllt)
 | ERROR                 | ⚠️ "Fehler beim Laden" — Term editierbar (Retry nach TTL-Ablauf)          |
 | NO_SOURCES            | ℹ️ "KI-Suche nicht konfiguriert" — kein Laden-Button (Placeholder)        |
 | QUOTA_EXCEEDED        | 🚫 "Kontingent erschöpft bis [Datum]"                                     |
-
-### Computed Signals (`item-research.component.ts`)
-
-`state`, `termGroups`, `lookupState`, `orderedQuickFacts`, `quickFactsRows`, `lookupIcecatId`, `showFullSpecsButton`, `lookupTerm`, `lookupSourceDomain`, `lookupSourceUrl`, `geizhalUrl`, `fullSpecsLoading`, `fullSpecsLoaded`, `icecatFeatureGroups`, `icecatGeneralInfo`, `specsFeatureGroups`, `noIcecatData`, `icecatPageUrl`, `icecatMismatch`, `activeCategoryId`, `preferredKeySet`, `searchButtonDisabled`
-
-- **`orderedQuickFacts`**: preferred fields (aus `preferredKeySet`) zuerst, Rest alphabetisch
-- **`showFullSpecsButton`**: nur wenn `icecatId != null && sourceType === 'ICECAT'`
 
 ---
 
@@ -145,18 +138,19 @@ Da keine Quellen konfiguriert sind, macht ein Cachen keinen Sinn — beim nächs
 
 ### `ProductLookup` (Entity)
 
-| Feld                | Typ                                            | Notiz                                           |
-| ------------------- | ---------------------------------------------- | ----------------------------------------------- |
-| `lookupTerm`        | String                                         | Cache-Key (normalisiert)                        |
-| `lookupStatus`      | Enum (COMPLETE, FAILED, ERROR, QUOTA_EXCEEDED) | NO_SOURCES nie in DB gespeichert                |
-| `quickFactsJson`    | TEXT                                           | LLM-Extrakt                                     |
-| `icecatId`          | String (nullable)                              | aus LLM oder URL-Pattern                        |
-| `icecatUrl`         | String (nullable)                              |                                                 |
-| `icecatSpecsJson`   | TEXT (nullable)                                | vollst. Icecat-Response                         |
-| `sourceType`        | VARCHAR(30)                                    | ICECAT/GSMARENA/FLATPANELSHD/GENERIC            |
-| `sourceDomain`      | VARCHAR                                        | z.B. `gsmarena.com`                             |
-| `sourceUrl`         | VARCHAR                                        | validierte URL der besten Quelle                |
-| `featureGroupsJson` | TEXT (nullable)                                | für HTML-Fetch-Quellen; null bei ICECAT/GENERIC |
+| Feld                | Typ                                            | Notiz                                                                 |
+| ------------------- | ---------------------------------------------- | --------------------------------------------------------------------- |
+| `lookupTerm`        | String                                         | Cache-Key (normalisiert)                                              |
+| `lookupStatus`      | Enum (COMPLETE, FAILED, ERROR, QUOTA_EXCEEDED) | NO_SOURCES nie in DB gespeichert                                      |
+| `quickFactsJson`    | TEXT                                           | LLM-Extrakt                                                           |
+| `icecatId`          | String (nullable)                              | aus LLM oder URL-Pattern                                              |
+| `icecatUrl`         | String (nullable)                              |                                                                       |
+| `icecatSpecsJson`   | TEXT (nullable)                                | vollst. Icecat-Response                                               |
+| `sourceType`        | VARCHAR(30)                                    | ICECAT/GSMARENA/FLATPANELSHD/GENERIC                                  |
+| `sourceDomain`      | VARCHAR                                        | z.B. `gsmarena.com`                                                   |
+| `sourceUrl`         | VARCHAR                                        | validierte URL der besten Quelle                                      |
+| `featureGroupsJson` | TEXT (nullable)                                | für HTML-Fetch-Quellen; null bei ICECAT/GENERIC                       |
+| `lastAccessedAt`    | LocalDateTime (nullable)                       | Zeitstempel des letzten Cache-Hits; null = bisher nur frisch geladen  |
 
 ### `CategorySearchSource` (Entity, V30)
 
@@ -190,7 +184,7 @@ Implementierungen:
 ExtractionProviderRouter → aktiver Provider via querchecker.api.extraction.active-provider
 ```
 
-`AbstractLlmExtractionClient`: `callLlm()`, JSON-Parsing, `applyIcecatIdSafetyCheck()` (Halluzinations-Schutz).
+`AbstractLlmExtractionClient`: `callLlm()`, `callLlmWithJsonRetry()` (bei ungültigem JSON: einmaliger Retry mit expliziter JSON-Anweisung), `applyIcecatIdSafetyCheck()` (Halluzinations-Schutz).
 
 ---
 
@@ -233,19 +227,50 @@ API-Keys in `secret.yml` (nicht in Git): `querchecker.api.providers.{brave,groq,
 
 ---
 
+## Bekannte Einschränkungen
+
+### Lokales LLM degradiert die Cache-Effizienz
+
+Der `ProductLookup`-Cache ist ein **reiner String-Match** auf `lookupTerm`. Die Qualität des Caches steht und fällt damit, dass dasselbe Produkt immer denselben normalisierten Term erzeugt.
+
+**API-Modelle (Groq / OpenRouter)** liefern hier konsistente Ergebnisse, weil:
+
+- Sie mit 70B+ Parametern trainiert wurden und damit einen deutlich größeren Sprachmodellkontext mitbringen als lokale Quantisierungen (typisch 3B–8B, INT4/INT8)
+- Sie gezielt durch RLHF/DPO auf Instruction-Following optimiert sind — strukturierte JSON-Ausgabe und exakte Produktnamen-Extraktion ist genau das, wofür diese Fine-Tuning-Stufen ausgelegt sind
+- Produktnamen werden normalisiert: ein API-Modell gibt konsistent `"Sony WH-1000XM5"` zurück, unabhängig davon ob der Inseratstext `"Sony WH1000XM5 Kopfhörer schwarz wie neu"` oder `"WH-1000XM5 NC-Headset OVP"` enthält
+
+**Lokale Modelle** dagegen können dasselbe Inserat unterschiedlich extrahieren:
+- Run 1: `"Sony WH-1000XM5"`
+- Run 2: `"Sony WH1000XM5 Schwarz"`
+- Run 3: `"WH 1000XM5 Noise Cancelling"`
+
+Jede Variante erzeugt einen eigenen `ProductLookup`-Eintrag, verbraucht einen Brave-API-Call, und kein Eintrag wird jemals wiederverwendet. Der Cache degeneriert zu einem reinen Write-Only-Log.
+
+**Empfehlung:** Für produktiven Einsatz immer `querchecker.api.extraction.active-provider: GROQ` oder `OPENROUTER` verwenden. Lokale Modelle eignen sich allenfalls für die Entwicklung ohne Internetabhängigkeit, aber nicht für zuverlässiges Caching.
+
+---
+
+### Condensed Spec ist nicht Teil des Cache-Keys
+
+Beim ersten Lookup für einen Term extrahiert der `LlmApiExtractionModel` zusätzlich eine `condensedSpec` aus dem Inserat — z.B. `{Speicher: 256GB, Farbe: Schwarz}`. Diese wird als Kontext in den LLM-Prompt injiziert, damit das Modell die richtige Produktvariante findet.
+
+Die `condensedSpec` ist jedoch **nicht Teil des Cache-Keys**. `ProductLookup` ist ausschließlich nach `lookupTerm` indiziert.
+
+**Konkrete Auswirkung:** Wenn zwei Inserate denselben Produktnamen extrahieren, aber verschiedene Varianten beschreiben:
+- Inserat A: `"Samsung Galaxy S24 Ultra"` + Speicher 256GB → Brave-Call, LLM-Extrakt, gespeichert
+- Inserat B: `"Samsung Galaxy S24 Ultra"` + Speicher 512GB → **Cache-Hit**, bekommt Ergebnis von Inserat A
+
+Das gecachte Ergebnis enthält modellgenerische Specs (Displaygröße, Prozessor, Gewicht) und ist für die meisten Anwendungsfälle korrekt. Variantenspezifische Werte (Speicher, RAM-Konfiguration) können abweichen.
+
+Eine variantengenaue Lösung würde einen zusammengesetzten Cache-Key `(lookupTerm, condensedSpecHash)` erfordern — aktuell nicht implementiert.
+
+---
+
 ## Offene Punkte
-
-### Frontend
-
-- **`NO_SOURCES`-Zustand behandeln**: `item-research` zeigt noch keinen Placeholder für `NO_SOURCES` — muss analog zu "KI-Suche deaktiviert" implementiert werden (kein Spinner, kein Error, neutraler Hinweis "KI-Suche nicht konfiguriert"). Status kommt vom Backend wenn Kategorie keine Quellen hat.
-- **`ERROR`-Zustand behandeln**: Analog zu FAILED anzeigen, aber mit anderem Text ("Fehler beim Laden").
-- **Kategorie-Präferenzen Settings** (`settings/kategorie-praeferenzen/`): UI zur Verwaltung von SYSTEM/USER Feldern pro Kategorie. Max. 5 USER-Keywords als Limit-Guard. Vererbung (Elternkategorie) anzeigen.
-- **Settings als Expandable Cards**: Refactoring der Settings-Route — aktuelle Struktur durch collapsible Material-Cards ersetzen.
 
 ### Backend
 
-- **Fallback bei Groq-Netzwerkfehler**: Kein Retry implementiert — Exception führt zu leerem Extraktionsergebnis. Ggf. einfaches Retry mit kurzer Wartezeit.
-- **Fehlerfall: LLM liefert kein valides JSON**: Aktuell: FAILED. Optional: Retry-Prompt mit expliziterer Anweisung.
+- **Fallback bei transientem Netzwerkfehler**: Netzwerkfehler (z.B. Timeout, Connection refused) bei Groq/OpenRouter landen im generischen `catch (Exception e)` von `ProductLookupService` → `ERROR`-Status mit 10min TTL. Es gibt keinen proaktiven Retry — der User muss nach TTL-Ablauf manuell neu laden. Ein kurzer automatischer Retry (1–2x mit Backoff) wäre sinnvoll, ist aber nicht implementiert.
 
 ### Zukunft (Multi-User)
 

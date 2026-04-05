@@ -164,6 +164,12 @@ DlExtractionController.onExtractionCompleted(event)
 
 ---
 
+## Hinweis: Term-Qualität und Cache-Effizienz
+
+Die Qualität des extrahierten Terms hat direkte Auswirkung auf den `ProductLookup`-Cache. Lokale Modelle können denselben Produktnamen unterschiedlich formulieren, was Cache-Treffer verhindert. Siehe → [Bekannte Einschränkungen in ki-produktanalyse.md](ki-produktanalyse.md#bekannte-einschränkungen).
+
+---
+
 ## Konfiguration (`application.yml`)
 
 ```yaml

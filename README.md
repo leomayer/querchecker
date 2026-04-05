@@ -37,21 +37,23 @@ Die Detailansicht zeigt alle Inseratsinformationen, eine vollständige Bildergal
 
 ---
 
-### Spec-Lookup & Item Research
+### KI-Produktanalyse & Spec-Lookup
 
 ![Spec-Lookup](docs/screenshots/spec-lookup.png)
 
 Beim Öffnen eines Inserats extrahieren KI-Modelle automatisch den Produktnamen. Auf Knopfdruck werden technische Spezifikationen nachgeschlagen — Brave Search findet relevante Quellen, ein LLM extrahiert daraus strukturierte Quick Facts. Bevorzugte Felder (z.B. Duplex, Patronen-Verfügbarkeit) erscheinen immer prominent. Ein Klick öffnet den aktuellen Marktpreis auf Geizhals.
 
-Mehr zur KI-Konfiguration (lokal / remote): → [docs/api-setup.md](docs/api-setup.md)
-Mehr zu Produktdatenquellen und Fallback-Logik: → [docs/spec-lookup.md](docs/spec-lookup.md)
+- Mehr zur KI-Konfiguration (lokal / remote): → [docs/api-setup.md](docs/api-setup.md)
+
+- Mehr zu dem Punkt, wie KI-Extraktion und Spezifikationen ermittelt werden: → [docs/ki-produktanalyse.md](docs/ki-produktanalyse.md)
 
 ---
 
 ## Geplante Features
 
-- [ ] Mobile-optimiertes Layout
-- [ ] Lokales Modell als Fallback — wenn die Remote-LLM-API nicht erreichbar ist, automatisch auf das lokal verfügbare Modell ausweichen (nahtlose Redundanz)
+[ ] Mobile-optimiertes Layout
+
+[ ] Lokales Modell als Fallback — wenn die Remote-LLM-API nicht erreichbar ist, automatisch auf das lokal verfügbare Modell ausweichen (nahtlose Redundanz)
 
 Bei positivem Feedback bin ich offen für weitere Features, sofern sie mich fachlich reizen und der Aufwand vertretbar ist.
 
@@ -101,7 +103,7 @@ querchecker/
 ├── docs/
 │   ├── screenshots/        ← Screenshots für README
 │   ├── api-setup.md        ← LLM-Konfiguration (lokal & remote)
-│   └── spec-lookup.md      ← Produktdatenquellen & Fallback-Logik
+│   └── ki-produktanalyse.md ← KI-Extraktion & Spec-Ermittlung
 ├── docker-compose.yml      ← Dev: nur PostgreSQL
 ├── docker-compose.prod.yml ← Prod: nginx + backend + postgres
 └── README.md

@@ -464,6 +464,8 @@ public class ProductLookupService {
     }
 
     private ProductLookupResult fromCache(ProductLookup pl) {
+        pl.setLastAccessedAt(LocalDateTime.now());
+        repo.save(pl);
         return ProductLookupResult.builder()
             .status(pl.getLookupStatus())
             .quickFactsJson(pl.getQuickFactsJson())

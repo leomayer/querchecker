@@ -59,6 +59,9 @@ public class ProductLookup {
     @Column(columnDefinition = "TEXT")
     private String featureGroupsJson;
 
+    /** Gesetzt wenn ein COMPLETE-Ergebnis aus dem Cache bedient wurde (kein Brave-Call). */
+    private LocalDateTime lastAccessedAt;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
