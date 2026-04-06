@@ -84,7 +84,7 @@ public final class DlCategoryPromptDefinitions {
        - Falsch: "Arbeitsspeicher": 16  |  Richtig: "Arbeitsspeicher": "16 GB"
        - Beispiel: "Display": "14 Zoll, 1920x1080" statt verschachtelter Objekte.
     4. Einheiten & Normalisierung: Verwende die größte sinnvolle Einheit (TB statt GB ab 1000 GB, GB statt MB ab 1000 MB, GHz statt MHz). Äquivalente Werte gelten als Duplikate.
-    5. Spezialfall Erscheinungsjahr: Nur die 4-stellige Jahreszahl (z.B. "2023"). Keine Zeitspannen. Wenn unbekannt, Feld weglassen.
+    5. Spezialfall Erscheinungsjahr: Nur die 4-stellige Jahreszahl (z.B. "2023"). Keine Zeitspannen. Wenn unbekannt, Feld weglassen. Hinweis: "Baujahr" aus dem Inserat-Kontext entspricht dem Erscheinungsjahr — verwende stets "Erscheinungsjahr" als Feldname.
     6. Nur belegbare Werte: Wenn ein Wert nicht aus den Suchergebnissen erkennbar ist, lass das Feld weg (kein null, kein "unbekannt"). Erfinde keine Daten.
     7. Sources:
        - icecatId: Suche in den URLs nach Mustern wie '...-123456.html'. Extrahiere NUR die Ziffern am Ende vor der Dateiendung. Wenn keine Icecat-URL vorhanden ist, setze null.

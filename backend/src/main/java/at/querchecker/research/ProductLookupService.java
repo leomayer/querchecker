@@ -213,6 +213,9 @@ public class ProductLookupService {
             }
 
             ExtractionQuality quality = qualityEvaluator.evaluate(extracted, mandatory, source.getSourceType());
+            log.debug("[ProductLookupService] Extraction quality for {} ({}): {} — {} quickFacts extracted",
+                    source.getSourceType(), source.getSiteDomain(), quality,
+                    extracted.getQuickFacts() != null ? extracted.getQuickFacts().size() : 0);
 
             switch (quality) {
                 case GOOD -> {
@@ -344,6 +347,9 @@ public class ProductLookupService {
                     if (!urlValidator.matchesExpectedPattern(sourceUrl, source.getSourceType())) sourceUrl = null;
 
                     ExtractionQuality quality = qualityEvaluator.evaluate(extracted, mandatory, source.getSourceType());
+                    log.debug("[ProductLookupService] Retry extraction quality for {} ({}): {} — {} quickFacts extracted",
+                            source.getSourceType(), source.getSiteDomain(), quality,
+                            extracted.getQuickFacts() != null ? extracted.getQuickFacts().size() : 0);
 
                     if (quality == ExtractionQuality.GOOD) {
                         ProductLookupResult result = saveAndReturn(lookupTerm, extracted, icecatId, sourceUrl, source, LookupStatus.COMPLETE);

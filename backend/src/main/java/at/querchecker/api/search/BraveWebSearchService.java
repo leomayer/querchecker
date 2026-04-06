@@ -45,20 +45,29 @@ public class BraveWebSearchService implements WebSearchService {
     public List<SearchResult> search(String lookupTerm, String siteDomain,
                                      List<String> keywords, List<String> queryExcludes,
                                      int resultCount) {
+        log.trace("[BraveSearch] START term='{}' site={} keywords={} excludes={} count={}",
+                lookupTerm, siteDomain, keywords, queryExcludes, resultCount);
+
         // Stufe 1: mit Präferenz-Keywords + Spezifikationen
-        List<SearchResult> results = callBrave(
-            buildStage1Query(lookupTerm, siteDomain, keywords, queryExcludes),
-            lookupTerm, resultCount);
+        String q1 = buildStage1Query(lookupTerm, siteDomain, keywords, queryExcludes);
+        log.trace("[BraveSearch] Stufe 1: query='{}'", q1);
+        List<SearchResult> results = callBrave(q1, lookupTerm, resultCount);
+        log.trace("[BraveSearch] Stufe 1: {} Ergebnisse", results.size());
         if (!results.isEmpty()) return results;
 
         // Stufe 2: Spezifikationen technische Daten
-        results = callBrave(
-            buildStage2Query(lookupTerm, siteDomain, queryExcludes),
-            lookupTerm, resultCount);
+        String q2 = buildStage2Query(lookupTerm, siteDomain, queryExcludes);
+        log.trace("[BraveSearch] Stufe 2 (Fallback): query='{}'", q2);
+        results = callBrave(q2, lookupTerm, resultCount);
+        log.trace("[BraveSearch] Stufe 2: {} Ergebnisse", results.size());
         if (!results.isEmpty()) return results;
 
         // Stufe 3: direkte Suche (letzter Fallback, keine Negativ-Filter)
-        return callBrave(buildStage3Query(lookupTerm, siteDomain), lookupTerm, resultCount);
+        String q3 = buildStage3Query(lookupTerm, siteDomain);
+        log.trace("[BraveSearch] Stufe 3 (letzter Fallback): query='{}'", q3);
+        results = callBrave(q3, lookupTerm, resultCount);
+        log.trace("[BraveSearch] Stufe 3: {} Ergebnisse", results.size());
+        return results;
     }
 
     private List<SearchResult> callBrave(String query, String lookupTerm, int count) {
@@ -77,11 +86,15 @@ public class BraveWebSearchService implements WebSearchService {
 
             usageLogService.log(Provider.BRAVE, RequestType.SEARCH, lookupTerm,
                     response.getStatusCode().value(), null, null, duration);
-            log.debug("Brave search query='{}' status={} results={} durationMs={}",
-                    query, response.getStatusCode().value(),
-                    extractResults(response.getBody()).size(), duration);
-
-            return extractResults(response.getBody());
+            List<SearchResult> extracted = extractResults(response.getBody());
+            log.trace("[BraveSearch] HTTP {} durationMs={}", response.getStatusCode().value(), duration);
+            if (log.isTraceEnabled()) {
+                extracted.forEach(r -> log.trace("[BraveSearch]   URL: {} | desc-len={} | snippets={}",
+                        r.getUrl(),
+                        r.getDescription() != null ? r.getDescription().length() : 0,
+                        r.getExtraSnippets() != null ? r.getExtraSnippets().size() : 0));
+            }
+            return extracted;
         } catch (HttpClientErrorException e) {
             long duration = System.currentTimeMillis() - start;
             int status = e.getStatusCode().value();
