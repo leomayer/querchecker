@@ -93,9 +93,20 @@ public final class CategorySearchSourceDefinitions {
       )
     ),
     entry(
+      "Beamer / Diaprojektoren",
+      List.of(
+        // level=1 → Beamer (678) + Diaprojektoren (679) + Dias/Zubehör (680) erben
+        new SourceConfig("icecat.biz", "Icecat", ICECAT, true, ICECAT_EXCLUDES, SNIPPETS_COUNT),
+        new SourceConfig("flatpanelshd.com", "FlatpanelsHD", FLATPANELSHD, false, FLATPANELSHD_EXCLUDES, SNIPPETS_COUNT),
+        new SourceConfig("prad.de", "PRAD", GENERIC, true, null, SNIPPETS_COUNT)
+      )
+    ),
+    entry(
       "Beamer",
       List.of(
-        new SourceConfig("icecat.biz", "Icecat", ICECAT, true, ICECAT_EXCLUDES, SNIPPETS_COUNT)
+        new SourceConfig("icecat.biz", "Icecat", ICECAT, true, ICECAT_EXCLUDES, SNIPPETS_COUNT),
+        new SourceConfig("flatpanelshd.com", "FlatpanelsHD", FLATPANELSHD, false, FLATPANELSHD_EXCLUDES, SNIPPETS_COUNT),
+        new SourceConfig("prad.de", "PRAD", GENERIC, true, null, SNIPPETS_COUNT)
       )
     ),
     entry(
