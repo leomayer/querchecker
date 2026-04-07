@@ -44,7 +44,7 @@
     font-size: 0.9rem;
     width: 0.9rem;
     height: 0.9rem;
-    margin-right: 4px;
+    margin: 0px;
   }
 
   mat-spinner {
@@ -102,6 +102,15 @@
       opacity: 1;
     }
   }
+
+  .placeholder-links {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-style: normal;
+    margin-top: 4px;
+  }
 }
 
 // --- Quick Facts grid ---
@@ -139,7 +148,8 @@
 
   // ≥ 720px: always 3 columns — match .cols-2 explicitly to win the specificity battle
   @container (min-width: 720px) {
-    &, &.cols-2 {
+    &,
+    &.cols-2 {
       grid-template-columns: repeat(3, auto minmax(min-content, 1fr));
     }
 

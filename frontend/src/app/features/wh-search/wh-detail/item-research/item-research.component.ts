@@ -214,6 +214,12 @@ export class ItemResearchComponent {
     return 'https://geizhals.at/?fs=' + encodeURIComponent(term);
   });
 
+  protected readonly googleSearchUrl = computed<string | null>(() => {
+    const term = this.lookupTerm() || this.searchTerm().trim();
+    if (!term) return null;
+    return 'https://www.google.com/search?q=' + encodeURIComponent(term);
+  });
+
   protected readonly fullSpecsLoading = computed<boolean>(() => {
     const id = this.detail().whItemId;
     if (id == null) return false;

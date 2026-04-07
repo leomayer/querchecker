@@ -91,12 +91,21 @@
         }
       } @else if (lookupState() === 'FAILED') {
         <mat-icon class="placeholder-icon amber">search_off</mat-icon>
-        <span
-          >Websuche hat nichts gefunden
-          @if (retryAfter()) {
-            — erneut verfügbar ab {{ retryAfter() | date: 'HH:mm' }}
-          }
-        </span>
+        <span>Websuche hat nichts gefunden</span>
+        @if (googleSearchUrl() || geizhalUrl()) {
+          <div class="placeholder-links">
+            @if (googleSearchUrl()) {
+              <a mat-stroked-button class="source-action" [href]="googleSearchUrl()!" target="_blank" rel="noopener">
+                <mat-icon>open_in_new</mat-icon>Google
+              </a>
+            }
+            @if (geizhalUrl()) {
+              <a mat-stroked-button class="source-action" [href]="geizhalUrl()!" target="_blank" rel="noopener">
+                <mat-icon>open_in_new</mat-icon>Geizhals
+              </a>
+            }
+          </div>
+        }
       } @else if (lookupState() === 'QUOTA_EXCEEDED') {
         <mat-icon class="placeholder-icon error">block</mat-icon>
         <span>API-Kontingent überschritten</span>
@@ -120,6 +129,20 @@
       } @else if (lookupState() === 'COMPLETE') {
         <mat-icon class="placeholder-icon">info</mat-icon>
         <span>Keine Produktdaten gefunden</span>
+        @if (googleSearchUrl() || geizhalUrl()) {
+          <div class="placeholder-links">
+            @if (googleSearchUrl()) {
+              <a mat-stroked-button class="source-action" [href]="googleSearchUrl()!" target="_blank" rel="noopener">
+                <mat-icon>open_in_new</mat-icon>Google
+              </a>
+            }
+            @if (geizhalUrl()) {
+              <a mat-stroked-button class="source-action" [href]="geizhalUrl()!" target="_blank" rel="noopener">
+                <mat-icon>open_in_new</mat-icon>Geizhals
+              </a>
+            }
+          </div>
+        }
       } @else if (extractionFailed()) {
         <mat-icon class="placeholder-icon">manage_search</mat-icon>
         <span>Fehler beim Extrahieren der Produktdaten</span>
