@@ -122,6 +122,7 @@ export class CategoryPreferences implements OnInit {
   deletePref(categoryId: number): void {
     this.prefService.delete(categoryId).subscribe({
       next: () => {
+        this.prefService.invalidate();
         this.preferences.update((list) => list.filter((p) => p.categoryId !== categoryId));
       },
     });
@@ -143,6 +144,7 @@ export class CategoryPreferences implements OnInit {
     this.saveError.set(null);
     this.prefService.save(state.categoryId, keywords).subscribe({
       next: (updated) => {
+        this.prefService.invalidate();
         this.preferences.update((list) =>
           list.map((p) => (p.categoryId === updated.categoryId ? updated : p)),
         );
@@ -185,6 +187,7 @@ export class CategoryPreferences implements OnInit {
     this.newSaveError.set(null);
     this.prefService.save(categoryId, keywords).subscribe({
       next: (created) => {
+        this.prefService.invalidate();
         this.preferences.update((list) => [...list, created]);
         this.showNewForm.set(false);
         this.loading.set(false);

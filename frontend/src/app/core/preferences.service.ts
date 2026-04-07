@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, shareReplay } from 'rxjs';
 import { API_URLS } from './api-urls';
 
 export interface PreferenceEntry {
@@ -12,9 +12,19 @@ export interface PreferenceEntry {
 @Injectable({ providedIn: 'root' })
 export class PreferencesService {
   private readonly http = inject(HttpClient);
+  private cache$: Observable<PreferenceEntry[]> | null = null;
 
   getAll(): Observable<PreferenceEntry[]> {
-    return this.http.get<PreferenceEntry[]>(API_URLS.settingsPreferences);
+    if (!this.cache$) {
+      this.cache$ = this.http
+        .get<PreferenceEntry[]>(API_URLS.settingsPreferences)
+        .pipe(shareReplay(1));
+    }
+    return this.cache$;
+  }
+
+  invalidate(): void {
+    this.cache$ = null;
   }
 
   save(categoryId: number, fieldKeys: string[]): Observable<PreferenceEntry> {

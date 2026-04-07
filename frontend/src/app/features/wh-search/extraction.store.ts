@@ -245,16 +245,9 @@ export const ExtractionStore = signalStore(
     >;
 
     const onDlExtract = (payload: DlExtractionDonePayload): void => {
-      console.log('[ExtractionStore.onDlExtract] SSE event received:', payload);
       const whItemId = payload?.whItemId;
-      if (whItemId == null) {
-        console.warn('[ExtractionStore.onDlExtract] Missing whItemId in payload');
-        return;
-      }
+      if (whItemId == null) return;
       const incoming = payload.terms ?? [];
-      console.log(
-        `[ExtractionStore.onDlExtract] Processing ${incoming.length} terms for whItemId=${whItemId}`,
-      );
       // Replace entries for this model, keep others — handles retries cleanly
       const incomingModels = new Set(incoming.map((t) => t.modelName));
       patchState(store, (s) => {
@@ -276,10 +269,6 @@ export const ExtractionStore = signalStore(
         if (payload.suggestedTerm && !s.suggestedTerms[whItemId]) {
           next.suggestedTerms = { ...s.suggestedTerms, [whItemId]: payload.suggestedTerm };
         }
-        const extracted = (next.results ?? [])[whItemId]?.length ?? 0;
-        console.log(
-          `[ExtractionStore.onDlExtract] Stored ${extracted} total terms for whItemId=${whItemId}`,
-        );
         return next;
       });
     };
@@ -321,11 +310,7 @@ export const ExtractionStore = signalStore(
     };
 
     const onErrorNotification = (event: SseEvent<ErrorNotificationPayload>): void => {
-      // Error notifications are handled by the error notification service
-      // which displays snackbars. The store just logs them for now.
-      console.log(
-        `[ExtractionStore.onErrorNotification] ${event.payload.errorType}: ${event.payload.message}`,
-      );
+      // handled by ErrorNotificationService (snackbars)
     };
 
     return {

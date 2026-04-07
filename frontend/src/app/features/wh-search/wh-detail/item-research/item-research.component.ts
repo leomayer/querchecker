@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButton, MatIconButton } from '@angular/material/button';
@@ -57,18 +57,22 @@ export class ItemResearchComponent {
   constructor() {
     this.loadPreferences();
 
+    let lastLoadedWhItemId: number | null = null;
     effect(() => {
       const id = this.detail().whItemId;
-      if (id != null) {
-        this.extractionStore.loadExistingTerms(id);
-      }
+      if (id == null || id === lastLoadedWhItemId) return;
+      lastLoadedWhItemId = id;
+      this.extractionStore.loadExistingTerms(id);
     });
 
     // Re-fetch terms after a server restart — the dl-extract SSE event may have been
     // broadcast during the reconnection window and missed by the frontend.
+    // Capture the count at mount time so only restarts that happen AFTER this component
+    // is created trigger a re-fetch. untracked() keeps detail() out of the dependency set.
+    const restartCountAtMount = this.health.serverRestartCount();
     effect(() => {
-      if (this.health.serverRestartCount() === 0) return;
-      const id = this.detail().whItemId;
+      if (this.health.serverRestartCount() <= restartCountAtMount) return;
+      const id = untracked(() => this.detail().whItemId);
       if (id != null) {
         this.extractionStore.loadExistingTerms(id);
       }
@@ -382,7 +386,7 @@ export class ItemResearchComponent {
         this.preferences.update((list) =>
           list.map((p) => (p.categoryId === saved.categoryId ? saved : p)),
         ),
-      error: () => this.loadPreferences(),
+      error: () => { this.prefService.invalidate(); this.loadPreferences(); },
     });
   }
 
