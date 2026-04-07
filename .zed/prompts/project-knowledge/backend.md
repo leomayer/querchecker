@@ -46,7 +46,8 @@ at.querchecker/
 │   ├── seeder/     CategorySearchSourceDefinitions, CategorySearchSourceSeeder,
 │   │               CategorySpecPreferenceSeeder, CategorySpecPreferenceDefinitions
 │   ├── SearchResultCacheService (In-Memory ConcurrentHashMap, Key=lookupTerm|sourceDomain)
-│   └── services:   WebSearchService (interface), BraveWebSearchService, ProductLookupService,
+│   └── services:   WebSearchService (interface), BraveWebSearchService,
+│                   GoogleDiscoveryWebSearchService, ProductLookupService,
 │                   IcecatService, CategorySpecPreferenceService, CategorySearchSourceService,
 │                   ExtractionQualityEvaluator, UrlValidator, HtmlFetchService
 │       controllers: ProductLookupController
@@ -272,16 +273,22 @@ Swagger UI: `/swagger-ui.html` (dev only, in Prod via `SPRING_PROFILES_ACTIVE=pr
 
 ## LLM Extraction API (`api/extraction/`)
 
-- `ExtractionClient` interface: `extractProductName(...)` + `extractQuickFacts(lookupTerm, categoryName, braveResults, mandatoryFields, prompt)` + `extractQuickFactsFromText(lookupTerm, categoryName, pageText, mandatoryFields, prompt)` (HTML-Fetch-Pfad — `{snippets}` wird mit Jsoup-Output befüllt)
-- `AbstractLlmExtractionClient`: `callLlm()`, JSON-Parsing, `applyIcecatIdSafetyCheck()` (case-insensitive URL-Match), `formatSnippets()`. Parst `featureGroups` aus JSON wenn vorhanden.
-- `GroqExtractionClient` / `OpenRouterExtractionClient`: OpenAI-kompatibles API
-- `ExtractionProviderRouter`: aktiver Provider via `querchecker.api.extraction.active-provider` (GROQ | OPENROUTER)
+- `ExtractionClient` interface: `extractProductName(...)` + `extractQuickFacts(..., int sourceIndex)` + `extractQuickFactsFromText(..., int sourceIndex)`. `sourceIndex` = 0-basierter Quellen-Loop-Index, steuert Modellwahl.
+- `AbstractLlmExtractionClient`:
+  - `callLlm(requestType, lookupTerm, systemPrompt, userPrompt, expectJson, model)` — Modell wird pro Call übergeben
+  - `getModelForLookup(int sourceIndex)` — Hook; Standard: immer `getModel()`; Unterklassen überschreiben für Modellwechsel
+  - Bei 429: loggt geschätzte Input-Tokens statt null — Rate-Limit-Hits werden in Usage-Statistiken sichtbar
+  - `callLlmWithJsonRetry()`, `applyIcecatIdSafetyCheck()`, `formatSnippets()` unverändert
+- `GroqExtractionClient`: injiziert `modelLookupSecondary` aus `querchecker.api.limits.groq.model-lookup-secondary`. Überschreibt `getModelForLookup`: `sourceIndex == 0` → primäres Modell (`llama-3.1-8b-instant`); `sourceIndex > 0` → sekundäres Modell (`llama-3.3-70b-versatile`)
+- `OpenRouterExtractionClient`: unverändert, nutzt einzelnes Modell
+- `ExtractionProviderRouter`: aktiver Provider via `querchecker.llm.external-provider` (GROQ | OPENROUTER)
+- `ProviderConfig`: neues Feld `modelLookupSecondary`
 
 ## DL Category Prompts
 
 - `DlCategoryPromptDefinitions`: Java-Konstanten für alle Prompts. Enthält `PromptConfig` record `(PromptType, systemPrompt, userPrompt)`. Default-Konstanten: `PRODUCT_NAME_SYSTEM`, `PRODUCT_NAME_USER_DEFAULT`, `QUICK_FACTS_SYSTEM`, `QUICK_FACTS_USER_DEFAULT`. Kategorie-spezifische Prompts in unified `CONFIGS: Map<String, List<PromptConfig>>` (ersetzt die früheren getrennten `*_BY_CATEGORY`-Maps).
 - **PRODUCT_NAME**: Reicherer System-Prompt mit nummerierten Regeln, Persona, vielen Beispielen. `condensedSpec`-Keys sind Deutsch, groß geschrieben, mit Leerzeichen getrennt (z.B. "Akku Kapazität", "Bildschirmgröße", "Prozessor"). User-Prompt nur Daten (Kategorie, Titel, Beschreibung). Inch-Mark-Sanitisierungsregel hinzugefügt. Regel 1: wenn `extractedModel` nicht erkennbar → **Feld weglassen** (nicht "UNBEKANNT") — spart Tokens. `extractProductNameStructured` gibt bei erfolgreichem JSON-Parse immer das Ergebnis zurück (auch wenn `extractedModel` fehlt); `null` → `LlmApiExtractionModel` gibt `List.of()` zurück. `max_completion_tokens` = 1024 (war 256).
-- **QUICK_FACTS**: System-Prompt mit Konsolidierungsregel, German-Key-Namen (groß geschrieben), Sources-Block mit icecatId-URL-Muster, GB→MB-Normalisierung, Falsch/Richtig-Beispiele. User-Prompt nur Daten. `condensedSpec`-Keys sind Deutsch.
+- **QUICK_FACTS**: System-Prompt mit Konsolidierungsregel, German-Key-Namen (groß geschrieben), Sources-Block mit icecatId-URL-Muster, GB→MB-Normalisierung, Falsch/Richtig-Beispiele. User-Prompt nur Daten. `condensedSpec`-Keys sind Deutsch. Regel 5 (Erscheinungsjahr): "Baujahr aus dem Inserat-Kontext entspricht dem Erscheinungsjahr — verwende stets 'Erscheinungsjahr' als Feldname." (verhindert dass LLM den Inserat-Key direkt übernimmt).
 - `DlCategoryPromptSeeder`: Additives Per-Entry-Upsert beim Start — prüft jedes `(Kategorie, PromptType)`-Paar einzeln via `findDefaultByPromptType` + `findByWhCategoryAndPromptType`. Überschreibt niemals vorhandene Einträge. Re-seed: `DELETE FROM dl_category_prompt` + Neustart.
 - `DlPromptResolver.resolve(WhCategory, PromptType)`: traversiert Kategoriehierarchie, Fallback auf Default
 - **QUICK_FACTS icecatId**: "die rein numerische ID am Ende der icecat-URL, direkt vor .html"
@@ -314,9 +321,15 @@ Swagger UI: `/swagger-ui.html` (dev only, in Prod via `SPRING_PROFILES_ACTIVE=pr
     - ExtraSnippets: 7 pro Ergebnis × 250 chars max (war: 2 × 200)
     - Token-Rechnung: ~505 Tokens pro Ergebnis, ~2525 Tokens für 5 Ergebnisse + ~600 Prompt = ~3125 Tokens (unter 6000 Limit mit Spielraum)
     - Implementierung: `truncateString()`, `truncateSnippets()` Hilfsmethoden
+- `GoogleDiscoveryWebSearchService implements WebSearchService`: Google Discovery Engine (Cloud-Suche). Wichtige Eigenheiten:
+  - **Query-Format**: `"[lookupTerm]" site:[domain] [excludes]` — Term in Anführungszeichen; `queryExcludes` tragen bereits ihr `-` Prefix → kein extra `-` beim Anhängen
+  - **Result-Count**: `setPageSize(resultCount)` wird von `iterateAll()` ignoriert (auto-paginiert); Begrenzung erfolgt manuell via Loop-Break in `mapSdkResults()`
+  - **Snippet-Extraktion**: `derivedStructData` liefert `"snippets"` als `LIST_VALUE` von Structs (nicht `STRING_VALUE`); `extractSnippets()` iteriert und joined `"snippet"`-Felder
+  - **Locale-Deduplizierung**: URL-Pfad wird kanonisiert (Locale-Prefix `/de/`, `/us/`, `/ar-sa/` gestripped via Regex); Duplikate per `HashSet<String> seenCanonicalPaths` gefiltert
+  - **Debug**: Keys des ersten `derivedStructData` auf DEBUG geloggt
 - `SearchResult` record: `(title, url, description, extraSnippets)` — generisch. Ersetzt `BraveResult`.
-  - Hinweis: `extraSnippets` ist **Brave-spezifisch**. Google Discovery hat nur ein einzelnes `snippets` Feld (in description), kein Array von extraSnippets.
-- `ProductLookupService`: Multi-Source-Schleife über `CategorySearchSource`-Liste. Je Quelle: Brave → HTML-Fetch (FLATPANELSHD/GSMARENA via Jsoup-Fallback-Loop) oder Snippets (ICECAT/GENERIC) → LLM → Quality-Check → weiter bei PARTIAL/EMPTY. Speichert `sourceType`, `sourceDomain`, `sourceUrl`, `featureGroupsJson` in `ProductLookup`.
+  - Hinweis: `extraSnippets` ist **Brave-spezifisch**. Google Discovery befüllt nur `description` (aus `extractSnippets()`), `extraSnippets` bleibt leer.
+- `ProductLookupService`: Multi-Source-Schleife über `CategorySearchSource`-Liste mit 0-basiertem `sourceIndex` (Haupt-Loop + Retry-Loop). Je Quelle: Brave → LLM (mit `sourceIndex` für Modellwahl) → Quality-Check (Ergebnis auf DEBUG geloggt) → weiter bei PARTIAL/EMPTY. Speichert `sourceType`, `sourceDomain`, `sourceUrl`, `featureGroupsJson` in `ProductLookup`.
   - Leere Quellen → `NO_SOURCES` (nicht gecacht — wird bei jedem Aufruf neu geprüft)
   - Exception → `ERROR` (gecacht mit TTL 10min, konfigurierbar via `AppConfig key: product.lookup.error.ttl.minutes`)
   - `FAILED`: gecacht mit TTL 24h (konfigurierbar via `AppConfig key: product.lookup.failed.ttl.hours`); nach Ablauf erneute Suche
@@ -382,13 +395,16 @@ Tabelle `category_search_source` — konfiguriert Suchquellen pro Kategorie.
 ## API Usage (`api/`)
 
 - `Provider` enum: `BRAVE`, `GROQ`, `OPENROUTER`, `ICECAT` (ehemals `GOOGLE` → umbenannt via Flyway `V29`)
-- `RequestType` enum: `SEARCH`, `EXTRACTION`, `SPEC_DETAIL`, `HTML_FETCH` (`HTML_FETCH` neu für FlatpanelsHD/GSMArena HTML-Fetch-Logging)
-- `ApiUsageLogService`: `log()`, `countByProviderAndPeriod()`, `sumTokensInputByProviderAndPeriod()`, `sumTokensOutputByProviderAndPeriod()`. `avgDurationByProvider()` entfernt.
-- `ApiUsageLogRepository`: `sumTokensInputByProviderAndCreatedAtBetween` + `sumTokensOutputByProviderAndCreatedAtBetween` Queries.
-- `QuotaService`: `checkQuota(Provider.ICECAT)` → immer `OK`; `isWarningThreshold(Provider.ICECAT)` → immer `false` (kein Kontingent).
-- `ApiUsageController` (`GET /api/usage`): Periode/Limits kommen aus `QuotaService.getPeriodStart()` + `ProviderProperties` (nicht hardcodiert).
-- `ProviderUsageDto`: `{ callsThisPeriod, callsToday, tokensIn, tokensOut, quotaUsage, quotaLimit }`. Kein `avgDurationMs`.
-- `UsageResponse`: `{ brave, groq, openRouter }` — ICECAT entfernt (kein Kontingent, kein Monitor-Eintrag).
+- `RequestType` enum: `SEARCH`, `EXTRACTION`, `SPEC_DETAIL`, `HTML_FETCH`
+- `ApiUsageLog`: neues Feld `model_name VARCHAR(100)` (Flyway V39) — welches LLM-Modell verwendet wurde
+- `ApiUsageLogService.log()`: Signatur jetzt mit `String modelName` (null für Such-Provider)
+  - Neue Methoden: `countRateLimitsByProviderAndPeriod()`, `sumEstimatedTokensForRateLimitsByProviderAndPeriod()`, `countByProviderAndModelNameAndPeriod()`, `sumTokensIn/OutByProviderAndModelNameAndPeriod()`
+- `ApiUsageLogRepository`: neue Queries für 429-Count, geschätzte Tokens bei 429, per-Modell-Stats
+- `QuotaService`: `checkQuota(Provider.ICECAT)` → immer `OK`; `isWarningThreshold(Provider.ICECAT)` → immer `false`
+- `ApiUsageController` (`GET /api/usage`): übergibt jetzt `LocalDateTime now` an `providerUsage()` (verhindert Zeit-Drift); baut `groqModelBreakdown` via `buildGroqModelBreakdown()`
+- `ProviderUsageDto`: `{ calls, tokensIn, tokensOut, quotaUsage, quotaLimit, model, quotaPeriod, rateLimitCount, rateLimitEstimatedTokens }`
+- `UsageResponse`: `{ activeSearchProvider, activeLlmProvider, brave, googleDiscovery, groq, openRouter, groqModelBreakdown: List<ModelUsageDto> }`
+- `ModelUsageDto` (neu): `{ model, calls, tokensIn, tokensOut }` — pro Modell-Subzeile in der Settings-Tabelle
 
 ## Token-Management für LLM-Requests
 

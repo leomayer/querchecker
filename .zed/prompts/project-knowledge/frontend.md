@@ -266,7 +266,8 @@ Vollständig implementiertes Feature:
 - `ProductLookupService` (`core/`): `lookup(listingId, lookupTerm)` + `loadFullSpecs(listingId, icecatId)`
 - `IcecatService` (`core/`): `getByEan(ean)` — EAN-basierter Lookup (legacy, nicht importiert)
 - `EanSearchService` (`core/`): Produktsuche → EAN-Ergebnisse (legacy, nicht importiert)
-- `usage.service.ts`: `ProviderUsage { callsThisPeriod, callsToday, tokensIn, tokensOut, quotaUsage, quotaLimit }`. `ApiUsageResponse { brave, groq, openRouter }` — ICECAT entfernt. Warning-Threshold: ≥80% von `quotaLimit`.
+- `usage.service.ts`: `ProviderUsage { callsThisPeriod, callsToday, tokensIn, tokensOut, quotaUsage, quotaLimit, rateLimitCount, rateLimitEstimatedTokens }`. `ModelUsage { model, calls, tokensIn, tokensOut }`. `ApiUsageResponse { brave, groq, openRouter, groqModelBreakdown: ModelUsage[] }`. Warning-Threshold: ≥80% von `quotaLimit`.
+- `usage-monitor` (Settings): Tabelle mit 429-Spalte (Anzahl Rate-Limit-Hits; Tooltip: geschätzte Input-Tokens). `groqModelRows` computed signal → Subzeilen pro konfiguriertem Groq-Modell (primär + sekundär) mit Call/Token-Aufschlüsselung.
 
 ## Health & Verbindungs-Handling
 
