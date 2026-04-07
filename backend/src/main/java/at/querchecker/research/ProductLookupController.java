@@ -12,6 +12,7 @@ import at.querchecker.research.entity.ProductLookup;
 import at.querchecker.research.model.FullSpecsRequest;
 import at.querchecker.research.model.FullSpecsResponse;
 import at.querchecker.research.model.IcecatFetchResult;
+import at.querchecker.research.model.LookupHistoryEntryDto;
 import at.querchecker.research.model.LookupRequest;
 import at.querchecker.research.model.LookupResponse;
 import at.querchecker.research.model.ProductLookupResult;
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +43,15 @@ public class ProductLookupController {
   private final WhItemRepository whItemRepository;
   private final ProductLookupRepository productLookupRepository;
   private final ProductLookupService productLookupService;
+  private final LookupHistoryService lookupHistoryService;
   private final IcecatService icecatService;
   private final DlExtractionTermRepository dlExtractionTermRepository;
+
+  @GetMapping("/lookup/history")
+  @Operation(summary = "Lookup-Verlauf für ein Inserat laden")
+  public List<LookupHistoryEntryDto> getHistory(@PathVariable Long id) {
+    return lookupHistoryService.getHistory(id);
+  }
 
   @PostMapping("/lookup")
   @Operation(summary = "Quick-Facts für ein Inserat per Brave+LLM ermitteln")
@@ -118,6 +127,14 @@ public class ProductLookupController {
       .retryProvider(result.getRetryProvider())
       .retryModel(result.getRetryModel())
       .build();
+
+    // Persist to history on every user-initiated search (COMPLETE + FAILED), skip transient states
+    boolean shouldSave = result.getStatus() == LookupStatus.COMPLETE
+        || result.getStatus() == LookupStatus.FAILED;
+    List<LookupHistoryEntryDto> history = shouldSave
+        ? lookupHistoryService.saveAndGetHistory(id, req.getLookupTerm(), response)
+        : lookupHistoryService.getHistory(id);
+    response.setHistory(history);
 
     log.info(
       "=== LOOKUP END: status={}, quickFactsCount={} ===",

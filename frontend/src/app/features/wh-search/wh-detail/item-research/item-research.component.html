@@ -21,7 +21,21 @@
   </button>
 </div>
 
-<!-- 2. Source header — always visible when data is present -->
+<!-- 2. History chips — shown when previous lookups exist -->
+@if (lookupHistory().length > 0) {
+  <mat-chip-set class="history-chips">
+    @for (entry of lookupHistory(); track entry.createdAt) {
+      <mat-chip
+        [class.active]="lookupTerm() === entry.lookupTerm"
+        (click)="onHistoryChipClick(entry)"
+        [matTooltip]="entry.createdAt | date: 'dd.MM.yyyy, HH:mm'">
+        {{ entry.lookupTerm }}
+      </mat-chip>
+    }
+  </mat-chip-set>
+}
+
+<!-- 3. Source header — shown when lookup data is present -->
 @if (lookupState() === 'COMPLETE' && orderedQuickFacts().length > 0) {
   <div class="source-header">
     @if (effectiveSourceUrl()) {

@@ -23,7 +23,37 @@
   }
 }
 
-// --- Source header (always visible below search row) ---
+// --- History chips ---
+
+mat-chip-set.history-chips {
+  flex: 0 0 auto;
+  margin-bottom: 4px;
+
+  ::ng-deep .mdc-evolution-chip-set__chips {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  ::ng-deep .mat-mdc-chip {
+    --mdc-chip-label-text-size: 0.72rem;
+    --mdc-chip-elevated-container-color: color-mix(in srgb, var(--mat-sys-surface-variant) 55%, transparent);
+    --mdc-chip-label-text-color: var(--mat-sys-on-surface-variant);
+    --mdc-chip-with-icon-icon-color: var(--mat-sys-on-surface-variant);
+    --mdc-chip-elevated-disabled-container-color: transparent;
+    height: 22px;
+    cursor: pointer;
+    font-style: italic;
+
+    &.active {
+      --mdc-chip-elevated-container-color: color-mix(in srgb, var(--mat-sys-secondary-container) 80%, transparent);
+      --mdc-chip-label-text-color: var(--mat-sys-on-secondary-container);
+      font-style: normal;
+      font-weight: 500;
+    }
+  }
+}
+
+// --- Source header (shown below history chips when lookup data present) ---
 
 .source-header {
   flex: 0 0 auto;

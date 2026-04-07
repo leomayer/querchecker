@@ -74,6 +74,7 @@ public class ProductLookupService {
     private final UrlValidator urlValidator;
     private final AppConfigService appConfigService;
     private final SearchResultCacheService searchResultCacheService;
+    private final LookupHistoryService lookupHistoryService;
     private final SseHub sseHub;
     private final WhItemRepository whItemRepository;
 
@@ -321,7 +322,9 @@ public class ProductLookupService {
                 Optional<ProductLookup> cached = repo.findByLookupTerm(lookupTerm);
                 if (cached.isPresent() && cached.get().getLookupStatus() == LookupStatus.COMPLETE) {
                     log.debug("[ProductLookupService] Retry short-circuit: term already COMPLETE in cache");
-                    sseHub.broadcast("lookup-result", buildSsePayload(listingId, fromCache(cached.get()), null, null));
+                    ProductLookupResult cachedResult = fromCache(cached.get());
+                    lookupHistoryService.saveAndGetHistory(listingId, lookupTerm, cachedResult);
+                    sseHub.broadcast("lookup-result", buildSsePayload(listingId, cachedResult, null, null));
                     return;
                 }
 
@@ -358,6 +361,7 @@ public class ProductLookupService {
 
                     if (quality == ExtractionQuality.GOOD) {
                         ProductLookupResult result = saveAndReturn(lookupTerm, extracted, icecatId, sourceUrl, source, LookupStatus.COMPLETE);
+                        lookupHistoryService.saveAndGetHistory(listingId, lookupTerm, result);
                         sseHub.broadcast("lookup-result", buildSsePayload(listingId, result, null, null));
                         return;
                     } else if (quality == ExtractionQuality.PARTIAL && bestPartial == null) {
@@ -373,6 +377,7 @@ public class ProductLookupService {
                 if (bestPartial != null) {
                     ProductLookupResult result = saveAndReturn(lookupTerm, bestPartial.result(),
                             bestPartial.icecatId(), bestPartial.sourceUrl(), bestPartial.source(), LookupStatus.COMPLETE);
+                    lookupHistoryService.saveAndGetHistory(listingId, lookupTerm, result);
                     sseHub.broadcast("lookup-result", buildSsePayload(listingId, result, null, null));
                     return;
                 }
@@ -387,6 +392,7 @@ public class ProductLookupService {
                     log.info("[ProductLookupService] Using bestPartial from retry despite second rate limit — saving as COMPLETE");
                     ProductLookupResult result = saveAndReturn(lookupTerm, bestPartial.result(),
                             bestPartial.icecatId(), bestPartial.sourceUrl(), bestPartial.source(), LookupStatus.COMPLETE);
+                    lookupHistoryService.saveAndGetHistory(listingId, lookupTerm, result);
                     sseHub.broadcast("lookup-result", buildSsePayload(listingId, result, null, null));
                     return;
                 }
@@ -415,7 +421,8 @@ public class ProductLookupService {
                 result.getSourceUrl(),
                 result.getFeatureGroupsJson(),
                 retryProvider,
-                retryModel
+                retryModel,
+                listingId != null ? lookupHistoryService.getHistory(listingId) : List.of()
         );
     }
 

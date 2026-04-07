@@ -1,10 +1,12 @@
 import { inject } from '@angular/core';
 import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
+import { withLookupHistory } from './lookup-history.feature';
 import { DlExtractionTermDto } from '../../api/model/dlExtractionTermDto';
 import {
   AppSseEventName,
   DlExtractionDonePayload,
   ErrorNotificationPayload,
+  LookupHistoryEntry,
   LookupResultPayload,
   SseEvent,
 } from '../../core/sse-events';
@@ -33,6 +35,7 @@ interface ExtractionState {
 
 export const ExtractionStore = signalStore(
   { providedIn: 'root' },
+  withLookupHistory(),
   withState<ExtractionState>({
     results: {},
     extractionStatus: {},
@@ -83,6 +86,7 @@ export const ExtractionStore = signalStore(
             fullSpecsLoadingIds: s.fullSpecsLoadingIds.filter((id) => id !== whItemId),
           };
         });
+        store.removeHistory(whItemId);
       },
       clear(): void {
         patchState(store, {
@@ -100,6 +104,7 @@ export const ExtractionStore = signalStore(
           fullSpecsGeneralInfo: {},
           icecatCatalogUrls: {},
         });
+        store.clearHistory();
       },
       loadExistingTerms(whItemId: number): void {
         dlService.getTerms(whItemId).subscribe((response) => {
@@ -184,6 +189,9 @@ export const ExtractionStore = signalStore(
               }
               return next;
             });
+            if (result.history) {
+              store.setHistory(whItemId, result.history);
+            }
           },
           error: () => {
             patchState(store, (s) => ({
@@ -191,6 +199,30 @@ export const ExtractionStore = signalStore(
             }));
           },
         });
+      },
+      restoreLookupResult(whItemId: number, entry: LookupHistoryEntry): void {
+        let featureGroups = null;
+        if (entry.featureGroupsJson) {
+          try { featureGroups = JSON.parse(entry.featureGroupsJson); } catch { /* ignore */ }
+        }
+        const result = {
+          lookupStatus: entry.lookupStatus as LookupResult['lookupStatus'],
+          quickFacts: entry.quickFacts ?? {},
+          icecatId: entry.icecatId,
+          sourceType: entry.sourceType,
+          sourceDomain: entry.sourceDomain,
+          siteLabel: entry.siteLabel,
+          sourceUrl: entry.sourceUrl,
+          featureGroupsJson: entry.featureGroupsJson,
+          featureGroups,
+          lookupTerm: entry.lookupTerm,
+          retryProvider: null,
+          retryModel: null,
+        };
+        patchState(store, (s) => ({
+          lookupResults: { ...s.lookupResults, [whItemId]: result },
+          lookupTimestamps: { ...s.lookupTimestamps, [whItemId]: Date.now() },
+        }));
       },
       loadFullSpecs(whItemId: number, listingId: number, icecatId: string): void {
         patchState(store, (s) => ({
@@ -307,6 +339,9 @@ export const ExtractionStore = signalStore(
         lookupResults: { ...s.lookupResults, [whItemId]: lookupResult },
         lookupTimestamps: { ...s.lookupTimestamps, [whItemId]: Date.now() },
       }));
+      if (payload.history) {
+        store.setHistory(whItemId, payload.history);
+      }
     };
 
     const onErrorNotification = (event: SseEvent<ErrorNotificationPayload>): void => {

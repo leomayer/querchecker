@@ -2,6 +2,7 @@ import { Component, computed, effect, inject, input, signal, untracked } from '@
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatChipSet, MatChip } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -11,6 +12,7 @@ import { WhDetailDto } from '../../../../api/model/whDetailDto';
 import { ExtractionStore } from '../../extraction.store';
 import { IcecatData, IcecatFeatureGroup } from '../../../../core/model/icecat.model';
 import { SpecsFeatureGroup } from '../../../../core/model/lookup.model';
+import { LookupHistoryEntry } from '../../../../core/sse-events';
 import { IcecatAccordionComponent } from './icecat-accordion/icecat-accordion.component';
 import { SpecsAccordionComponent } from './specs-accordion/specs-accordion.component';
 import { PreferenceEntry, PreferencesService } from '../../../../core/preferences.service';
@@ -33,6 +35,8 @@ type LookupState =
     FormsModule,
     MatButton,
     MatIconButton,
+    MatChipSet,
+    MatChip,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
@@ -60,9 +64,11 @@ export class ItemResearchComponent {
     let lastLoadedWhItemId: number | null = null;
     effect(() => {
       const id = this.detail().whItemId;
+      const listingId = this.detail().id;
       if (id == null || id === lastLoadedWhItemId) return;
       lastLoadedWhItemId = id;
       this.extractionStore.loadExistingTerms(id);
+      if (listingId != null) this.extractionStore.loadHistory(id, listingId);
     });
 
     // Re-fetch terms after a server restart — the dl-extract SSE event may have been
@@ -394,6 +400,22 @@ export class ItemResearchComponent {
         ),
       error: () => { this.prefService.invalidate(); this.loadPreferences(); },
     });
+  }
+
+  // --- History ---
+
+  protected readonly lookupHistory = computed<LookupHistoryEntry[]>(() => {
+    const id = this.detail().whItemId;
+    if (id == null) return [];
+    return this.extractionStore.lookupHistory()[id] ?? [];
+  });
+
+  protected onHistoryChipClick(entry: LookupHistoryEntry): void {
+    const whItemId = this.detail().whItemId;
+    if (whItemId == null) return;
+    this.searchTerm.set(entry.lookupTerm);
+    // Restore cached result directly — no new API call
+    this.extractionStore.restoreLookupResult(whItemId, entry);
   }
 
   // --- Handlers ---

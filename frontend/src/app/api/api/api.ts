@@ -1,3 +1,5 @@
+export * from './config.service';
+import { ConfigService } from './config.service';
 export * from './dlExtractionController.service';
 import { DlExtractionControllerService } from './dlExtractionController.service';
 export * from './dlSettingsController.service';
@@ -20,4 +22,4 @@ export * from './willhabenMeta.service';
 import { WillhabenMetaService } from './willhabenMeta.service';
 export * from './willhabenSearch.service';
 import { WillhabenSearchService } from './willhabenSearch.service';
-export const APIS = [DlExtractionControllerService, DlSettingsControllerService, HealthControllerService, ListingDetailService, ListingsService, ProductLookupService, SettingsPreferencesService, SseControllerService, UsageService, WillhabenMetaService, WillhabenSearchService];
+export const APIS = [ConfigService, DlExtractionControllerService, DlSettingsControllerService, HealthControllerService, ListingDetailService, ListingsService, ProductLookupService, SettingsPreferencesService, SseControllerService, UsageService, WillhabenMetaService, WillhabenSearchService];

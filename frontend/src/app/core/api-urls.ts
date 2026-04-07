@@ -10,6 +10,7 @@ export const API_URLS = {
   productSearch: '/api/research/product/search',
   icecatSpec: (ean: string) => `/api/research/icecat/${ean}`,
   productLookup: (listingId: number) => `/api/listings/${listingId}/lookup`,
+  productLookupHistory: (listingId: number) => `/api/listings/${listingId}/lookup/history`,
   productFullSpecs: (listingId: number) => `/api/listings/${listingId}/lookup/full-specs`,
   apiUsage: '/api/usage',
   settingsPreferences: '/api/settings/preferences',

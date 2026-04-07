@@ -9,15 +9,10 @@
  */
 
 
-export interface ProviderUsageDto { 
+export interface ModelUsageDto { 
+    model?: string;
     calls?: number;
     tokensIn?: number;
     tokensOut?: number;
-    quotaUsage?: number;
-    quotaLimit?: number;
-    model?: string;
-    quotaPeriod?: string;
-    rateLimitCount?: number;
-    rateLimitEstimatedTokens?: number;
 }
 

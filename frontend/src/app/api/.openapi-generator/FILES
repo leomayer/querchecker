@@ -3,6 +3,7 @@ README.md
 api.base.service.ts
 api.module.ts
 api/api.ts
+api/config.service.ts
 api/dlExtractionController.service.ts
 api/dlSettingsController.service.ts
 api/healthController.service.ts
@@ -26,9 +27,11 @@ model/fullSpecsRequest.ts
 model/fullSpecsResponse.ts
 model/lookupRequest.ts
 model/lookupResponse.ts
+model/modelUsageDto.ts
 model/models.ts
 model/preferenceRequest.ts
 model/preferenceResponse.ts
+model/providerStatusDto.ts
 model/providerUsageDto.ts
 model/usageResponse.ts
 model/whCategoryDto.ts

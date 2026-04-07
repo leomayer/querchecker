@@ -31,6 +31,20 @@ export interface LookupResultPayload {
   featureGroupsJson: string | null;
   retryProvider: string | null;
   retryModel: string | null;
+  history: LookupHistoryEntry[] | null;
+}
+
+export interface LookupHistoryEntry {
+  lookupTerm: string;
+  lookupStatus: string;
+  quickFacts: Record<string, string> | null;
+  icecatId: string | null;
+  sourceType: string | null;
+  sourceDomain: string | null;
+  siteLabel: string | null;
+  sourceUrl: string | null;
+  featureGroupsJson: string | null;
+  createdAt: string;
 }
 
 /** Pushed when an error occurs (DL extraction failure, lookup failure, network error, etc). */

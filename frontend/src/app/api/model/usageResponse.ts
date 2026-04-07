@@ -7,6 +7,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { ModelUsageDto } from './modelUsageDto';
 import { ProviderUsageDto } from './providerUsageDto';
 
 
@@ -17,5 +18,6 @@ export interface UsageResponse {
     googleDiscovery?: ProviderUsageDto;
     groq?: ProviderUsageDto;
     openRouter?: ProviderUsageDto;
+    groqModelBreakdown?: Array<ModelUsageDto>;
 }
 

@@ -25,4 +25,6 @@ export interface LookupResult {
   retryModel?: string | null;
   /** Frontend-only: the term that was used for this lookup */
   lookupTerm?: string;
+  /** Lookup-Verlauf für dieses Inserat (neueste zuerst, max. 5 Einträge). */
+  history?: import('../sse-events').LookupHistoryEntry[] | null;
 }

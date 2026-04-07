@@ -5,6 +5,7 @@ import at.querchecker.research.entity.SourceType;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -28,4 +29,6 @@ public class LookupResponse {
     private String retryProvider;
     /** Modellname (nur bei RATE_LIMITED), z.B. "llama-3.1-8b-instant". */
     private String retryModel;
+    /** Lookup-Verlauf für dieses Inserat (neueste zuerst, max. 5 Einträge). */
+    private List<LookupHistoryEntryDto> history;
 }
