@@ -112,7 +112,7 @@ class ProductLookupServiceTest {
     when(webSearchService.search(any(), any(), any(), any(), anyInt())).thenReturn(
       List.of(searchResult(url))
     );
-    when(llmClient.extractQuickFacts(any(), any(), any(), any(), any(), any())).thenReturn(
+    when(llmClient.extractQuickFacts(any(), any(), any(), any(), any(), any(), anyInt())).thenReturn(
       quickFacts(Map.of("cpu", "Snapdragon 8 Elite"), null, url)
     );
     when(urlValidator.resolveIcecatId(any(), any())).thenReturn(null);
@@ -128,8 +128,8 @@ class ProductLookupServiceTest {
     );
 
     assertThat(result.getStatus()).isEqualTo(LookupStatus.COMPLETE);
-    verify(llmClient).extractQuickFacts(any(), any(), any(), any(), any(), any());
-    verify(llmClient, never()).extractQuickFactsFromText(any(), any(), any(), any(), any());
+    verify(llmClient).extractQuickFacts(any(), any(), any(), any(), any(), any(), anyInt());
+    verify(llmClient, never()).extractQuickFactsFromText(any(), any(), any(), any(), any(), anyInt());
   }
 
   @Test
@@ -143,7 +143,7 @@ class ProductLookupServiceTest {
     when(webSearchService.search(any(), any(), any(), any(), anyInt())).thenReturn(
       List.of(searchResult(url))
     );
-    when(llmClient.extractQuickFacts(any(), any(), any(), any(), any(), any())).thenReturn(
+    when(llmClient.extractQuickFacts(any(), any(), any(), any(), any(), any(), anyInt())).thenReturn(
       quickFacts(Map.of("screen_size", "65\""), null, url)
     );
     when(urlValidator.resolveIcecatId(any(), any())).thenReturn(null);
@@ -156,8 +156,8 @@ class ProductLookupServiceTest {
     ProductLookupResult result = service.lookup(null, "LG C4 OLED", mock(WhCategory.class), null);
 
     assertThat(result.getStatus()).isEqualTo(LookupStatus.COMPLETE);
-    verify(llmClient).extractQuickFacts(any(), any(), any(), any(), any(), any());
-    verify(llmClient, never()).extractQuickFactsFromText(any(), any(), any(), any(), any());
+    verify(llmClient).extractQuickFacts(any(), any(), any(), any(), any(), any(), anyInt());
+    verify(llmClient, never()).extractQuickFactsFromText(any(), any(), any(), any(), any(), anyInt());
   }
 
   @Test
@@ -172,7 +172,7 @@ class ProductLookupServiceTest {
     when(webSearchService.search(any(), any(), any(), any(), anyInt())).thenReturn(
       List.of(searchResult(validatedUrl))
     );
-    when(llmClient.extractQuickFacts(any(), any(), any(), any(), any(), any())).thenReturn(
+    when(llmClient.extractQuickFacts(any(), any(), any(), any(), any(), any(), anyInt())).thenReturn(
       quickFacts(Map.of("cpu", "Snapdragon 8 Elite"), null, "https://halluziniert.com/falsche-url")
     );
     when(urlValidator.resolveIcecatId(any(), any())).thenReturn(null);
@@ -206,7 +206,7 @@ class ProductLookupServiceTest {
       List.of(searchResult("https://whathifi.com/lg-g5-review"))
     );
 
-    when(llmClient.extractQuickFacts(any(), any(), any(), any(), any(), any()))
+    when(llmClient.extractQuickFacts(any(), any(), any(), any(), any(), any(), anyInt()))
       .thenReturn(quickFacts(Map.of(), null, null))
       .thenReturn(quickFacts(Map.of("screen_size", "65\""), null, null));
     when(urlValidator.resolveIcecatId(any(), any())).thenReturn(null);
@@ -221,7 +221,7 @@ class ProductLookupServiceTest {
 
     assertThat(result.getStatus()).isEqualTo(LookupStatus.COMPLETE);
     assertThat(result.getSourceDomain()).isEqualTo("whathifi.com");
-    verify(llmClient, times(2)).extractQuickFacts(any(), any(), any(), any(), any(), any());
+    verify(llmClient, times(2)).extractQuickFacts(any(), any(), any(), any(), any(), any(), anyInt());
   }
 
   @Test

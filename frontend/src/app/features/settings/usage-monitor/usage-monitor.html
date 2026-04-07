@@ -5,6 +5,7 @@
         <th rowspan="2">Provider</th>
         <th rowspan="2" class="num">Calls</th>
         <th colspan="2" class="num tokens-group">Tokens</th>
+        <th rowspan="2" class="num">429</th>
         <th rowspan="2" class="quota-col">Kontingent</th>
         <th rowspan="2">Zeitraum</th>
       </tr>
@@ -37,6 +38,15 @@
               <span class="na">—</span>
             }
           </td>
+          <td class="num rate-limit-col">
+            @if (row.p.rateLimitCount > 0) {
+              <span class="rate-limit-badge" [title]="'~' + (row.p.rateLimitEstimatedTokens | number: '1.0-0' : 'de') + ' gesch. Tokens'">
+                {{ row.p.rateLimitCount }}
+              </span>
+            } @else {
+              <span class="na">—</span>
+            }
+          </td>
           <td class="quota-col">
             @if (hasQuota(row.p)) {
               <app-gradient-progress-bar [usage]="row.p.quotaUsage" [limit]="row.p.quotaLimit" />
@@ -46,6 +56,34 @@
           </td>
           <td class="period-col">{{ periodLabel(row.p) }}</td>
         </tr>
+      }
+      @if (groqModelRows().length > 0) {
+        <tr class="model-breakdown-header">
+          <td colspan="7" class="model-breakdown-label">Groq — Modellaufteilung</td>
+        </tr>
+        @for (m of groqModelRows(); track m.model) {
+          <tr class="model-row">
+            <td class="provider-name"><span class="provider-model model-indent">{{ m.model }}</span></td>
+            <td class="num">{{ m.calls | number: '1.0-0' : 'de' }}</td>
+            <td class="num">
+              @if (m.tokensIn > 0) {
+                {{ m.tokensIn | number: '1.0-0' : 'de' }}
+              } @else {
+                <span class="na">—</span>
+              }
+            </td>
+            <td class="num">
+              @if (m.tokensOut > 0) {
+                {{ m.tokensOut | number: '1.0-0' : 'de' }}
+              } @else {
+                <span class="na">—</span>
+              }
+            </td>
+            <td class="num"><span class="na">—</span></td>
+            <td class="quota-col"><span class="na">—</span></td>
+            <td class="period-col"></td>
+          </tr>
+        }
       }
     </tbody>
   </table>

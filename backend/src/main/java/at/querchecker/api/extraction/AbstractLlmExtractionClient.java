@@ -50,8 +50,18 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     return "unknown";
   }
 
-  /** Modellname aus der Provider-Konfiguration */
+  /** Primäres Modell (DL-Extraktion + erster QuickFacts-Lookup) */
   protected abstract String getModel();
+
+  /**
+   * Modell für den QuickFacts-Lookup nach Quellen-Index.
+   * Standardmäßig immer das primäre Modell; Unterklassen können überschreiben.
+   *
+   * @param sourceIndex 0-based position of the source in the lookup loop
+   */
+  protected String getModelForLookup(int sourceIndex) {
+      return getModel();
+  }
 
   @Override
   public String extractProductName(
@@ -71,7 +81,8 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
       null,
       prompt.getSystemPrompt(),
       userPrompt,
-      false
+      false,
+      getModel()
     );
     return response.firstChoice().trim();
   }
@@ -94,7 +105,8 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
       null,
       prompt.getSystemPrompt(),
       userPrompt,
-      true
+      true,
+      getModel()
     );
     String raw = response.firstChoice().trim();
 
@@ -138,7 +150,8 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     List<SearchResult> braveResults,
     List<String> mandatoryFields,
     DlCategoryPrompt prompt,
-    String condensedSpecContext
+    String condensedSpecContext,
+    int sourceIndex
   ) {
     String snippetsBlock = formatSnippets(braveResults);
     String condensedBlock = condensedSpecContext != null ? condensedSpecContext : "";
@@ -150,12 +163,14 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
       .replace("{condensedSpec}", condensedBlock);
 
     String systemPrompt = buildSystemPrompt(prompt.getSystemPrompt(), mandatoryFields);
+    String model = getModelForLookup(sourceIndex);
 
     QuickFactsResult result = callLlmWithJsonRetry(
       RequestType.EXTRACTION,
       lookupTerm,
       systemPrompt,
-      userPrompt
+      userPrompt,
+      model
     );
     return applyIcecatIdSafetyCheck(result, braveResults, lookupTerm);
   }
@@ -166,7 +181,8 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     String categoryName,
     String pageText,
     List<String> mandatoryFields,
-    DlCategoryPrompt prompt
+    DlCategoryPrompt prompt,
+    int sourceIndex
   ) {
     // Identisch zu extractQuickFacts(), aber {snippets} wird mit pageText befüllt
     String userPrompt = prompt
@@ -177,12 +193,14 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
       .replace("{condensedSpec}", "");
 
     String systemPrompt = buildSystemPrompt(prompt.getSystemPrompt(), mandatoryFields);
+    String model = getModelForLookup(sourceIndex);
 
     return callLlmWithJsonRetry(
       RequestType.EXTRACTION,
       lookupTerm,
       systemPrompt,
-      userPrompt
+      userPrompt,
+      model
     );
   }
 
@@ -281,9 +299,10 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     RequestType requestType,
     String lookupTerm,
     String systemPrompt,
-    String userPrompt
+    String userPrompt,
+    String model
   ) {
-    ChatResponse response = callLlm(requestType, lookupTerm, systemPrompt, userPrompt, true);
+    ChatResponse response = callLlm(requestType, lookupTerm, systemPrompt, userPrompt, true, model);
     String firstAttempt = response.firstChoice();
 
     // Try parsing the initial response
@@ -294,13 +313,14 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
 
     // First parse failed — retry with explicit JSON-only instruction
     log.warn(
-      "LLM response was invalid JSON (provider={}, requestType={}), retrying with explicit JSON instruction",
+      "LLM response was invalid JSON (provider={}, model={}, requestType={}), retrying with explicit JSON instruction",
       getProvider(),
+      model,
       requestType
     );
     String jsonOnlyPrompt =
       userPrompt + "\n\n⚠️ WICHTIG: Antworte NUR mit validem JSON, KEINE weiteren Erklärungen!";
-    ChatResponse retryResponse = callLlm(requestType, lookupTerm, systemPrompt, jsonOnlyPrompt, true);
+    ChatResponse retryResponse = callLlm(requestType, lookupTerm, systemPrompt, jsonOnlyPrompt, true, model);
     String retryAttempt = retryResponse.firstChoice();
 
     result = tryParseJson(retryAttempt);
@@ -310,8 +330,9 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
 
     // Both attempts failed — give up and return empty
     log.error(
-      "LLM response still invalid JSON after retry (provider={}, requestType={}), returning empty result",
+      "LLM response still invalid JSON after retry (provider={}, model={}, requestType={}), returning empty result",
       getProvider(),
+      model,
       requestType
     );
     return new QuickFactsResult();
@@ -344,17 +365,19 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     String lookupTerm,
     String systemPrompt,
     String userPrompt,
-    boolean expectJson
+    boolean expectJson,
+    String model
   ) {
-    ChatRequest request = buildRequest(systemPrompt, userPrompt, expectJson);
+    ChatRequest request = buildRequest(systemPrompt, userPrompt, expectJson, model);
 
     // Estimate token count before calling LLM (for TPM monitoring)
     int estimatedInputTokens = estimateTokens(systemPrompt) + estimateTokens(userPrompt);
     log.debug(
-      "[LLM] Estimated request tokens: {} (system: {}, user: {})",
+      "[LLM] Estimated request tokens: {} (system: {}, user: {}), model={}",
       estimatedInputTokens,
       estimateTokens(systemPrompt),
-      estimateTokens(userPrompt)
+      estimateTokens(userPrompt),
+      model
     );
     log.trace("[LLM] System prompt:\n{}\n[LLM] User prompt:\n{}", systemPrompt, userPrompt);
 
@@ -374,11 +397,12 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
       int actualInputTokens = response.getTokensInput();
       int actualOutputTokens = response.getTokensOutput();
       log.debug(
-        "[LLM] Actual tokens — Input: {} (estimate: {}), Output: {}, Duration: {}ms",
+        "[LLM] Actual tokens — Input: {} (estimate: {}), Output: {}, Duration: {}ms, model={}",
         actualInputTokens,
         estimatedInputTokens,
         actualOutputTokens,
-        duration
+        duration,
+        model
       );
       usageLogService.log(
         getProvider(),
@@ -387,27 +411,33 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
         200,
         response.getTokensInput(),
         response.getTokensOutput(),
-        duration
+        duration,
+        model
       );
       return response;
     } catch (HttpClientErrorException e) {
       long duration = System.currentTimeMillis() - start;
       int status = e.getStatusCode().value();
-      usageLogService.log(getProvider(), requestType, lookupTerm, status, null, null, duration);
       if (status == 429) {
         var headers = e.getResponseHeaders();
         String retryAfterHeader = headers != null ? headers.getFirst("Retry-After") : null;
         int retryAfterSeconds = RateLimitException.parseRetryAfter(retryAfterHeader);
         log.warn(
-          "LLM rate limited (provider={}, retryAfter={}s)",
+          "LLM rate limited (provider={}, model={}, retryAfter={}s, estimatedTokens={})",
           getProvider(),
-          retryAfterSeconds
+          model,
+          retryAfterSeconds,
+          estimatedInputTokens
         );
-        throw new RateLimitException(retryAfterSeconds, getProvider(), getModel());
+        // Log with estimated input tokens so rate-limit hits are visible in usage stats
+        usageLogService.log(getProvider(), requestType, lookupTerm, status, estimatedInputTokens, null, duration, model);
+        throw new RateLimitException(retryAfterSeconds, getProvider(), model);
       }
+      usageLogService.log(getProvider(), requestType, lookupTerm, status, null, null, duration, model);
       log.warn(
-        "LLM call failed (provider={}, key={}, status={}): {}",
+        "LLM call failed (provider={}, model={}, key={}, status={}): {}",
         getProvider(),
+        model,
         getApiKeyInfo(),
         status,
         e.getMessage()
@@ -416,25 +446,26 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     } catch (RuntimeException e) {
       long duration = System.currentTimeMillis() - start;
       log.warn(
-        "LLM call failed (provider={}, key={}): {}",
+        "LLM call failed (provider={}, model={}, key={}): {}",
         getProvider(),
+        model,
         getApiKeyInfo(),
         e.getMessage()
       );
-      usageLogService.log(getProvider(), requestType, lookupTerm, 500, null, null, duration);
+      usageLogService.log(getProvider(), requestType, lookupTerm, 500, null, null, duration, model);
       throw e;
     }
   }
 
   private static final Map<String, String> JSON_RESPONSE_FORMAT = Map.of("type", "json_object");
 
-  private ChatRequest buildRequest(String systemPrompt, String userPrompt, boolean expectJson) {
+  private ChatRequest buildRequest(String systemPrompt, String userPrompt, boolean expectJson, String model) {
     List<ChatRequest.Message> messages = new ArrayList<>();
     if (systemPrompt != null && !systemPrompt.isBlank()) {
       messages.add(new ChatRequest.Message("system", systemPrompt));
     }
     messages.add(new ChatRequest.Message("user", userPrompt));
-    return new ChatRequest(getModel(), messages, 0.0, 1024,
+    return new ChatRequest(model, messages, 0.0, 1024,
         expectJson ? JSON_RESPONSE_FORMAT : null);
   }
 

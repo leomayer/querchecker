@@ -168,9 +168,10 @@ public class ProductLookupService {
         PartialResult bestPartial = null;
 
         try {
+        int sourceIndex = 0;
         for (CategorySearchSource source : sources) {
-            log.debug("[ProductLookupService] Web search: type={}, domain={}, term='{}'",
-                source.getSourceType(), source.getSiteDomain(), lookupTerm);
+            log.debug("[ProductLookupService] Web search: type={}, domain={}, term='{}', sourceIndex={}",
+                source.getSourceType(), source.getSiteDomain(), lookupTerm, sourceIndex);
             List<SearchResult> braveResults = webSearchRouter.getActive().search(
                 lookupTerm,
                 source.getSiteDomain(),
@@ -181,7 +182,7 @@ public class ProductLookupService {
             log.debug("[ProductLookupService] Web search returned {} results for '{}' via {}",
                 braveResults.size(), lookupTerm, source.getSiteDomain());
 
-            if (braveResults.isEmpty()) continue;
+            if (braveResults.isEmpty()) { sourceIndex++; continue; }
 
             // Cache results before LLM call — available for rate-limit retry
             searchResultCacheService.put(lookupTerm, source.getSiteDomain(), braveResults);
@@ -194,7 +195,8 @@ public class ProductLookupService {
                     braveResults,
                     mandatory,
                     promptResolver.resolve(whCategory, PromptType.QUICK_FACTS),
-                    condensedSpecContext
+                    condensedSpecContext,
+                    sourceIndex
                 );
 
             String icecatId = urlValidator.resolveIcecatId(
@@ -232,6 +234,7 @@ public class ProductLookupService {
                 }
                 case EMPTY -> {} // nächste Quelle
             }
+            sourceIndex++;
         }
 
         // 6. Kein GOOD → bestes PARTIAL verwenden
@@ -322,6 +325,7 @@ public class ProductLookupService {
                     return;
                 }
 
+                int retrySourceIndex = 0;
                 for (CategorySearchSource source : sources) {
                     // Use cached results first; fall back to web search
                     List<SearchResult> results = searchResultCacheService.get(lookupTerm, source.getSiteDomain());
@@ -333,11 +337,12 @@ public class ProductLookupService {
                             searchResultCacheService.put(lookupTerm, source.getSiteDomain(), results);
                         }
                     }
-                    if (results.isEmpty()) continue;
+                    if (results.isEmpty()) { retrySourceIndex++; continue; }
 
                     QuickFactsResult extracted = extractionRouter.getActive().extractQuickFacts(
                             lookupTerm, whCategory.getName(), results, mandatory,
-                            promptResolver.resolve(whCategory, PromptType.QUICK_FACTS), condensedSpecContext);
+                            promptResolver.resolve(whCategory, PromptType.QUICK_FACTS), condensedSpecContext,
+                            retrySourceIndex);
 
                     String icecatId = urlValidator.resolveIcecatId(
                             extracted.getSources() != null ? extracted.getSources().getIcecatId() : null, results);
@@ -362,6 +367,7 @@ public class ProductLookupService {
                         sseHub.broadcast("lookup-result", buildSsePayload(listingId, ProductLookupResult.failed(), null, null));
                         return;
                     }
+                    retrySourceIndex++;
                 }
 
                 if (bestPartial != null) {

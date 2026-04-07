@@ -85,7 +85,7 @@ public class BraveWebSearchService implements WebSearchService {
             long duration = System.currentTimeMillis() - start;
 
             usageLogService.log(Provider.BRAVE, RequestType.SEARCH, lookupTerm,
-                    response.getStatusCode().value(), null, null, duration);
+                    response.getStatusCode().value(), null, null, duration, null);
             List<SearchResult> extracted = extractResults(response.getBody());
             log.trace("[BraveSearch] HTTP {} durationMs={}", response.getStatusCode().value(), duration);
             if (log.isTraceEnabled()) {
@@ -98,7 +98,7 @@ public class BraveWebSearchService implements WebSearchService {
         } catch (HttpClientErrorException e) {
             long duration = System.currentTimeMillis() - start;
             int status = e.getStatusCode().value();
-            usageLogService.log(Provider.BRAVE, RequestType.SEARCH, lookupTerm, status, null, null, duration);
+            usageLogService.log(Provider.BRAVE, RequestType.SEARCH, lookupTerm, status, null, null, duration, null);
             if (status == 429) {
                 var responseHeaders = e.getResponseHeaders();
                 String retryAfterHeader = responseHeaders != null ? responseHeaders.getFirst("Retry-After") : null;
@@ -112,7 +112,7 @@ public class BraveWebSearchService implements WebSearchService {
             long duration = System.currentTimeMillis() - start;
             log.warn("Brave search failed for query='{}': {}", query, e.getMessage());
             usageLogService.log(Provider.BRAVE, RequestType.SEARCH, lookupTerm,
-                    500, null, null, duration);
+                    500, null, null, duration, null);
             return List.of();
         }
     }

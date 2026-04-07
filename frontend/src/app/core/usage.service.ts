@@ -11,6 +11,15 @@ export interface ProviderUsage {
   quotaLimit: number;
   model: string | null;
   quotaPeriod: 'DAILY' | 'MONTHLY' | null;
+  rateLimitCount: number;
+  rateLimitEstimatedTokens: number;
+}
+
+export interface ModelUsage {
+  model: string;
+  calls: number;
+  tokensIn: number;
+  tokensOut: number;
 }
 
 export interface ApiUsageResponse {
@@ -20,6 +29,7 @@ export interface ApiUsageResponse {
   googleDiscovery: ProviderUsage;
   groq: ProviderUsage;
   openRouter: ProviderUsage;
+  groqModelBreakdown: ModelUsage[];
 }
 
 @Injectable({ providedIn: 'root' })

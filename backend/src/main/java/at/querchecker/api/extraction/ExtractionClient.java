@@ -38,14 +38,20 @@ public interface ExtractionClient {
         return new ProductNameResult(term, null);
     }
 
-    /** Quick Facts + sourceUrl aus Brave-Snippets — JSON-Response (Snippets-Pfad: ICECAT, GENERIC) */
+    /**
+     * Quick Facts + sourceUrl aus Brave-Snippets — JSON-Response (Snippets-Pfad: ICECAT, GENERIC).
+     *
+     * @param sourceIndex 0-based index of the source in the lookup loop. Providers may use this
+     *                    to select a different model for the first vs. subsequent sources.
+     */
     QuickFactsResult extractQuickFacts(
         String lookupTerm,
         String categoryName,
         List<SearchResult> braveResults,
         List<String> mandatoryFields,
         DlCategoryPrompt prompt,
-        String condensedSpecContext
+        String condensedSpecContext,
+        int sourceIndex
     );
 
     /** Quick Facts aus bereinigtem HTML-Text — JSON-Response (HTML-Fetch-Pfad: FLATPANELSHD, GSMARENA) */
@@ -54,6 +60,7 @@ public interface ExtractionClient {
         String categoryName,
         String pageText,
         List<String> mandatoryFields,
-        DlCategoryPrompt prompt
+        DlCategoryPrompt prompt,
+        int sourceIndex
     );
 }

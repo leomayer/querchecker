@@ -15,4 +15,8 @@ public class ProviderUsageDto {
     private String model;
     /** Abrechnungszeitraum — DAILY | MONTHLY, null wenn kein Kontingent */
     private String quotaPeriod;
+    /** Anzahl Rate-Limit-Hits (HTTP 429) im aktuellen Zeitraum */
+    private long rateLimitCount;
+    /** Geschätzte Input-Tokens aus rate-limiteten Requests (kann 0 sein bei fehlendem Wert) */
+    private long rateLimitEstimatedTokens;
 }

@@ -3,6 +3,8 @@ package at.querchecker.controller.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 public class UsageResponse {
@@ -14,4 +16,6 @@ public class UsageResponse {
     private ProviderUsageDto googleDiscovery;
     private ProviderUsageDto groq;
     private ProviderUsageDto openRouter;
+    /** Aufschlüsselung nach Modell — aktuell nur für Groq befüllt */
+    private List<ModelUsageDto> groqModelBreakdown;
 }

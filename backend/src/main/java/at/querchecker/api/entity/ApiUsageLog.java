@@ -35,6 +35,9 @@ public class ApiUsageLog {
 
     private Long durationMs;
 
+    /** LLM-Modellname (z.B. "llama-3.1-8b-instant"), null für Such-Provider */
+    private String modelName;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 

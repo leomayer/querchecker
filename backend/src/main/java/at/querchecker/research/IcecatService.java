@@ -64,14 +64,14 @@ public class IcecatService {
             log.info("[Icecat] Fetch OK for icecatId={}, duration={}ms, bodyLength={}",
                     icecatId, duration, response != null ? response.length() : 0);
             usageLogService.log(Provider.ICECAT, RequestType.SPEC_DETAIL,
-                    icecatId, 200, null, null, duration);
+                    icecatId, 200, null, null, duration, null);
             return IcecatFetchResult.found(response);
         } catch (HttpClientErrorException e) {
             long duration = System.currentTimeMillis() - start;
             int status = e.getStatusCode().value();
             log.warn("Icecat fetchFullSpecs failed for id={}: {}", icecatId, e.getMessage());
             usageLogService.log(Provider.ICECAT, RequestType.SPEC_DETAIL,
-                    icecatId, status, null, null, duration);
+                    icecatId, status, null, null, duration, null);
             return e.getStatusCode() == HttpStatus.NOT_FOUND
                     ? IcecatFetchResult.notFound()
                     : IcecatFetchResult.error();
@@ -79,7 +79,7 @@ public class IcecatService {
             long duration = System.currentTimeMillis() - start;
             log.warn("Icecat fetchFullSpecs failed for id={}: {}", icecatId, e.getMessage());
             usageLogService.log(Provider.ICECAT, RequestType.SPEC_DETAIL,
-                    icecatId, 500, null, null, duration);
+                    icecatId, 500, null, null, duration, null);
             return IcecatFetchResult.error();
         }
     }

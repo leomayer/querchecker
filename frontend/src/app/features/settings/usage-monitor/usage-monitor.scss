@@ -72,6 +72,36 @@
   .warn-row td {
     color: var(--color-tertiary);
   }
+
+  .rate-limit-col {
+    white-space: nowrap;
+  }
+
+  .rate-limit-badge {
+    color: var(--color-rating-down);
+    font-weight: 600;
+    cursor: default;
+  }
+
+  .model-breakdown-header td {
+    padding-top: 10px;
+    padding-bottom: 2px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--mat-sys-on-surface-variant);
+    border-top: 1px solid color-mix(in srgb, var(--mat-sys-outline) 20%, transparent);
+  }
+
+  .model-row td {
+    padding-top: 3px;
+    padding-bottom: 3px;
+  }
+
+  .model-indent {
+    padding-left: 12px;
+  }
 }
 
 .loading-row {

@@ -26,7 +26,7 @@ class ApiUsageLogServiceTest {
 
     @Test
     void log_savesEntryWithAllFields() {
-        service.log(Provider.BRAVE, RequestType.SEARCH, "ThinkPad X1", 200, null, null, 320L);
+        service.log(Provider.BRAVE, RequestType.SEARCH, "ThinkPad X1", 200, null, null, 320L, null);
 
         verify(repo).save(argThat(entry ->
             entry.getProvider()       == Provider.BRAVE        &&
@@ -42,12 +42,12 @@ class ApiUsageLogServiceTest {
     void log_acceptsNullTokens_forBraveSearch() {
         // Brave liefert keine Token-Counts
         assertThatNoException().isThrownBy(() ->
-            service.log(Provider.BRAVE, RequestType.SEARCH, "test", 200, null, null, 100L));
+            service.log(Provider.BRAVE, RequestType.SEARCH, "test", 200, null, null, 100L, null));
     }
 
     @Test
     void log_savesTokens_forGroqExtraction() {
-        service.log(Provider.GROQ, RequestType.EXTRACTION, "ThinkPad", 200, 950, 150, 850L);
+        service.log(Provider.GROQ, RequestType.EXTRACTION, "ThinkPad", 200, 950, 150, 850L, "llama-3.1-8b-instant");
 
         verify(repo).save(argThat(entry ->
             entry.getTokensInput()  == 950 &&

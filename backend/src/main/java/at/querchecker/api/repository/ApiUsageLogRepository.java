@@ -35,4 +35,41 @@ public interface ApiUsageLogRepository extends JpaRepository<ApiUsageLog, Long> 
         @Param("provider") Provider provider,
         @Param("from") LocalDateTime from,
         @Param("to") LocalDateTime to);
+
+    // --- Rate-limit queries ---
+
+    long countByProviderAndResponseStatusAndCreatedAtBetween(
+        Provider provider, int responseStatus, LocalDateTime from, LocalDateTime to);
+
+    @Query("SELECT COALESCE(SUM(l.tokensInput), 0) FROM ApiUsageLog l " +
+           "WHERE l.provider = :provider AND l.responseStatus = :responseStatus " +
+           "AND l.createdAt BETWEEN :from AND :to AND l.tokensInput IS NOT NULL")
+    Long sumTokensInputByProviderAndResponseStatusAndCreatedAtBetween(
+        @Param("provider") Provider provider,
+        @Param("responseStatus") int responseStatus,
+        @Param("from") LocalDateTime from,
+        @Param("to") LocalDateTime to);
+
+    // --- Per-model queries ---
+
+    long countByProviderAndModelNameAndCreatedAtBetween(
+        Provider provider, String modelName, LocalDateTime from, LocalDateTime to);
+
+    @Query("SELECT COALESCE(SUM(l.tokensInput), 0) FROM ApiUsageLog l " +
+           "WHERE l.provider = :provider AND l.modelName = :modelName " +
+           "AND l.createdAt BETWEEN :from AND :to AND l.tokensInput IS NOT NULL AND l.responseStatus = 200")
+    Long sumTokensInputByProviderAndModelNameAndCreatedAtBetween(
+        @Param("provider") Provider provider,
+        @Param("modelName") String modelName,
+        @Param("from") LocalDateTime from,
+        @Param("to") LocalDateTime to);
+
+    @Query("SELECT COALESCE(SUM(l.tokensOutput), 0) FROM ApiUsageLog l " +
+           "WHERE l.provider = :provider AND l.modelName = :modelName " +
+           "AND l.createdAt BETWEEN :from AND :to AND l.tokensOutput IS NOT NULL AND l.responseStatus = 200")
+    Long sumTokensOutputByProviderAndModelNameAndCreatedAtBetween(
+        @Param("provider") Provider provider,
+        @Param("modelName") String modelName,
+        @Param("from") LocalDateTime from,
+        @Param("to") LocalDateTime to);
 }

@@ -56,7 +56,8 @@ querchecker:
         limit-unit: REQUESTS
         alert-at-percent: 80
       groq:
-        model: llama-3.1-8b-instant
+        model: llama-3.1-8b-instant                # DL-Extraktion + erster QuickFacts-Lookup
+        model-lookup-secondary: llama-3.3-70b-versatile  # Folge-QuickFacts-Lookups (Quellen 2+)
         free-limit: 500000
         free-limit-period: DAILY
         period-start-day: 1

@@ -19,6 +19,10 @@ public class GroqExtractionClient extends AbstractLlmExtractionClient {
     @Value("${querchecker.api.limits.groq.model:}")
     private String model;
 
+    /** Folge-Quellen-Modell (Quellen-Index > 0): größeres Modell für bessere Qualität */
+    @Value("${querchecker.api.limits.groq.model-lookup-secondary:llama-3.3-70b-versatile}")
+    private String modelLookupSecondary;
+
     @Value("${querchecker.api.limits.groq.api-key:}")
     private String apiKey;
 
@@ -41,4 +45,13 @@ public class GroqExtractionClient extends AbstractLlmExtractionClient {
 
     @Override
     protected String getModel() { return model; }
+
+    /**
+     * Erster Lookup (sourceIndex=0): kleines Modell (schnell, wenig Token-Verbrauch).
+     * Folge-Quellen (sourceIndex>0): größeres Modell für bessere Extraktionsqualität.
+     */
+    @Override
+    protected String getModelForLookup(int sourceIndex) {
+        return sourceIndex == 0 ? model : modelLookupSecondary;
+    }
 }

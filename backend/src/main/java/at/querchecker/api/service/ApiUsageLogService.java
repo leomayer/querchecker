@@ -25,7 +25,8 @@ public class ApiUsageLogService {
                     Integer responseStatus,
                     Integer tokensInput,
                     Integer tokensOutput,
-                    Long durationMs) {
+                    Long durationMs,
+                    String modelName) {
         repo.save(ApiUsageLog.builder()
             .provider(provider)
             .requestType(requestType)
@@ -34,6 +35,7 @@ public class ApiUsageLogService {
             .tokensInput(tokensInput)
             .tokensOutput(tokensOutput)
             .durationMs(durationMs)
+            .modelName(modelName)
             .createdAt(LocalDateTime.now())
             .build());
     }
@@ -54,6 +56,34 @@ public class ApiUsageLogService {
 
     public long sumTokensOutputByProviderAndPeriod(Provider provider, LocalDateTime from, LocalDateTime to) {
         Long result = repo.sumTokensOutputByProviderAndCreatedAtBetween(provider, from, to);
+        return result != null ? result : 0L;
+    }
+
+    /** Anzahl HTTP-429-Antworten (Rate-Limit-Hits) im Zeitraum */
+    public long countRateLimitsByProviderAndPeriod(Provider provider, LocalDateTime from, LocalDateTime to) {
+        return repo.countByProviderAndResponseStatusAndCreatedAtBetween(provider, 429, from, to);
+    }
+
+    /** Summe der geschätzten Input-Tokens aus rate-limiteten Calls (responseStatus=429) */
+    public long sumEstimatedTokensForRateLimitsByProviderAndPeriod(Provider provider, LocalDateTime from, LocalDateTime to) {
+        Long result = repo.sumTokensInputByProviderAndResponseStatusAndCreatedAtBetween(provider, 429, from, to);
+        return result != null ? result : 0L;
+    }
+
+    /** Anzahl Calls pro Modell */
+    public long countByProviderAndModelNameAndPeriod(Provider provider, String modelName, LocalDateTime from, LocalDateTime to) {
+        return repo.countByProviderAndModelNameAndCreatedAtBetween(provider, modelName, from, to);
+    }
+
+    /** Summe Input-Tokens pro Modell (nur erfolgreiche Calls) */
+    public long sumTokensInByProviderAndModelNameAndPeriod(Provider provider, String modelName, LocalDateTime from, LocalDateTime to) {
+        Long result = repo.sumTokensInputByProviderAndModelNameAndCreatedAtBetween(provider, modelName, from, to);
+        return result != null ? result : 0L;
+    }
+
+    /** Summe Output-Tokens pro Modell */
+    public long sumTokensOutByProviderAndModelNameAndPeriod(Provider provider, String modelName, LocalDateTime from, LocalDateTime to) {
+        Long result = repo.sumTokensOutputByProviderAndModelNameAndCreatedAtBetween(provider, modelName, from, to);
         return result != null ? result : 0L;
     }
 }

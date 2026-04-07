@@ -83,7 +83,7 @@ class GroqExtractionClientTest {
                 searchResult("https://icecat.biz/p/lenovo-12345.html"));
 
         QuickFactsResult result = client.extractQuickFacts(
-                "ThinkPad", "Laptop", results, List.of(), prompt("s", "u"), null);
+                "ThinkPad", "Laptop", results, List.of(), prompt("s", "u"), null, 0);
 
         assertThat(result.getSources().getIcecatId()).isNull();
     }
@@ -100,7 +100,7 @@ class GroqExtractionClientTest {
                 searchResult("https://icecat.biz/p/lenovo-12345.html", "Lenovo ThinkPad specs"));
 
         QuickFactsResult result = client.extractQuickFacts(
-                "ThinkPad", "Laptop", results, List.of(), prompt("s", "u"), null);
+                "ThinkPad", "Laptop", results, List.of(), prompt("s", "u"), null, 0);
 
         assertThat(result.getSources().getIcecatId()).isEqualTo("12345");
     }
@@ -109,17 +109,17 @@ class GroqExtractionClientTest {
     void extractQuickFacts_logsTokenUsage() {
         givenGroqReturns("{\"quickFacts\": {}, \"sources\": {}}", 950, 150);
 
-        client.extractQuickFacts("ThinkPad", "Laptop", List.of(), List.of(), prompt("s", "u"), null);
+        client.extractQuickFacts("ThinkPad", "Laptop", List.of(), List.of(), prompt("s", "u"), null, 0);
 
         verify(usageLogService).log(eq(Provider.GROQ), eq(RequestType.EXTRACTION),
-                any(), anyInt(), eq(950), eq(150), anyLong());
+                any(), anyInt(), eq(950), eq(150), anyLong(), any());
     }
 
     @Test
     void extractQuickFacts_handlesInvalidJson_withoutException() {
         givenGroqReturns("kein JSON");
         assertThatNoException().isThrownBy(() ->
-                client.extractQuickFacts("test", "cat", List.of(), List.of(), prompt("s", "u"), null));
+                client.extractQuickFacts("test", "cat", List.of(), List.of(), prompt("s", "u"), null, 0));
     }
 
     @Test
@@ -128,7 +128,7 @@ class GroqExtractionClientTest {
 
         QuickFactsResult result = client.extractQuickFactsFromText(
                 "Samsung S95D", "Fernseher", "Panel: IPS\nSize: 65\"",
-                List.of("panel", "size"), prompt("s", "{snippets}"));
+                List.of("panel", "size"), prompt("s", "{snippets}"), 0);
 
         assertThat(result.getQuickFacts()).containsKey("panel");
     }

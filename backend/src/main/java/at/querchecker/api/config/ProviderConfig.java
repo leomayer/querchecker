@@ -10,8 +10,11 @@ import lombok.Data;
 @Data
 public class ProviderConfig {
 
-    /** LLM-Modellname (nur für GROQ, OPENROUTER) */
+    /** LLM-Modellname (nur für GROQ, OPENROUTER) — DL-Extraktion + 1. QuickFacts-Lookup */
     private String model;
+
+    /** Sekundäres Modell für QuickFacts-Folge-Lookups (Quellen 2+). Nur GROQ. */
+    private String modelLookupSecondary;
 
     /** API-Key — aus secrets.yml, nie in Git */
     private String apiKey = "";
