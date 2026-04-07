@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "generate-api": "openapi-generator-cli generate -i http://localhost:14070/v3/api-docs -g typescript-angular -o src/app/api --additional-properties=ngVersion=20,supportsES6=true"
+    "export-api-spec": "curl -s http://localhost:14070/v3/api-docs -o openapi-spec.json",
+    "generate-api": "openapi-generator-cli generate -i openapi-spec.json -g typescript-angular -o src/app/api --additional-properties=ngVersion=20,supportsES6=true"
   },
   "private": true,
   "dependencies": {

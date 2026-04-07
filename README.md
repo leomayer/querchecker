@@ -55,6 +55,8 @@ Beim Öffnen eines Inserats extrahieren KI-Modelle automatisch den Produktnamen.
 
 [ ] Lokales Modell als Fallback — wenn die Remote-LLM-API nicht erreichbar ist, automatisch auf das lokal verfügbare Modell ausweichen (nahtlose Redundanz)
 
+[ ] Ähnliche Inserate — nach erkanntem Produktnamen wird in den aktuellen Suchergebnissen nach weiteren Inseraten des gleichen Produkts gesucht und direkt in der Detailansicht angezeigt. Kein zusätzlicher API-Aufruf — rein clientseitig über die bereits geladenen Listings.
+
 Bei positivem Feedback bin ich offen für weitere Features, sofern sie mich fachlich reizen und der Aufwand vertretbar ist.
 
 ---
