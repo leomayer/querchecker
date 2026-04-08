@@ -32,6 +32,7 @@ public class LookupHistoryService {
     }
 
     public List<LookupHistoryEntryDto> saveAndGetHistory(Long listingId, String lookupTerm, ProductLookupResult result) {
+        repo.deleteByListingIdAndLookupTerm(listingId, lookupTerm);
         ListingLookupHistory entry = ListingLookupHistory.builder()
                 .listingId(listingId)
                 .lookupTerm(lookupTerm)
@@ -49,6 +50,7 @@ public class LookupHistoryService {
     }
 
     public List<LookupHistoryEntryDto> saveAndGetHistory(Long listingId, String lookupTerm, LookupResponse response) {
+        repo.deleteByListingIdAndLookupTerm(listingId, lookupTerm);
         ListingLookupHistory entry = ListingLookupHistory.builder()
                 .listingId(listingId)
                 .lookupTerm(lookupTerm)

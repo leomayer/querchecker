@@ -122,7 +122,8 @@
         }
       } @else if (lookupState() === 'QUOTA_EXCEEDED') {
         <mat-icon class="placeholder-icon error">block</mat-icon>
-        <span>API-Kontingent überschritten</span>
+        <span>Websuche-Kontingent erschöpft</span>
+        <small>Das monatliche Freikontingent der Websuche wurde erreicht.<br>Weitere Suchen sind erst im nächsten Abrechnungszeitraum möglich.</small>
       } @else if (lookupState() === 'RATE_LIMITED') {
         <mat-icon class="placeholder-icon amber">timer</mat-icon>
         <span>

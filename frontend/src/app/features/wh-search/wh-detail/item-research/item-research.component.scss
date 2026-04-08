@@ -28,10 +28,12 @@
 mat-chip-set.history-chips {
   flex: 0 0 auto;
   margin-bottom: 4px;
+  overflow: visible;
 
   ::ng-deep .mdc-evolution-chip-set__chips {
     flex-wrap: wrap;
     gap: 4px;
+    overflow: visible;
   }
 
   ::ng-deep .mat-mdc-chip {
