@@ -4,10 +4,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
+import { MatBadgeModule } from '@angular/material/badge';
 import { DeleteSweep } from './delete-sweep/delete-sweep';
 import { DlExtractionSettings } from './dl-extraction-settings/dl-extraction-settings';
 import { UsageMonitor } from './usage-monitor/usage-monitor';
 import { CategoryPreferences } from './category-preferences/category-preferences';
+import { ProviderConfig } from './provider-config/provider-config';
+import { ProviderStatusStore } from '../../core/provider-status.store';
 import { Theme } from './theme';
 
 @Component({
@@ -17,10 +20,12 @@ import { Theme } from './theme';
     MatButtonToggleModule,
     MatExpansionModule,
     MatIconModule,
+    MatBadgeModule,
     DeleteSweep,
     DlExtractionSettings,
     UsageMonitor,
     CategoryPreferences,
+    ProviderConfig,
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
@@ -30,6 +35,7 @@ export class SettingsComponent {
 
   readonly theme = inject(Theme);
   readonly usageHasWarning = signal(false);
+  readonly providerStatus = inject(ProviderStatusStore);
 
   goBack(): void {
     this.location.back();

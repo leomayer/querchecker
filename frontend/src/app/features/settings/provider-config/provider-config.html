@@ -1,0 +1,43 @@
+@if (!store.status()) {
+  <p class="loading-hint">Status wird geladen…</p>
+} @else {
+  <div class="provider-rows">
+    @if (searchInfo(); as info) {
+      <div class="provider-row">
+        <mat-icon [class]="stateClass(info.state)">{{ stateIcon(info.state) }}</mat-icon>
+        <div class="provider-details">
+          <span class="provider-name">Web Search</span>
+          <span class="provider-label">{{ info.provider | lowercase }}</span>
+          <span class="state-text" [class]="stateClass(info.state)">{{ stateLabel(info.state) }}</span>
+          @if (info.error) {
+            <span class="error-detail">{{ info.error }}</span>
+          }
+        </div>
+      </div>
+    }
+
+    @if (llmInfo(); as info) {
+      <div class="provider-row">
+        <mat-icon [class]="stateClass(info.state)">{{ stateIcon(info.state) }}</mat-icon>
+        <div class="provider-details">
+          <span class="provider-name">LLM Provider</span>
+          <span class="provider-label">{{ info.provider | lowercase }}</span>
+          <span class="state-text" [class]="stateClass(info.state)">{{ stateLabel(info.state) }}</span>
+          @if (info.error) {
+            <span class="error-detail">{{ info.error }}</span>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (canSetup()) {
+    <div class="provider-actions">
+      <button mat-stroked-button disabled>
+        <mat-icon>build</mat-icon>
+        Einrichtungs-Assistent
+      </button>
+      <span class="action-hint">Kommt in Block C</span>
+    </div>
+  }
+}

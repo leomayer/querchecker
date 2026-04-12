@@ -5,7 +5,9 @@ import at.querchecker.api.config.ProviderProperties;
 import at.querchecker.api.entity.Provider;
 import at.querchecker.api.entity.RequestType;
 import at.querchecker.api.exception.RateLimitException;
+import at.querchecker.api.result.ApiCallResult;
 import at.querchecker.api.service.ApiUsageLogService;
+import at.querchecker.config.ProviderStatusService;
 import at.querchecker.research.model.BraveApiResponse;
 import at.querchecker.research.model.SearchResult;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -35,6 +38,7 @@ public class BraveWebSearchService implements WebSearchService {
     private final RestTemplate restTemplate;
     private final ApiUsageLogService usageLogService;
     private final ProviderProperties providerProperties;
+    private final ProviderStatusService providerStatusService;
 
     @Override
     public SearchProvider getProvider() {
@@ -42,35 +46,37 @@ public class BraveWebSearchService implements WebSearchService {
     }
 
     @Override
-    public List<SearchResult> search(String lookupTerm, String siteDomain,
-                                     List<String> keywords, List<String> queryExcludes,
-                                     int resultCount) {
+    public ApiCallResult<List<SearchResult>> search(String lookupTerm, String siteDomain,
+                                                    List<String> keywords, List<String> queryExcludes,
+                                                    int resultCount) {
         log.trace("[BraveSearch] START term='{}' site={} keywords={} excludes={} count={}",
                 lookupTerm, siteDomain, keywords, queryExcludes, resultCount);
 
         // Stufe 1: mit Präferenz-Keywords + Spezifikationen
         String q1 = buildStage1Query(lookupTerm, siteDomain, keywords, queryExcludes);
         log.trace("[BraveSearch] Stufe 1: query='{}'", q1);
-        List<SearchResult> results = callBrave(q1, lookupTerm, resultCount);
-        log.trace("[BraveSearch] Stufe 1: {} Ergebnisse", results.size());
-        if (!results.isEmpty()) return results;
+        ApiCallResult<List<SearchResult>> r1 = callBrave(q1, lookupTerm, resultCount);
+        if (!(r1 instanceof ApiCallResult.Success<List<SearchResult>> s1)) return r1;
+        if (!s1.value().isEmpty()) { log.trace("[BraveSearch] Stufe 1: {} Ergebnisse", s1.value().size()); return r1; }
 
         // Stufe 2: Spezifikationen technische Daten
         String q2 = buildStage2Query(lookupTerm, siteDomain, queryExcludes);
         log.trace("[BraveSearch] Stufe 2 (Fallback): query='{}'", q2);
-        results = callBrave(q2, lookupTerm, resultCount);
-        log.trace("[BraveSearch] Stufe 2: {} Ergebnisse", results.size());
-        if (!results.isEmpty()) return results;
+        ApiCallResult<List<SearchResult>> r2 = callBrave(q2, lookupTerm, resultCount);
+        if (!(r2 instanceof ApiCallResult.Success<List<SearchResult>> s2)) return r2;
+        if (!s2.value().isEmpty()) { log.trace("[BraveSearch] Stufe 2: {} Ergebnisse", s2.value().size()); return r2; }
 
         // Stufe 3: direkte Suche (letzter Fallback, keine Negativ-Filter)
         String q3 = buildStage3Query(lookupTerm, siteDomain);
         log.trace("[BraveSearch] Stufe 3 (letzter Fallback): query='{}'", q3);
-        results = callBrave(q3, lookupTerm, resultCount);
-        log.trace("[BraveSearch] Stufe 3: {} Ergebnisse", results.size());
-        return results;
+        ApiCallResult<List<SearchResult>> r3 = callBrave(q3, lookupTerm, resultCount);
+        if (r3 instanceof ApiCallResult.Success<List<SearchResult>> s3) {
+            log.trace("[BraveSearch] Stufe 3: {} Ergebnisse", s3.value().size());
+        }
+        return r3;
     }
 
-    private List<SearchResult> callBrave(String query, String lookupTerm, int count) {
+    private ApiCallResult<List<SearchResult>> callBrave(String query, String lookupTerm, int count) {
         ProviderConfig config = providerProperties.getProvider(Provider.BRAVE);
         String url = buildUrl(query, count);
 
@@ -87,6 +93,7 @@ public class BraveWebSearchService implements WebSearchService {
             usageLogService.log(Provider.BRAVE, RequestType.SEARCH, lookupTerm,
                     response.getStatusCode().value(), null, null, duration, null);
             List<SearchResult> extracted = extractResults(response.getBody());
+            providerStatusService.markValid(true);
             log.trace("[BraveSearch] HTTP {} durationMs={}", response.getStatusCode().value(), duration);
             if (log.isTraceEnabled()) {
                 extracted.forEach(r -> log.trace("[BraveSearch]   URL: {} | desc-len={} | snippets={}",
@@ -94,7 +101,7 @@ public class BraveWebSearchService implements WebSearchService {
                         r.getDescription() != null ? r.getDescription().length() : 0,
                         r.getExtraSnippets() != null ? r.getExtraSnippets().size() : 0));
             }
-            return extracted;
+            return new ApiCallResult.Success<>(extracted);
         } catch (HttpClientErrorException e) {
             long duration = System.currentTimeMillis() - start;
             int status = e.getStatusCode().value();
@@ -103,17 +110,31 @@ public class BraveWebSearchService implements WebSearchService {
                 var responseHeaders = e.getResponseHeaders();
                 String retryAfterHeader = responseHeaders != null ? responseHeaders.getFirst("Retry-After") : null;
                 int retryAfterSeconds = RateLimitException.parseRetryAfter(retryAfterHeader);
-                log.warn("Brave search rate limited — retryAfter={}s", retryAfterSeconds);
-                throw new RateLimitException(retryAfterSeconds, Provider.BRAVE, null);
+                log.warn("[BraveSearch] Rate limited — retryAfter={}s", retryAfterSeconds);
+                return new ApiCallResult.RateLimited<>(retryAfterSeconds);
             }
-            log.warn("Brave search failed for query='{}' (status={}): {}", query, status, e.getMessage());
-            return List.of();
+            String reason = e.getMessage();
+            if (status == 401 || status == 403) {
+                log.warn("[BraveSearch] Unavailable (status={}): {}", status, reason);
+                providerStatusService.markUnavailable(true, reason, status);
+                return new ApiCallResult.Unavailable<>(reason, status);
+            }
+            log.warn("[BraveSearch] Unreachable (status={}): {}", status, reason);
+            providerStatusService.markUnreachable(true, reason, status);
+            return new ApiCallResult.Unreachable<>(reason, status);
+        } catch (ResourceAccessException e) {
+            long duration = System.currentTimeMillis() - start;
+            String reason = "Timeout/Netzwerkfehler: " + e.getMessage();
+            log.warn("[BraveSearch] Unreachable (timeout): {}", reason);
+            usageLogService.log(Provider.BRAVE, RequestType.SEARCH, lookupTerm, 503, null, null, duration, null);
+            providerStatusService.markUnreachable(true, reason, 503);
+            return new ApiCallResult.Unreachable<>(reason, 503);
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - start;
-            log.warn("Brave search failed for query='{}': {}", query, e.getMessage());
-            usageLogService.log(Provider.BRAVE, RequestType.SEARCH, lookupTerm,
-                    500, null, null, duration, null);
-            return List.of();
+            String reason = e.getMessage();
+            log.warn("[BraveSearch] Unexpected error for query='{}': {}", query, reason);
+            usageLogService.log(Provider.BRAVE, RequestType.SEARCH, lookupTerm, 500, null, null, duration, null);
+            return new ApiCallResult.Success<>(List.of()); // unbekannter Fehler → leere Ergebnisse
         }
     }
 

@@ -42,6 +42,10 @@
   &.warn-icon {
     color: var(--color-tertiary);
   }
+
+  &.error-icon {
+    color: var(--mat-sys-error);
+  }
 }
 
 .warn-badge {
@@ -49,6 +53,10 @@
   color: var(--color-tertiary);
   margin-left: 8px;
   font-weight: 500;
+
+  &.error-badge {
+    color: var(--mat-sys-error);
+  }
 }
 
 .section-icon {

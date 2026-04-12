@@ -8,4 +8,8 @@
   </main>
 
   <app-footer />
+
+  @if (providerStatusStore.showPopup()) {
+    <app-provider-status-popup />
+  }
 }

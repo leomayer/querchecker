@@ -4,7 +4,9 @@ import at.querchecker.api.entity.RequestType;
 import at.querchecker.api.exception.RateLimitException;
 import at.querchecker.api.model.ChatRequest;
 import at.querchecker.api.model.ChatResponse;
+import at.querchecker.api.result.ApiCallResult;
 import at.querchecker.api.service.ApiUsageLogService;
+import at.querchecker.config.ProviderStatusService;
 import at.querchecker.deepLearning.entity.DlCategoryPrompt;
 import at.querchecker.research.model.QuickFactsResult;
 import at.querchecker.research.model.SearchResult;
@@ -36,10 +38,13 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
 
   protected final RestClient restClient;
   protected final ApiUsageLogService usageLogService;
+  protected final ProviderStatusService providerStatusService;
 
-  protected AbstractLlmExtractionClient(RestClient restClient, ApiUsageLogService usageLogService) {
+  protected AbstractLlmExtractionClient(RestClient restClient, ApiUsageLogService usageLogService,
+                                        ProviderStatusService providerStatusService) {
     this.restClient = restClient;
     this.usageLogService = usageLogService;
+    this.providerStatusService = providerStatusService;
   }
 
   /** Vollständiger Endpunkt-URL für den jeweiligen Provider */
@@ -76,7 +81,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
       .replace("{description}", sanitizeInput(truncate(description, 800)))
       .replace("{category}", categoryName);
 
-    ChatResponse response = callLlm(
+    ApiCallResult<ChatResponse> result = callLlm(
       RequestType.EXTRACTION,
       null,
       prompt.getSystemPrompt(),
@@ -84,6 +89,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
       false,
       getModel()
     );
+    ChatResponse response = unwrapOrThrow(result);
     return response.firstChoice().trim();
   }
 
@@ -100,7 +106,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
       .replace("{description}", sanitizeInput(truncate(description, 800)))
       .replace("{category}", categoryName);
 
-    ChatResponse response = callLlm(
+    ApiCallResult<ChatResponse> result = callLlm(
       RequestType.EXTRACTION,
       null,
       prompt.getSystemPrompt(),
@@ -108,6 +114,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
       true,
       getModel()
     );
+    ChatResponse response = unwrapOrThrow(result);
     String raw = response.firstChoice().trim();
 
     try {
@@ -294,6 +301,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
   /**
    * Calls LLM and parses JSON response. If parsing fails, retries once with explicit
    * JSON-only instruction. Returns empty result if both attempts fail.
+   * Throws RateLimitException on 429; throws RuntimeException on Unreachable/Unavailable.
    */
   private QuickFactsResult callLlmWithJsonRetry(
     RequestType requestType,
@@ -302,7 +310,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     String userPrompt,
     String model
   ) {
-    ChatResponse response = callLlm(requestType, lookupTerm, systemPrompt, userPrompt, true, model);
+    ChatResponse response = unwrapOrThrow(callLlm(requestType, lookupTerm, systemPrompt, userPrompt, true, model));
     String firstAttempt = response.firstChoice();
 
     // Try parsing the initial response
@@ -320,7 +328,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     );
     String jsonOnlyPrompt =
       userPrompt + "\n\n⚠️ WICHTIG: Antworte NUR mit validem JSON, KEINE weiteren Erklärungen!";
-    ChatResponse retryResponse = callLlm(requestType, lookupTerm, systemPrompt, jsonOnlyPrompt, true, model);
+    ChatResponse retryResponse = unwrapOrThrow(callLlm(requestType, lookupTerm, systemPrompt, jsonOnlyPrompt, true, model));
     String retryAttempt = retryResponse.firstChoice();
 
     result = tryParseJson(retryAttempt);
@@ -336,6 +344,22 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
       requestType
     );
     return new QuickFactsResult();
+  }
+
+  /**
+   * Unwraps ApiCallResult.Success or throws the appropriate exception.
+   * RateLimited → RateLimitException, Unreachable/Unavailable → RuntimeException.
+   */
+  private ChatResponse unwrapOrThrow(ApiCallResult<ChatResponse> result) {
+    return switch (result) {
+      case ApiCallResult.Success<ChatResponse> s -> s.value();
+      case ApiCallResult.RateLimited<ChatResponse> rl ->
+          throw new RateLimitException(rl.retryAfterSeconds(), getProvider(), getModel());
+      case ApiCallResult.Unreachable<ChatResponse> u ->
+          throw new RuntimeException("LLM Unreachable (status=" + u.httpStatus() + "): " + u.reason());
+      case ApiCallResult.Unavailable<ChatResponse> u ->
+          throw new RuntimeException("LLM Unavailable (status=" + u.httpStatus() + "): " + u.reason());
+    };
   }
 
   /**
@@ -360,7 +384,7 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     }
   }
 
-  private ChatResponse callLlm(
+  private ApiCallResult<ChatResponse> callLlm(
     RequestType requestType,
     String lookupTerm,
     String systemPrompt,
@@ -393,28 +417,16 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
       long duration = System.currentTimeMillis() - start;
 
       if (response == null) response = new ChatResponse();
-      // Log actual vs estimated tokens for TPM monitoring
       int actualInputTokens = response.getTokensInput();
       int actualOutputTokens = response.getTokensOutput();
       log.debug(
         "[LLM] Actual tokens — Input: {} (estimate: {}), Output: {}, Duration: {}ms, model={}",
-        actualInputTokens,
-        estimatedInputTokens,
-        actualOutputTokens,
-        duration,
-        model
+        actualInputTokens, estimatedInputTokens, actualOutputTokens, duration, model
       );
-      usageLogService.log(
-        getProvider(),
-        requestType,
-        lookupTerm,
-        200,
-        response.getTokensInput(),
-        response.getTokensOutput(),
-        duration,
-        model
-      );
-      return response;
+      usageLogService.log(getProvider(), requestType, lookupTerm, 200,
+          response.getTokensInput(), response.getTokensOutput(), duration, model);
+      providerStatusService.markValid(false);
+      return new ApiCallResult.Success<>(response);
     } catch (HttpClientErrorException e) {
       long duration = System.currentTimeMillis() - start;
       int status = e.getStatusCode().value();
@@ -422,36 +434,33 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
         var headers = e.getResponseHeaders();
         String retryAfterHeader = headers != null ? headers.getFirst("Retry-After") : null;
         int retryAfterSeconds = RateLimitException.parseRetryAfter(retryAfterHeader);
-        log.warn(
-          "LLM rate limited (provider={}, model={}, retryAfter={}s, estimatedTokens={})",
-          getProvider(),
-          model,
-          retryAfterSeconds,
-          estimatedInputTokens
-        );
-        // Log with estimated input tokens so rate-limit hits are visible in usage stats
+        log.warn("LLM rate limited (provider={}, model={}, retryAfter={}s, estimatedTokens={})",
+            getProvider(), model, retryAfterSeconds, estimatedInputTokens);
         usageLogService.log(getProvider(), requestType, lookupTerm, status, estimatedInputTokens, null, duration, model);
-        throw new RateLimitException(retryAfterSeconds, getProvider(), model);
+        return new ApiCallResult.RateLimited<>(retryAfterSeconds);
       }
+      String reason = e.getMessage();
       usageLogService.log(getProvider(), requestType, lookupTerm, status, null, null, duration, model);
-      log.warn(
-        "LLM call failed (provider={}, model={}, key={}, status={}): {}",
-        getProvider(),
-        model,
-        getApiKeyInfo(),
-        status,
-        e.getMessage()
-      );
-      throw e;
+      if (status == 401 || status == 403) {
+        log.warn("LLM unavailable (provider={}, model={}, key={}, status={}): {}",
+            getProvider(), model, getApiKeyInfo(), status, reason);
+        providerStatusService.markUnavailable(false, reason, status);
+        return new ApiCallResult.Unavailable<>(reason, status);
+      }
+      log.warn("LLM unreachable (provider={}, model={}, status={}): {}", getProvider(), model, status, reason);
+      providerStatusService.markUnreachable(false, reason, status);
+      return new ApiCallResult.Unreachable<>(reason, status);
+    } catch (org.springframework.web.client.ResourceAccessException e) {
+      long duration = System.currentTimeMillis() - start;
+      String reason = "Timeout/Netzwerkfehler: " + e.getMessage();
+      log.warn("LLM unreachable (provider={}, model={}): {}", getProvider(), model, reason);
+      usageLogService.log(getProvider(), requestType, lookupTerm, 503, null, null, duration, model);
+      providerStatusService.markUnreachable(false, reason, 503);
+      return new ApiCallResult.Unreachable<>(reason, 503);
     } catch (RuntimeException e) {
       long duration = System.currentTimeMillis() - start;
-      log.warn(
-        "LLM call failed (provider={}, model={}, key={}): {}",
-        getProvider(),
-        model,
-        getApiKeyInfo(),
-        e.getMessage()
-      );
+      log.warn("LLM call failed (provider={}, model={}, key={}): {}",
+          getProvider(), model, getApiKeyInfo(), e.getMessage());
       usageLogService.log(getProvider(), requestType, lookupTerm, 500, null, null, duration, model);
       throw e;
     }

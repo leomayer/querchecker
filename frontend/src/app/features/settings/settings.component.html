@@ -7,6 +7,23 @@
   </div>
 
   <mat-accordion class="settings-accordion" multi>
+    <mat-expansion-panel [expanded]="providerStatus.badgeVisible()">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon class="panel-icon" [class.warn-icon]="providerStatus.badgeVisible() && !providerStatus.badgeIsError()" [class.error-icon]="providerStatus.badgeIsError()">
+            {{ providerStatus.badgeIsError() ? 'error' : (providerStatus.badgeVisible() ? 'warning' : 'key') }}
+          </mat-icon>
+          Provider
+          @if (providerStatus.badgeVisible()) {
+            <span class="warn-badge" [class.error-badge]="providerStatus.badgeIsError()">
+              {{ providerStatus.badgeIsError() ? 'Fehler' : 'Einrichtung erforderlich' }}
+            </span>
+          }
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <app-provider-config />
+    </mat-expansion-panel>
+
     <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-panel-title>

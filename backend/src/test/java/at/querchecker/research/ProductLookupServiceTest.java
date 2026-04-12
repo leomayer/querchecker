@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 
 import at.querchecker.api.extraction.ExtractionClient;
 import at.querchecker.api.extraction.ExtractionProviderRouter;
+import at.querchecker.api.result.ApiCallResult;
 import at.querchecker.api.search.SearchProperties;
 import at.querchecker.api.search.WebSearchProviderRouter;
 import at.querchecker.api.search.WebSearchService;
@@ -110,7 +111,7 @@ class ProductLookupServiceTest {
 
     String url = "https://www.gsmarena.com/samsung_galaxy_s25-13322.php";
     when(webSearchService.search(any(), any(), any(), any(), anyInt())).thenReturn(
-      List.of(searchResult(url))
+      new ApiCallResult.Success<>(List.of(searchResult(url)))
     );
     when(llmClient.extractQuickFacts(any(), any(), any(), any(), any(), any(), anyInt())).thenReturn(
       quickFacts(Map.of("cpu", "Snapdragon 8 Elite"), null, url)
@@ -141,7 +142,7 @@ class ProductLookupServiceTest {
 
     String url = "https://www.flatpanelshd.com/lg_c4_oled_2024.php";
     when(webSearchService.search(any(), any(), any(), any(), anyInt())).thenReturn(
-      List.of(searchResult(url))
+      new ApiCallResult.Success<>(List.of(searchResult(url)))
     );
     when(llmClient.extractQuickFacts(any(), any(), any(), any(), any(), any(), anyInt())).thenReturn(
       quickFacts(Map.of("screen_size", "65\""), null, url)
@@ -170,7 +171,7 @@ class ProductLookupServiceTest {
 
     String validatedUrl = "https://www.gsmarena.com/samsung_galaxy_s25-13322.php";
     when(webSearchService.search(any(), any(), any(), any(), anyInt())).thenReturn(
-      List.of(searchResult(validatedUrl))
+      new ApiCallResult.Success<>(List.of(searchResult(validatedUrl)))
     );
     when(llmClient.extractQuickFacts(any(), any(), any(), any(), any(), any(), anyInt())).thenReturn(
       quickFacts(Map.of("cpu", "Snapdragon 8 Elite"), null, "https://halluziniert.com/falsche-url")
@@ -200,10 +201,10 @@ class ProductLookupServiceTest {
     when(sourceService.findForCategory(any())).thenReturn(List.of(flatpanelsSrc, genericSrc));
 
     when(webSearchService.search(any(), eq("flatpanelshd.com"), any(), any(), anyInt())).thenReturn(
-      List.of(searchResult("https://flatpanelshd.com/lg_g5.php"))
+      new ApiCallResult.Success<>(List.of(searchResult("https://flatpanelshd.com/lg_g5.php")))
     );
     when(webSearchService.search(any(), eq("whathifi.com"), any(), any(), anyInt())).thenReturn(
-      List.of(searchResult("https://whathifi.com/lg-g5-review"))
+      new ApiCallResult.Success<>(List.of(searchResult("https://whathifi.com/lg-g5-review")))
     );
 
     when(llmClient.extractQuickFacts(any(), any(), any(), any(), any(), any(), anyInt()))
@@ -231,7 +232,7 @@ class ProductLookupServiceTest {
     CategorySearchSource src = source("gsmarena.com", GSMARENA);
     src.setSearchResultCount(3);
     when(sourceService.findForCategory(any())).thenReturn(List.of(src));
-    when(webSearchService.search(any(), any(), any(), any(), eq(3))).thenReturn(List.of());
+    when(webSearchService.search(any(), any(), any(), any(), eq(3))).thenReturn(new ApiCallResult.Success<>(List.of()));
 
     service.lookup(null, "Samsung S25", mock(WhCategory.class), null);
 

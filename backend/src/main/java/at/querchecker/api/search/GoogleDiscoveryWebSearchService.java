@@ -3,7 +3,9 @@ package at.querchecker.api.search;
 import at.querchecker.api.config.ProviderProperties;
 import at.querchecker.api.entity.Provider;
 import at.querchecker.api.entity.RequestType;
+import at.querchecker.api.result.ApiCallResult;
 import at.querchecker.api.service.ApiUsageLogService;
+import at.querchecker.config.ProviderStatusService;
 import at.querchecker.research.model.SearchResult;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -30,6 +32,7 @@ public class GoogleDiscoveryWebSearchService implements WebSearchService {
 
   private final ProviderProperties providerProperties;
   private final ApiUsageLogService usageLogService;
+  private final ProviderStatusService providerStatusService;
 
   @Override
   public SearchProvider getProvider() {
@@ -37,7 +40,7 @@ public class GoogleDiscoveryWebSearchService implements WebSearchService {
   }
 
   @Override
-  public List<SearchResult> search(
+  public ApiCallResult<List<SearchResult>> search(
     String term,
     String domain,
     List<String> keywords,
@@ -81,18 +84,33 @@ public class GoogleDiscoveryWebSearchService implements WebSearchService {
           Provider.GOOGLE_DISCOVERY,
           RequestType.SEARCH,
           null,
-          0,
+          200,
           null,
           null,
           System.currentTimeMillis() - start,
           null
         );
 
-        return mapSdkResults(response, resultCount);
+        providerStatusService.markValid(true);
+        return new ApiCallResult.Success<>(mapSdkResults(response, resultCount));
       }
+    } catch (com.google.api.gax.rpc.UnauthenticatedException e) {
+      long duration = System.currentTimeMillis() - start;
+      String reason = "Google Discovery Authentifizierung fehlgeschlagen: " + e.getMessage();
+      log.error("[GoogleDiscovery] Unavailable (auth): {}", reason);
+      usageLogService.log(Provider.GOOGLE_DISCOVERY, RequestType.SEARCH, null, 401, null, null, duration, null);
+      providerStatusService.markUnavailable(true, reason, 401);
+      return new ApiCallResult.Unavailable<>(reason, 401);
+    } catch (com.google.api.gax.rpc.UnavailableException e) {
+      long duration = System.currentTimeMillis() - start;
+      String reason = "Google Discovery nicht erreichbar: " + e.getMessage();
+      log.error("[GoogleDiscovery] Unreachable: {}", reason);
+      usageLogService.log(Provider.GOOGLE_DISCOVERY, RequestType.SEARCH, null, 503, null, null, duration, null);
+      providerStatusService.markUnreachable(true, reason, 503);
+      return new ApiCallResult.Unreachable<>(reason, 503);
     } catch (Exception e) {
-      log.error("Google Discovery search failed for query='{}': {}", query, e.getMessage());
-      return List.of();
+      log.error("[GoogleDiscovery] search failed for query='{}': {}", query, e.getMessage());
+      return new ApiCallResult.Success<>(List.of());
     }
   }
 

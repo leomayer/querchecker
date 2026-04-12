@@ -1,7 +1,9 @@
 package at.querchecker.sse;
 
+import at.querchecker.config.ProviderStatusService;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -24,6 +26,20 @@ public class SseHub {
 
     private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
 
+    /**
+     * Lazy-injected to break circular dependency:
+     * SseHub ← ProviderStatusService ← SseHub
+     */
+    private final ObjectProvider<ProviderStatusService> providerStatusService;
+
+    public SseHub(ObjectProvider<ProviderStatusService> providerStatusService) {
+        this.providerStatusService = providerStatusService;
+    }
+
+    public String getStartToken() {
+        return startToken;
+    }
+
     public SseEmitter register(String eventSourceId) {
         SseEmitter emitter = new SseEmitter(0L); // no timeout — client reconnects on its own
         emitters.put(eventSourceId, emitter);
@@ -35,6 +51,13 @@ public class SseHub {
             emitter.send(SseEmitter.event()
                 .name("server-hello")
                 .data(startToken));
+            // Send current provider status immediately after hello
+            ProviderStatusService statusService = providerStatusService.getIfAvailable();
+            if (statusService != null) {
+                emitter.send(SseEmitter.event()
+                    .name("provider-status")
+                    .data(statusService.getStatus()));
+            }
         } catch (IOException e) {
             log.debug("Failed to send server-hello to {}", eventSourceId);
         }

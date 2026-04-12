@@ -1,0 +1,24 @@
+# secrets.yml — API-Keys für Querchecker
+#
+# NIEMALS in Git einchecken — enthält vertrauliche API-Keys.
+#
+# Dev:  ablegen als querchecker/config/secrets.yml
+# Prod: ins Container mounten als /app/config/secrets.yml
+#       docker-compose.prod.yml:
+#         volumes:
+#           - /etc/querchecker/secrets.yml:/app/config/secrets.yml:ro
+#
+# Einrichtungs-Assistent: YAML wird aus dieser Datei als Template generiert.
+# Platzhalter-Keys werden durch echte Keys oder durch PROVIDER_PLACEHOLDER ersetzt.
+
+querchecker:
+  api:
+    limits:
+      brave:
+        api-key: BRAVE_PLACEHOLDER # Brave Search API-Key — https://api.search.brave.com
+      groq:
+        api-key: GROQ_PLACEHOLDER # Groq API-Key — https://console.groq.com
+      openrouter:
+        api-key: OPENROUTER_PLACEHOLDER # OpenRouter API-Key — https://openrouter.ai
+    google-discovery:
+      credentials-path: GOOGLE_CREDENTIALS_PLACEHOLDER # Pfad zur GCP credentials.json — relativ zum backend/-Verzeichnis

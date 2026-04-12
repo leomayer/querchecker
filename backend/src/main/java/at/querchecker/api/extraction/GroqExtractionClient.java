@@ -2,6 +2,7 @@ package at.querchecker.api.extraction;
 
 import at.querchecker.api.entity.Provider;
 import at.querchecker.api.service.ApiUsageLogService;
+import at.querchecker.config.ProviderStatusService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -27,8 +28,9 @@ public class GroqExtractionClient extends AbstractLlmExtractionClient {
     private String apiKey;
 
     public GroqExtractionClient(@Qualifier("groqRestClient") RestClient restClient,
-                                 ApiUsageLogService usageLogService) {
-        super(restClient, usageLogService);
+                                 ApiUsageLogService usageLogService,
+                                 ProviderStatusService providerStatusService) {
+        super(restClient, usageLogService, providerStatusService);
     }
 
     @Override

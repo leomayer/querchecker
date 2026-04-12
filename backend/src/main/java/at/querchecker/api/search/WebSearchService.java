@@ -1,5 +1,6 @@
 package at.querchecker.api.search;
 
+import at.querchecker.api.result.ApiCallResult;
 import at.querchecker.research.model.SearchResult;
 
 import java.util.List;
@@ -8,6 +9,9 @@ import java.util.List;
  * Quellunabhängiges Interface für Produktsuchen.
  * Implementierungen: BraveWebSearchService, GoogleDiscoveryWebSearchService.
  * Aktiver Provider: querchecker.api.search.active-provider in application.yml
+ *
+ * Gibt {@link ApiCallResult} zurück statt Exceptions zu werfen:
+ * Success → Trefferliste, RateLimited → 429, Unreachable → 503/Timeout, Unavailable → 401/403.
  */
 public interface WebSearchService {
 
@@ -21,9 +25,8 @@ public interface WebSearchService {
      * @param keywords       Kategorie-Schlüsselwörter zur Query-Anreicherung (max. 5, darf null sein)
      * @param queryExcludes  Negativ-Operatoren (z.B. ["-filetype:pdf"], darf null sein)
      * @param resultCount    Anzahl Treffer (10 für Snippets-Pfad, 3 für HTML-Fetch-Pfad)
-     * @return Trefferliste (leer wenn keine Ergebnisse geliefert werden)
      */
-    List<SearchResult> search(
+    ApiCallResult<List<SearchResult>> search(
         String lookupTerm,
         String siteDomain,
         List<String> keywords,

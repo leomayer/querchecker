@@ -16,4 +16,5 @@ export const API_URLS = {
   settingsPreferences: '/api/settings/preferences',
   settingsPreferenceCategory: (categoryId: number) => `/api/settings/preferences/${categoryId}`,
   configProviders: '/api/config/providers',
+  providerStatus: '/api/provider-status',
 } as const;

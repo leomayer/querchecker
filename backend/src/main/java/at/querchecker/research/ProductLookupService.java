@@ -3,6 +3,7 @@ package at.querchecker.research;
 import at.querchecker.api.entity.Provider;
 import at.querchecker.api.exception.RateLimitException;
 import at.querchecker.api.extraction.ExtractionProviderRouter;
+import at.querchecker.api.result.ApiCallResult;
 import at.querchecker.api.search.SearchProperties;
 import at.querchecker.api.search.SearchProvider;
 import at.querchecker.api.search.WebSearchProviderRouter;
@@ -173,13 +174,23 @@ public class ProductLookupService {
         for (CategorySearchSource source : sources) {
             log.debug("[ProductLookupService] Web search: type={}, domain={}, term='{}', sourceIndex={}",
                 source.getSourceType(), source.getSiteDomain(), lookupTerm, sourceIndex);
-            List<SearchResult> braveResults = webSearchRouter.getActive().search(
+            ApiCallResult<List<SearchResult>> searchResult = webSearchRouter.getActive().search(
                 lookupTerm,
                 source.getSiteDomain(),
                 queryKeywords,
                 source.getQueryExcludes(),
                 source.getSearchResultCount()
             );
+            if (searchResult instanceof ApiCallResult.RateLimited<List<SearchResult>> rl) {
+                throw new RateLimitException(rl.retryAfterSeconds(),
+                    webSearchRouter.getActive().getProvider().toProvider(), null);
+            }
+            if (!(searchResult instanceof ApiCallResult.Success<List<SearchResult>> ss)) {
+                // Unreachable oder Unavailable — ProviderStatusService bereits benachrichtigt
+                sourceIndex++;
+                continue;
+            }
+            List<SearchResult> braveResults = ss.value();
             log.debug("[ProductLookupService] Web search returned {} results for '{}' via {}",
                 braveResults.size(), lookupTerm, source.getSiteDomain());
 
@@ -333,11 +344,20 @@ public class ProductLookupService {
                     // Use cached results first; fall back to web search
                     List<SearchResult> results = searchResultCacheService.get(lookupTerm, source.getSiteDomain());
                     if (results == null) {
-                        results = webSearchRouter.getActive().search(
+                        ApiCallResult<List<SearchResult>> retrySearchResult = webSearchRouter.getActive().search(
                                 lookupTerm, source.getSiteDomain(), queryKeywords,
                                 source.getQueryExcludes(), source.getSearchResultCount());
-                        if (!results.isEmpty()) {
-                            searchResultCacheService.put(lookupTerm, source.getSiteDomain(), results);
+                        if (retrySearchResult instanceof ApiCallResult.RateLimited<List<SearchResult>> rl) {
+                            throw new RateLimitException(rl.retryAfterSeconds(),
+                                webSearchRouter.getActive().getProvider().toProvider(), null);
+                        }
+                        if (retrySearchResult instanceof ApiCallResult.Success<List<SearchResult>> rs) {
+                            results = rs.value();
+                            if (!results.isEmpty()) {
+                                searchResultCacheService.put(lookupTerm, source.getSiteDomain(), results);
+                            }
+                        } else {
+                            retrySourceIndex++; continue; // Unreachable/Unavailable
                         }
                     }
                     if (results.isEmpty()) { retrySourceIndex++; continue; }

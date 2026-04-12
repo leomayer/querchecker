@@ -12,9 +12,13 @@
     </button>
     <button
       mat-icon-button
-      class="theme-toggle-btn"
+      class="theme-toggle-btn settings-btn"
       (click)="navigateSettings()"
-      aria-label="Einstellungen">
+      aria-label="Einstellungen"
+      [matBadge]="providerStatus.badgeVisible() ? '!' : ''"
+      [matBadgeHidden]="!providerStatus.badgeVisible()"
+      [matBadgeColor]="settingsBadgeColor()"
+      matBadgeSize="small">
       <mat-icon>settings</mat-icon>
     </button>
   </div>

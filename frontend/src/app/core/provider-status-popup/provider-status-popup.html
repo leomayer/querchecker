@@ -1,0 +1,60 @@
+<div class="popup-backdrop">
+  <div class="popup-card">
+    <div class="popup-header">
+      <mat-icon class="warn-icon">warning</mat-icon>
+      <h2>Einige Features sind nicht eingerichtet</h2>
+    </div>
+
+    <p class="popup-description">
+      Querchecker benötigt externe Provider für Spec-Lookup und DL-Extraktion.
+      Die Konfiguration erfolgt über eine <code>secrets.yml</code>, die du nach der
+      Einrichtung herunterlädst und im Backend-Verzeichnis ablegst. Danach ist ein
+      Server-Neustart erforderlich.
+    </p>
+
+    @if (store.status(); as s) {
+      <div class="status-rows">
+        <div class="status-row">
+          <mat-icon [class.icon-ok]="s.searchState !== 'UNCONFIGURED'" [class.icon-warn]="s.searchState === 'UNCONFIGURED'">
+            {{ s.searchState === 'UNCONFIGURED' ? 'cancel' : 'check_circle' }}
+          </mat-icon>
+          <span class="status-label">Web Search</span>
+          <span class="status-text">
+            {{ s.searchProvider | lowercase }}
+            @switch (s.searchState) {
+              @case ('UNCONFIGURED') { — nicht konfiguriert }
+              @case ('CONFIGURED') { — konfiguriert (nicht validiert) }
+              @default { — {{ s.searchState | lowercase }} }
+            }
+          </span>
+        </div>
+        <div class="status-row">
+          <mat-icon [class.icon-ok]="s.llmState !== 'UNCONFIGURED'" [class.icon-warn]="s.llmState === 'UNCONFIGURED'">
+            {{ s.llmState === 'UNCONFIGURED' ? 'cancel' : 'check_circle' }}
+          </mat-icon>
+          <span class="status-label">LLM Provider</span>
+          <span class="status-text">
+            {{ s.llmProvider | lowercase }}
+            @switch (s.llmState) {
+              @case ('UNCONFIGURED') { — nicht konfiguriert }
+              @case ('CONFIGURED') { — konfiguriert (nicht validiert) }
+              @default { — {{ s.llmState | lowercase }} }
+            }
+          </span>
+        </div>
+      </div>
+
+      @if (s.searchState === 'UNCONFIGURED') {
+        <p class="popup-hint">Ohne Web Search ist Spec-Lookup nicht verfügbar.</p>
+      }
+      @if (s.llmState === 'UNCONFIGURED') {
+        <p class="popup-hint">Ohne LLM Provider ist DL-Extraktion nicht verfügbar.</p>
+      }
+    }
+
+    <div class="popup-actions">
+      <button mat-flat-button color="primary" (click)="setup()">Einrichten</button>
+      <button mat-button (click)="dismiss()">Trotzdem fortfahren</button>
+    </div>
+  </div>
+</div>

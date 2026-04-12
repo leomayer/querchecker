@@ -6,7 +6,23 @@ export type AppSseEventName =
   | 'dl-extract'
   | 'listing-refreshed'
   | 'lookup-result'
-  | 'error-notification';
+  | 'error-notification'
+  | 'provider-status';
+
+export type ProviderState = 'UNCONFIGURED' | 'CONFIGURED' | 'VALID' | 'UNREACHABLE' | 'UNAVAILABLE';
+
+/** Pushed on SSE connect and on every provider state change. */
+export interface ProviderStatusPayload {
+  searchState: ProviderState;
+  llmState: ProviderState;
+  searchProvider: string;      // "BRAVE" | "GOOGLE_DISCOVERY"
+  llmProvider: string;         // "GROQ" | "OPENROUTER" | "LOCAL"
+  searchError: string | null;
+  llmError: string | null;
+  searchHttpStatus: number | null;
+  llmHttpStatus: number | null;
+  serverStartToken: string;
+}
 
 export type { DlExtractionDonePayload } from '../api/model/dlExtractionDonePayload';
 
