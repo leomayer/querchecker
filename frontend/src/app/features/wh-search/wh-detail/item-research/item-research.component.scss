@@ -25,33 +25,30 @@
 
 // --- History chips ---
 
-mat-chip-set.history-chips {
-  flex: 0 0 auto;
-  margin-bottom: 4px;
-  overflow: visible;
+// mat-chip element selector: higher specificity than mat-primary, no ::ng-deep needed.
+// Tokens cascade through the DOM the same way as in hierarchical-filter-component.
+mat-chip-set.history-chips mat-chip {
+  --mdc-chip-label-text-size: 0.72rem;
+  --mat-chip-elevated-container-color: color-mix(
+    in srgb,
+    var(--mat-sys-surface-variant) 45%,
+    transparent
+  );
+  --mat-chip-label-text-color: var(--mat-sys-on-surface-variant);
+  cursor: pointer;
+  font-style: italic;
 
-  ::ng-deep .mdc-evolution-chip-set__chips {
-    flex-wrap: wrap;
-    gap: 4px;
-    overflow: visible;
+  // Italic glyphs slant past their bounding box and get clipped by MDC's overflow: hidden.
+  // padding-right creates breathing room so the rightmost italic character isn't cut off.
+  ::ng-deep .mdc-evolution-chip__text-label {
+    padding-right: 3px;
   }
 
-  ::ng-deep .mat-mdc-chip {
-    --mdc-chip-label-text-size: 0.72rem;
-    --mdc-chip-elevated-container-color: color-mix(in srgb, var(--mat-sys-surface-variant) 55%, transparent);
-    --mdc-chip-label-text-color: var(--mat-sys-on-surface-variant);
-    --mdc-chip-with-icon-icon-color: var(--mat-sys-on-surface-variant);
-    --mdc-chip-elevated-disabled-container-color: transparent;
-    height: 22px;
-    cursor: pointer;
-    font-style: italic;
-
-    &.active {
-      --mdc-chip-elevated-container-color: color-mix(in srgb, var(--mat-sys-secondary-container) 80%, transparent);
-      --mdc-chip-label-text-color: var(--mat-sys-on-secondary-container);
-      font-style: normal;
-      font-weight: 500;
-    }
+  &.active {
+    --mat-chip-elevated-container-color: var(--mat-sys-secondary-container);
+    --mat-chip-label-text-color: var(--mat-sys-on-secondary-container);
+    font-style: normal;
+    font-weight: 600;
   }
 }
 

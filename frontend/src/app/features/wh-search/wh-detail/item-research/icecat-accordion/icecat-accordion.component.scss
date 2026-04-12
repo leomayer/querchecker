@@ -32,14 +32,16 @@
 .icecat-accordion {
   margin-top: 8px;
 
-  ::ng-deep .mat-expansion-panel {
+  // mat-expansion-panel / mat-expansion-panel-header are component hosts in our template
+  // → element selectors work without ::ng-deep (Angular adds [_ngcontent-*] to them).
+  mat-expansion-panel {
     background: color-mix(in srgb, var(--mat-sys-surface-variant) 30%, transparent);
     box-shadow: none !important;
     border-radius: 6px !important;
     margin-bottom: 2px;
   }
 
-  ::ng-deep .mat-expansion-panel-header {
+  mat-expansion-panel-header {
     padding: 0 10px;
     height: 36px !important;
     min-height: 36px !important;
@@ -47,6 +49,7 @@
     font-weight: 600;
   }
 
+  // mat-expansion-panel-body is an internal div — genuinely needs ::ng-deep.
   ::ng-deep .mat-expansion-panel-body {
     padding: 4px 10px 8px;
   }
