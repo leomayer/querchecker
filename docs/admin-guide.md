@@ -217,8 +217,46 @@ Prod config: See `application-prod.yml`
 
 ---
 
+## Google Discovery
+
+Switching the web search provider from Brave to Google Discovery.
+
+### Voraussetzungen
+
+- GCP Service Account Key (JSON) liegt unter `config/querdenker-google-auth.json`.  
+  (GCP Console → IAM → Service Accounts → Key herunterladen)
+- Konfiguration in `config/querchecker.yml` ist bereits gesetzt:
+
+| Schlüssel | Wert |
+|---|---|
+| `project-id` | `querdenker-490819` |
+| `engine-id` | `querchecker-search-app_1774604635088` |
+| `location` | `global` |
+| `free-limit` | 100 Requests / Monat |
+
+### Umschalten
+
+1. Provider in `config/querchecker.yml` setzen:
+   ```yaml
+   querchecker:
+     api:
+       search:
+         active-provider: GOOGLE_DISCOVERY
+   ```
+2. Backend neu starten — Provider-Wechsel erfordert Neustart.
+3. Testen — Spec-Lookup für ein beliebiges Inserat öffnen, Logs prüfen:
+   ```
+   [GoogleDiscoveryWebSearchService] ...
+   ```
+
+### Bekannte Lücke
+
+`GoogleDiscoveryWebSearchService` hat kein explizites Rate-Limit-Handling — gRPC-Fehler werden still als leere Liste zurückgegeben statt `RateLimitException` zu werfen. Bei Bedarf nachziehen, analog zu `BraveWebSearchService`.
+
+---
+
 ## See Also
 
-- **Technical Details**: `.zed/prompts/project-knowledge/backend.md`
+- **Architecture**: `docs/architecture.md`
 - **Deployment**: `docs/todo-deployment.md`
-- **Development**: `docs/DEVELOPMENT.md` (if exists)
+- **KI-Lookup**: `docs/ki-product-analysis.md`

@@ -51,13 +51,13 @@ querchecker:
         alert-at-percent: 80
       google-discovery:
         free-limit: 100
-        free-limit-period: MONTHLY
+        free-limit-period: DAILY
         period-start-day: 1
         limit-unit: REQUESTS
         alert-at-percent: 80
       groq:
-        model: llama-3.1-8b-instant                # DL-Extraktion + erster QuickFacts-Lookup
-        model-lookup-secondary: llama-3.3-70b-versatile  # Folge-QuickFacts-Lookups (Quellen 2+)
+        model: llama-3.1-8b-instant # DL-Extraktion + erster QuickFacts-Lookup
+        model-lookup-secondary: llama-3.3-70b-versatile # Folge-QuickFacts-Lookups (Quellen 2+)
         free-limit: 500000
         free-limit-period: DAILY
         period-start-day: 1
