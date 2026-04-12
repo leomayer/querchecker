@@ -1,15 +1,15 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatBadgeModule } from '@angular/material/badge';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Theme } from '../../../features/settings/theme';
 import { ProviderStatusStore } from '../../../core/provider-status.store';
 
 @Component({
   selector: 'app-header',
-  imports: [MatToolbarModule, MatIconModule, MatButtonModule, MatBadgeModule],
+  imports: [MatToolbarModule, MatIconModule, MatButtonModule, MatTooltipModule],
   templateUrl: './app-header.component.html',
   styleUrl: './app-header.component.scss',
 })
@@ -21,11 +21,6 @@ export class AppHeaderComponent {
   readonly themeIcon = computed(() => (this.theme.darkMode() ? 'light_mode' : 'dark_mode'));
   readonly themeAriaLabel = computed(() =>
     this.theme.darkMode() ? 'Hellmodus aktivieren' : 'Dunkelmodus aktivieren',
-  );
-
-  // TODO: align badge colors with project warning/error palette (--color-tertiary vs --mat-sys-error)
-  readonly settingsBadgeColor = computed(() =>
-    this.providerStatus.badgeIsError() ? 'warn' : 'accent',
   );
 
   toggleTheme(): void {

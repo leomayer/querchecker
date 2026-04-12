@@ -5,17 +5,17 @@
 ## Was kann ich ohne Konfiguration tun?
 
 Querchecker ist auch ohne konfigurierte Provider nutzbar — als reiner Willhaben-Suchklient.
-Spec-Lookup und DL-Extraktion benötigen externe Provider und sind ohne Konfiguration nicht verfügbar.
+Technik-Details und Textanalyse-Engine benötigen externe KI-Services und sind ohne Konfiguration nicht verfügbar.
 
-| | Willhaben-Suche | DL-Extraktion | Spec-Lookup |
-|---|---|---|---|
-| Kein Provider konfiguriert | ✅ | ❌ | ❌ |
-| Nur Web Search konfiguriert | ✅ | ❌ | ❌ |
-| Nur LLM konfiguriert | ✅ | ✅ | ❌ |
-| Alles konfiguriert | ✅ | ✅ | ✅ |
+|                             | Willhaben-Suche | Textanalyse-Engine | Technik-Details |
+| --------------------------- | --------------- | ------------------ | --------------- |
+| Kein Provider konfiguriert  | ✅              | ❌                 | ❌              |
+| Nur Web Search konfiguriert | ✅              | ❌                 | ❌              |
+| Nur externe KI konfiguriert | ✅              | ✅                 | ❌              |
+| Alles konfiguriert          | ✅              | ✅                 | ✅              |
 
-**Hinweis:** LLM ist kritischer — ohne LLM fällt auch die DL-Extraktion weg.
-Spec-Lookup benötigt zwingend beide Provider.
+**Hinweis:** Externe KI ist kritischer — ohne externe KI fällt auch die Textanalyse-Engine weg.
+Technik-Details benötigen zwingend beide Services.
 
 ---
 
@@ -26,6 +26,7 @@ konfiguriert sind oder nicht. Die App erkennt fehlende oder fehlerhafte Konfigur
 automatisch, kommuniziert dies klar im UI und bietet einen geführten Einrichtungs-Assistenten.
 
 Dabei gilt:
+
 - Kein Blocking beim Start
 - Kein Neustart für den normalen Betrieb nötig
 - Konfiguration erfolgt über `secrets.yml` — kein Speichern von Keys in der DB
@@ -37,20 +38,20 @@ Dabei gilt:
 
 ### Dimension 1: Web Search
 
-| Provider | `active-provider` | Bemerkung |
-|---|---|---|
-| Brave Search | `BRAVE` | produktiv, primär |
-| Google Discovery | `GOOGLE_DISCOVERY` | in Implementierung/Test — siehe O2 |
-| Keiner | implizit (kein Key / Platzhalter-Key) | Spec-Lookup deaktiviert |
+| Provider         | `active-provider`                     | Bemerkung                          |
+| ---------------- | ------------------------------------- | ---------------------------------- |
+| Brave Search     | `BRAVE`                               | produktiv, primär                  |
+| Google Discovery | `GOOGLE_DISCOVERY`                    | in Implementierung/Test — siehe O2 |
+| Keiner           | implizit (kein Key / Platzhalter-Key) | Spec-Lookup deaktiviert            |
 
-### Dimension 2: LLM (Extraction)
+### Dimension 2: Externe KI (Textanalyse-Engine)
 
-| Provider | `active-provider` | Bemerkung |
-|---|---|---|
-| Groq | `GROQ` | primär, Free Tier |
-| OpenRouter | `OPENROUTER` | noch nicht getestet — siehe O1 |
-| Lokal | `LOCAL` | DJL-basiert (bestehende Implementierung) |
-| Keiner | implizit (kein Key / Platzhalter-Key) | Spec-Lookup + DL-Extraktion deaktiviert |
+| Provider   | `active-provider`                     | Bemerkung                                          |
+| ---------- | ------------------------------------- | -------------------------------------------------- |
+| Groq       | `GROQ`                                | primär, Free Tier                                  |
+| OpenRouter | `OPENROUTER`                          | noch nicht getestet — siehe O1                     |
+| Lokal      | `LOCAL`                               | DJL-basiert (bestehende Implementierung)           |
+| Keiner     | implizit (kein Key / Platzhalter-Key) | Technik-Details + Textanalyse-Engine deaktiviert   |
 
 **Ziel:** Aktiver Provider soll zur Laufzeit wechselbar sein via `AppConfig` (DB) — kein Neustart nötig.
 `WebSearchProviderRouter` liest aktiven Provider dann aus DB (Implementierung → O15).
@@ -61,6 +62,7 @@ Dabei gilt:
 ## Platzhalter-Key-Konzept & YAML-Export
 
 Ein Provider gilt als `UNCONFIGURED` wenn:
+
 - Key fehlt oder leer ist (`null`, `""`, Whitespace-only)
 - Key dem Backend-definierten Platzhalter-Key entspricht (exakter Vergleich)
 
@@ -69,6 +71,7 @@ enthält ausschließlich diese Platzhalter-Keys inkl. kurzer Kommentare — sie 
 als Template für den Export und ist damit immer synchron (kein Synchronisationsrisiko).
 
 Prüfung im `ProviderStatusService`:
+
 ```java
 private boolean isUnconfigured(String key, String placeholder) {
     return key == null || key.isBlank() || key.equals(placeholder);
@@ -83,6 +86,7 @@ fehlt/leer/Platzhalter. Ob die Datei existiert oder gültig ist → Lazy Validat
 ### `example.yml` als Template
 
 Die `example.yml` wird beim Export als Template verwendet:
+
 - Kommentare + Struktur bleiben erhalten
 - Backend befüllt nur die Key-Werte
 - Kein Hardcoding von Feldern oder Kommentaren im Backend/Frontend
@@ -98,6 +102,7 @@ Wenn ein Provider nicht konfiguriert wird (z.B. Groq wenn OpenRouter aktiv):
 → **Option A (gewählt):** Platzhalter-Key einsetzen — `groq.api-key: GROQ_PLACEHOLDER`
 
 Vorteile:
+
 - Backend erkennt `UNCONFIGURED` korrekt
 - `secrets.yml` bleibt vollständig (alle Felder vorhanden)
 - `SKIPPED`-Flow im Assistenten setzt Platzhalter automatisch
@@ -107,21 +112,22 @@ Vorteile:
 
 Querchecker trennt Konfiguration strikt in zwei Dateien:
 
-| Datei | Inhalt | In Git | Assistent |
-|---|---|---|---|
-| `secrets.yml` | API-Keys | ❌ gitignored | ✅ generiert Keys |
-| `querchecker.yml` | active-provider, Modell-Namen, Limits, … | ✅ | ✅ überschreibt Provider-Felder |
-| `application.yml` | Framework/Infra (Port, DB, Flyway, …) | ✅ | ❌ nie angefasst |
+| Datei             | Inhalt                                   | In Git        | Assistent                       |
+| ----------------- | ---------------------------------------- | ------------- | ------------------------------- |
+| `secrets.yml`     | API-Keys                                 | ❌ gitignored | ✅ generiert Keys               |
+| `querchecker.yml` | active-provider, Modell-Namen, Limits, … | ✅            | ✅ überschreibt Provider-Felder |
+| `application.yml` | Framework/Infra (Port, DB, Flyway, …)    | ✅            | ❌ nie angefasst                |
 
 **Credentials** landen ausschließlich in `secrets.yml`. `querchecker.yml` bleibt
 credential-frei und ist sicher in Git commitbar.
 
 Der Assistent generiert am Ende **beide Dateien** zum Download:
+
 - `secrets.yml` — nur Keys; gitignored; nie commiten
 - `querchecker.yml` — vollständig gemergt: bestehende Konfig + gewählter `active-provider`
-  + `external-provider` + `model` + ggf. `credentials-path`. Backend rekonstruiert aus
-  geladener Spring-Konfiguration, überschreibt nur die vom Assistenten gesetzten Felder.
-  Direkt als Ersatz für die bestehende Datei verwendbar.
+  - `external-provider` + `model` + ggf. `credentials-path`. Backend rekonstruiert aus
+    geladener Spring-Konfiguration, überschreibt nur die vom Assistenten gesetzten Felder.
+    Direkt als Ersatz für die bestehende Datei verwendbar.
 
 ---
 
@@ -129,15 +135,16 @@ Der Assistent generiert am Ende **beide Dateien** zum Download:
 
 ### Backend-Zustände (5)
 
-| Status | Wann | Bedeutung |
-|---|---|---|
-| `UNCONFIGURED` | beim Start | Key fehlt, leer, Whitespace oder == Platzhalter |
-| `CONFIGURED` | beim Start | Key syntaktisch vorhanden — inhaltliche Qualität unbekannt |
-| `VALID` | nach Call | Call erfolgreich |
-| `UNREACHABLE` | nach Call | Temporärer Fehler (503, Timeout, Netzwerk) |
-| `UNAVAILABLE` | nach Call | Permanenter Fehler (401/403) — braucht YAML-Korrektur + Neustart |
+| Status         | Wann       | Bedeutung                                                        |
+| -------------- | ---------- | ---------------------------------------------------------------- |
+| `UNCONFIGURED` | beim Start | Key fehlt, leer, Whitespace oder == Platzhalter                  |
+| `CONFIGURED`   | beim Start | Key syntaktisch vorhanden — inhaltliche Qualität unbekannt       |
+| `VALID`        | nach Call  | Call erfolgreich                                                 |
+| `UNREACHABLE`  | nach Call  | Temporärer Fehler (503, Timeout, Netzwerk)                       |
+| `UNAVAILABLE`  | nach Call  | Permanenter Fehler (401/403) — braucht YAML-Korrektur + Neustart |
 
 **Übergänge (Laufzeit):**
+
 ```
 CONFIGURED  ──→  VALID
 CONFIGURED  ──→  UNREACHABLE
@@ -151,6 +158,7 @@ Server-Neustart setzt Status immer auf `UNCONFIGURED` oder `CONFIGURED` zurück 
 unabhängig vom vorherigen Zustand. Neustart ist kein Übergang sondern ein Reset.
 
 **Wichtig:**
+
 - `UNCONFIGURED` und `CONFIGURED` entstehen **nur beim Start** (statische Prüfung)
 - `VALID`, `UNREACHABLE`, `UNAVAILABLE` entstehen **erst nach einem echten API-Call**
 - `CONFIGURED` = "syntaktisch vorhanden" — Key könnte ungültig sein oder auf falschen Pfad zeigen
@@ -161,14 +169,14 @@ unabhängig vom vorherigen Zustand. Neustart ist kein Übergang sondern ein Rese
 Frontend kombiniert Backend-Status mit localStorage-Hash.
 "Silent UNCONFIGURED" existiert nur im Frontend — keine Backend-Synchronisation nötig.
 
-| Backend-Status | localStorage-Hash | Popup | Badge | Spec-Lookup-Button | Inputfeld |
-|---|---|---|---|---|---|
-| `UNCONFIGURED` | nicht bestätigt | ✅ Warning | Warning | ausgegraut | disabled |
-| `UNCONFIGURED` | bestätigt (silent) | — | Warning | ausgegraut | disabled |
-| `CONFIGURED` | — | — | Warning | aktiv | aktiv |
-| `VALID` | — | — | — | aktiv | aktiv |
-| `UNREACHABLE` | — | — | Error | aktiv | aktiv |
-| `UNAVAILABLE` | — | — | Error | ausgegraut | disabled |
+| Backend-Status | localStorage-Hash  | Popup      | Chip    | Technik-Details-Button | Inputfeld |
+| -------------- | ------------------ | ---------- | ------- | ---------------------- | --------- |
+| `UNCONFIGURED` | nicht bestätigt    | ✅ Warning | Warning | ausgegraut             | disabled  |
+| `UNCONFIGURED` | bestätigt (silent) | —          | Warning | ausgegraut             | disabled  |
+| `CONFIGURED`   | —                  | —          | Warning | aktiv              | aktiv     |
+| `VALID`        | —                  | —          | —       | aktiv              | aktiv     |
+| `UNREACHABLE`  | —                  | —          | Error   | aktiv              | aktiv     |
+| `UNAVAILABLE`  | —                  | —          | Error   | ausgegraut         | disabled  |
 
 ---
 
@@ -183,9 +191,10 @@ zum bestehenden Timestamp) → `ProviderStatusStore` wird befüllt.
 Änderung (Lazy Validation → `UNREACHABLE`/`UNAVAILABLE`, Test-Button → `VALID`).
 
 **`ProviderStatusStore` ist read-only im Frontend:**
+
 - Befüllt ausschließlich durch SSE-Events vom Backend
 - Status kann nur vom Backend gesetzt werden
-- Frontend löst Aktionen aus (Test-Button, Spec-Lookup) die zu Statusänderungen führen
+- Frontend löst Aktionen aus (Test-Button, Technik-Details) die zu Statusänderungen führen
 - Einzige frontend-seitige Ausnahme: localStorage-Hash für Popup-Acknowledgement
 
 ---
@@ -218,6 +227,7 @@ Wird via SSE gepusht; REST-Endpoint für direkten Abruf ebenfalls verfügbar.
 
 **`GET /api/provider-setup/init`** — nur aufrufbar wenn mind. ein Provider nicht `VALID`.
 Liefert Platzhalter-Keys + Backend-Pfade für beide Konfig-Dateien:
+
 ```json
 {
   "placeholderKeys": { "brave": "BRAVE_PLACEHOLDER", "groq": "GROQ_PLACEHOLDER", ... },
@@ -234,9 +244,11 @@ Auth-geschützt (Single-User: HTTP Basic Auth reicht; Multi-User: Berechtigung b
 
 **Sonderfall `GOOGLE_DISCOVERY`:** Endpoint gibt statt eines Keys den `credentialsPath`
 zurück + ob die Datei unter diesem Pfad gefunden wurde:
+
 ```json
 { "credentialsPath": "/etc/querchecker/google-credentials.json", "credentialsFileFound": true }
 ```
+
 Gibt dem User sofortiges Feedback im Assistenten — kein Warten auf den ersten echten API-Call.
 Sicherheitsrisiko vertretbar (Filesystem-Info bleibt hinter Auth-geschütztem Endpoint).
 
@@ -254,13 +266,13 @@ SSE erkennt Neustart → normaler Reconnect-Flow mit Snackbar.
 Die bestehende `RateLimitException` + `parseRetryAfter()` ist Groq-spezifisch.
 Im Rahmen dieses Features wird auf ein einheitliches Result-Modell umgestellt:
 
-| Provider | Rate Limit | Retry-After | Bemerkung |
-|---|---|---|---|
-| Groq | 429 | `Retry-After` Header | gut dokumentiert |
-| OpenRouter | 429 | `X-RateLimit-*` Header | abweichendes Format |
-| Ollama (LOCAL) | keins | — | lokal, kein Limit |
-| Cerebras | unbekannt | unbekannt | noch nicht getestet |
-| Google Discovery | unbekannt | unbekannt | aktuell nur generisches `catch` → auf `ApiCallResult` umstellen |
+| Provider         | Rate Limit | Retry-After            | Bemerkung                                                       |
+| ---------------- | ---------- | ---------------------- | --------------------------------------------------------------- |
+| Groq             | 429        | `Retry-After` Header   | gut dokumentiert                                                |
+| OpenRouter       | 429        | `X-RateLimit-*` Header | abweichendes Format                                             |
+| Ollama (LOCAL)   | keins      | —                      | lokal, kein Limit                                               |
+| Cerebras         | unbekannt  | unbekannt              | noch nicht getestet                                             |
+| Google Discovery | unbekannt  | unbekannt              | aktuell nur generisches `catch` → auf `ApiCallResult` umstellen |
 
 **Achtung:** `deepLearning.ExtractionResult` existiert bereits als einfaches DTO
 (term, confidence, condensedSpec). Das neue sealed interface braucht einen anderen Namen —
@@ -288,6 +300,7 @@ Kein aktiver Ping beim Start — keine unnötigen API-Calls.
 **Beim Start:** Nur statische Konfig-Prüfung → `UNCONFIGURED` oder `CONFIGURED`
 
 **Lazy (erster echter Call):**
+
 - `Unreachable` (503, Timeout) → Status `UNREACHABLE` → Button bleibt aktiv
 - `Unavailable` (401/403) → Status `UNAVAILABLE` → Button ausgegraut
 - Beide: Backend markiert Provider + speichert Fehlergrund + HTTP-Status → SSE-Event
@@ -309,6 +322,7 @@ Nach SSE-Connect sendet Backend sofort ein `provider-status`-Event → `Provider
 
 **Laufzeit:**
 Erster Call schlägt fehl → SSE-Event mit neuem Status:
+
 - `UNREACHABLE` → Badge Error, Button bleibt aktiv
 - `UNAVAILABLE` → Badge Error, Button ausgegraut
 - `VALID` → Badge verschwindet
@@ -356,11 +370,11 @@ Ohne Web Search ist Spec-Lookup nicht verfügbar.
 
 ### Badge auf Settings-Button (Header)
 
-| Zustand | Badge | Badge-Farbe |
-|---|---|---|
-| mind. 1 × `UNCONFIGURED` oder `CONFIGURED` | sichtbar | Warning |
-| mind. 1 × `UNREACHABLE` oder `UNAVAILABLE` | sichtbar | Error |
-| alle `VALID` | unsichtbar | — |
+| Zustand                                    | Badge      | Badge-Farbe |
+| ------------------------------------------ | ---------- | ----------- |
+| mind. 1 × `UNCONFIGURED` oder `CONFIGURED` | sichtbar   | Warning     |
+| mind. 1 × `UNREACHABLE` oder `UNAVAILABLE` | sichtbar   | Error       |
+| alle `VALID`                               | unsichtbar | —           |
 
 `Warning` und `Error` sind Badge-Farben — keine eigenen Zustände.
 Klick → Settings öffnet direkt auf Provider-Konfig-Tab.
@@ -406,6 +420,7 @@ localStorage["setup-lock"] = { timestamp }
 ```
 
 **Tab B öffnet Assistenten, Lock vorhanden:**
+
 ```
 „Setup bereits in einem anderen Fenster aktiv"
 [ Setup übernehmen ]  [ Nur anschauen ]
@@ -447,17 +462,17 @@ Bei vollem `VALID` (beide Provider): nur Statusanzeige, keine Aktions-Buttons, n
 
 ### Ablauf pro Flow
 
-| Ausgangszustand | Eingabefeld | Buttons |
-|---|---|---|
-| `UNCONFIGURED` | leer | [ Speichern ] [ Überspringen ] |
-| `CONFIGURED` / `UNREACHABLE` / `UNAVAILABLE` | vorausgefüllt (Key vom Backend) | [ Speichern ] |
-| `VALID` | vorausgefüllt (read-only) | — |
+| Ausgangszustand                              | Eingabefeld                     | Buttons                        |
+| -------------------------------------------- | ------------------------------- | ------------------------------ |
+| `UNCONFIGURED`                               | leer                            | [ Speichern ] [ Überspringen ] |
+| `CONFIGURED` / `UNREACHABLE` / `UNAVAILABLE` | vorausgefüllt (Key vom Backend) | [ Speichern ]                  |
+| `VALID`                                      | vorausgefüllt (read-only)       | —                              |
 
 1. Provider wählen (Web Search: Brave / Google Discovery; LLM: Groq / OpenRouter / LOCAL)
 2. Erklärender Text + Link zur Provider-Seite
 3. Eingabefeld(er) je nach Ausgangszustand (siehe Tabelle oben)
    - Modell-Name: **Freitext-Feld** — User kopiert Namen aus Provider-Dokumentation
-   - Hinweis: *„Das konfigurierte Modell wird erst nach dem Server-Neustart getestet"*
+   - Hinweis: _„Das konfigurierte Modell wird erst nach dem Server-Neustart getestet"_
 4. Für LOCAL: Verweis auf Kurzanleitung im Repository
 5. Für Google Discovery: Pfad zur credentials-JSON-Datei + Hinweis Ablageort (vom Backend)
 6. Flow abschließen → `DONE` oder `SKIPPED` → zurück zum Einstiegsscreen
@@ -503,11 +518,12 @@ an den bekannten Pfaden. Vereinfacht den Flow auf einen Klick: „Speichern & Ne
 manuellem Editieren per SSH. Voraussetzung: Endpoint ist auth-geschützt (wie `/keys`).
 
 **Abhängig von Filesystem-Permissions:**
+
 - Dev (lokal): funktioniert in der Regel ohne Anpassung
 - Prod (Docker): `docker-compose.prod.yml` mountet `secrets.yml` aktuell als `:ro` →
   Mount müsste auf `:rw` geändert werden, damit das Backend schreiben kann
 - Backend prüft Schreibbarkeit und zeigt Download-Fallback wenn nicht möglich:
-  *„Direktes Speichern nicht verfügbar — Dateisystem-Berechtigung fehlt"*
+  _„Direktes Speichern nicht verfügbar — Dateisystem-Berechtigung fehlt"_
 
 ### Einstiegspunkte
 
@@ -519,46 +535,51 @@ manuellem Editieren per SSH. Voraussetzung: Endpoint ist auth-geschützt (wie `/
 
 ## Aktionen in Settings/Provider pro Zustand
 
-| Zustand | Test-Button (nur Remote) | Assistent |
-|---|---|---|
-| `UNCONFIGURED` | — | ✅ einrichten |
-| `CONFIGURED` | ✅ | ✅ neu konfigurieren |
-| `VALID` | — | ✅ nur Status-Anzeige |
-| `UNREACHABLE` | ✅ | ✅ neu konfigurieren |
-| `UNAVAILABLE` | ✅ | ✅ neu konfigurieren |
+| Zustand        | Test-Button (nur Remote) | Assistent             |
+| -------------- | ------------------------ | --------------------- |
+| `UNCONFIGURED` | —                        | ✅ einrichten         |
+| `CONFIGURED`   | ✅                       | ✅ neu konfigurieren  |
+| `VALID`        | —                        | ✅ nur Status-Anzeige |
+| `UNREACHABLE`  | ✅                       | ✅ neu konfigurieren  |
+| `UNAVAILABLE`  | ✅                       | ✅ neu konfigurieren  |
 
 LOCAL: kein Test-Button — DJL wirft beim Start Exception wenn fehlerhaft →
-`UNAVAILABLE` + Fehlermeldung in Settings: *„Lokales Modell [name] konnte nicht
-gestartet werden"* + Link zur Kurzanleitung.
+`UNAVAILABLE` + Fehlermeldung in Settings: _„Lokales Modell [name] konnte nicht
+gestartet werden"_ + Link zur Kurzanleitung.
 
 ---
 
 ## Szenarien in `item-research`
 
 ### Szenario 1: `UNCONFIGURED` (ganz oder teilweise)
+
 - Inputfeld disabled, Button ausgegraut
 - Hinweis je nach Situation:
-  - Alles fehlt: *„Spec-Lookup nicht verfügbar — Web Search und LLM nicht konfiguriert"*
-  - Nur Web Search fehlt: *„Spec-Lookup nicht verfügbar — Web Search nicht konfiguriert"*
-  - Nur LLM fehlt: *„Spec-Lookup und DL-Extraktion nicht verfügbar — LLM nicht konfiguriert"*
+  - Alles fehlt: _„Spec-Lookup nicht verfügbar — Web Search und LLM nicht konfiguriert"_
+  - Nur Web Search fehlt: _„Spec-Lookup nicht verfügbar — Web Search nicht konfiguriert"_
+  - Nur LLM fehlt: _„Spec-Lookup und DL-Extraktion nicht verfügbar — LLM nicht konfiguriert"_
 - Immer: + Link zu Settings
 - Braucht YAML-Änderung + Neustart
 
 ### Szenario 2: Alles `CONFIGURED`
+
 - Inputfeld aktiv, Button aktiv, kein Hinweis
 - Erster Klick → Lazy Validation → `VALID`, `UNREACHABLE` oder `UNAVAILABLE`
 
 ### Szenario 3: `UNREACHABLE` (503, Timeout)
+
 - Fehlermeldung unter Inputfeld: welcher Provider + Fehlergrund
 - Button bleibt aktiv → User klickt nochmals
 - Badge Error sichtbar
 
 ### Szenario 4: `UNAVAILABLE` (401/403)
+
 - Button ausgegraut, Inputfeld disabled
 - Fehlermeldung: HTTP-Status + Link zu Settings
 - Braucht YAML-Korrektur + Neustart
 
 ### Szenario 5: Rate Limit (429)
+
 - Über Quota-Mechanismus (`QUOTA_EXCEEDED`) — kein `UNREACHABLE`/`UNAVAILABLE`
 - Provider-agnostisch via `ExtractionResult.RateLimited`
 
@@ -566,13 +587,13 @@ gestartet werden"* + Link zur Kurzanleitung.
 
 ## Degradation im UI (Übersicht)
 
-| Zustand | Spec-Lookup-Button | DL-Extraktion | Badge | Inputfeld |
-|---|---|---|---|---|
-| `UNCONFIGURED` (mind. 1) | ausgegraut + Tooltip | ausgegraut (wenn LLM) | Warning | disabled |
-| `CONFIGURED` (alle) | aktiv | aktiv | Warning | aktiv |
-| `VALID` (alle) | aktiv | aktiv | — | aktiv |
-| `UNREACHABLE` (mind. 1) | aktiv | aktiv (wenn LLM) | Error | aktiv |
-| `UNAVAILABLE` (mind. 1) | ausgegraut + Tooltip | ausgegraut (wenn LLM) | Error | disabled |
+| Zustand                  | Spec-Lookup-Button   | DL-Extraktion         | Badge   | Inputfeld |
+| ------------------------ | -------------------- | --------------------- | ------- | --------- |
+| `UNCONFIGURED` (mind. 1) | ausgegraut + Tooltip | ausgegraut (wenn LLM) | Warning | disabled  |
+| `CONFIGURED` (alle)      | aktiv                | aktiv                 | Warning | aktiv     |
+| `VALID` (alle)           | aktiv                | aktiv                 | —       | aktiv     |
+| `UNREACHABLE` (mind. 1)  | aktiv                | aktiv (wenn LLM)      | Error   | aktiv     |
+| `UNAVAILABLE` (mind. 1)  | ausgegraut + Tooltip | ausgegraut (wenn LLM) | Error   | disabled  |
 
 ---
 
@@ -592,10 +613,12 @@ und durch `GET /api/provider-status` ersetzt.
 ### Umsetzung
 
 **Backend:**
+
 - `ConfigController` löschen
 - Kein Breaking Change: `ConfigService` hat keine aktiven Konsumenten
 
 **Frontend:**
+
 - Generierten `ConfigService` löschen (inkl. `API_URLS.configProviders`)
 - `aiSearchEnabled` in `ItemResearchComponent` von `input(true)` auf ein computed Signal umstellen,
   das aus dem `ProviderStatusStore` liest:
@@ -608,8 +631,7 @@ aiSearchEnabled = input(true);
 aiSearchEnabled = computed(() => {
   const s = this.providerStatusStore.status();
   if (!s) return false;
-  const ok = (state: ProviderState) =>
-    state === 'CONFIGURED' || state === 'VALID';
+  const ok = (state: ProviderState) => state === 'CONFIGURED' || state === 'VALID';
   return ok(s.searchState) && ok(s.llmState);
 });
 ```
@@ -652,10 +674,6 @@ Gleichwertig zu Brave oder vorerst experimentell?
 
 ---
 
-
-
-
-
 # TODO: Kurzanleitung Lokale Modelle (im Repository)
 
 Erstellen im Zusammenhang mit den Sourcen — nicht in diesem Dokument.
@@ -692,12 +710,14 @@ für Frontend-Blöcke `work-frontend`.
 ### Block A — Backend Core
 
 **Refactoring (zuerst):**
+
 - `ApiCallResult` (Sealed Interface) definieren — nicht `ExtractionResult` (Name vergeben)
 - `ExtractionClient` + `WebSearchService` (inkl. `GoogleDiscoveryWebSearchService`) auf `ApiCallResult` umstellen
 - `RateLimitException` durch `ApiCallResult.RateLimited` ersetzen
 - Fallback `retry-after-default-seconds` in `application.yml`
 
 **Implementierung:**
+
 1. `example.yml` als Template definieren (Kommentare + Platzhalter-Keys)
 2. `ProviderStatusService`: `isUnconfigured`-Prüfung (inkl. Sonderfall Google Discovery: `credentialsPath`)
 3. `ProviderStatusService`: statische Konfig-Prüfung beim Start → `UNCONFIGURED` / `CONFIGURED`
@@ -706,6 +726,7 @@ für Frontend-Blöcke `work-frontend`.
    (inkl. GOOGLE_DISCOVERY: gibt `credentialsPath` + `credentialsFileFound` zurück), `POST /api/admin/restart`
 
 **JUnit-Tests:**
+
 - `ProviderStatusServiceTest`: `isUnconfigured` für alle Fälle (null, leer, Platzhalter, echter Key; credentialsPath-Varianten)
 - `ProviderStatusServiceTest`: statische Prüfung beim Start liefert korrekten Status
 - `ApiCallResultTest`: sealed interface + Mapping von HTTP-Status auf korrekten Typ
@@ -727,6 +748,18 @@ Settings zeigt korrekten Zustand pro Provider
 
 ---
 
+### Block B1 — Wording
+
+8.  a) Prinzipiell verwende kein Wording auf der UI das zu sehr ins Backend geht. Konkret sollte DL-Extraction nicht aufscheinen, weil einerseits Englisch, andererseits DL wenig Bedeutung hat - Extraction vielleicht noch eher. Vielleicht gibt's hierzu ein besseres Wording
+    b) Spec-Lookup - einerseits ist der Begriff in der README als auch vermutlich hier oft genug verwendet worden. Es ist aber nur eine Kurzbezeichnung für den Teil, dass die (technische) Spezifikation eines Artikels nachgeschaut werden kann. Bitte das Wording entsprechend umgestalten
+    c) Das Valdierungsergebnis in 3 bzw. 4 Tabellen-Spalten aufteilen, anstelle eines künstlich erzeugten <divs>, z.B.
+    |Icon|Provider|Ausgewählte Provider|konfiguriert (als icon/Checkbox)|valdiert (als icon/checkbox)
+    d) Auch wenn mir die Gestaltung vom provider-status-popup gut gefällt, sollte der Hinweis mit der Warnung "Ohne LLM Provider ist DL-Extraktion nicht verfügbar." prominenter ersichtlich sein. Oder einfacher rasch erkennbar, das etwas nicht weitergeht
+    e) Bei der Gestaltung in der UI bitte die Farbkontraste mit 4.5 beibehalten. Zwar funktioniert die Übersicht der Einstellungen die Anzeige, jedoch sind die Farben `--color-tertiary` nur gut in dark-modus gut sichtbar
+    f) die Badge ist im dunklen Modus nicht sichtbar - zumindest wenn sie auf "small" gesetzt ist. Prinzipiell ist das Styling zu einfach und kaum wahrnehmbar. Ausserdem ist der Circle-rundherum fast zu klein - da gehört mehr Padding dazu!
+
+---
+
 ### Block C — Einrichtungs-Assistent
 
 9. `SetupStore` + Frontend-Lock (localStorage)
@@ -741,7 +774,7 @@ Mehrfach-Tab-Lock-Verhalten
 ### Block D — Degradation + Migration
 
 11. `item-research` Degradation (alle Szenarien: UNCONFIGURED, CONFIGURED, UNREACHABLE, UNAVAILABLE, Rate Limit)
-11a. `ConfigController` + generierten `ConfigService` löschen; `aiSearchEnabled` auf `ProviderStatusStore` umstellen
+    11a. `ConfigController` + generierten `ConfigService` löschen; `aiSearchEnabled` auf `ProviderStatusStore` umstellen
 
 **JUnit-Tests:** (Backend entfällt — `ConfigController` wird gelöscht, kein neuer Code)
 
@@ -755,6 +788,7 @@ Mehrfach-Tab-Lock-Verhalten
 13. Test-Button in Settings (nur Remote-Provider, nur bei CONFIGURED/UNREACHABLE/UNAVAILABLE)
 
 **JUnit-Tests:**
+
 - `ProviderStatusServiceTest`: `ApiCallResult.Unreachable` → Status `UNREACHABLE` + SSE-Event
 - `ProviderStatusServiceTest`: `ApiCallResult.Unavailable` → Status `UNAVAILABLE` + SSE-Event
 

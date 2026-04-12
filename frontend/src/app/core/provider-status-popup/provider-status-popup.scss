@@ -14,9 +14,11 @@
   background: var(--mat-sys-surface-container-high);
   border-radius: 16px;
   padding: 24px;
-  max-width: 440px;
+  max-width: 640px;
   width: 100%;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 .popup-header {
@@ -56,53 +58,28 @@
   }
 }
 
-.status-rows {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 12px;
-  background: var(--mat-sys-surface);
-  border-radius: 8px;
-  padding: 12px;
-}
 
-.status-row {
+.popup-callout {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
+  margin: 0 0 6px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border-left: 3px solid var(--mat-sys-error);
+  background: color-mix(in srgb, var(--mat-sys-error-container) 60%, transparent);
   font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--mat-sys-on-error-container);
 
   mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
     flex-shrink: 0;
-  }
-
-  .icon-ok {
-    color: var(--color-positive);
-  }
-
-  .icon-warn {
+    margin-top: 1px;
     color: var(--mat-sys-error);
   }
-}
-
-.status-label {
-  font-weight: 500;
-  min-width: 100px;
-  color: var(--mat-sys-on-surface);
-}
-
-.status-text {
-  color: var(--mat-sys-on-surface-variant);
-  font-size: 0.85rem;
-}
-
-.popup-hint {
-  margin: 0 0 4px;
-  font-size: 0.82rem;
-  color: var(--mat-sys-error);
 }
 
 .popup-actions {

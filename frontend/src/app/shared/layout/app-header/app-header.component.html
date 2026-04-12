@@ -2,6 +2,16 @@
   <div class="toolbar-inner">
     <h1 class="brand-title">Leo's Querchecker</h1>
     <span class="spacer"></span>
+    @if (providerStatus.badgeVisible()) {
+      <button
+        class="setup-chip"
+        (click)="navigateSettings()"
+        aria-label="Provider-Einrichtung"
+        matTooltip="Einige Provider sind nicht konfiguriert">
+        <mat-icon>warning</mat-icon>
+        <span>Einrichten</span>
+      </button>
+    }
     <button
       mat-icon-button
       class="theme-toggle-btn"
@@ -14,11 +24,7 @@
       mat-icon-button
       class="theme-toggle-btn settings-btn"
       (click)="navigateSettings()"
-      aria-label="Einstellungen"
-      [matBadge]="providerStatus.badgeVisible() ? '!' : ''"
-      [matBadgeHidden]="!providerStatus.badgeVisible()"
-      [matBadgeColor]="settingsBadgeColor()"
-      matBadgeSize="small">
+      aria-label="Einstellungen">
       <mat-icon>settings</mat-icon>
     </button>
   </div>

@@ -40,7 +40,7 @@
   color: var(--mat-sys-on-surface-variant);
 
   &.warn-icon {
-    color: var(--color-tertiary);
+    color: var(--mat-sys-tertiary);
   }
 
   &.error-icon {
@@ -49,13 +49,19 @@
 }
 
 .warn-badge {
-  font-size: 0.75rem;
-  color: var(--color-tertiary);
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 2px 8px;
+  border-radius: 10px;
   margin-left: 8px;
-  font-weight: 500;
+  background: var(--color-tertiary);
+  color: #000; // 4.76:1 auf #C8843A (light) / 11:1 auf #F0B97A (dark) ✅
 
   &.error-badge {
-    color: var(--mat-sys-error);
+    background: var(--mat-sys-error-container);
+    color: var(--mat-sys-on-error-container);
   }
 }
 
