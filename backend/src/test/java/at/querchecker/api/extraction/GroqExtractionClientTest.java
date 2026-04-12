@@ -4,6 +4,7 @@ import at.querchecker.api.entity.Provider;
 import at.querchecker.api.entity.RequestType;
 import at.querchecker.api.model.ChatResponse;
 import at.querchecker.api.service.ApiUsageLogService;
+import at.querchecker.config.ProviderStatusService;
 import at.querchecker.deepLearning.entity.DlCategoryPrompt;
 import at.querchecker.research.model.QuickFactsResult;
 import at.querchecker.research.model.SearchResult;
@@ -30,6 +31,7 @@ class GroqExtractionClientTest {
 
     @Mock RestClient restClient;
     @Mock ApiUsageLogService usageLogService;
+    @Mock ProviderStatusService providerStatusService;
     @InjectMocks GroqExtractionClient client;
 
     // RestClient fluent-chain mocks
