@@ -36,5 +36,5 @@ backend/src/main/resources/models/.venv/
 docs/todo-*.md
 
 # External secrets / credentials (never commit)
-config/secrets.yml
+config/secrets*.yml
 config/*.json
