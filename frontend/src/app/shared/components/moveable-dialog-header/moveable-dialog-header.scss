@@ -1,0 +1,57 @@
+[mat-dialog-title] {
+  background: linear-gradient(90deg, var(--color-haggle-primary), var(--color-ui-teal));
+  border-bottom: 2px solid var(--color-ui-teal);
+  padding: 0;
+  margin: 0;
+
+  &::before {
+    height: unset;
+    content: unset;
+  }
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 12px 24px 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-on-haggle-primary);
+  user-select: none;
+  cursor: move;
+  width: 100%;
+}
+
+.title-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.close-btn {
+  flex-shrink: 0;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+::ng-deep .dialog-header .close-btn {
+  mat-icon {
+    color: var(--color-on-haggle-primary) !important;
+  }
+
+  .mat-icon {
+    color: var(--color-on-haggle-primary) !important;
+  }
+}

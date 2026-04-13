@@ -1,0 +1,92 @@
+.review-summary {
+  margin-bottom: 24px;
+
+  h4 {
+    margin: 0 0 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--mat-sys-on-surface);
+  }
+}
+
+.review-dimension {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 0.9rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.active-provider {
+  color: var(--mat-sys-on-surface);
+}
+
+.save-section,
+.download-section {
+  border-top: 1px solid var(--mat-sys-outline-variant);
+  padding-top: 16px;
+}
+
+.save-hint,
+.download-hint {
+  font-size: 0.875rem;
+  color: var(--mat-sys-on-surface-variant);
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+
+.save-actions {
+  display: flex;
+  gap: 8px;
+
+  button mat-icon {
+    color: inherit;
+  }
+}
+
+.save-error {
+  color: var(--mat-sys-error);
+  font-size: 0.85rem;
+  margin: 8px 0 0;
+}
+
+.download-step {
+  padding: 12px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.step-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface);
+  margin-bottom: 4px;
+}
+
+.step-path {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--mat-sys-on-surface-variant);
+  margin-bottom: 8px;
+
+  code {
+    font-family: monospace;
+    background: var(--mat-sys-surface-variant);
+    padding: 1px 4px;
+    border-radius: 4px;
+  }
+}
+
+.step-actions {
+  display: flex;
+  gap: 8px;
+
+  button mat-icon {
+    color: inherit;
+  }
+}

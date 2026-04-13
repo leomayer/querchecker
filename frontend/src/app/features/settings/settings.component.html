@@ -11,13 +11,13 @@
       <mat-expansion-panel-header>
         <mat-panel-title>
 
-          <mat-icon class="panel-icon error-icon" >
+          <mat-icon class="panel-icon" [class.error-icon]="providerStatus.badgeVisible()">
             {{ providerStatus.badgeIsError() ? 'error' : (providerStatus.badgeVisible() ? 'warning' : 'key') }}
           </mat-icon>
           @if (providerStatus.badgeVisible()) {
             Einige Features sind nicht eingerichtet
           } @else {
-            Provider
+            Externe KI-Services
           }
           @if (providerStatus.badgeVisible()) {
             <span class="warn-badge" [class.error-badge]="providerStatus.badgeIsError()">

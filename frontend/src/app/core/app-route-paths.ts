@@ -3,4 +3,5 @@ export enum AppRoutePath {
   LISTINGS = 'listings',
   DETAIL = 'detail',
   SETTINGS = 'settings',
+  SETUP = 'setup',
 }

@@ -27,6 +27,10 @@ export class AppHeaderComponent {
     this.theme.setDarkTheme(!this.theme.darkMode());
   }
 
+  openSetupWizard(): void {
+    this.router.navigate(['/', 'setup']);
+  }
+
   navigateSettings(): void {
     this.router.navigate(['/settings']);
   }

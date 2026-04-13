@@ -1,0 +1,19 @@
+<div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane">
+  <div class="dialog-header" cdkDragHandle>
+    <span class="title-content">
+      <ng-content></ng-content>
+    </span>
+    <span class="spacer"></span>
+    @if (showCloseButton()) {
+      @if (interceptCloseDlg() || data?.preventEscape) {
+        <button mat-icon-button (click)="dlgClose.emit(true)" aria-label="Close" class="close-btn">
+          <mat-icon>close</mat-icon>
+        </button>
+      } @else {
+        <button mat-icon-button (click)="closeDialog()" aria-label="Close" class="close-btn">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    }
+  </div>
+</div>

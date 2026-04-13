@@ -170,11 +170,6 @@ a {
     'opsz' 24;
 }
 
-// Default icon color — overridden per-component where needed
-.mat-icon {
-  color: var(--color-on-surface-variant);
-}
-
 // Let button types control their own icon color via inheritance
 .mat-mdc-raised-button .mat-icon,
 .mat-mdc-flat-button .mat-icon,
@@ -186,20 +181,6 @@ a {
   color: inherit;
 }
 
-// Snack notification styling — override Material defaults
-.snack-notification-panel {
-  .mat-mdc-snack-bar-container {
-    background: transparent !important;
-    box-shadow: none !important;
-    border: none !important;
-    padding: 8px 0 !important;
-  }
-
-  .mdc-snackbar__surface {
-    background: transparent !important;
-    box-shadow: none !important;
-  }
-}
 // Lightbox Dialog Styles - previews for image gallery
 .lightbox-dialog {
   .mat-mdc-dialog-container {

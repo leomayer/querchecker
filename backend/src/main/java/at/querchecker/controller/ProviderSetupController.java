@@ -1,20 +1,18 @@
 package at.querchecker.controller;
 
-import at.querchecker.api.config.LlmProperties;
 import at.querchecker.api.config.ProviderProperties;
 import at.querchecker.api.entity.Provider;
 import at.querchecker.api.search.SearchProperties;
+import at.querchecker.config.ProviderSetupService;
 import at.querchecker.config.ProviderState;
 import at.querchecker.config.ProviderStatusService;
 import at.querchecker.controller.dto.ProviderSetupInitResponse;
 import at.querchecker.controller.dto.ProviderSetupKeysResponse;
+import at.querchecker.controller.dto.ProviderSetupSaveRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.util.Map;
@@ -22,8 +20,9 @@ import java.util.Map;
 /**
  * Endpoints für den Einrichtungs-Assistenten.
  *
- * GET /api/provider-setup/init — Platzhalter-Keys + Konfig-Pfade
- * GET /api/provider-setup/keys?provider=X — bestehende Key-Werte pro Provider
+ * GET  /api/provider-setup/init — Feldstruktur + aktuelle Werte + Kommentare + canSaveToServer
+ * GET  /api/provider-setup/keys?provider=X — bestehende Key-Werte pro Provider (Legacy)
+ * POST /api/provider-setup/save — Schreibt secrets.yml + querchecker.yml auf den Server
  */
 @Slf4j
 @RestController
@@ -32,33 +31,17 @@ import java.util.Map;
 public class ProviderSetupController {
 
     private final ProviderStatusService providerStatusService;
+    private final ProviderSetupService providerSetupService;
     private final ProviderProperties providerProperties;
     private final SearchProperties searchProperties;
-    private final LlmProperties llmProperties;
 
     /**
-     * Liefert Platzhalter-Keys + Backend-Pfade für beide Konfig-Dateien.
-     * Nur abrufbar wenn mind. ein Provider nicht VALID ist.
+     * Liefert die vollständige Feldstruktur für den Einrichtungs-Assistenten.
+     * Felder, aktuelle Werte, Kommentare aus YAML-Dateien, canSaveToServer-Flag.
      */
     @GetMapping("/init")
     public ResponseEntity<ProviderSetupInitResponse> init() {
-        var status = providerStatusService.getStatus();
-        if (status.searchState() == ProviderState.VALID && status.llmState() == ProviderState.VALID) {
-            return ResponseEntity.ok(new ProviderSetupInitResponse(Map.of(), null, null));
-        }
-
-        Map<String, String> placeholders = Map.of(
-            "brave",               ProviderStatusService.BRAVE_PLACEHOLDER,
-            "groq",                ProviderStatusService.GROQ_PLACEHOLDER,
-            "openrouter",          ProviderStatusService.OPENROUTER_PLACEHOLDER,
-            "google-discovery",    ProviderStatusService.GOOGLE_CREDENTIALS_PLACEHOLDER
-        );
-
-        return ResponseEntity.ok(new ProviderSetupInitResponse(
-            placeholders,
-            "../config/secrets.yml",
-            "../config/querchecker.yml"
-        ));
+        return ResponseEntity.ok(providerSetupService.buildInitResponse());
     }
 
     /**
@@ -99,5 +82,21 @@ public class ProviderSetupController {
             }
             default -> ResponseEntity.badRequest().build();
         };
+    }
+
+    /**
+     * Schreibt die Konfiguration direkt auf den Server.
+     * Fallback: Frontend bietet Download an falls canSaveToServer = false.
+     */
+    @PostMapping("/save")
+    public ResponseEntity<Map<String, String>> save(@RequestBody ProviderSetupSaveRequest request) {
+        try {
+            providerSetupService.saveToServer(request);
+            return ResponseEntity.ok(Map.of("status", "saved"));
+        } catch (Exception e) {
+            log.error("[ProviderSetup] Fehler beim Speichern", e);
+            return ResponseEntity.internalServerError()
+                .body(Map.of("error", "Speichern fehlgeschlagen: " + e.getMessage()));
+        }
     }
 }

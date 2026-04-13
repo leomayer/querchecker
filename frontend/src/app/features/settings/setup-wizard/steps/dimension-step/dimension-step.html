@@ -1,0 +1,71 @@
+@if (dimension(); as dim) {
+  <p class="step-description">
+    Wähle einen Provider für <strong>{{ dim.label }}</strong> und trage die erforderlichen Daten ein.
+  </p>
+
+  @if (isLocalLlmSelected()) {
+    <div class="info-box">
+      <mat-icon>info</mat-icon>
+      <div class="info-content">
+        <p><strong>Lokales Modell:</strong> Siehe Kurzanleitung im Repository für Setup und Konfiguration.</p>
+      </div>
+    </div>
+  }
+
+  <mat-tab-group
+    [selectedIndex]="selectedTabIndex()"
+    (selectedIndexChange)="onTabChange($event)"
+    animationDuration="200ms">
+
+    @for (provider of dim.providers; track provider.name) {
+      <mat-tab [label]="provider.label!" class="provider-tab">
+        <ng-template mat-tab-label>
+          <span class="tab-label">{{ provider.label }}</span>
+          @if (store.selectedProviders()[dim.name!] === provider.name) {
+            <span class="active-badge">Aktiv</span>
+          }
+        </ng-template>
+        <div class="provider-activate">
+          <mat-radio-button
+            [checked]="store.selectedProviders()[dim.name!] === provider.name"
+            (change)="onSelectProvider(dim.name!, provider.name!)">
+            Als aktiven {{ dim.label }}-Provider verwenden
+          </mat-radio-button>
+        </div>
+        <div class="provider-fields">
+          @for (field of provider.fields; track field.key) {
+            <mat-form-field appearance="outline" class="field-full-width" subscriptSizing="dynamic">
+              <mat-label>{{ field.key }}</mat-label>
+              <input
+                matInput
+                [type]="field.secret ? 'password' : 'text'"
+                [value]="getFieldValue(provider.name!, field.key!)"
+                (input)="onFieldChange(provider.name!, field.key!, $any($event.target).value)"
+                [placeholder]="field.secret && field.configured ? '••••••••  (bereits konfiguriert)' : (field.placeholder ?? '')" />
+              <mat-hint>
+                <div class="field-hint">{{ field.hint }}</div>
+                @if (field.secret) {
+                  <div [class]="field.configured ? 'config-status-ok' : 'config-status-warning'">
+                    @if (field.configured) {
+                      ✓ Bereits konfiguriert
+                    } @else {
+                      ⚠ Nicht konfiguriert
+                    }
+                  </div>
+                }
+              </mat-hint>
+              @if (field.secret && !field.configured && !getFieldValue(provider.name!, field.key!)) {
+                <mat-error>Erforderlich</mat-error>
+              }
+              @if (field.secret && field.configured) {
+                <mat-icon matSuffix class="field-icon configured">check_circle</mat-icon>
+              } @else if (field.secret) {
+                <mat-icon matSuffix class="field-icon unconfigured">key</mat-icon>
+              }
+            </mat-form-field>
+          }
+        </div>
+      </mat-tab>
+    }
+  </mat-tab-group>
+}

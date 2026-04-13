@@ -17,7 +17,7 @@ export class ProviderStatusPopup {
 
   openSettings(): void {
     this.store.acknowledge();
-    this.router.navigate(['/', AppRoutePath.SETTINGS]);
+    this.router.navigate(['/', AppRoutePath.SETUP]);
   }
 
   dismiss(): void {

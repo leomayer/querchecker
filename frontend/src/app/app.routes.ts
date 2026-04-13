@@ -32,6 +32,13 @@ export const routes: Routes = [
       import('./features/settings/settings.component').then((m) => m.SettingsComponent),
   },
   {
+    path: AppRoutePath.SETUP,
+    loadComponent: () =>
+      import('./features/settings/setup-wizard/setup-wizard-route').then(
+        (m) => m.SetupWizardRoute,
+      ),
+  },
+  {
     path: '**',
     redirectTo: AppRoutePath.SEARCH,
   },

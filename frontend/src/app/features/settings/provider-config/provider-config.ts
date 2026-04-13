@@ -1,9 +1,10 @@
 import { Component, computed, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { ProviderStatusStore } from '../../../core/provider-status.store';
 import { ProviderStatusTable } from '../../../core/provider-status-table/provider-status-table';
+import { AppRoutePath } from '../../../core/app-route-paths';
 
 @Component({
   selector: 'app-provider-config',
@@ -13,19 +14,16 @@ import { ProviderStatusTable } from '../../../core/provider-status-table/provide
 })
 export class ProviderConfig {
   protected readonly store = inject(ProviderStatusStore);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly router = inject(Router);
 
   readonly canSetup = computed(() => {
     const s = this.store.status();
     if (!s) return false;
-    return s.searchState !== 'VALID' || s.llmState !== 'VALID';
+    const needsSetup = (state: string) => state === 'UNCONFIGURED' || state === 'UNAVAILABLE';
+    return needsSetup(s.searchState) || needsSetup(s.llmState);
   });
 
   openSetupWizard(): void {
-    this.snackBar.open(
-      'Die secrets.yml muss im Backend-Verzeichnis abgelegt und der Server restartet werden.',
-      'OK',
-      { duration: 8000, horizontalPosition: 'center', verticalPosition: 'bottom' }
-    );
+    this.router.navigate(['/', AppRoutePath.SETUP]);
   }
 }

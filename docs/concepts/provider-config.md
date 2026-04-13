@@ -46,12 +46,12 @@ Dabei gilt:
 
 ### Dimension 2: Externe KI (Textanalyse-Engine)
 
-| Provider   | `active-provider`                     | Bemerkung                                          |
-| ---------- | ------------------------------------- | -------------------------------------------------- |
-| Groq       | `GROQ`                                | primär, Free Tier                                  |
-| OpenRouter | `OPENROUTER`                          | noch nicht getestet — siehe O1                     |
-| Lokal      | `LOCAL`                               | DJL-basiert (bestehende Implementierung)           |
-| Keiner     | implizit (kein Key / Platzhalter-Key) | Technik-Details + Textanalyse-Engine deaktiviert   |
+| Provider   | `active-provider`                     | Bemerkung                                        |
+| ---------- | ------------------------------------- | ------------------------------------------------ |
+| Groq       | `GROQ`                                | primär, Free Tier                                |
+| OpenRouter | `OPENROUTER`                          | noch nicht getestet — siehe O1                   |
+| Lokal      | `LOCAL`                               | DJL-basiert (bestehende Implementierung)         |
+| Keiner     | implizit (kein Key / Platzhalter-Key) | Technik-Details + Textanalyse-Engine deaktiviert |
 
 **Ziel:** Aktiver Provider soll zur Laufzeit wechselbar sein via `AppConfig` (DB) — kein Neustart nötig.
 `WebSearchProviderRouter` liest aktiven Provider dann aus DB (Implementierung → O15).
@@ -173,10 +173,10 @@ Frontend kombiniert Backend-Status mit localStorage-Hash.
 | -------------- | ------------------ | ---------- | ------- | ---------------------- | --------- |
 | `UNCONFIGURED` | nicht bestätigt    | ✅ Warning | Warning | ausgegraut             | disabled  |
 | `UNCONFIGURED` | bestätigt (silent) | —          | Warning | ausgegraut             | disabled  |
-| `CONFIGURED`   | —                  | —          | Warning | aktiv              | aktiv     |
-| `VALID`        | —                  | —          | —       | aktiv              | aktiv     |
-| `UNREACHABLE`  | —                  | —          | Error   | aktiv              | aktiv     |
-| `UNAVAILABLE`  | —                  | —          | Error   | ausgegraut         | disabled  |
+| `CONFIGURED`   | —                  | —          | Warning | aktiv                  | aktiv     |
+| `VALID`        | —                  | —          | —       | aktiv                  | aktiv     |
+| `UNREACHABLE`  | —                  | —          | Error   | aktiv                  | aktiv     |
+| `UNAVAILABLE`  | —                  | —          | Error   | ausgegraut             | disabled  |
 
 ---
 
@@ -768,6 +768,20 @@ Settings zeigt korrekten Zustand pro Provider
 
 **Testbar nach Block C:** YAML-Download prüfen (Keys korrekt befüllt, Platzhalter für SKIPPED);
 Mehrfach-Tab-Lock-Verhalten
+
+---
+
+### Block C1 — Zwischen-Schritt
+
+1. Sofern das Popup `provider-status` kommt - sollte die Router auf "Home" vorher gesetzt werden. Damit kommt es zu keinen Konflikten ggf.mit der vorherige Route "Einrichtungsassist"
+2. Im Letzten Schritt: eigentlich sollte die `.save-section` in the footer kommen samt einem "Zurück". `Weiter` und beide Optionen machen keinen Sinn
+
+
+1. Beim Speichern wird für die nicht ausgefüllten Felder der Platzhalter (z.B. `BRAVE_PLACEHOLDER` eingesetzt.) Es sollen aber die Werte vom Backend beibehalten werden!
+
+3. Der Server-Neustart funktioniert nur als Server-Shutdown. Da wird nix neugestartet.
+4. Wie kann ich testen, ob bzw. was beim Download verfügbar ist?
+5. Bei den Google-Credentials Path ist mir unklar, wo dieser "beheimatet" sein soll. Einerseits wird er über den Assistenten angeboten, andererseits ist er im `querchecker.yml` enthalten
 
 ---
 

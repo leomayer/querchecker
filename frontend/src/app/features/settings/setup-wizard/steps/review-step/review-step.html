@@ -1,0 +1,70 @@
+<div class="review-summary">
+  <h4>Gewählte Konfiguration</h4>
+
+  @for (dim of store.dimensions(); track dim.name) {
+    <div class="review-dimension">
+      <span class="dim-label">{{ dim.label }}:</span>
+      @for (provider of dim.providers; track provider.name) {
+        @if (store.selectedProviders()[dim.name!] === provider.name) {
+          <strong class="active-provider">{{ provider.label }}</strong>
+        }
+      }
+    </div>
+  }
+</div>
+
+@if (store.canSaveToServer()) {
+  <div class="save-section">
+    <p class="save-hint">
+      Konfiguration kann direkt auf dem Server gespeichert werden.
+    </p>
+    <div class="save-actions">
+      <button mat-flat-button color="primary" (click)="saveAndRestart()" [disabled]="store.saving()">
+        <mat-icon>save</mat-icon>
+        Speichern &amp; Neu starten
+      </button>
+    </div>
+    @if (store.saveError(); as err) {
+      <p class="save-error">{{ err }}</p>
+    }
+  </div>
+} @else {
+  <div class="download-section">
+    <p class="download-hint">
+      Direktes Speichern nicht verfügbar — Dateisystem-Berechtigung fehlt.
+      Bitte lade die Dateien herunter und lege sie manuell ab.
+    </p>
+
+    <div class="download-step">
+      <span class="step-label">1. API-Keys speichern (niemals in Git):</span>
+      <span class="step-path">Speichere als: <code>{{ store.secretsYmlPath() }}</code></span>
+      <div class="step-actions">
+        <button mat-stroked-button (click)="downloadSecrets()">
+          <mat-icon>download</mat-icon>
+          secrets.yml herunterladen
+        </button>
+      </div>
+    </div>
+
+    <div class="download-step">
+      <span class="step-label">2. Provider-Konfiguration speichern (in Git commitbar):</span>
+      <span class="step-path">Speichere als: <code>{{ store.quercheckerYmlPath() }}</code></span>
+      <div class="step-actions">
+        <button mat-stroked-button (click)="downloadConfig()">
+          <mat-icon>download</mat-icon>
+          querchecker.yml herunterladen
+        </button>
+      </div>
+    </div>
+
+    <div class="download-step">
+      <span class="step-label">3. Server neu starten:</span>
+      <div class="step-actions">
+        <button mat-flat-button color="primary" (click)="restart()">
+          <mat-icon>restart_alt</mat-icon>
+          Server neu starten
+        </button>
+      </div>
+    </div>
+  </div>
+}

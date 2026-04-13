@@ -7,26 +7,21 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { LookupHistoryEntryDto } from './lookupHistoryEntryDto';
 
 
-export interface LookupResponse { 
-    lookupStatus?: LookupResponse.LookupStatusEnum;
+export interface LookupHistoryEntryDto { 
+    lookupTerm?: string;
+    lookupStatus?: LookupHistoryEntryDto.LookupStatusEnum;
     quickFacts?: { [key: string]: string; };
     icecatId?: string;
-    icecatSpecsJson?: string;
-    sourceType?: LookupResponse.SourceTypeEnum;
+    sourceType?: LookupHistoryEntryDto.SourceTypeEnum;
     sourceDomain?: string;
     siteLabel?: string;
     sourceUrl?: string;
     featureGroupsJson?: string;
-    retryAfter?: string;
-    retryAfterSeconds?: number;
-    retryProvider?: string;
-    retryModel?: string;
-    history?: Array<LookupHistoryEntryDto>;
+    createdAt?: string;
 }
-export namespace LookupResponse {
+export namespace LookupHistoryEntryDto {
     export const LookupStatusEnum = {
         Complete: 'COMPLETE',
         Failed: 'FAILED',

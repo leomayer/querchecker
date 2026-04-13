@@ -1,13 +1,19 @@
 package at.querchecker.controller.dto;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * Antwort von GET /api/provider-setup/init.
- * Liefert Platzhalter-Keys + Backend-Pfade für beide Konfig-Dateien.
+ * Liefert die vollständige Feldstruktur für den Einrichtungs-Assistenten.
+ *
+ * @param canSaveToServer true wenn Backend Schreibzugriff auf Konfig-Dateien hat
+ * @param secretsYmlPath  Pfad zur secrets.yml (relativ zum Backend-Verzeichnis)
+ * @param quercheckerYmlPath Pfad zur querchecker.yml
+ * @param dimensions      Konfigurations-Dimensionen (SEARCH, LLM) mit Providern + Feldern
  */
 public record ProviderSetupInitResponse(
-    Map<String, String> placeholderKeys,
-    String secretYmlPath,
-    String quercheckerYmlPath
+    boolean canSaveToServer,
+    String secretsYmlPath,
+    String quercheckerYmlPath,
+    List<SetupDimensionDto> dimensions
 ) {}

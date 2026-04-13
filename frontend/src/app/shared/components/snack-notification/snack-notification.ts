@@ -14,8 +14,8 @@ export interface SnackNotificationData {
   selector: 'app-snack-notification',
   standalone: true,
   imports: [CommonModule, MatButtonModule, MatIconModule],
-  templateUrl: './snack-notification.component.html',
-  styleUrls: ['./snack-notification.component.scss'],
+  templateUrl: './snack-notification.html',
+  styleUrls: ['./snack-notification.scss'],
 })
 export class SnackNotificationComponent {
   constructor(
