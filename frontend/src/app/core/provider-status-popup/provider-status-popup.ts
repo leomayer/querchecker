@@ -17,7 +17,10 @@ export class ProviderStatusPopup {
 
   openSettings(): void {
     this.store.acknowledge();
-    this.router.navigate(['/', AppRoutePath.SETUP]);
+    // Navigate to home first to avoid conflicts with previous routes, then to setup
+    this.router.navigate(['/']).then(() => {
+      this.router.navigate(['/', AppRoutePath.SETUP]);
+    });
   }
 
   dismiss(): void {

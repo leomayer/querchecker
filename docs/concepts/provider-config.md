@@ -773,15 +773,12 @@ Mehrfach-Tab-Lock-Verhalten
 
 ### Block C1 — Zwischen-Schritt
 
-1. Sofern das Popup `provider-status` kommt - sollte die Router auf "Home" vorher gesetzt werden. Damit kommt es zu keinen Konflikten ggf.mit der vorherige Route "Einrichtungsassist"
-2. Im Letzten Schritt: eigentlich sollte die `.save-section` in the footer kommen samt einem "Zurück". `Weiter` und beide Optionen machen keinen Sinn
-
-
-1. Beim Speichern wird für die nicht ausgefüllten Felder der Platzhalter (z.B. `BRAVE_PLACEHOLDER` eingesetzt.) Es sollen aber die Werte vom Backend beibehalten werden!
-
+1. Beim Speichern wird für die nicht ausgefüllten Felder der Platzhalter (z.B. `BRAVE_PLACEHOLDER` eingesetzt.) Es sollen aber die Werte vom Backend beibehalten werden - wenn es welche gibt und nicht überschrieben! Dies gilt auch für den `credential-path`.
+2. Werte werden nicht passend für YAML-Auslesen gespeichert - nämlich OHNE Quotes
 3. Der Server-Neustart funktioniert nur als Server-Shutdown. Da wird nix neugestartet.
 4. Wie kann ich testen, ob bzw. was beim Download verfügbar ist?
-5. Bei den Google-Credentials Path ist mir unklar, wo dieser "beheimatet" sein soll. Einerseits wird er über den Assistenten angeboten, andererseits ist er im `querchecker.yml` enthalten
+5. Ist eigentlich geklärt, ob die Einrichtung der Konfig nun so funktioniert, dass sämtliche relevanten Infos gespeichert werden?
+6. Bei den Google-Credentials Path ist mir unklar, wo dieser "beheimatet" sein soll. Einerseits wird er über den Assistenten angeboten, andererseits ist er im `querchecker.yml` enthalten
 
 ---
 

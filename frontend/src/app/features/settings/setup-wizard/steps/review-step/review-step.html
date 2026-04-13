@@ -13,22 +13,7 @@
   }
 </div>
 
-@if (store.canSaveToServer()) {
-  <div class="save-section">
-    <p class="save-hint">
-      Konfiguration kann direkt auf dem Server gespeichert werden.
-    </p>
-    <div class="save-actions">
-      <button mat-flat-button color="primary" (click)="saveAndRestart()" [disabled]="store.saving()">
-        <mat-icon>save</mat-icon>
-        Speichern &amp; Neu starten
-      </button>
-    </div>
-    @if (store.saveError(); as err) {
-      <p class="save-error">{{ err }}</p>
-    }
-  </div>
-} @else {
+@if (!store.canSaveToServer()) {
   <div class="download-section">
     <p class="download-hint">
       Direktes Speichern nicht verfügbar — Dateisystem-Berechtigung fehlt.

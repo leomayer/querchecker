@@ -30,9 +30,24 @@
 
 <div class="wizard-footer">
   @if (stepper(); as s) {
-    @if (s.selectedIndex > 0) {
+    @if (isOnFinalStep(s)) {
       <button mat-button (click)="s.previous()">Zurück</button>
+      @if (store.canSaveToServer()) {
+        <button mat-flat-button color="primary" (click)="saveAndRestart()" [disabled]="store.saving()">
+          <mat-icon>save</mat-icon>
+          Speichern &amp; Neu starten
+        </button>
+      } @else {
+        <button mat-stroked-button (click)="downloadSecrets()">
+          <mat-icon>download</mat-icon>
+          secrets.yml
+        </button>
+      }
+    } @else {
+      @if (s.selectedIndex > 0) {
+        <button mat-button (click)="s.previous()">Zurück</button>
+      }
+      <button mat-flat-button (click)="s.next()">Weiter</button>
     }
-    <button mat-flat-button (click)="s.next()">Weiter</button>
   }
 </div>

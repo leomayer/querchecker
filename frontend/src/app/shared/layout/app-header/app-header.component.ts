@@ -4,12 +4,13 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatBadgeModule } from '@angular/material/badge';
 import { Theme } from '../../../features/settings/theme';
 import { ProviderStatusStore } from '../../../core/provider-status.store';
 
 @Component({
   selector: 'app-header',
-  imports: [MatToolbarModule, MatIconModule, MatButtonModule, MatTooltipModule],
+  imports: [MatToolbarModule, MatIconModule, MatButtonModule, MatTooltipModule, MatBadgeModule],
   templateUrl: './app-header.component.html',
   styleUrl: './app-header.component.scss',
 })
@@ -22,6 +23,15 @@ export class AppHeaderComponent {
   readonly themeAriaLabel = computed(() =>
     this.theme.darkMode() ? 'Hellmodus aktivieren' : 'Dunkelmodus aktivieren',
   );
+  readonly settingsBadgeColor = computed(() => {
+    const status = this.providerStatus.status();
+    if (!status) return 'accent';
+    const isUnconfigured = status.searchState === 'UNCONFIGURED' || status.llmState === 'UNCONFIGURED';
+    const isUnavailable = status.searchState === 'UNAVAILABLE' || status.llmState === 'UNAVAILABLE';
+    if (isUnavailable) return 'warn';
+    if (isUnconfigured) return 'accent';
+    return 'primary';
+  });
 
   toggleTheme(): void {
     this.theme.setDarkTheme(!this.theme.darkMode());

@@ -13,7 +13,7 @@ import { SetupWizardStore } from '../../setup-wizard.store';
   imports: [FormsModule, MatFormFieldModule, MatInputModule, MatTabsModule, MatIconModule, MatRadioModule],
   templateUrl: './dimension-step.html',
   styleUrl: './dimension-step.scss',
-  host: { 'class': 'dimension-step dimension-step-host' },
+  host: { 'class': 'dimension-step-host' },
 })
 export class DimensionStep {
   readonly dimension = input.required<SetupDimensionDto>();
