@@ -31,11 +31,12 @@ export const ProviderStatusStore = signalStore(
     acknowledgedHash: null,
   }),
   withComputed((store) => ({
-    /** True when at least one provider is not VALID. */
+    /** True when at least one provider is not CONFIGURED or VALID. */
     badgeVisible: computed(() => {
       const s = store.status();
       if (!s) return false;
-      return s.searchState !== 'VALID' || s.llmState !== 'VALID';
+      const isConfigured = (state: ProviderState) => state === 'CONFIGURED' || state === 'VALID';
+      return !isConfigured(s.searchState) || !isConfigured(s.llmState);
     }),
     /** True when a provider is UNREACHABLE or UNAVAILABLE (error severity). */
     badgeIsError: computed(() => {

@@ -1,7 +1,7 @@
 spring:
   config:
     import:
-      - optional:file:../config/secretsll.yml # API-Keys (nie in Git)
+      - optional:file:../config/secrets.yml # API-Keys (nie in Git)
 
 querchecker:
   # ---------------------------------------------------------------------------

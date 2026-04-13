@@ -6,33 +6,15 @@
     </div>
 
     <p class="popup-description">
-      Querchecker benötigt externe KI-Services für <strong>Technik-Details</strong> und
-      <strong>Textanalyse-Engine</strong>.
-      Die Konfiguration erfolgt über eine <code>secrets.yml</code>, die du nach der
-      Einrichtung herunterlädst und im Backend-Verzeichnis ablegst. Danach ist ein
-      Server-Neustart erforderlich.
+      Bitte konfiguriere die erforderlichen KI-Services in den Einstellungen.
     </p>
 
-    @if (store.status(); as s) {
-      <app-provider-status-table />
-
-      @if (s.searchState === 'UNCONFIGURED') {
-        <div class="popup-callout">
-          <mat-icon>search_off</mat-icon>
-          <span>Ohne Web Search sind keine Technik-Details abrufbar.</span>
-        </div>
-      }
-      @if (s.llmState === 'UNCONFIGURED') {
-        <div class="popup-callout">
-          <mat-icon>smart_toy</mat-icon>
-          <span>Ohne externe KI ist die Textanalyse-Engine nicht verfügbar.</span>
-        </div>
-      }
-    }
-
     <div class="popup-actions">
-      <button mat-flat-button color="primary" (click)="setup()">Einrichten</button>
-      <button mat-button (click)="dismiss()">Trotzdem fortfahren</button>
+      <button mat-flat-button color="primary" (click)="openSettings()">
+        <mat-icon>settings</mat-icon>
+        Zu Einstellungen
+      </button>
+      <button mat-button (click)="dismiss()">Später</button>
     </div>
   </div>
 </div>

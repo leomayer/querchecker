@@ -1,8 +1,5 @@
 :host {
   display: block;
-}
-
-.banner {
   background: var(--mat-sys-error-container);
   color: var(--mat-sys-on-error-container);
   overflow: hidden;
@@ -19,10 +16,8 @@
 }
 
 mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
   color: var(--mat-sys-on-error-container);
+  flex-shrink: 0;
 }
 
 mat-progress-bar {

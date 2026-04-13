@@ -1,15 +1,41 @@
 @if (!store.status()) {
   <p class="loading-hint">Status wird geladen…</p>
 } @else {
+  @if (canSetup()) {
+    <div class="config-warning">
+      <p class="config-description">
+        Querchecker benötigt externe KI-Services für <strong>Technik-Details</strong> und
+        <strong>Textanalyse-Engine</strong>.
+        Die Konfiguration erfolgt über eine <code>secrets.yml</code>, die du nach der
+        Einrichtung herunterlädst und im Backend-Verzeichnis ablegst. Danach ist ein
+        Server-Neustart erforderlich.
+      </p>
+
+      @if (store.status(); as s) {
+        @if (s.searchState === 'UNCONFIGURED') {
+          <div class="config-callout">
+            <mat-icon>search_off</mat-icon>
+            <span>Ohne Web Search sind keine Technik-Details abrufbar.</span>
+          </div>
+        }
+        @if (s.llmState === 'UNCONFIGURED') {
+          <div class="config-callout">
+            <mat-icon>smart_toy</mat-icon>
+            <span>Ohne externe KI ist die Textanalyse-Engine nicht verfügbar.</span>
+          </div>
+        }
+      }
+    </div>
+  }
+
   <app-provider-status-table />
 
   @if (canSetup()) {
     <div class="provider-actions">
-      <button mat-stroked-button disabled>
+      <button mat-flat-button color="primary" (click)="openSetupWizard()">
         <mat-icon>build</mat-icon>
         Einrichtungs-Assistent
       </button>
-      <span class="action-hint">Kommt in Block C</span>
     </div>
   }
 }

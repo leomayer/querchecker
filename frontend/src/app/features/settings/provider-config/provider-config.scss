@@ -4,11 +4,68 @@
   margin: 8px 0;
 }
 
+.config-warning {
+  background: color-mix(in srgb, var(--mat-sys-error-container) 20%, transparent);
+  border: 1px solid color-mix(in srgb, var(--mat-sys-error) 40%, transparent);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.config-warning-icon {
+  color: var(--mat-sys-error);
+  flex-shrink: 0;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.config-description {
+  margin: 0 0 16px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--mat-sys-on-surface-variant);
+
+  code {
+    font-family: monospace;
+    background: var(--mat-sys-surface-variant);
+    padding: 1px 4px;
+    border-radius: 4px;
+    font-size: 0.85em;
+  }
+}
+
+.config-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 6px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border-left: 3px solid var(--mat-sys-error);
+  background: color-mix(in srgb, var(--mat-sys-error-container) 60%, transparent);
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--mat-sys-on-error-container);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: var(--mat-sys-error);
+  }
+}
+
 .provider-actions {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 4px;
+  margin-top: 12px;
+
+  button mat-icon {
+    color: inherit;
+  }
 }
 
 .action-hint {

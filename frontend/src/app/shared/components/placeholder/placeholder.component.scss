@@ -1,14 +1,9 @@
 :host {
   display: flex;
   flex: 1;
-  align-items: center;
-  justify-content: center;
-}
-
-.placeholder-container {
-  display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 12px;
   padding: 48px 32px;
   text-align: center;

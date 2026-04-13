@@ -59,32 +59,13 @@
 }
 
 
-.popup-callout {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 0 0 6px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border-left: 3px solid var(--mat-sys-error);
-  background: color-mix(in srgb, var(--mat-sys-error-container) 60%, transparent);
-  font-size: 0.9rem;
-  line-height: 1.45;
-  color: var(--mat-sys-on-error-container);
-
-  mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-    margin-top: 1px;
-    color: var(--mat-sys-error);
-  }
-}
-
 .popup-actions {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
   margin-top: 20px;
+
+  button mat-icon {
+    color: inherit;
+  }
 }
