@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -135,7 +136,11 @@ public class DlExtractionController {
     private Map<String, String> parseCondensedSpec(String json) {
         if (json == null || json.isBlank()) return null;
         try {
-            return MAPPER.readValue(json, new TypeReference<Map<String, String>>() {});
+            Map<String, String> rawMap = MAPPER.readValue(json, new TypeReference<Map<String, String>>() {});
+
+            return rawMap.entrySet().stream()
+                .filter(entry -> entry.getValue() != null && !entry.getValue().isBlank())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         } catch (Exception e) {
             log.warn("Failed to parse condensedSpecsJson: {}", e.getMessage());
             return null;

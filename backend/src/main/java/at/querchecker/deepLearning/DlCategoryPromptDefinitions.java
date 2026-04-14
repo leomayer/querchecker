@@ -24,6 +24,7 @@ public final class DlCategoryPromptDefinitions {
     - Antworte NUR mit validem JSON.
     - KEIN Markdown (```json), keine Einleitung, kein Schlusssatz.
     - WICHTIG: Wenn eine Information (oder ein Key) nicht im Text vorhanden ist, darf dieser Key NICHT im JSON erscheinen. Erzeuge niemals "null", "" oder Platzhalter.
+    - "Leere" Keys (z.B. "Key": "") oder Keys mit Platzhaltern sind streng verboten. Wenn kein Wert da ist: Key weglassen.
 
     JSON-STRUKTUR:
     {
