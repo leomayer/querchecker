@@ -808,7 +808,7 @@ Der Assistent zeigt den Pfad aus `GET /api/provider-setup/keys?provider=GOOGLE_D
 
 ---
 
-### Block D — Degradation + Migration
+### ✅ Block D — Degradation + Migration
 
 11. `item-research` Degradation (alle Szenarien: UNCONFIGURED, CONFIGURED, UNREACHABLE, UNAVAILABLE, Rate Limit)
     11a. `ConfigController` + generierten `ConfigService` löschen; `aiSearchEnabled` auf `ProviderStatusStore` umstellen
