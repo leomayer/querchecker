@@ -6,7 +6,8 @@
       placeholder="Produktsuche"
       [(ngModel)]="searchTerm"
       (keyup.enter)="onLookup()"
-      [disabled]="!aiSearchEnabled() || lookupState() === 'NO_SOURCES'" />
+      [disabled]="!aiSearchEnabled() || lookupState() === 'NO_SOURCES'"
+      [matTooltip]="(!aiSearchEnabled() || lookupState() === 'NO_SOURCES') ? (lookupState() === 'NO_SOURCES' ? 'Spec-Suche für diese Kategorie nicht verfügbar' : 'KI-Suche nicht konfiguriert') : null" />
   </mat-form-field>
   <button
     mat-icon-button
