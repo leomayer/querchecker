@@ -2,12 +2,13 @@ import { Component, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { SnackService } from '../../../../../shared/services/snack.service';
 import { SetupWizardStore } from '../../setup-wizard.store';
 
 @Component({
   selector: 'app-review-step',
-  imports: [MatButtonModule, MatIconModule],
+  imports: [MatButtonModule, MatIconModule, MatTooltipModule],
   templateUrl: './review-step.html',
   styleUrl: './review-step.scss',
 })
@@ -37,16 +38,16 @@ export class ReviewStep {
     this.http.post('/api/admin/restart', null).subscribe({
       next: () => {
         this.snack.info(
-          'Server wird neu gestartet — Verbindung wird automatisch wiederhergestellt.',
-          undefined,
+          'Neustart folgt durch Prozess-Manager (Docker, systemd, …).',
+          'Server wird heruntergefahren',
           8000
         );
       },
       error: () => {
         // Erwartbar — Server beendet sich, Verbindung bricht ab
         this.snack.info(
-          'Server-Neustart wurde ausgelöst.',
-          undefined,
+          'Prüfe deinen Prozess-Manager für Neustart.',
+          'Shutdown ausgelöst',
           5000
         );
       },
@@ -61,8 +62,8 @@ export class ReviewStep {
 
   downloadConfig(): void {
     this.snack.info(
-      'querchecker.yml Download wird in einer späteren Version unterstützt.',
-      undefined,
+      'Wird in einer späteren Version unterstützt.',
+      'querchecker.yml Download',
       5000
     );
   }
@@ -81,8 +82,7 @@ export class ReviewStep {
       `        api-key: ${secrets['GROQ_PLACEHOLDER'] ?? 'GROQ_PLACEHOLDER'}`,
       '      openrouter:',
       `        api-key: ${secrets['OPENROUTER_PLACEHOLDER'] ?? 'OPENROUTER_PLACEHOLDER'}`,
-      '    google-discovery:',
-      `      credentials-path: ${secrets['GOOGLE_CREDENTIALS_PLACEHOLDER'] ?? 'GOOGLE_CREDENTIALS_PLACEHOLDER'}`,
+      // credentials-path ist kein Secret — wird in querchecker.yml konfiguriert, nicht hier
     ];
     return lines.join('\n') + '\n';
   }

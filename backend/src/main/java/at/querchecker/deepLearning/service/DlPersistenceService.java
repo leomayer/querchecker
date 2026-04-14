@@ -33,6 +33,7 @@ public class DlPersistenceService {
             .run(run).term(r.getTerm())
             .confidence((float) r.getConfidence())
             .condensedSpecsJson(toJson(r.getCondensedSpec()))
+            .extractedModel(r.getExtractedModel())
             .build()));
 
         run.setStatus(ExtractionStatus.DONE);

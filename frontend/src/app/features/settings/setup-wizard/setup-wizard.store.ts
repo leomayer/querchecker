@@ -89,13 +89,16 @@ export class SetupWizardStore {
     const config: Record<string, string> = {};
 
     for (const dim of data?.dimensions ?? []) {
+      const selectedProviderName = selected[dim.name!] ?? dim.activeProvider;
       for (const prov of dim.providers ?? []) {
         for (const field of prov.fields ?? []) {
           const editKey = `${prov.name}.${field.key}`;
           const value = edits[editKey] ?? field.value ?? field.placeholder ?? '';
           if (field.secret) {
+            // Secrets aller Provider → secrets.yml (Platzhalter für nicht-genutzte Provider)
             secrets[field.placeholder ?? field.key!] = value;
-          } else {
+          } else if (prov.name === selectedProviderName) {
+            // Config-Felder nur vom selektierten Provider → querchecker.yml
             config[field.key!] = value;
           }
         }

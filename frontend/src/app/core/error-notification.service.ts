@@ -40,7 +40,7 @@ export class ErrorNotificationService implements OnDestroy {
       case 'API_TIMEOUT':
         return 'Anfrage-Timeout';
       case 'EXTRACTION_FAILED':
-        return 'Produktextraktion fehlgeschlagen';
+        return 'Textanalyse fehlgeschlagen';
       case 'LOOKUP_FAILED':
         return 'Produktsuche fehlgeschlagen';
       case 'NETWORK_ERROR':

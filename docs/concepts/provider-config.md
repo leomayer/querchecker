@@ -256,7 +256,10 @@ Sicherheitsrisiko vertretbar (Filesystem-Info bleibt hinter Auth-geschütztem En
 Auth-geschützt. Schlägt fehl wenn Filesystem-Berechtigung fehlt (z.B. `:ro`-Mount in Prod)
 → Frontend zeigt Download-Fallback.
 
-**`POST /api/admin/restart`** — optionaler Server-Neustart nach Download der `secrets.yml`.
+**`POST /api/admin/restart`** — sendet SIGTERM an den eigenen JVM-Prozess (Shutdown).
+**Kein eigentlicher Neustart** — der Prozess beendet sich; der tatsächliche Neustart obliegt
+dem Prozess-Manager (Docker restart-policy, systemd `Restart=always`, o.ä.).
+Ohne Prozess-Manager bleibt der Server nach dem Shutdown down.
 SSE erkennt Neustart → normaler Reconnect-Flow mit Snackbar.
 
 ---
@@ -405,7 +408,8 @@ SetupStore
 - Bei Tab-Close oder F5 → Store geleert
 - `UNREACHABLE`/`UNAVAILABLE`: Key wird geladen (User kann korrigieren)
 
-`SKIPPED` = Provider bewusst nicht konfiguriert → Platzhalter-Key aus `SetupStore` in `secrets.yml`.
+`SKIPPED` = Provider bewusst nicht konfiguriert → **bestehender Wert vom Backend beibehalten** (falls vorhanden);
+nur wenn kein Wert vorhanden ist → Platzhalter-Key einsetzen. Gilt auch für `credentialsPath`.
 `DONE` = Key eingetragen → in `secrets.yml`.
 Generieren-Button aktiv wenn beide Flows `DONE` oder `SKIPPED`.
 
@@ -503,6 +507,9 @@ Schritt 3 — Server neu starten:
 Assistenten gewählten Werten überschrieben (`active-provider`, `external-provider`, `model`,
 `credentials-path`). Alle anderen Felder (Limits, Timeouts, Crons, …) bleiben unverändert.
 Kein Credentials-Inhalt — sicher in Git commitbar.
+
+**YAML-Quoting:** String-Werte in der generierten `secrets.yml` werden **mit einfachen Anführungszeichen**
+ausgegeben (z.B. `groq-api-key: 'gsk_...'`). Verhindert Parsing-Fehler bei Sonderzeichen (`:`, `#`, `*`, …).
 
 Nach „Server neu starten": `POST /api/admin/restart`
 → SSE erkennt Neustart → normaler Reconnect-Flow mit Snackbar.
@@ -773,9 +780,9 @@ Mehrfach-Tab-Lock-Verhalten
 
 ### Block C1 — Zwischen-Schritt
 
-1. Beim Speichern wird für die nicht ausgefüllten Felder der Platzhalter (z.B. `BRAVE_PLACEHOLDER` eingesetzt.) Es sollen aber die Werte vom Backend beibehalten werden - wenn es welche gibt und nicht überschrieben! Dies gilt auch für den `credential-path`.
-2. Werte werden nicht passend für YAML-Auslesen gespeichert - nämlich OHNE Quotes
-3. Der Server-Neustart funktioniert nur als Server-Shutdown. Da wird nix neugestartet.
+1. ✅ **Geklärt** — `SKIPPED`-Flow behält bestehende Backend-Werte; Platzhalter nur wenn kein Wert vorhanden. Gilt auch für `credentialsPath`. (→ SKIPPED-Logik + `SetupStore` aktualisiert)
+2. ✅ **Geklärt** — String-Werte in `secrets.yml` mit einfachen Anführungszeichen ausgeben. (→ YAML-Quoting-Abschnitt ergänzt)
+3. ✅ **Geklärt** — `POST /api/admin/restart` ist ein reiner Shutdown (SIGTERM). Neustart erfolgt durch externen Prozess-Manager (Docker restart-policy, systemd). Ohne Prozess-Manager bleibt der Server down. (→ Endpoint-Beschreibung präzisiert)
 4. Wie kann ich testen, ob bzw. was beim Download verfügbar ist?
 5. Ist eigentlich geklärt, ob die Einrichtung der Konfig nun so funktioniert, dass sämtliche relevanten Infos gespeichert werden?
 6. Bei den Google-Credentials Path ist mir unklar, wo dieser "beheimatet" sein soll. Einerseits wird er über den Assistenten angeboten, andererseits ist er im `querchecker.yml` enthalten

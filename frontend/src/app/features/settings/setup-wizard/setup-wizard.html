@@ -35,7 +35,7 @@
       @if (store.canSaveToServer()) {
         <button mat-flat-button color="primary" (click)="saveAndRestart()" [disabled]="store.saving()">
           <mat-icon>save</mat-icon>
-          Speichern &amp; Neu starten
+          Speichern &amp; Herunterfahren
         </button>
       } @else {
         <button mat-stroked-button (click)="downloadSecrets()">

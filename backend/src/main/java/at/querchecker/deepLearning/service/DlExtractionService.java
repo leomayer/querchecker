@@ -68,7 +68,7 @@ public class DlExtractionService {
             String errorType = e.getMessage() != null && e.getMessage().contains("timeout") ? "API_TIMEOUT" : "EXTRACTION_FAILED";
             String message = errorType.equals("API_TIMEOUT")
                 ? "Anfrage-Timeout — Server antwortet nicht rechtzeitig"
-                : "Produktextraktion fehlgeschlagen — bitte später erneut versuchen";
+                : "Textanalyse fehlgeschlagen — bitte später erneut versuchen";
             broadcastErrorNotification(run, errorType, message, null);
         }
     }

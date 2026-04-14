@@ -43,11 +43,15 @@
     </div>
 
     <div class="download-step">
-      <span class="step-label">3. Server neu starten:</span>
+      <span class="step-label">3. Server herunterfahren:</span>
       <div class="step-actions">
-        <button mat-flat-button color="primary" (click)="restart()">
-          <mat-icon>restart_alt</mat-icon>
-          Server neu starten
+        <button
+          mat-flat-button
+          color="primary"
+          (click)="restart()"
+          matTooltip="Server wird heruntergefahren. Ein Neustart erfolgt durch deinen Prozess-Manager (Docker, systemd, etc.)">
+          <mat-icon>power_settings_new</mat-icon>
+          Server herunterfahren
         </button>
       </div>
     </div>

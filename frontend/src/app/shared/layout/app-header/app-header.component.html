@@ -23,7 +23,9 @@
     <button
       mat-icon-button
       class="theme-toggle-btn settings-btn"
+      [disabled]="isOnSettings()"
       (click)="navigateSettings()"
+      [matTooltip]="isOnSettings() ? 'Bereits in Einstellungen' : 'Einstellungen öffnen'"
       aria-label="Einstellungen">
       <mat-icon>settings</mat-icon>
     </button>

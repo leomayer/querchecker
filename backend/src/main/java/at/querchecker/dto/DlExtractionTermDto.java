@@ -13,4 +13,5 @@ public class DlExtractionTermDto {
     private Float confidence;
     private Long durationMs;
     private Map<String, String> condensedSpec;
+    private String extractedModel;
 }

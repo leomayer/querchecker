@@ -37,4 +37,5 @@ docs/todo-*.md
 
 # External secrets / credentials (never commit)
 config/secrets*.yml
+!config/secrets-example.yml  # Exception: example file IS tracked
 config/*.json

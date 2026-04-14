@@ -26,7 +26,7 @@ export class AppComponent {
   constructor() {
     effect(() => {
       if (this.health.serverRestartCount() > 0) {
-        this.snackService.info('Server neugestartet — Verbindung wiederhergestellt');
+        this.snackService.info('Verbindung wiederhergestellt', 'Server neugestartet');
       }
     });
   }

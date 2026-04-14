@@ -58,6 +58,7 @@ public class LlmApiExtractionModel implements ExtractionModel {
             .term(term.trim())
             .confidence(1.0)
             .condensedSpec(structured.condensedSpec())
+            .extractedModel(term.trim())
             .build());
     }
 }

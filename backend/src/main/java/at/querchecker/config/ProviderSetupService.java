@@ -103,13 +103,14 @@ public class ProviderSetupService {
         List<SetupFieldDto> fields = new ArrayList<>();
 
         String credPath = gd != null ? gd.getCredentialsPath() : null;
+        // credentials-path ist kein API-Key — gehört in querchecker.yml, nicht secrets.yml
         fields.add(new SetupFieldDto(
             "credentials-path",
+            credPath,
             null,
-            ProviderStatusService.GOOGLE_CREDENTIALS_PLACEHOLDER,
-            exampleComments.getOrDefault("querchecker.api.google-discovery.credentials-path", "Pfad zur GCP credentials.json"),
-            true,
-            isSecretConfigured(credPath, ProviderStatusService.GOOGLE_CREDENTIALS_PLACEHOLDER)
+            configComments.getOrDefault("querchecker.api.google-discovery.credentials-path", "Pfad zur GCP credentials.json"),
+            false,
+            credPath != null && !credPath.isBlank() && !credPath.equals(ProviderStatusService.GOOGLE_CREDENTIALS_PLACEHOLDER)
         ));
 
         String projectId = gd != null ? gd.getProjectId() : null;
@@ -340,14 +341,20 @@ public class ProviderSetupService {
                 continue;
             }
 
-            // Config-Felder aus dem Request
+            // Config-Felder aus dem Request — nur in der aktiven Provider-Sektion
             if (request.config() != null) {
+                String llmSection = providerToYamlSection(request.llmProvider());
+                String searchSection = providerToYamlSection(request.searchProvider());
                 boolean replaced = false;
                 for (var entry : request.config().entrySet()) {
                     if (trimmed.startsWith(entry.getKey() + ":") && entry.getValue() != null) {
-                        result.add(replaceYamlValue(line, entry.getValue()));
-                        replaced = true;
-                        break;
+                        boolean inSection = (llmSection != null && isInSection(lines, result.size(), llmSection))
+                            || (searchSection != null && isInSection(lines, result.size(), searchSection));
+                        if (inSection) {
+                            result.add(replaceYamlValue(line, entry.getValue()));
+                            replaced = true;
+                            break;
+                        }
                     }
                 }
                 if (replaced) continue;
@@ -393,6 +400,15 @@ public class ProviderSetupService {
     }
 
     // ---- helpers ----
+
+    /**
+     * Konvertiert Provider-Enum-Name zum YAML-Section-Key.
+     * GROQ → "groq", GOOGLE_DISCOVERY → "google-discovery"
+     */
+    private String providerToYamlSection(String provider) {
+        if (provider == null) return null;
+        return provider.toLowerCase().replace('_', '-');
+    }
 
     /** Prüft ob ein Secret-Wert konfiguriert ist (nicht Platzhalter, nicht leer). */
     private boolean isSecretConfigured(String value, String placeholder) {

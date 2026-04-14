@@ -1,5 +1,6 @@
 import { Component, effect, inject, output, viewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogRef } from '@angular/material/dialog';
@@ -33,6 +34,7 @@ export class SetupWizard {
   private readonly dialogRef = inject(MatDialogRef<SetupWizard>, { optional: true });
   private readonly http = inject(HttpClient);
   private readonly snack = inject(SnackService);
+  private readonly router = inject(Router);
 
   constructor() {
     effect(() => {
@@ -62,10 +64,14 @@ export class SetupWizard {
       next: () => {
         this.store.saving.set(false);
         this.snack.info(
-          'Server wird neu gestartet — Verbindung wird automatisch wiederhergestellt.',
-          undefined,
+          'Verbindung wird automatisch wiederhergestellt.',
+          'Server wird heruntergefahren',
           8000
         );
+        this.closeWizard.emit();
+        this.dialogRef?.close();
+        // Navigate to home after dialog closes
+        this.router.navigate(['/']);
       },
       error: () => {
         this.store.saving.set(false);

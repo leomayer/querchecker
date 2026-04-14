@@ -127,6 +127,7 @@ public class DlExtractionController {
                 .confidence(t.getConfidence())
                 .durationMs(t.getRun().getDurationMs())
                 .condensedSpec(parseCondensedSpec(t.getCondensedSpecsJson()))
+                .extractedModel(t.getExtractedModel())
                 .build())
             .toList();
     }

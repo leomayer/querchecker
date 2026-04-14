@@ -32,11 +32,11 @@ export class ServerErrorInterceptor implements HttpInterceptor {
         }
         if (error.status >= 500 || error.status === 0) {
           this.injector.get(HealthService).notifyServerError();
-          const message =
-            error.status === 0
-              ? 'Netzwerkfehler — Verbindung unterbrochen'
-              : `Serverfehler (${error.status}) — bitte später erneut versuchen`;
-          this.injector.get(SnackService).error(message);
+          if (error.status === 0) {
+            this.injector.get(SnackService).error('Verbindung unterbrochen', 'Netzwerkfehler');
+          } else {
+            this.injector.get(SnackService).error('Bitte später erneut versuchen', `Serverfehler (${error.status})`);
+          }
         }
         return throwError(() => error);
       }),

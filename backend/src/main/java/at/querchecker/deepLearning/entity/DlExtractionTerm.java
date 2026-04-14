@@ -26,4 +26,7 @@ public class DlExtractionTerm {
 
     @Column(columnDefinition = "TEXT")
     private String condensedSpecsJson;
+
+    @Column(columnDefinition = "TEXT")
+    private String extractedModel;
 }

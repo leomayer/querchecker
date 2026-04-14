@@ -52,7 +52,7 @@ export class WhBaseComponent {
     const url = this.detail().url;
     if (!url) return;
     navigator.clipboard.writeText(url).then(() => {
-      this.snackService.success('Link kopiert');
+      this.snackService.success('In Zwischenablage kopiert', 'Link');
     });
   }
 }

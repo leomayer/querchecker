@@ -21,4 +21,4 @@ querchecker:
       openrouter:
         api-key: OPENROUTER_PLACEHOLDER # OpenRouter API-Key — https://openrouter.ai
     google-discovery:
-      credentials-path: GOOGLE_CREDENTIALS_PLACEHOLDER # Pfad zur GCP credentials.json — relativ zum backend/-Verzeichnis
+      # credentials-path: Pfad zur GCP credentials.json — wird in querchecker.yml konfiguriert, nicht hier

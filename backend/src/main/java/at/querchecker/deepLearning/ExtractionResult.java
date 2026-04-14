@@ -15,4 +15,5 @@ public class ExtractionResult {
     private String term;
     private double confidence;
     private Map<String, String> condensedSpec;
+    private String extractedModel;
 }
