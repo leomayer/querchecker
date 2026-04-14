@@ -3,7 +3,7 @@
   <mat-form-field
     class="search-field"
     subscriptSizing="dynamic"
-    [matTooltip]="lookupState() === 'NO_SOURCES' ? 'Nutze die Produktdaten aus dem Inserat unten' : !aiSearchEnabled() ? 'KI-Suche nicht konfiguriert' : ''"
+    [matTooltip]="lookupState() === 'NO_SOURCES' ? 'Nutze die Produktdaten aus dem Inserat unten (keine KI-Suche für die Kategorie konfiguriert)' : !aiSearchEnabled() ? 'KI-Suche nicht konfiguriert' : ''"
     [matTooltipDisabled]="aiSearchEnabled() && lookupState() !== 'NO_SOURCES'">
     <input
       matInput
