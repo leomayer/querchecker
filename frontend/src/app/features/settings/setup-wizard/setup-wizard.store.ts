@@ -4,9 +4,9 @@ import { ProviderSetupInitResponse, ProviderSetupSaveRequest } from '../../../ap
 
 @Injectable()
 export class SetupWizardStore {
-  private readonly initResource = httpResource<ProviderSetupInitResponse>(
-    () => ({ url: '/api/provider-setup/init' }),
-  );
+  private readonly initResource = httpResource<ProviderSetupInitResponse>(() => ({
+    url: '/api/provider-setup/init',
+  }));
 
   /** Gewählter aktiver Provider pro Dimension: { 'SEARCH': 'BRAVE', 'LLM': 'GROQ' } */
   readonly selectedProviders = signal<Record<string, string>>({});
@@ -18,12 +18,14 @@ export class SetupWizardStore {
   private initialized = false;
 
   readonly loading = this.initResource.isLoading;
-  readonly error = computed(() => this.initResource.error() ? 'Init fehlgeschlagen' : null);
+  readonly error = computed(() => (this.initResource.error() ? 'Init fehlgeschlagen' : null));
   readonly initData = this.initResource.value;
   readonly dimensions = computed(() => this.initData()?.dimensions ?? []);
   readonly canSaveToServer = computed(() => this.initData()?.canSaveToServer ?? false);
   readonly secretsYmlPath = computed(() => this.initData()?.secretsYmlPath ?? 'config/secrets.yml');
-  readonly quercheckerYmlPath = computed(() => this.initData()?.quercheckerYmlPath ?? 'config/querchecker.yml');
+  readonly quercheckerYmlPath = computed(
+    () => this.initData()?.quercheckerYmlPath ?? 'config/querchecker.yml',
+  );
 
   readonly allFieldsComplete = computed(() => {
     const data = this.initData();
@@ -32,7 +34,7 @@ export class SetupWizardStore {
     const edits = this.fieldEdits();
     for (const dim of data.dimensions) {
       const providerName = selected[dim.name!] ?? dim.activeProvider;
-      const provider = dim.providers?.find(p => p.name === providerName);
+      const provider = dim.providers?.find((p) => p.name === providerName);
       if (!provider) return false;
       for (const field of provider.fields ?? []) {
         if (field.secret) {
@@ -69,11 +71,11 @@ export class SetupWizardStore {
   }
 
   selectProvider(dimensionName: string, providerName: string): void {
-    this.selectedProviders.update(prev => ({ ...prev, [dimensionName]: providerName }));
+    this.selectedProviders.update((prev) => ({ ...prev, [dimensionName]: providerName }));
   }
 
   updateField(providerName: string, fieldKey: string, value: string): void {
-    this.fieldEdits.update(prev => ({ ...prev, [`${providerName}.${fieldKey}`]: value }));
+    this.fieldEdits.update((prev) => ({ ...prev, [`${providerName}.${fieldKey}`]: value }));
   }
 
   getFieldValue(providerName: string, fieldKey: string): string {

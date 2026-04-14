@@ -1,51 +1,71 @@
 @if (store.status(); as s) {
-    <table class="provider-table">
-      <thead>
-        <tr>
-          <th class="col-icon"></th>
-          <th class="col-function">Funktion</th>
-          <th class="col-provider">Anbieter</th>
-          <th class="col-check" [matTooltip]="'API-Key ist hinterlegt'">Konf.</th>
-          <th class="col-check" [matTooltip]="'Verbindung wurde erfolgreich getestet'">Verb.</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr [class]="stateClass(s.searchState)">
-          <td class="col-icon">
-            <mat-icon [class]="stateClass(s.searchState)" [matTooltip]="stateLabel(s.searchState)">{{ stateIcon(s.searchState) }}</mat-icon>
-          </td>
-          <td class="col-function">
-            <span class="function-name">Web Search</span>
-            @if (s.searchError) {
-              <span class="error-detail">{{ s.searchError }}</span>
-            }
-          </td>
-          <td class="col-provider">{{ s.searchProvider | lowercase }}</td>
-          <td class="col-check">
-            <mat-icon [class]="configuredClass(s.searchState)" [matTooltip]="configuredTooltip(s.searchState)">{{ configuredIcon(s.searchState) }}</mat-icon>
-          </td>
-          <td class="col-check">
-            <mat-icon [class]="connectedClass(s.searchState)" [matTooltip]="connectedTooltip(s.searchState)">{{ connectedIcon(s.searchState) }}</mat-icon>
-          </td>
-        </tr>
-        <tr [class]="stateClass(s.llmState)">
-          <td class="col-icon">
-            <mat-icon [class]="stateClass(s.llmState)" [matTooltip]="stateLabel(s.llmState)">{{ stateIcon(s.llmState) }}</mat-icon>
-          </td>
-          <td class="col-function">
-            <span class="function-name">Textanalyse-Engine</span>
-            @if (s.llmError) {
-              <span class="error-detail">{{ s.llmError }}</span>
-            }
-          </td>
-          <td class="col-provider">{{ s.llmProvider | lowercase }}</td>
-          <td class="col-check">
-            <mat-icon [class]="configuredClass(s.llmState)" [matTooltip]="configuredTooltip(s.llmState)">{{ configuredIcon(s.llmState) }}</mat-icon>
-          </td>
-          <td class="col-check">
-            <mat-icon [class]="connectedClass(s.llmState)" [matTooltip]="connectedTooltip(s.llmState)">{{ connectedIcon(s.llmState) }}</mat-icon>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <table class="provider-table">
+    <thead>
+      <tr>
+        <th class="col-icon"></th>
+        <th class="col-function">Funktion</th>
+        <th class="col-provider">Anbieter</th>
+        <th class="col-check" [matTooltip]="'API-Key ist hinterlegt'">Konf.</th>
+        <th class="col-check" [matTooltip]="'Verbindung wurde erfolgreich getestet'">Verb.</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr [class]="stateClass(s.searchState)">
+        <td class="col-icon">
+          <mat-icon [class]="stateClass(s.searchState)" [matTooltip]="stateLabel(s.searchState)">{{
+            stateIcon(s.searchState)
+          }}</mat-icon>
+        </td>
+        <td class="col-function">
+          <span class="function-name">Web Search</span>
+          @if (s.searchError) {
+            <span class="error-detail">{{ s.searchError }}</span>
+          }
+        </td>
+        <td class="col-provider">{{ s.searchProvider | lowercase }}</td>
+        <td class="col-check">
+          <mat-icon
+            [class]="configuredClass(s.searchState)"
+            [matTooltip]="configuredTooltip(s.searchState)"
+            >{{ configuredIcon(s.searchState) }}</mat-icon
+          >
+        </td>
+        <td class="col-check">
+          <mat-icon
+            [class]="connectedClass(s.searchState)"
+            [matTooltip]="connectedTooltip(s.searchState)"
+            >{{ connectedIcon(s.searchState) }}</mat-icon
+          >
+        </td>
+      </tr>
+      <tr [class]="stateClass(s.llmState)">
+        <td class="col-icon">
+          <mat-icon [class]="stateClass(s.llmState)" [matTooltip]="stateLabel(s.llmState)">{{
+            stateIcon(s.llmState)
+          }}</mat-icon>
+        </td>
+        <td class="col-function">
+          <span class="function-name">Textanalyse-Engine</span>
+          @if (s.llmError) {
+            <span class="error-detail">{{ s.llmError }}</span>
+          }
+        </td>
+        <td class="col-provider">{{ s.llmProvider | lowercase }}</td>
+        <td class="col-check">
+          <mat-icon
+            [class]="configuredClass(s.llmState)"
+            [matTooltip]="configuredTooltip(s.llmState)"
+            >{{ configuredIcon(s.llmState) }}</mat-icon
+          >
+        </td>
+        <td class="col-check">
+          <mat-icon
+            [class]="connectedClass(s.llmState)"
+            [matTooltip]="connectedTooltip(s.llmState)"
+            >{{ connectedIcon(s.llmState) }}</mat-icon
+          >
+        </td>
+      </tr>
+    </tbody>
+  </table>
 }

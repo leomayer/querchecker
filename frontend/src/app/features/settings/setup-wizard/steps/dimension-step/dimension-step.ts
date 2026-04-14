@@ -10,10 +10,17 @@ import { SetupWizardStore } from '../../setup-wizard.store';
 
 @Component({
   selector: 'app-dimension-step',
-  imports: [FormsModule, MatFormFieldModule, MatInputModule, MatTabsModule, MatIconModule, MatRadioModule],
+  imports: [
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatTabsModule,
+    MatIconModule,
+    MatRadioModule,
+  ],
   templateUrl: './dimension-step.html',
   styleUrl: './dimension-step.scss',
-  host: { 'class': 'dimension-step-host' },
+  host: { class: 'dimension-step-host' },
 })
 export class DimensionStep {
   readonly dimension = input.required<SetupDimensionDto>();
@@ -22,7 +29,7 @@ export class DimensionStep {
   readonly selectedTabIndex = computed(() => {
     const dim = this.dimension();
     const selected = this.store.selectedProviders()[dim.name!];
-    const idx = dim.providers?.findIndex(p => p.name === selected) ?? 0;
+    const idx = dim.providers?.findIndex((p) => p.name === selected) ?? 0;
     return idx >= 0 ? idx : 0;
   });
 

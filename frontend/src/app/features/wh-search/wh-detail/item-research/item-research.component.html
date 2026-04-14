@@ -11,7 +11,13 @@
   <mat-form-field
     class="search-field"
     subscriptSizing="dynamic"
-    [matTooltip]="lookupState() === 'NO_SOURCES' ? 'Nutze die Produktdaten aus dem Inserat unten (keine KI-Suche für die Kategorie konfiguriert)' : !aiSearchEnabled() ? 'KI-Suche nicht konfiguriert' : ''"
+    [matTooltip]="
+      lookupState() === 'NO_SOURCES'
+        ? 'Nutze die Produktdaten aus dem Inserat unten (keine KI-Suche für die Kategorie konfiguriert)'
+        : !aiSearchEnabled()
+          ? 'KI-Suche nicht konfiguriert'
+          : ''
+    "
     [matTooltipDisabled]="aiSearchEnabled() && lookupState() !== 'NO_SOURCES'">
     <input
       matInput
@@ -51,14 +57,23 @@
 @if (lookupState() === 'COMPLETE' && orderedQuickFacts().length > 0) {
   <div class="source-header">
     @if (effectiveSourceUrl()) {
-      <a mat-stroked-button class="source-action" [href]="effectiveSourceUrl()!" target="_blank" rel="noopener">
+      <a
+        mat-stroked-button
+        class="source-action"
+        [href]="effectiveSourceUrl()!"
+        target="_blank"
+        rel="noopener">
         <mat-icon>open_in_new</mat-icon>{{ lookupSourceLabel() || 'Web-Suche' }}
       </a>
     } @else {
       <span class="source-label">{{ lookupSourceLabel() || 'Web-Suche' }}</span>
     }
     @if (showFullSpecsButton() && !fullSpecsLoaded()) {
-      <button mat-stroked-button class="source-action" (click)="onLoadFullSpecs()" [disabled]="fullSpecsLoading()">
+      <button
+        mat-stroked-button
+        class="source-action"
+        (click)="onLoadFullSpecs()"
+        [disabled]="fullSpecsLoading()">
         @if (fullSpecsLoading()) {
           <mat-spinner diameter="14" />
         } @else {
@@ -127,12 +142,22 @@
         @if (googleSearchUrl() || geizhalUrl()) {
           <div class="placeholder-links">
             @if (googleSearchUrl()) {
-              <a mat-stroked-button class="source-action" [href]="googleSearchUrl()!" target="_blank" rel="noopener">
+              <a
+                mat-stroked-button
+                class="source-action"
+                [href]="googleSearchUrl()!"
+                target="_blank"
+                rel="noopener">
                 <mat-icon>open_in_new</mat-icon>Google
               </a>
             }
             @if (geizhalUrl()) {
-              <a mat-stroked-button class="source-action" [href]="geizhalUrl()!" target="_blank" rel="noopener">
+              <a
+                mat-stroked-button
+                class="source-action"
+                [href]="geizhalUrl()!"
+                target="_blank"
+                rel="noopener">
                 <mat-icon>open_in_new</mat-icon>Geizhals
               </a>
             }
@@ -141,7 +166,10 @@
       } @else if (lookupState() === 'QUOTA_EXCEEDED') {
         <mat-icon class="placeholder-icon error">block</mat-icon>
         <span>Websuche-Kontingent erschöpft</span>
-        <small>Das monatliche Freikontingent der Websuche wurde erreicht.<br>Weitere Suchen sind erst im nächsten Abrechnungszeitraum möglich.</small>
+        <small
+          >Das monatliche Freikontingent der Websuche wurde erreicht.<br />Weitere Suchen sind erst
+          im nächsten Abrechnungszeitraum möglich.</small
+        >
       } @else if (lookupState() === 'RATE_LIMITED') {
         <mat-icon class="placeholder-icon amber">timer</mat-icon>
         <span>
@@ -165,12 +193,22 @@
         @if (googleSearchUrl() || geizhalUrl()) {
           <div class="placeholder-links">
             @if (googleSearchUrl()) {
-              <a mat-stroked-button class="source-action" [href]="googleSearchUrl()!" target="_blank" rel="noopener">
+              <a
+                mat-stroked-button
+                class="source-action"
+                [href]="googleSearchUrl()!"
+                target="_blank"
+                rel="noopener">
                 <mat-icon>open_in_new</mat-icon>Google
               </a>
             }
             @if (geizhalUrl()) {
-              <a mat-stroked-button class="source-action" [href]="geizhalUrl()!" target="_blank" rel="noopener">
+              <a
+                mat-stroked-button
+                class="source-action"
+                [href]="geizhalUrl()!"
+                target="_blank"
+                rel="noopener">
                 <mat-icon>open_in_new</mat-icon>Geizhals
               </a>
             }
@@ -226,6 +264,8 @@
 @if (lookupState() === 'COMPLETE' && lookupTimestamp()) {
   <div class="sticky-footer">
     <mat-icon class="footer-icon">schedule</mat-icon>
-    <span>Stand: {{ fullSpecsTimestamp() ?? lookupTimestamp() | date: 'dd.MM.yyyy, HH:mm' }} Uhr</span>
+    <span
+      >Stand: {{ fullSpecsTimestamp() ?? lookupTimestamp() | date: 'dd.MM.yyyy, HH:mm' }} Uhr</span
+    >
   </div>
 }

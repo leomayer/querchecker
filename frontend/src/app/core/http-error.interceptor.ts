@@ -35,7 +35,9 @@ export class ServerErrorInterceptor implements HttpInterceptor {
           if (error.status === 0) {
             this.injector.get(SnackService).error('Verbindung unterbrochen', 'Netzwerkfehler');
           } else {
-            this.injector.get(SnackService).error('Bitte später erneut versuchen', `Serverfehler (${error.status})`);
+            this.injector
+              .get(SnackService)
+              .error('Bitte später erneut versuchen', `Serverfehler (${error.status})`);
           }
         }
         return throwError(() => error);

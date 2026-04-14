@@ -95,7 +95,15 @@
   opacity: 0.6;
 }
 
-.state-valid mat-icon.state-valid { color: var(--color-positive); }
-.state-configured mat-icon.state-configured { color: var(--mat-sys-on-surface-variant); }
-.state-unconfigured mat-icon.state-unconfigured { color: var(--mat-sys-error); }
-.state-error mat-icon.state-error { color: var(--mat-sys-error); }
+.state-valid mat-icon.state-valid {
+  color: var(--color-positive);
+}
+.state-configured mat-icon.state-configured {
+  color: var(--mat-sys-on-surface-variant);
+}
+.state-unconfigured mat-icon.state-unconfigured {
+  color: var(--mat-sys-error);
+}
+.state-error mat-icon.state-error {
+  color: var(--mat-sys-error);
+}

@@ -40,16 +40,12 @@ export class ReviewStep {
         this.snack.info(
           'Neustart folgt durch Prozess-Manager (Docker, systemd, …).',
           'Server wird heruntergefahren',
-          8000
+          8000,
         );
       },
       error: () => {
         // Erwartbar — Server beendet sich, Verbindung bricht ab
-        this.snack.info(
-          'Prüfe deinen Prozess-Manager für Neustart.',
-          'Shutdown ausgelöst',
-          5000
-        );
+        this.snack.info('Prüfe deinen Prozess-Manager für Neustart.', 'Shutdown ausgelöst', 5000);
       },
     });
   }
@@ -64,7 +60,7 @@ export class ReviewStep {
     this.snack.info(
       'Wird in einer späteren Version unterstützt.',
       'querchecker.yml Download',
-      5000
+      5000,
     );
   }
 

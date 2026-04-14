@@ -15,8 +15,8 @@ export type ProviderState = 'UNCONFIGURED' | 'CONFIGURED' | 'VALID' | 'UNREACHAB
 export interface ProviderStatusPayload {
   searchState: ProviderState;
   llmState: ProviderState;
-  searchProvider: string;      // "BRAVE" | "GOOGLE_DISCOVERY"
-  llmProvider: string;         // "GROQ" | "OPENROUTER" | "LOCAL"
+  searchProvider: string; // "BRAVE" | "GOOGLE_DISCOVERY"
+  llmProvider: string; // "GROQ" | "OPENROUTER" | "LOCAL"
   searchError: string | null;
   llmError: string | null;
   searchHttpStatus: number | null;

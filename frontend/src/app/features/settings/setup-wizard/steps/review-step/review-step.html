@@ -16,13 +16,15 @@
 @if (!store.canSaveToServer()) {
   <div class="download-section">
     <p class="download-hint">
-      Direktes Speichern nicht verfügbar — Dateisystem-Berechtigung fehlt.
-      Bitte lade die Dateien herunter und lege sie manuell ab.
+      Direktes Speichern nicht verfügbar — Dateisystem-Berechtigung fehlt. Bitte lade die Dateien
+      herunter und lege sie manuell ab.
     </p>
 
     <div class="download-step">
       <span class="step-label">1. API-Keys speichern (niemals in Git):</span>
-      <span class="step-path">Speichere als: <code>{{ store.secretsYmlPath() }}</code></span>
+      <span class="step-path"
+        >Speichere als: <code>{{ store.secretsYmlPath() }}</code></span
+      >
       <div class="step-actions">
         <button mat-stroked-button (click)="downloadSecrets()">
           <mat-icon>download</mat-icon>
@@ -33,7 +35,9 @@
 
     <div class="download-step">
       <span class="step-label">2. Provider-Konfiguration speichern (in Git commitbar):</span>
-      <span class="step-path">Speichere als: <code>{{ store.quercheckerYmlPath() }}</code></span>
+      <span class="step-path"
+        >Speichere als: <code>{{ store.quercheckerYmlPath() }}</code></span
+      >
       <div class="step-actions">
         <button mat-stroked-button (click)="downloadConfig()">
           <mat-icon>download</mat-icon>

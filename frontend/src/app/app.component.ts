@@ -11,7 +11,13 @@ import { SnackService } from './shared/services/snack.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, AppHeaderComponent, AppFooterComponent, StartupOverlayComponent, ProviderStatusPopup],
+  imports: [
+    RouterOutlet,
+    AppHeaderComponent,
+    AppFooterComponent,
+    StartupOverlayComponent,
+    ProviderStatusPopup,
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })

@@ -130,7 +130,8 @@ export class ItemResearchComponent {
     const searchDown = isDown(s.searchState);
     const llmDown = isDown(s.llmState);
     if (!searchDown && !llmDown) return null;
-    if (searchDown && llmDown) return 'Produktsuche nicht verfügbar — Web-Suche und KI-Provider nicht konfiguriert';
+    if (searchDown && llmDown)
+      return 'Produktsuche nicht verfügbar — Web-Suche und KI-Provider nicht konfiguriert';
     if (searchDown) return 'Produktsuche nicht verfügbar — Web-Suche nicht konfiguriert';
     return 'Produktsuche nicht verfügbar — KI-Provider nicht konfiguriert';
   });
@@ -150,11 +151,15 @@ export class ItemResearchComponent {
     if (!s) return null;
     if (s.searchState === 'UNREACHABLE') {
       const name = s.searchProvider || 'Web-Suche';
-      return s.searchError ? `${name}: ${s.searchError}` : `${name} nicht erreichbar — Suche trotzdem möglich`;
+      return s.searchError
+        ? `${name}: ${s.searchError}`
+        : `${name} nicht erreichbar — Suche trotzdem möglich`;
     }
     if (s.llmState === 'UNREACHABLE') {
       const name = s.llmProvider || 'KI-Provider';
-      return s.llmError ? `${name}: ${s.llmError}` : `${name} nicht erreichbar — Suche trotzdem möglich`;
+      return s.llmError
+        ? `${name}: ${s.llmError}`
+        : `${name} nicht erreichbar — Suche trotzdem möglich`;
     }
     return null;
   });
@@ -221,7 +226,9 @@ export class ItemResearchComponent {
       .filter((k) => k in facts && facts[k] != null && facts[k] !== '' && k !== 'Erscheinungsjahr')
       .map((k) => [k, facts[k]] as [string, string]);
     const rest = Object.entries(facts)
-      .filter(([k, v]) => !prefKeys.includes(k) && v != null && v !== '' && k !== 'Erscheinungsjahr')
+      .filter(
+        ([k, v]) => !prefKeys.includes(k) && v != null && v !== '' && k !== 'Erscheinungsjahr',
+      )
       .sort(([a], [b]) => a.localeCompare(b)) as [string, string][];
     return [...preferred, ...rest];
   });
@@ -456,7 +463,10 @@ export class ItemResearchComponent {
         this.preferences.update((list) =>
           list.map((p) => (p.categoryId === saved.categoryId ? saved : p)),
         ),
-      error: () => { this.prefService.invalidate(); this.loadPreferences(); },
+      error: () => {
+        this.prefService.invalidate();
+        this.loadPreferences();
+      },
     });
   }
 

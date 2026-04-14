@@ -5,7 +5,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { GradientProgressBarComponent } from '../../../shared/components/gradient-progress-bar/gradient-progress-bar.component';
-import { ApiUsageResponse, ModelUsage, ProviderUsage, UsageService } from '../../../core/usage.service';
+import {
+  ApiUsageResponse,
+  ModelUsage,
+  ProviderUsage,
+  UsageService,
+} from '../../../core/usage.service';
 
 @Component({
   selector: 'app-usage-monitor',

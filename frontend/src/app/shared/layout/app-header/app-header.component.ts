@@ -25,7 +25,7 @@ export class AppHeaderComponent {
 
   readonly isOnSettings = toSignal(
     this.router.events.pipe(
-      filter(e => e instanceof NavigationEnd),
+      filter((e) => e instanceof NavigationEnd),
       map(() => this.router.url.startsWith('/settings')),
       startWith(this.router.url.startsWith('/settings')),
     ),
@@ -39,7 +39,8 @@ export class AppHeaderComponent {
   readonly settingsBadgeColor = computed(() => {
     const status = this.providerStatus.status();
     if (!status) return 'accent';
-    const isUnconfigured = status.searchState === 'UNCONFIGURED' || status.llmState === 'UNCONFIGURED';
+    const isUnconfigured =
+      status.searchState === 'UNCONFIGURED' || status.llmState === 'UNCONFIGURED';
     const isUnavailable = status.searchState === 'UNAVAILABLE' || status.llmState === 'UNAVAILABLE';
     if (isUnavailable) return 'warn';
     if (isUnconfigured) return 'accent';

@@ -1,1 +1,1006 @@
-{"openapi":"3.1.0","info":{"title":"OpenAPI definition","version":"v0"},"servers":[{"url":"http://localhost:14070","description":"Generated server url"}],"tags":[{"name":"Willhaben Meta","description":"Kategorien und Standorte verwalten"},{"name":"Listings","description":"Willhaben-Inserate verwalten"},{"name":"Config","description":"Provider-Konfigurationsstatus"},{"name":"ListingDetail","description":"Benutzereigene Details zu Inseraten"},{"name":"ProductLookup","description":"Spec-Lookup und Icecat-Vollspezifikation"},{"name":"Willhaben Search","description":"Willhaben durchsuchen und Ergebnisse speichern"},{"name":"Usage","description":"API-Verbrauchsstatistik"},{"name":"SettingsPreferences","description":"Kategorie-spezifische Spec-Präferenzen"}],"paths":{"/api/settings/preferences/{categoryId}":{"put":{"tags":["SettingsPreferences"],"summary":"Spec-Präferenzen für eine Kategorie speichern (max. 5 Keywords)","operationId":"setPreferences","parameters":[{"name":"categoryId","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PreferenceRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/PreferenceResponse"}}}}}}},"/api/listings/{id}/detail/rating":{"put":{"tags":["ListingDetail"],"summary":"Bewertung eines Inserats speichern (UP/DOWN/null)","operationId":"updateRating","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"requestBody":{"content":{"application/json":{"schema":{"type":"object","additionalProperties":{"type":"string"}}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/WhDetailDto"}}}}}}},"/api/listings/{id}/detail/note":{"put":{"tags":["ListingDetail"],"summary":"Notiz zu einem Inserat speichern","operationId":"updateNote","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"requestBody":{"content":{"application/json":{"schema":{"type":"object","additionalProperties":{"type":"string"}}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/WhDetailDto"}}}}}}},"/api/listings/{id}/detail/interest":{"put":{"tags":["ListingDetail"],"summary":"Interesse-Level eines Inserats speichern (LOW/MEDIUM/HIGH/null)","operationId":"updateInterest","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"requestBody":{"content":{"application/json":{"schema":{"type":"object","additionalProperties":{"type":"string"}}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/WhDetailDto"}}}}}}},"/api/dl/settings":{"get":{"tags":["dl-settings-controller"],"operationId":"getSettings","responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/DlSettingsDto"}}}}}},"put":{"tags":["dl-settings-controller"],"operationId":"updateSettings","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/DlSettingsDto"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/DlSettingsDto"}}}}}}},"/api/wh/meta/refresh":{"post":{"tags":["Willhaben Meta"],"summary":"Manuellen Aktualisierungs-Lauf auslösen (asynchron)","operationId":"refresh","responses":{"200":{"description":"OK"}}}},"/api/provider-setup/save":{"post":{"tags":["provider-setup-controller"],"operationId":"save","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ProviderSetupSaveRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"type":"object","additionalProperties":{"type":"string"}}}}}}}},"/api/listings":{"get":{"tags":["Listings"],"summary":"Alle Inserate abrufen","operationId":"findAll","parameters":[{"name":"ratingFilter","in":"query","required":false,"schema":{"type":"string","default":"LIKE"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/WhItemDto"}}}}}}},"post":{"tags":["Listings"],"summary":"Neues Inserat speichern","operationId":"create","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/WhItemDto"}}},"required":true},"responses":{"201":{"description":"Created","content":{"*/*":{"schema":{"$ref":"#/components/schemas/WhItemDto"}}}}}}},"/api/listings/{id}/lookup":{"post":{"tags":["ProductLookup"],"summary":"Quick-Facts für ein Inserat per Brave+LLM ermitteln","operationId":"lookup","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/LookupRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/LookupResponse"}}}}}}},"/api/listings/{id}/lookup/full-specs":{"post":{"tags":["ProductLookup"],"summary":"Vollständige Icecat-Spezifikation laden und cachen","operationId":"fullSpecs","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/FullSpecsRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/FullSpecsResponse"}}}}}}},"/api/listings/{id}/detail":{"post":{"tags":["ListingDetail"],"summary":"Details zu einem Inserat abrufen und Aufruf erfassen","operationId":"openDetail","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/WhDetailDto"}}}}}}},"/api/admin/restart":{"post":{"tags":["admin-controller"],"operationId":"restart","responses":{"200":{"description":"OK"}}}},"/api/wh/search":{"get":{"tags":["Willhaben Search"],"summary":"Willhaben durchsuchen und Ergebnisse in DB speichern","operationId":"search","parameters":[{"name":"keyword","in":"query","required":false,"schema":{"type":"string","default":""}},{"name":"rows","in":"query","required":false,"schema":{"type":"integer","format":"int32","default":30}},{"name":"priceFrom","in":"query","required":false,"schema":{"type":"integer","format":"int32"}},{"name":"priceTo","in":"query","required":false,"schema":{"type":"integer","format":"int32"}},{"name":"attributeTree","in":"query","required":false,"schema":{"type":"integer","format":"int32"}},{"name":"areaId","in":"query","required":false,"schema":{"type":"integer","format":"int32"}},{"name":"paylivery","in":"query","required":false,"schema":{"type":"boolean"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/WhSearchResultDto"}}}}}}},"/api/wh/meta/status":{"get":{"tags":["Willhaben Meta"],"summary":"Status der letzten Aktualisierungen und des laufenden Refresh","operationId":"status","responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/WhMetaStatusDto"}}}}}}},"/api/wh/meta/locations":{"get":{"tags":["Willhaben Meta"],"summary":"Standort-Baum (Bundesland → Bezirk) aus der DB","operationId":"locations","responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/WhLocationDto"}}}}}}}},"/api/wh/meta/categories":{"get":{"tags":["Willhaben Meta"],"summary":"Kategorie-Baum (bis zu 3 Ebenen) aus der DB","operationId":"categories","responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/WhCategoryDto"}}}}}}}},"/api/usage":{"get":{"tags":["Usage"],"summary":"API-Verbrauchsstatistik des laufenden Kontingent-Zeitraums abrufen","operationId":"getUsage","responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/UsageResponse"}}}}}}},"/api/sse":{"get":{"tags":["sse-controller"],"summary":"Open SSE event stream","operationId":"connect","parameters":[{"name":"eventSourceId","in":"query","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"SSE stream — event payloads","content":{"text/event-stream":{"schema":{"type":"string","oneOf":[{"$ref":"#/components/schemas/DlExtractionDonePayload"}]}}}}}}},"/api/settings/preferences":{"get":{"tags":["SettingsPreferences"],"summary":"Alle gespeicherten Kategorie-Präferenzen abrufen","operationId":"getAll","responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/PreferenceResponse"}}}}}}}},"/api/provider-status":{"get":{"tags":["provider-status-controller"],"operationId":"getStatus","responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/ProviderStatus"}}}}}}},"/api/provider-setup/keys":{"get":{"tags":["provider-setup-controller"],"operationId":"getKeys","parameters":[{"name":"provider","in":"query","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/ProviderSetupKeysResponse"}}}}}}},"/api/provider-setup/init":{"get":{"tags":["provider-setup-controller"],"operationId":"init","responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/ProviderSetupInitResponse"}}}}}}},"/api/listings/{id}":{"get":{"tags":["Listings"],"summary":"Inserat nach ID abrufen","operationId":"findById","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/WhItemDto"}}}}}},"delete":{"tags":["Listings"],"summary":"Inserat löschen","operationId":"delete","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"responses":{"204":{"description":"No Content"}}}},"/api/listings/{id}/lookup/history":{"get":{"tags":["ProductLookup"],"summary":"Lookup-Verlauf für ein Inserat laden","operationId":"getHistory","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/LookupHistoryEntryDto"}}}}}}}},"/api/health":{"get":{"tags":["health-controller"],"operationId":"health","responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"type":"object","additionalProperties":{"type":"string"}}}}}}}},"/api/dl/extraction/{whItemId}/terms":{"get":{"tags":["dl-extraction-controller"],"operationId":"getTerms","parameters":[{"name":"whItemId","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/DlExtractionStatusResponse"}}}}}}},"/api/config/providers":{"get":{"tags":["Config"],"summary":"Provider-Konfigurationsstatus","description":"Liefert je Provider: API-Key vorhanden, Limits konfiguriert, aktuell aktiv.","operationId":"getProviderStatus","responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/ProviderStatusDto"}}}}}}}},"/api/listings/cleanup":{"delete":{"tags":["Listings"],"summary":"Inserate nach Rating und Alter löschen","operationId":"cleanup","parameters":[{"name":"rating","in":"query","required":true,"schema":{"type":"string"}},{"name":"olderThanDays","in":"query","required":false,"schema":{"type":"integer","format":"int32","default":30}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"type":"object","additionalProperties":{"type":"integer","format":"int32"}}}}}}}}},"components":{"schemas":{"PreferenceRequest":{"type":"object","properties":{"fieldKeys":{"type":"array","items":{"type":"string"}}}},"PreferenceResponse":{"type":"object","properties":{"categoryId":{"type":"integer","format":"int64"},"categoryName":{"type":"string"},"fieldKeys":{"type":"array","items":{"type":"string"}}}},"WhCategoryDto":{"type":"object","properties":{"id":{"type":"integer","format":"int64"},"whId":{"type":"integer","format":"int32"},"name":{"type":"string"},"level":{"type":"integer","format":"int32"},"children":{"type":"array","items":{"$ref":"#/components/schemas/WhCategoryDto"}}}},"WhDetailDto":{"type":"object","properties":{"whItemId":{"type":"integer","format":"int64"},"id":{"type":"integer","format":"int64"},"whId":{"type":"string"},"title":{"type":"string"},"price":{"type":"number"},"location":{"type":"string"},"url":{"type":"string"},"listedAt":{"type":"string","format":"date-time"},"fetchedAt":{"type":"string","format":"date-time"},"paylivery":{"type":"boolean"},"categoryPath":{"type":"array","items":{"$ref":"#/components/schemas/WhCategoryDto"}},"description":{"type":"string"},"previews":{"type":"array","items":{"$ref":"#/components/schemas/WhPreviewDto"}},"note":{"type":"string"},"rating":{"type":"string"},"interestLevel":{"type":"string"},"viewCount":{"type":"integer","format":"int32"},"lastViewedAt":{"type":"string","format":"date-time"},"createdAt":{"type":"string","format":"date-time"},"updatedAt":{"type":"string","format":"date-time"}}},"WhPreviewDto":{"type":"object","properties":{"thumbUrl":{"type":"string"},"fullUrl":{"type":"string"}}},"DlSettingsDto":{"type":"object","properties":{"contextMaxTokens":{"type":"integer","format":"int32"}}},"ProviderSetupSaveRequest":{"type":"object","properties":{"secrets":{"type":"object","additionalProperties":{"type":"string"}},"config":{"type":"object","additionalProperties":{"type":"string"}},"searchProvider":{"type":"string"},"llmProvider":{"type":"string"}}},"WhItemDto":{"type":"object","properties":{"id":{"type":"integer","format":"int64"},"whId":{"type":"string"},"title":{"type":"string"},"description":{"type":"string"},"price":{"type":"number"},"location":{"type":"string"},"url":{"type":"string"},"listedAt":{"type":"string","format":"date-time"},"fetchedAt":{"type":"string","format":"date-time"},"thumbnailUrl":{"type":"string"},"imageUrls":{"type":"array","items":{"type":"string"}},"hasNote":{"type":"boolean"},"viewCount":{"type":"integer","format":"int32"},"lastViewedAt":{"type":"string","format":"date-time"},"rating":{"type":"string"},"interestLevel":{"type":"string"},"paylivery":{"type":"boolean"},"categoryPath":{"type":"array","items":{"$ref":"#/components/schemas/WhCategoryDto"}}}},"LookupRequest":{"type":"object","properties":{"lookupTerm":{"type":"string"}}},"LookupHistoryEntryDto":{"type":"object","properties":{"lookupTerm":{"type":"string"},"lookupStatus":{"type":"string","enum":["COMPLETE","FAILED","QUOTA_EXCEEDED","NO_SOURCES","ERROR","RATE_LIMITED"]},"quickFacts":{"type":"object","additionalProperties":{"type":"string"}},"icecatId":{"type":"string"},"sourceType":{"type":"string","enum":["ICECAT","FLATPANELSHD","GSMARENA","GENERIC"]},"sourceDomain":{"type":"string"},"siteLabel":{"type":"string"},"sourceUrl":{"type":"string"},"featureGroupsJson":{"type":"string"},"createdAt":{"type":"string","format":"date-time"}}},"LookupResponse":{"type":"object","properties":{"lookupStatus":{"type":"string","enum":["COMPLETE","FAILED","QUOTA_EXCEEDED","NO_SOURCES","ERROR","RATE_LIMITED"]},"quickFacts":{"type":"object","additionalProperties":{"type":"string"}},"icecatId":{"type":"string"},"icecatSpecsJson":{"type":"string"},"sourceType":{"type":"string","enum":["ICECAT","FLATPANELSHD","GSMARENA","GENERIC"]},"sourceDomain":{"type":"string"},"siteLabel":{"type":"string"},"sourceUrl":{"type":"string"},"featureGroupsJson":{"type":"string"},"retryAfter":{"type":"string"},"retryAfterSeconds":{"type":"integer","format":"int32"},"retryProvider":{"type":"string"},"retryModel":{"type":"string"},"history":{"type":"array","items":{"$ref":"#/components/schemas/LookupHistoryEntryDto"}}}},"FullSpecsRequest":{"type":"object","properties":{"icecatId":{"type":"string"}}},"FullSpecsResponse":{"type":"object","properties":{"icecatSpecsJson":{"type":"string"}}},"WhSearchResultDto":{"type":"object","properties":{"totalCount":{"type":"integer","format":"int32"},"listings":{"type":"array","items":{"$ref":"#/components/schemas/WhItemDto"}}}},"WhMetaStatusDto":{"type":"object","properties":{"categoriesLastFetched":{"type":"string","format":"date-time"},"locationsLastFetched":{"type":"string","format":"date-time"},"refreshInProgress":{"type":"boolean"},"refreshCron":{"type":"string"}}},"WhLocationDto":{"type":"object","properties":{"areaId":{"type":"integer","format":"int32"},"name":{"type":"string"},"level":{"type":"integer","format":"int32"},"children":{"type":"array","items":{"$ref":"#/components/schemas/WhLocationDto"}}}},"ModelUsageDto":{"type":"object","properties":{"model":{"type":"string"},"calls":{"type":"integer","format":"int64"},"tokensIn":{"type":"integer","format":"int64"},"tokensOut":{"type":"integer","format":"int64"}}},"ProviderUsageDto":{"type":"object","properties":{"calls":{"type":"integer","format":"int64"},"tokensIn":{"type":"integer","format":"int64"},"tokensOut":{"type":"integer","format":"int64"},"quotaUsage":{"type":"integer","format":"int64"},"quotaLimit":{"type":"integer","format":"int64"},"model":{"type":"string"},"quotaPeriod":{"type":"string"},"rateLimitCount":{"type":"integer","format":"int64"},"rateLimitEstimatedTokens":{"type":"integer","format":"int64"}}},"UsageResponse":{"type":"object","properties":{"activeSearchProvider":{"type":"string"},"activeLlmProvider":{"type":"string"},"brave":{"$ref":"#/components/schemas/ProviderUsageDto"},"googleDiscovery":{"$ref":"#/components/schemas/ProviderUsageDto"},"groq":{"$ref":"#/components/schemas/ProviderUsageDto"},"openRouter":{"$ref":"#/components/schemas/ProviderUsageDto"},"groqModelBreakdown":{"type":"array","items":{"$ref":"#/components/schemas/ModelUsageDto"}}}},"DlExtractionDonePayload":{"type":"object","properties":{"whItemId":{"type":"integer","format":"int64"},"terms":{"type":"array","items":{"$ref":"#/components/schemas/DlExtractionTermDto"}},"suggestedTerm":{"type":"string"},"modelStatus":{"type":"string"}}},"DlExtractionTermDto":{"type":"object","properties":{"modelName":{"type":"string"},"term":{"type":"string"},"confidence":{"type":"number","format":"float"},"durationMs":{"type":"integer","format":"int64"},"condensedSpec":{"type":"object","additionalProperties":{"type":"string"}}}},"ProviderStatus":{"type":"object","properties":{"searchState":{"type":"string","enum":["UNCONFIGURED","CONFIGURED","VALID","UNREACHABLE","UNAVAILABLE"]},"llmState":{"type":"string","enum":["UNCONFIGURED","CONFIGURED","VALID","UNREACHABLE","UNAVAILABLE"]},"searchProvider":{"type":"string"},"llmProvider":{"type":"string"},"searchError":{"type":"string"},"llmError":{"type":"string"},"searchHttpStatus":{"type":"integer","format":"int32"},"llmHttpStatus":{"type":"integer","format":"int32"},"serverStartToken":{"type":"string"}}},"ProviderSetupKeysResponse":{"type":"object","properties":{"apiKey":{"type":"string"},"credentialsPath":{"type":"string"},"credentialsFileFound":{"type":"boolean"}}},"ProviderSetupInitResponse":{"type":"object","properties":{"canSaveToServer":{"type":"boolean"},"secretsYmlPath":{"type":"string"},"quercheckerYmlPath":{"type":"string"},"dimensions":{"type":"array","items":{"$ref":"#/components/schemas/SetupDimensionDto"}}}},"SetupDimensionDto":{"type":"object","properties":{"name":{"type":"string"},"label":{"type":"string"},"activeProvider":{"type":"string"},"providers":{"type":"array","items":{"$ref":"#/components/schemas/SetupProviderDto"}}}},"SetupFieldDto":{"type":"object","properties":{"key":{"type":"string"},"value":{"type":"string"},"placeholder":{"type":"string"},"hint":{"type":"string"},"secret":{"type":"boolean"},"configured":{"type":"boolean"}}},"SetupProviderDto":{"type":"object","properties":{"name":{"type":"string"},"label":{"type":"string"},"fields":{"type":"array","items":{"$ref":"#/components/schemas/SetupFieldDto"}}}},"DlExtractionStatusResponse":{"type":"object","properties":{"extractionStatus":{"type":"string"},"terms":{"type":"array","items":{"$ref":"#/components/schemas/DlExtractionTermDto"}},"suggestedTerm":{"type":"string"}}},"ProviderStatusDto":{"type":"object","properties":{"provider":{"type":"string"},"displayName":{"type":"string"},"keyPresent":{"type":"boolean"},"limitsConfigured":{"type":"boolean"},"active":{"type":"boolean"}}}}}}
+{
+  "openapi": "3.1.0",
+  "info": { "title": "OpenAPI definition", "version": "v0" },
+  "servers": [{ "url": "http://localhost:14070", "description": "Generated server url" }],
+  "tags": [
+    { "name": "Willhaben Meta", "description": "Kategorien und Standorte verwalten" },
+    { "name": "Listings", "description": "Willhaben-Inserate verwalten" },
+    { "name": "Config", "description": "Provider-Konfigurationsstatus" },
+    { "name": "ListingDetail", "description": "Benutzereigene Details zu Inseraten" },
+    { "name": "ProductLookup", "description": "Spec-Lookup und Icecat-Vollspezifikation" },
+    { "name": "Willhaben Search", "description": "Willhaben durchsuchen und Ergebnisse speichern" },
+    { "name": "Usage", "description": "API-Verbrauchsstatistik" },
+    { "name": "SettingsPreferences", "description": "Kategorie-spezifische Spec-Präferenzen" }
+  ],
+  "paths": {
+    "/api/settings/preferences/{categoryId}": {
+      "put": {
+        "tags": ["SettingsPreferences"],
+        "summary": "Spec-Präferenzen für eine Kategorie speichern (max. 5 Keywords)",
+        "operationId": "setPreferences",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int64" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/PreferenceRequest" } }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": { "schema": { "$ref": "#/components/schemas/PreferenceResponse" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/listings/{id}/detail/rating": {
+      "put": {
+        "tags": ["ListingDetail"],
+        "summary": "Bewertung eines Inserats speichern (UP/DOWN/null)",
+        "operationId": "updateRating",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int64" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "type": "object", "additionalProperties": { "type": "string" } }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/WhDetailDto" } } }
+          }
+        }
+      }
+    },
+    "/api/listings/{id}/detail/note": {
+      "put": {
+        "tags": ["ListingDetail"],
+        "summary": "Notiz zu einem Inserat speichern",
+        "operationId": "updateNote",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int64" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "type": "object", "additionalProperties": { "type": "string" } }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/WhDetailDto" } } }
+          }
+        }
+      }
+    },
+    "/api/listings/{id}/detail/interest": {
+      "put": {
+        "tags": ["ListingDetail"],
+        "summary": "Interesse-Level eines Inserats speichern (LOW/MEDIUM/HIGH/null)",
+        "operationId": "updateInterest",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int64" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "type": "object", "additionalProperties": { "type": "string" } }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/WhDetailDto" } } }
+          }
+        }
+      }
+    },
+    "/api/dl/settings": {
+      "get": {
+        "tags": ["dl-settings-controller"],
+        "operationId": "getSettings",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/DlSettingsDto" } } }
+          }
+        }
+      },
+      "put": {
+        "tags": ["dl-settings-controller"],
+        "operationId": "updateSettings",
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/DlSettingsDto" } }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/DlSettingsDto" } } }
+          }
+        }
+      }
+    },
+    "/api/wh/meta/refresh": {
+      "post": {
+        "tags": ["Willhaben Meta"],
+        "summary": "Manuellen Aktualisierungs-Lauf auslösen (asynchron)",
+        "operationId": "refresh",
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/api/provider-setup/save": {
+      "post": {
+        "tags": ["provider-setup-controller"],
+        "operationId": "save",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProviderSetupSaveRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": { "type": "object", "additionalProperties": { "type": "string" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/listings": {
+      "get": {
+        "tags": ["Listings"],
+        "summary": "Alle Inserate abrufen",
+        "operationId": "findAll",
+        "parameters": [
+          {
+            "name": "ratingFilter",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "default": "LIKE" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/WhItemDto" } }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Listings"],
+        "summary": "Neues Inserat speichern",
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/WhItemDto" } }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/WhItemDto" } } }
+          }
+        }
+      }
+    },
+    "/api/listings/{id}/lookup": {
+      "post": {
+        "tags": ["ProductLookup"],
+        "summary": "Quick-Facts für ein Inserat per Brave+LLM ermitteln",
+        "operationId": "lookup",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int64" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/LookupRequest" } }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/LookupResponse" } } }
+          }
+        }
+      }
+    },
+    "/api/listings/{id}/lookup/full-specs": {
+      "post": {
+        "tags": ["ProductLookup"],
+        "summary": "Vollständige Icecat-Spezifikation laden und cachen",
+        "operationId": "fullSpecs",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int64" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/FullSpecsRequest" } }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/FullSpecsResponse" } } }
+          }
+        }
+      }
+    },
+    "/api/listings/{id}/detail": {
+      "post": {
+        "tags": ["ListingDetail"],
+        "summary": "Details zu einem Inserat abrufen und Aufruf erfassen",
+        "operationId": "openDetail",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int64" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/WhDetailDto" } } }
+          }
+        }
+      }
+    },
+    "/api/admin/restart": {
+      "post": {
+        "tags": ["admin-controller"],
+        "operationId": "restart",
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/api/wh/search": {
+      "get": {
+        "tags": ["Willhaben Search"],
+        "summary": "Willhaben durchsuchen und Ergebnisse in DB speichern",
+        "operationId": "search",
+        "parameters": [
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "default": "" }
+          },
+          {
+            "name": "rows",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32", "default": 30 }
+          },
+          {
+            "name": "priceFrom",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32" }
+          },
+          {
+            "name": "priceTo",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32" }
+          },
+          {
+            "name": "attributeTree",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32" }
+          },
+          {
+            "name": "areaId",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32" }
+          },
+          { "name": "paylivery", "in": "query", "required": false, "schema": { "type": "boolean" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/WhSearchResultDto" } } }
+          }
+        }
+      }
+    },
+    "/api/wh/meta/status": {
+      "get": {
+        "tags": ["Willhaben Meta"],
+        "summary": "Status der letzten Aktualisierungen und des laufenden Refresh",
+        "operationId": "status",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/WhMetaStatusDto" } } }
+          }
+        }
+      }
+    },
+    "/api/wh/meta/locations": {
+      "get": {
+        "tags": ["Willhaben Meta"],
+        "summary": "Standort-Baum (Bundesland → Bezirk) aus der DB",
+        "operationId": "locations",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/WhLocationDto" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/wh/meta/categories": {
+      "get": {
+        "tags": ["Willhaben Meta"],
+        "summary": "Kategorie-Baum (bis zu 3 Ebenen) aus der DB",
+        "operationId": "categories",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/WhCategoryDto" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/usage": {
+      "get": {
+        "tags": ["Usage"],
+        "summary": "API-Verbrauchsstatistik des laufenden Kontingent-Zeitraums abrufen",
+        "operationId": "getUsage",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/UsageResponse" } } }
+          }
+        }
+      }
+    },
+    "/api/sse": {
+      "get": {
+        "tags": ["sse-controller"],
+        "summary": "Open SSE event stream",
+        "operationId": "connect",
+        "parameters": [
+          {
+            "name": "eventSourceId",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SSE stream — event payloads",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string",
+                  "oneOf": [{ "$ref": "#/components/schemas/DlExtractionDonePayload" }]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/settings/preferences": {
+      "get": {
+        "tags": ["SettingsPreferences"],
+        "summary": "Alle gespeicherten Kategorie-Präferenzen abrufen",
+        "operationId": "getAll",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/PreferenceResponse" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/provider-status": {
+      "get": {
+        "tags": ["provider-status-controller"],
+        "operationId": "getStatus",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/ProviderStatus" } } }
+          }
+        }
+      }
+    },
+    "/api/provider-setup/keys": {
+      "get": {
+        "tags": ["provider-setup-controller"],
+        "operationId": "getKeys",
+        "parameters": [
+          { "name": "provider", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": { "schema": { "$ref": "#/components/schemas/ProviderSetupKeysResponse" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/provider-setup/init": {
+      "get": {
+        "tags": ["provider-setup-controller"],
+        "operationId": "init",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": { "schema": { "$ref": "#/components/schemas/ProviderSetupInitResponse" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/listings/{id}": {
+      "get": {
+        "tags": ["Listings"],
+        "summary": "Inserat nach ID abrufen",
+        "operationId": "findById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int64" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/WhItemDto" } } }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Listings"],
+        "summary": "Inserat löschen",
+        "operationId": "delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int64" }
+          }
+        ],
+        "responses": { "204": { "description": "No Content" } }
+      }
+    },
+    "/api/listings/{id}/lookup/history": {
+      "get": {
+        "tags": ["ProductLookup"],
+        "summary": "Lookup-Verlauf für ein Inserat laden",
+        "operationId": "getHistory",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int64" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/LookupHistoryEntryDto" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "tags": ["health-controller"],
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": { "type": "object", "additionalProperties": { "type": "string" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dl/extraction/{whItemId}/terms": {
+      "get": {
+        "tags": ["dl-extraction-controller"],
+        "operationId": "getTerms",
+        "parameters": [
+          {
+            "name": "whItemId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int64" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": { "schema": { "$ref": "#/components/schemas/DlExtractionStatusResponse" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/config/providers": {
+      "get": {
+        "tags": ["Config"],
+        "summary": "Provider-Konfigurationsstatus",
+        "description": "Liefert je Provider: API-Key vorhanden, Limits konfiguriert, aktuell aktiv.",
+        "operationId": "getProviderStatus",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ProviderStatusDto" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/listings/cleanup": {
+      "delete": {
+        "tags": ["Listings"],
+        "summary": "Inserate nach Rating und Alter löschen",
+        "operationId": "cleanup",
+        "parameters": [
+          { "name": "rating", "in": "query", "required": true, "schema": { "type": "string" } },
+          {
+            "name": "olderThanDays",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32", "default": 30 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": { "type": "integer", "format": "int32" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "PreferenceRequest": {
+        "type": "object",
+        "properties": { "fieldKeys": { "type": "array", "items": { "type": "string" } } }
+      },
+      "PreferenceResponse": {
+        "type": "object",
+        "properties": {
+          "categoryId": { "type": "integer", "format": "int64" },
+          "categoryName": { "type": "string" },
+          "fieldKeys": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "WhCategoryDto": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64" },
+          "whId": { "type": "integer", "format": "int32" },
+          "name": { "type": "string" },
+          "level": { "type": "integer", "format": "int32" },
+          "children": { "type": "array", "items": { "$ref": "#/components/schemas/WhCategoryDto" } }
+        }
+      },
+      "WhDetailDto": {
+        "type": "object",
+        "properties": {
+          "whItemId": { "type": "integer", "format": "int64" },
+          "id": { "type": "integer", "format": "int64" },
+          "whId": { "type": "string" },
+          "title": { "type": "string" },
+          "price": { "type": "number" },
+          "location": { "type": "string" },
+          "url": { "type": "string" },
+          "listedAt": { "type": "string", "format": "date-time" },
+          "fetchedAt": { "type": "string", "format": "date-time" },
+          "paylivery": { "type": "boolean" },
+          "categoryPath": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/WhCategoryDto" }
+          },
+          "description": { "type": "string" },
+          "previews": { "type": "array", "items": { "$ref": "#/components/schemas/WhPreviewDto" } },
+          "note": { "type": "string" },
+          "rating": { "type": "string" },
+          "interestLevel": { "type": "string" },
+          "viewCount": { "type": "integer", "format": "int32" },
+          "lastViewedAt": { "type": "string", "format": "date-time" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "WhPreviewDto": {
+        "type": "object",
+        "properties": { "thumbUrl": { "type": "string" }, "fullUrl": { "type": "string" } }
+      },
+      "DlSettingsDto": {
+        "type": "object",
+        "properties": { "contextMaxTokens": { "type": "integer", "format": "int32" } }
+      },
+      "ProviderSetupSaveRequest": {
+        "type": "object",
+        "properties": {
+          "secrets": { "type": "object", "additionalProperties": { "type": "string" } },
+          "config": { "type": "object", "additionalProperties": { "type": "string" } },
+          "searchProvider": { "type": "string" },
+          "llmProvider": { "type": "string" }
+        }
+      },
+      "WhItemDto": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64" },
+          "whId": { "type": "string" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "price": { "type": "number" },
+          "location": { "type": "string" },
+          "url": { "type": "string" },
+          "listedAt": { "type": "string", "format": "date-time" },
+          "fetchedAt": { "type": "string", "format": "date-time" },
+          "thumbnailUrl": { "type": "string" },
+          "imageUrls": { "type": "array", "items": { "type": "string" } },
+          "hasNote": { "type": "boolean" },
+          "viewCount": { "type": "integer", "format": "int32" },
+          "lastViewedAt": { "type": "string", "format": "date-time" },
+          "rating": { "type": "string" },
+          "interestLevel": { "type": "string" },
+          "paylivery": { "type": "boolean" },
+          "categoryPath": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/WhCategoryDto" }
+          }
+        }
+      },
+      "LookupRequest": { "type": "object", "properties": { "lookupTerm": { "type": "string" } } },
+      "LookupHistoryEntryDto": {
+        "type": "object",
+        "properties": {
+          "lookupTerm": { "type": "string" },
+          "lookupStatus": {
+            "type": "string",
+            "enum": ["COMPLETE", "FAILED", "QUOTA_EXCEEDED", "NO_SOURCES", "ERROR", "RATE_LIMITED"]
+          },
+          "quickFacts": { "type": "object", "additionalProperties": { "type": "string" } },
+          "icecatId": { "type": "string" },
+          "sourceType": {
+            "type": "string",
+            "enum": ["ICECAT", "FLATPANELSHD", "GSMARENA", "GENERIC"]
+          },
+          "sourceDomain": { "type": "string" },
+          "siteLabel": { "type": "string" },
+          "sourceUrl": { "type": "string" },
+          "featureGroupsJson": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "LookupResponse": {
+        "type": "object",
+        "properties": {
+          "lookupStatus": {
+            "type": "string",
+            "enum": ["COMPLETE", "FAILED", "QUOTA_EXCEEDED", "NO_SOURCES", "ERROR", "RATE_LIMITED"]
+          },
+          "quickFacts": { "type": "object", "additionalProperties": { "type": "string" } },
+          "icecatId": { "type": "string" },
+          "icecatSpecsJson": { "type": "string" },
+          "sourceType": {
+            "type": "string",
+            "enum": ["ICECAT", "FLATPANELSHD", "GSMARENA", "GENERIC"]
+          },
+          "sourceDomain": { "type": "string" },
+          "siteLabel": { "type": "string" },
+          "sourceUrl": { "type": "string" },
+          "featureGroupsJson": { "type": "string" },
+          "retryAfter": { "type": "string" },
+          "retryAfterSeconds": { "type": "integer", "format": "int32" },
+          "retryProvider": { "type": "string" },
+          "retryModel": { "type": "string" },
+          "history": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/LookupHistoryEntryDto" }
+          }
+        }
+      },
+      "FullSpecsRequest": { "type": "object", "properties": { "icecatId": { "type": "string" } } },
+      "FullSpecsResponse": {
+        "type": "object",
+        "properties": { "icecatSpecsJson": { "type": "string" } }
+      },
+      "WhSearchResultDto": {
+        "type": "object",
+        "properties": {
+          "totalCount": { "type": "integer", "format": "int32" },
+          "listings": { "type": "array", "items": { "$ref": "#/components/schemas/WhItemDto" } }
+        }
+      },
+      "WhMetaStatusDto": {
+        "type": "object",
+        "properties": {
+          "categoriesLastFetched": { "type": "string", "format": "date-time" },
+          "locationsLastFetched": { "type": "string", "format": "date-time" },
+          "refreshInProgress": { "type": "boolean" },
+          "refreshCron": { "type": "string" }
+        }
+      },
+      "WhLocationDto": {
+        "type": "object",
+        "properties": {
+          "areaId": { "type": "integer", "format": "int32" },
+          "name": { "type": "string" },
+          "level": { "type": "integer", "format": "int32" },
+          "children": { "type": "array", "items": { "$ref": "#/components/schemas/WhLocationDto" } }
+        }
+      },
+      "ModelUsageDto": {
+        "type": "object",
+        "properties": {
+          "model": { "type": "string" },
+          "calls": { "type": "integer", "format": "int64" },
+          "tokensIn": { "type": "integer", "format": "int64" },
+          "tokensOut": { "type": "integer", "format": "int64" }
+        }
+      },
+      "ProviderUsageDto": {
+        "type": "object",
+        "properties": {
+          "calls": { "type": "integer", "format": "int64" },
+          "tokensIn": { "type": "integer", "format": "int64" },
+          "tokensOut": { "type": "integer", "format": "int64" },
+          "quotaUsage": { "type": "integer", "format": "int64" },
+          "quotaLimit": { "type": "integer", "format": "int64" },
+          "model": { "type": "string" },
+          "quotaPeriod": { "type": "string" },
+          "rateLimitCount": { "type": "integer", "format": "int64" },
+          "rateLimitEstimatedTokens": { "type": "integer", "format": "int64" }
+        }
+      },
+      "UsageResponse": {
+        "type": "object",
+        "properties": {
+          "activeSearchProvider": { "type": "string" },
+          "activeLlmProvider": { "type": "string" },
+          "brave": { "$ref": "#/components/schemas/ProviderUsageDto" },
+          "googleDiscovery": { "$ref": "#/components/schemas/ProviderUsageDto" },
+          "groq": { "$ref": "#/components/schemas/ProviderUsageDto" },
+          "openRouter": { "$ref": "#/components/schemas/ProviderUsageDto" },
+          "groqModelBreakdown": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ModelUsageDto" }
+          }
+        }
+      },
+      "DlExtractionDonePayload": {
+        "type": "object",
+        "properties": {
+          "whItemId": { "type": "integer", "format": "int64" },
+          "terms": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/DlExtractionTermDto" }
+          },
+          "suggestedTerm": { "type": "string" },
+          "modelStatus": { "type": "string" }
+        }
+      },
+      "DlExtractionTermDto": {
+        "type": "object",
+        "properties": {
+          "modelName": { "type": "string" },
+          "term": { "type": "string" },
+          "confidence": { "type": "number", "format": "float" },
+          "durationMs": { "type": "integer", "format": "int64" },
+          "condensedSpec": { "type": "object", "additionalProperties": { "type": "string" } }
+        }
+      },
+      "ProviderStatus": {
+        "type": "object",
+        "properties": {
+          "searchState": {
+            "type": "string",
+            "enum": ["UNCONFIGURED", "CONFIGURED", "VALID", "UNREACHABLE", "UNAVAILABLE"]
+          },
+          "llmState": {
+            "type": "string",
+            "enum": ["UNCONFIGURED", "CONFIGURED", "VALID", "UNREACHABLE", "UNAVAILABLE"]
+          },
+          "searchProvider": { "type": "string" },
+          "llmProvider": { "type": "string" },
+          "searchError": { "type": "string" },
+          "llmError": { "type": "string" },
+          "searchHttpStatus": { "type": "integer", "format": "int32" },
+          "llmHttpStatus": { "type": "integer", "format": "int32" },
+          "serverStartToken": { "type": "string" }
+        }
+      },
+      "ProviderSetupKeysResponse": {
+        "type": "object",
+        "properties": {
+          "apiKey": { "type": "string" },
+          "credentialsPath": { "type": "string" },
+          "credentialsFileFound": { "type": "boolean" }
+        }
+      },
+      "ProviderSetupInitResponse": {
+        "type": "object",
+        "properties": {
+          "canSaveToServer": { "type": "boolean" },
+          "secretsYmlPath": { "type": "string" },
+          "quercheckerYmlPath": { "type": "string" },
+          "dimensions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SetupDimensionDto" }
+          }
+        }
+      },
+      "SetupDimensionDto": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "label": { "type": "string" },
+          "activeProvider": { "type": "string" },
+          "providers": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SetupProviderDto" }
+          }
+        }
+      },
+      "SetupFieldDto": {
+        "type": "object",
+        "properties": {
+          "key": { "type": "string" },
+          "value": { "type": "string" },
+          "placeholder": { "type": "string" },
+          "hint": { "type": "string" },
+          "secret": { "type": "boolean" },
+          "configured": { "type": "boolean" }
+        }
+      },
+      "SetupProviderDto": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "label": { "type": "string" },
+          "fields": { "type": "array", "items": { "$ref": "#/components/schemas/SetupFieldDto" } }
+        }
+      },
+      "DlExtractionStatusResponse": {
+        "type": "object",
+        "properties": {
+          "extractionStatus": { "type": "string" },
+          "terms": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/DlExtractionTermDto" }
+          },
+          "suggestedTerm": { "type": "string" }
+        }
+      },
+      "ProviderStatusDto": {
+        "type": "object",
+        "properties": {
+          "provider": { "type": "string" },
+          "displayName": { "type": "string" },
+          "keyPresent": { "type": "boolean" },
+          "limitsConfigured": { "type": "boolean" },
+          "active": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

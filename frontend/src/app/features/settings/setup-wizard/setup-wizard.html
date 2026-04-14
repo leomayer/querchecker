@@ -33,7 +33,11 @@
     @if (isOnFinalStep(s)) {
       <button mat-button (click)="s.previous()">Zurück</button>
       @if (store.canSaveToServer()) {
-        <button mat-flat-button color="primary" (click)="saveAndRestart()" [disabled]="store.saving()">
+        <button
+          mat-flat-button
+          color="primary"
+          (click)="saveAndRestart()"
+          [disabled]="store.saving()">
           <mat-icon>save</mat-icon>
           Speichern &amp; Herunterfahren
         </button>

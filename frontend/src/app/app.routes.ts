@@ -34,9 +34,7 @@ export const routes: Routes = [
   {
     path: AppRoutePath.SETUP,
     loadComponent: () =>
-      import('./features/settings/setup-wizard/setup-wizard-route').then(
-        (m) => m.SetupWizardRoute,
-      ),
+      import('./features/settings/setup-wizard/setup-wizard-route').then((m) => m.SetupWizardRoute),
   },
   {
     path: '**',

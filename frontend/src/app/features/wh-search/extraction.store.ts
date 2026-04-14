@@ -203,7 +203,11 @@ export const ExtractionStore = signalStore(
       restoreLookupResult(whItemId: number, entry: LookupHistoryEntry): void {
         let featureGroups = null;
         if (entry.featureGroupsJson) {
-          try { featureGroups = JSON.parse(entry.featureGroupsJson); } catch { /* ignore */ }
+          try {
+            featureGroups = JSON.parse(entry.featureGroupsJson);
+          } catch {
+            /* ignore */
+          }
         }
         const result = {
           lookupStatus: entry.lookupStatus as LookupResult['lookupStatus'],

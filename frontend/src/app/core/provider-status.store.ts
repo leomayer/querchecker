@@ -56,8 +56,7 @@ export const ProviderStatusStore = signalStore(
     showPopup: computed(() => {
       const s = store.status();
       if (!s) return false;
-      const hasUnconfigured =
-        s.searchState === 'UNCONFIGURED' || s.llmState === 'UNCONFIGURED';
+      const hasUnconfigured = s.searchState === 'UNCONFIGURED' || s.llmState === 'UNCONFIGURED';
       if (!hasUnconfigured) return false;
       return statusHash(s) !== store.acknowledgedHash();
     }),

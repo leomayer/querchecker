@@ -10,9 +10,14 @@
     <mat-expansion-panel [expanded]="providerStatus.badgeVisible()">
       <mat-expansion-panel-header>
         <mat-panel-title>
-
           <mat-icon class="panel-icon" [class.error-icon]="providerStatus.badgeVisible()">
-            {{ providerStatus.badgeIsError() ? 'error' : (providerStatus.badgeVisible() ? 'warning' : 'key') }}
+            {{
+              providerStatus.badgeIsError()
+                ? 'error'
+                : providerStatus.badgeVisible()
+                  ? 'warning'
+                  : 'key'
+            }}
           </mat-icon>
           @if (providerStatus.badgeVisible()) {
             Einige Features sind nicht eingerichtet

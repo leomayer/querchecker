@@ -40,7 +40,11 @@
           </td>
           <td class="num rate-limit-col">
             @if (row.p.rateLimitCount > 0) {
-              <span class="rate-limit-badge" [title]="'~' + (row.p.rateLimitEstimatedTokens | number: '1.0-0' : 'de') + ' gesch. Tokens'">
+              <span
+                class="rate-limit-badge"
+                [title]="
+                  '~' + (row.p.rateLimitEstimatedTokens | number: '1.0-0' : 'de') + ' gesch. Tokens'
+                ">
                 {{ row.p.rateLimitCount }}
               </span>
             } @else {
@@ -63,7 +67,9 @@
         </tr>
         @for (m of groqModelRows(); track m.model) {
           <tr class="model-row">
-            <td class="provider-name"><span class="provider-model model-indent">{{ m.model }}</span></td>
+            <td class="provider-name"
+              ><span class="provider-model model-indent">{{ m.model }}</span></td
+            >
             <td class="num">{{ m.calls | number: '1.0-0' : 'de' }}</td>
             <td class="num">
               @if (m.tokensIn > 0) {

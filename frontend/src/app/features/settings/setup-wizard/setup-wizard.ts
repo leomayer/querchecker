@@ -66,7 +66,7 @@ export class SetupWizard {
         this.snack.info(
           'Verbindung wird automatisch wiederhergestellt.',
           'Server wird heruntergefahren',
-          8000
+          8000,
         );
         this.closeWizard.emit();
         this.dialogRef?.close();

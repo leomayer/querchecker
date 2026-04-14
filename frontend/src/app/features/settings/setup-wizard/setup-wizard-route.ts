@@ -17,8 +17,11 @@ export class SetupWizardRoute implements OnInit {
   private readonly router = inject(Router);
 
   ngOnInit(): void {
-    this.dialog.open(SetupWizard, { width: '600px' }).afterClosed().subscribe(() => {
-      this.router.navigate(['']);
-    });
+    this.dialog
+      .open(SetupWizard, { width: '600px' })
+      .afterClosed()
+      .subscribe(() => {
+        this.router.navigate(['']);
+      });
   }
 }
