@@ -4,7 +4,6 @@ api.base.service.ts
 api.module.ts
 api/adminController.service.ts
 api/api.ts
-api/config.service.ts
 api/dlExtractionController.service.ts
 api/dlSettingsController.service.ts
 api/healthController.service.ts

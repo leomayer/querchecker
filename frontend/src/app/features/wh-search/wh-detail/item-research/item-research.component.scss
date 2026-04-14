@@ -3,6 +3,27 @@
   flex-direction: column;
 }
 
+// --- UNREACHABLE warning (shown above search row) ---
+
+.provider-warning {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--color-tertiary);
+  margin-bottom: 6px;
+  padding: 4px 8px;
+  background: color-mix(in srgb, var(--color-tertiary) 10%, transparent);
+  border-radius: 4px;
+
+  .warning-icon {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+}
+
 // --- Search row (always visible at top) ---
 
 .search-row {
@@ -213,6 +234,17 @@ mat-chip-set.history-chips mat-chip {
   flex-direction: column;
   gap: 10px;
   margin-top: 10px;
+}
+
+// --- Settings link in placeholder ---
+
+.settings-link {
+  margin-top: 8px;
+  font-style: normal;
+
+  mat-icon {
+    margin-right: 4px;
+  }
 }
 
 // --- Retry button in placeholder ---

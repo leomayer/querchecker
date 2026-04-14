@@ -1,4 +1,5 @@
 import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButton, MatIconButton } from '@angular/material/button';
@@ -17,6 +18,7 @@ import { IcecatAccordionComponent } from './icecat-accordion/icecat-accordion.co
 import { SpecsAccordionComponent } from './specs-accordion/specs-accordion.component';
 import { PreferenceEntry, PreferencesService } from '../../../../core/preferences.service';
 import { HealthService } from '../../../../core/health.service';
+import { ProviderStatusStore, ProviderState } from '../../../../core/provider-status.store';
 
 type LookupState =
   | 'empty'
@@ -50,11 +52,11 @@ type LookupState =
 })
 export class ItemResearchComponent {
   readonly detail = input.required<WhDetailDto>();
-  /** Placeholder for future: disable AI search for unconfigured categories. */
-  readonly aiSearchEnabled = input(true);
 
   private readonly extractionStore = inject(ExtractionStore);
   private readonly health = inject(HealthService);
+  private readonly providerStatusStore = inject(ProviderStatusStore);
+  private readonly router = inject(Router);
 
   protected readonly searchTerm = signal('');
 
@@ -103,6 +105,62 @@ export class ItemResearchComponent {
         this.extractionStore.lookup(id, listingId, suggested);
       }
     });
+  }
+
+  // --- Provider status ---
+
+  /**
+   * True when AI search is usable.
+   * False only for UNCONFIGURED and UNAVAILABLE — these require a config change + restart.
+   * UNREACHABLE keeps the button active so the user can retry.
+   * Defaults to true while the status event hasn't arrived yet.
+   */
+  protected readonly aiSearchEnabled = computed<boolean>(() => {
+    const s = this.providerStatusStore.status();
+    if (!s) return true;
+    const active = (state: ProviderState) => state !== 'UNCONFIGURED' && state !== 'UNAVAILABLE';
+    return active(s.searchState) && active(s.llmState);
+  });
+
+  /** Message to display in the placeholder when AI search is disabled. */
+  protected readonly providerDisabledMessage = computed<string | null>(() => {
+    const s = this.providerStatusStore.status();
+    if (!s) return null;
+    const isDown = (state: ProviderState) => state === 'UNCONFIGURED' || state === 'UNAVAILABLE';
+    const searchDown = isDown(s.searchState);
+    const llmDown = isDown(s.llmState);
+    if (!searchDown && !llmDown) return null;
+    if (searchDown && llmDown) return 'Produktsuche nicht verfügbar — Web-Suche und KI-Provider nicht konfiguriert';
+    if (searchDown) return 'Produktsuche nicht verfügbar — Web-Suche nicht konfiguriert';
+    return 'Produktsuche nicht verfügbar — KI-Provider nicht konfiguriert';
+  });
+
+  /** HTTP status shown additionally when a provider is UNAVAILABLE (invalid key). */
+  protected readonly providerUnavailableStatus = computed<number | null>(() => {
+    const s = this.providerStatusStore.status();
+    if (!s) return null;
+    if (s.searchState === 'UNAVAILABLE') return s.searchHttpStatus;
+    if (s.llmState === 'UNAVAILABLE') return s.llmHttpStatus;
+    return null;
+  });
+
+  /** Inline warning shown below the search row when a provider is UNREACHABLE but still usable. */
+  protected readonly providerWarningMessage = computed<string | null>(() => {
+    const s = this.providerStatusStore.status();
+    if (!s) return null;
+    if (s.searchState === 'UNREACHABLE') {
+      const name = s.searchProvider || 'Web-Suche';
+      return s.searchError ? `${name}: ${s.searchError}` : `${name} nicht erreichbar — Suche trotzdem möglich`;
+    }
+    if (s.llmState === 'UNREACHABLE') {
+      const name = s.llmProvider || 'KI-Provider';
+      return s.llmError ? `${name}: ${s.llmError}` : `${name} nicht erreichbar — Suche trotzdem möglich`;
+    }
+    return null;
+  });
+
+  protected navigateToSettings(): void {
+    void this.router.navigate(['/settings']);
   }
 
   // --- Extraction state ---

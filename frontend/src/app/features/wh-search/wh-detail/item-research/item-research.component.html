@@ -1,3 +1,11 @@
+<!-- 0. UNREACHABLE warning — shown when provider is down but search still usable -->
+@if (providerWarningMessage()) {
+  <div class="provider-warning">
+    <mat-icon class="warning-icon">cloud_off</mat-icon>
+    <span>{{ providerWarningMessage() }}</span>
+  </div>
+}
+
 <!-- 1. Search row — always visible at top -->
 <div class="search-row">
   <mat-form-field
@@ -86,7 +94,13 @@
     <div class="placeholder">
       @if (!aiSearchEnabled()) {
         <mat-icon class="placeholder-icon">block</mat-icon>
-        <span>KI-Suche nicht konfiguriert</span>
+        <span>{{ providerDisabledMessage() ?? 'Produktsuche nicht konfiguriert' }}</span>
+        @if (providerUnavailableStatus()) {
+          <small>API-Key ungültig oder abgelaufen (HTTP {{ providerUnavailableStatus() }})</small>
+        }
+        <button mat-stroked-button class="settings-link" (click)="navigateToSettings()">
+          <mat-icon>settings</mat-icon>Einrichten
+        </button>
       } @else if (extractionLoading()) {
         <mat-spinner diameter="20" />
         <span>Produktname wird ermittelt…</span>

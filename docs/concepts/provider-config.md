@@ -783,9 +783,28 @@ Mehrfach-Tab-Lock-Verhalten
 1. ✅ **Geklärt** — `SKIPPED`-Flow behält bestehende Backend-Werte; Platzhalter nur wenn kein Wert vorhanden. Gilt auch für `credentialsPath`. (→ SKIPPED-Logik + `SetupStore` aktualisiert)
 2. ✅ **Geklärt** — String-Werte in `secrets.yml` mit einfachen Anführungszeichen ausgeben. (→ YAML-Quoting-Abschnitt ergänzt)
 3. ✅ **Geklärt** — `POST /api/admin/restart` ist ein reiner Shutdown (SIGTERM). Neustart erfolgt durch externen Prozess-Manager (Docker restart-policy, systemd). Ohne Prozess-Manager bleibt der Server down. (→ Endpoint-Beschreibung präzisiert)
-4. Wie kann ich testen, ob bzw. was beim Download verfügbar ist?
-5. Ist eigentlich geklärt, ob die Einrichtung der Konfig nun so funktioniert, dass sämtliche relevanten Infos gespeichert werden?
-6. Bei den Google-Credentials Path ist mir unklar, wo dieser "beheimatet" sein soll. Einerseits wird er über den Assistenten angeboten, andererseits ist er im `querchecker.yml` enthalten
+4. ✅ **Geklärt** Wie kann ich testen, ob bzw. was beim Download verfügbar ist?
+
+```
+chmod -w backend/config/
+→ Backend liefert `serverWritable: false` → Frontend zeigt Download-Button → Dateien herunterladen + prüfen.
+
+Danach:
+
+chmod +w backend/config/
+```
+
+5. ✅ **Geklärt** Ist eigentlich geklärt, ob die Einrichtung der Konfig nun so funktioniert, dass sämtliche relevanten Infos gespeichert werden?
+6. ✅ **Geklärt** Bei den Google-Credentials Path ist mir unklar, wo dieser "beheimatet" sein soll. Einerseits wird er über den Assistenten angeboten, andererseits ist er im `querchecker.yml` enthalten
+
+```
+Kein Widerspruch — zwei verschiedene Dinge:
+
+- **`credentials-path`** (z.B. `/etc/querchecker/google-credentials.json`) ist kein Secret, sondern nur ein Dateisystempfad → landet in **`querchecker.yml`** (git-safe, kein Credentials-Inhalt)
+- Die eigentliche **`google-credentials.json`-Datei** liegt auf dem Server an diesem Pfad — der User muss sie manuell dorthin legen (außerhalb des Wizard-Scopes)
+
+Der Assistent zeigt den Pfad aus `GET /api/provider-setup/keys?provider=GOOGLE_DISCOVERY` an (inkl. `credentialsFileFound`), damit der User bestätigen oder korrigieren kann. Das Ergebnis schreibt der Wizard in `querchecker.yml`.
+```
 
 ---
 
