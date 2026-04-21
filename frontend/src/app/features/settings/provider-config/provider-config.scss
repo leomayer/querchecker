@@ -34,6 +34,37 @@
   }
 }
 
+.callout-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.local-error-detail {
+  display: block;
+  font-family: monospace;
+  font-size: 0.8rem;
+  background: color-mix(in srgb, var(--mat-sys-error-container) 80%, transparent);
+  border-radius: 4px;
+  padding: 6px 8px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--mat-sys-on-error-container);
+}
+
+.local-guide-hint {
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-error-container);
+
+  code {
+    font-family: monospace;
+    background: color-mix(in srgb, var(--mat-sys-surface-variant) 80%, transparent);
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 0.85em;
+  }
+}
+
 .config-callout {
   display: flex;
   align-items: flex-start;

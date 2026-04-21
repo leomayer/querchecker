@@ -23,6 +23,21 @@
             <span>Ohne externe KI ist die Textanalyse-Engine nicht verfügbar.</span>
           </div>
         }
+        @if (isLocalUnavailable()) {
+          <div class="config-callout">
+            <mat-icon>error</mat-icon>
+            <div class="callout-content">
+              <span>Lokales Modell konnte nicht gestartet werden.</span>
+              @if (s.llmError) {
+                <code class="local-error-detail">{{ s.llmError }}</code>
+              }
+              <span class="local-guide-hint"
+                >Zur Fehlerbehebung:
+                <code>docs/local-models.md</code> im Projektverzeichnis.</span
+              >
+            </div>
+          </div>
+        }
       }
     </div>
   }

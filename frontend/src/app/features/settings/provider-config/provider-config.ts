@@ -23,6 +23,11 @@ export class ProviderConfig {
     return needsSetup(s.searchState) || needsSetup(s.llmState);
   });
 
+  readonly isLocalUnavailable = computed(() => {
+    const s = this.store.status();
+    return s?.llmProvider === 'LOCAL' && s?.llmState === 'UNAVAILABLE';
+  });
+
   openSetupWizard(): void {
     this.router.navigate(['/', AppRoutePath.SETUP]);
   }

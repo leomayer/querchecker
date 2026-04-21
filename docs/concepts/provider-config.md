@@ -833,9 +833,9 @@ Der Assistent zeigt den Pfad aus `GET /api/provider-setup/keys?provider=GOOGLE_D
 
 ---
 
-### Block F — Cleanup + Laufzeit-Wechsel
+### ✅ Block F — Cleanup + Laufzeit-Wechsel
 
-14. LOCAL-Fehleranzeige in Settings + Link zur Kurzanleitung
+14. ✅ LOCAL-Fehleranzeige in Settings + Link zur Kurzanleitung (`docs/local-models.md`)
 15. `WebSearchProviderRouter` auf DB/`AppConfig` umstellen (Laufzeit-Wechsel ohne Neustart)
 
 **Testbar nach Block F:** Provider zur Laufzeit wechseln ohne Neustart
