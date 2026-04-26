@@ -43,9 +43,9 @@ Die Detailansicht zeigt alle Inseratsinformationen, eine vollständige Bildergal
 
 Beim Öffnen eines Inserats extrahieren KI-Modelle automatisch den Produktnamen. Auf Knopfdruck werden technische Spezifikationen nachgeschlagen — Brave Search findet relevante Quellen, ein LLM extrahiert daraus strukturierte Quick Facts. Bevorzugte Felder (z.B. Duplex, Patronen-Verfügbarkeit) erscheinen immer prominent. Ein Klick öffnet den aktuellen Marktpreis auf Geizhals.
 
-- Mehr zur KI-Konfiguration (lokal / remote): → [docs/api-setup.md](docs/api-setup.md)
+- Mehr zur KI-Konfiguration (lokal / remote): → [docs/concepts/provider-config.md](docs/concepts/provider-config.md)
 
-- Mehr zu dem Punkt, wie KI-Extraktion und Spezifikationen ermittelt werden: → [docs/ki-produktanalyse.md](docs/ki-produktanalyse.md)
+- Mehr zu dem Punkt, wie KI-Extraktion und Spezifikationen ermittelt werden: → [docs/ki-product-analysis.md](docs/ki-product-analysis.md)
 
 ---
 
@@ -71,6 +71,7 @@ Bei positivem Feedback bin ich offen für weitere Features, sofern sie mich fach
 | KI / LLM  | OpenRouter / Groq (OpenAI-kompatibel) oder lokal via llama.cpp |
 | Websuche  | Brave Search API                                               |
 | Prod      | Docker, nginx, Traefik (SSL via Let's Encrypt)                 |
+| Version   | 0.2.0                                                          |
 
 ---
 
@@ -91,6 +92,14 @@ cd frontend && npm install && npm start
 # Nach Backend-API-Änderungen
 cd frontend && npm run generate-api
 ```
+
+**Ports (lokal):**
+
+| Dienst    | URL                        |
+| --------- | -------------------------- |
+| Frontend  | http://localhost:14072     |
+| Backend   | http://localhost:14070     |
+| PostgreSQL | localhost:14071           |
 
 **Hot Reload**: Datei speichern → Spring DevTools erkennt die Änderung und startet den Context automatisch neu. JVM-Neustart nur bei Prozess-Crash nötig.
 
@@ -127,4 +136,4 @@ Falls dich die technischen Details interessieren:
 
 - 🏗️ [Architecture & Design Decisions](docs/architecture.md) — wie die App gebaut ist (SignalStore, SSE, conditional model registration, OpenAPI workflow, etc.)
 - 🛡️ [Robustness & Error Handling](docs/robustness.md) — wie es mit API-Ausfällen, Rate-Limiting, Quota-Verwaltung und Server-Restarts umgeht
-- 📚 [API-Setup](docs/api-setup.md) — KI-Modelle und Brave Search konfigurieren (lokal vs. remote)
+- 📚 [API-Setup](docs/concepts/provider-config.md) — KI-Modelle und Brave Search konfigurieren (lokal vs. remote)

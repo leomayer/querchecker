@@ -81,7 +81,7 @@ at.querchecker/
 
 **Solution**: `DlModelConfiguration` with `@EventListener(ApplicationReadyEvent.class)` registers models **after** full context initialization:
 
-- **API mode** (`querchecker.llm.mode=API`): Only Groq cloud model
+- **API mode** (`querchecker.llm.mode=API`): Only LLM API model (Groq or OpenRouter, depending on `active-provider`)
 - **LOCAL mode**: Query DB for active `DlModelConfig`, register only those
 
 ```java
@@ -258,7 +258,7 @@ API keys in `secret.yml` (not in Git).
 - **Integration Tests** — Real DB (testcontainers), actual HTTP calls where feasible
 - **Frontend** — Vitest (Angular 21+ default) with Jasmine syntax
 
-Current coverage: 122 tests passing.
+Current coverage: see test suite (`mvn test`). Gaps documented in `docs/open-issues.md`.
 
 ---
 

@@ -1,7 +1,12 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-19T18:46:53.151Z
-> Files: 518 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-26T17:53:51.120Z
+> Files: 524 tracked | Anatomy hits: 0 | Misses: 0
+
+## ../../../.claude/projects/-home-leo-programming-github-querchecker/memory/
+
+- `MEMORY.md` — Querchecker Project Memory (~4297 tok)
+- `user.md` — Technical Profile (~345 tok)
 
 ## ./
 
@@ -10,7 +15,7 @@
 - `docker-compose.prod.yml` — Docker Compose: 1 services (~448 tok)
 - `docker-compose.yml` — Docker Compose services (~77 tok)
 - `keybert-test.py` — Your test data (Short German Willhaben-style text) (~301 tok)
-- `README.md` — Project documentation (~1922 tok)
+- `README.md` — Project documentation (~2013 tok)
 
 ## .claude/
 
@@ -39,7 +44,7 @@
 - `.factorypath` (~6176 tok)
 - `.project` (~226 tok)
 - `Dockerfile` — Docker container definition (~84 tok)
-- `pom.xml` — Maven project configuration (~1528 tok)
+- `pom.xml` — /*.onnx</exclude> (~1426 tok)
 - `spotbugs-exclude.xml` — Declares alone (~374 tok)
 
 ## backend/.settings/
@@ -770,11 +775,18 @@
 
 ## docs/
 
+- `architecture.md` — Architecture & Design Decisions (~2352 tok)
 - `local-models.md` — Kurzanleitung: Lokale KI-Modelle (~976 tok)
+- `open-issues.md` — Open Issues — Querchecker v0.2.0 (~1122 tok)
+- `openrouter-completion.md` — OpenRouter — Completion Checklist (~1608 tok)
 
 ## docs/concepts/
 
-- `provider-config.md` — Querchecker — Konzept: Provider-Konfiguration & Graceful Startup (~9414 tok)
+- `provider-config.md` — Querchecker — Konzept: Provider-Konfiguration & Graceful Startup (~9345 tok)
+
+## frontend/
+
+- `package.json` — Node.js package manifest (~425 tok)
 
 ## frontend/src/app/features/settings/provider-config/
 

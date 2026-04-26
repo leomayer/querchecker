@@ -16,6 +16,38 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-19T18:46:00.498Z"
+    },
+    {
+      "id": "bug-002",
+      "timestamp": "2026-04-26T17:18:43.144Z",
+      "error_message": "Incorrect value in code",
+      "file": "frontend/package.json",
+      "root_cause": "Had \"0.0.1\"",
+      "fix": "Changed to \"0.2.0\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-26T17:18:43.144Z"
+    },
+    {
+      "id": "bug-003",
+      "timestamp": "2026-04-26T17:53:49.125Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/open-issues.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 9→7 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-26T17:53:49.125Z"
     }
   ]
 }

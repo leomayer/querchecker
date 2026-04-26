@@ -2,14 +2,14 @@
   "version": 1,
   "created_at": "2026-04-19T18:30:07.748Z",
   "lifetime": {
-    "total_tokens_estimated": 7838,
-    "total_reads": 19,
-    "total_writes": 10,
-    "total_sessions": 3,
-    "anatomy_hits": 2,
-    "anatomy_misses": 17,
-    "repeated_reads_blocked": 2,
-    "estimated_savings_vs_bare_cli": 4666
+    "total_tokens_estimated": 277750,
+    "total_reads": 211,
+    "total_writes": 110,
+    "total_sessions": 5,
+    "anatomy_hits": 126,
+    "anatomy_misses": 85,
+    "repeated_reads_blocked": 21,
+    "estimated_savings_vs_bare_cli": 187887
   },
   "sessions": [
     {
@@ -224,6 +224,1944 @@
         "writes_count": 5,
         "repeated_reads_blocked": 1,
         "anatomy_lookups": 1
+      }
+    },
+    {
+      "id": "session-2026-04-21-1719",
+      "started": "2026-04-21T15:19:15.289Z",
+      "ended": "2026-04-21T15:19:46.934Z",
+      "reads": [
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/backend.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [],
+      "totals": {
+        "input_tokens_estimated": 0,
+        "output_tokens_estimated": 0,
+        "reads_count": 1,
+        "writes_count": 0,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 0
+      }
+    },
+    {
+      "id": "session-2026-04-21-1719",
+      "started": "2026-04-21T15:19:15.289Z",
+      "ended": "2026-04-21T15:20:49.834Z",
+      "reads": [
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/backend.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [],
+      "totals": {
+        "input_tokens_estimated": 0,
+        "output_tokens_estimated": 0,
+        "reads_count": 1,
+        "writes_count": 0,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 0
+      }
+    },
+    {
+      "id": "session-2026-04-21-1719",
+      "started": "2026-04-21T15:19:15.289Z",
+      "ended": "2026-04-21T15:21:36.298Z",
+      "reads": [
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/backend.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [],
+      "totals": {
+        "input_tokens_estimated": 0,
+        "output_tokens_estimated": 0,
+        "reads_count": 1,
+        "writes_count": 0,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 0
+      }
+    },
+    {
+      "id": "session-2026-04-21-1719",
+      "started": "2026-04-21T15:19:15.289Z",
+      "ended": "2026-04-21T15:23:23.759Z",
+      "reads": [
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/backend.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/user.md",
+          "tokens_estimated": 379,
+          "action": "create"
+        },
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+          "tokens_estimated": 41,
+          "action": "edit"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 0,
+        "output_tokens_estimated": 420,
+        "reads_count": 2,
+        "writes_count": 2,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 0
+      }
+    },
+    {
+      "id": "session-2026-04-21-1719",
+      "started": "2026-04-21T15:19:15.289Z",
+      "ended": "2026-04-21T15:32:01.445Z",
+      "reads": [
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/backend.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/user.md",
+          "tokens_estimated": 379,
+          "action": "create"
+        },
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+          "tokens_estimated": 41,
+          "action": "edit"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 0,
+        "output_tokens_estimated": 420,
+        "reads_count": 2,
+        "writes_count": 2,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 0
+      }
+    },
+    {
+      "id": "session-2026-04-21-1719",
+      "started": "2026-04-21T15:19:15.289Z",
+      "ended": "2026-04-21T15:55:43.403Z",
+      "reads": [
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/backend.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/user.md",
+          "tokens_estimated": 379,
+          "action": "create"
+        },
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+          "tokens_estimated": 41,
+          "action": "edit"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 0,
+        "output_tokens_estimated": 420,
+        "reads_count": 2,
+        "writes_count": 2,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 0
+      }
+    },
+    {
+      "id": "session-2026-04-26-1904",
+      "started": "2026-04-26T17:04:58.845Z",
+      "ended": "2026-04-26T17:06:33.781Z",
+      "reads": [
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 1922,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 112,
+          "action": "edit"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 1922,
+        "output_tokens_estimated": 112,
+        "reads_count": 1,
+        "writes_count": 1,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 1
+      }
+    },
+    {
+      "id": "session-2026-04-26-1904",
+      "started": "2026-04-26T17:04:58.845Z",
+      "ended": "2026-04-26T17:09:03.891Z",
+      "reads": [
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 1922,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 112,
+          "action": "edit"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 1922,
+        "output_tokens_estimated": 112,
+        "reads_count": 1,
+        "writes_count": 1,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 1
+      }
+    },
+    {
+      "id": "session-2026-04-26-1904",
+      "started": "2026-04-26T17:04:58.845Z",
+      "ended": "2026-04-26T17:12:42.958Z",
+      "reads": [
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 1922,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/todo-quecker-1.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 112,
+          "action": "edit"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 1922,
+        "output_tokens_estimated": 112,
+        "reads_count": 2,
+        "writes_count": 1,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 1
+      }
+    },
+    {
+      "id": "session-2026-04-26-1904",
+      "started": "2026-04-26T17:04:58.845Z",
+      "ended": "2026-04-26T17:19:06.969Z",
+      "reads": [
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 1922,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/todo-quecker-1.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/pom.xml",
+          "tokens_estimated": 1528,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/frontend/package.json",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 112,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/pom.xml",
+          "tokens_estimated": 8,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/frontend/package.json",
+          "tokens_estimated": 6,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+          "tokens_estimated": 45,
+          "action": "edit"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 3450,
+        "output_tokens_estimated": 171,
+        "reads_count": 5,
+        "writes_count": 4,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 2
+      }
+    },
+    {
+      "id": "session-2026-04-26-1904",
+      "started": "2026-04-26T17:04:58.845Z",
+      "ended": "2026-04-26T17:25:32.902Z",
+      "reads": [
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 1922,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/todo-quecker-1.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/pom.xml",
+          "tokens_estimated": 1528,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/frontend/package.json",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/architecture.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/robustness.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/ki-product-analysis.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/admin-guide.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/concepts/provider-config.md",
+          "tokens_estimated": 9414,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 112,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/pom.xml",
+          "tokens_estimated": 8,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/frontend/package.json",
+          "tokens_estimated": 6,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+          "tokens_estimated": 45,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 203,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 73,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 33,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/architecture.md",
+          "tokens_estimated": 34,
+          "action": "edit"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 12864,
+        "output_tokens_estimated": 514,
+        "reads_count": 10,
+        "writes_count": 8,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 3
+      }
+    },
+    {
+      "id": "session-2026-04-26-1904",
+      "started": "2026-04-26T17:04:58.845Z",
+      "ended": "2026-04-26T17:35:43.428Z",
+      "reads": [
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 1922,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/todo-quecker-1.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/pom.xml",
+          "tokens_estimated": 1528,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/frontend/package.json",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/architecture.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/robustness.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/ki-product-analysis.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/admin-guide.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/concepts/provider-config.md",
+          "tokens_estimated": 9414,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/OpenRouterExtractionClient.java",
+          "tokens_estimated": 386,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/GroqExtractionClient.java",
+          "tokens_estimated": 630,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/AbstractLlmExtractionClient.java",
+          "tokens_estimated": 6901,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/ApiRestClientConfig.java",
+          "tokens_estimated": 768,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/LlmProperties.java",
+          "tokens_estimated": 504,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/service/ApiUsageLogService.java",
+          "tokens_estimated": 1121,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/ProviderProperties.java",
+          "tokens_estimated": 382,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/service/QuotaService.java",
+          "tokens_estimated": 1070,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/config/ProviderStatusService.java",
+          "tokens_estimated": 2133,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/model/ChatResponse.java",
+          "tokens_estimated": 497,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/controller/ApiUsageController.java",
+          "tokens_estimated": 1556,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/ExtractionProviderRouter.java",
+          "tokens_estimated": 265,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/controller/dto/UsageResponse.java",
+          "tokens_estimated": 186,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/frontend/src/app/features/settings/usage-monitor/usage-monitor.ts",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/ProviderConfig.java",
+          "tokens_estimated": 310,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/config/ProviderSetupService.java",
+          "tokens_estimated": 4893,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/controller/ProviderSetupController.java",
+          "tokens_estimated": 1318,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 112,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/pom.xml",
+          "tokens_estimated": 8,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/frontend/package.json",
+          "tokens_estimated": 6,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+          "tokens_estimated": 45,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 203,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 73,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 33,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/architecture.md",
+          "tokens_estimated": 34,
+          "action": "edit"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 35784,
+        "output_tokens_estimated": 514,
+        "reads_count": 27,
+        "writes_count": 8,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 19
+      }
+    },
+    {
+      "id": "session-2026-04-26-1904",
+      "started": "2026-04-26T17:04:58.845Z",
+      "ended": "2026-04-26T17:38:46.474Z",
+      "reads": [
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 1922,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/todo-quecker-1.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/pom.xml",
+          "tokens_estimated": 1528,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/frontend/package.json",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/architecture.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/robustness.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/ki-product-analysis.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/admin-guide.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/concepts/provider-config.md",
+          "tokens_estimated": 9414,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/OpenRouterExtractionClient.java",
+          "tokens_estimated": 386,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/GroqExtractionClient.java",
+          "tokens_estimated": 630,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/AbstractLlmExtractionClient.java",
+          "tokens_estimated": 6901,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/ApiRestClientConfig.java",
+          "tokens_estimated": 768,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/LlmProperties.java",
+          "tokens_estimated": 504,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/service/ApiUsageLogService.java",
+          "tokens_estimated": 1121,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/ProviderProperties.java",
+          "tokens_estimated": 382,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/service/QuotaService.java",
+          "tokens_estimated": 1070,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/config/ProviderStatusService.java",
+          "tokens_estimated": 2133,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/model/ChatResponse.java",
+          "tokens_estimated": 497,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/controller/ApiUsageController.java",
+          "tokens_estimated": 1556,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/ExtractionProviderRouter.java",
+          "tokens_estimated": 265,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/controller/dto/UsageResponse.java",
+          "tokens_estimated": 186,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/frontend/src/app/features/settings/usage-monitor/usage-monitor.ts",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/ProviderConfig.java",
+          "tokens_estimated": 310,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/config/ProviderSetupService.java",
+          "tokens_estimated": 4893,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/controller/ProviderSetupController.java",
+          "tokens_estimated": 1318,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 112,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/pom.xml",
+          "tokens_estimated": 8,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/frontend/package.json",
+          "tokens_estimated": 6,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+          "tokens_estimated": 45,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 203,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 73,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 33,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/architecture.md",
+          "tokens_estimated": 34,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/openrouter-completion.md",
+          "tokens_estimated": 1838,
+          "action": "create"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 35784,
+        "output_tokens_estimated": 2352,
+        "reads_count": 27,
+        "writes_count": 9,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 19
+      }
+    },
+    {
+      "id": "session-2026-04-26-1904",
+      "started": "2026-04-26T17:04:58.845Z",
+      "ended": "2026-04-26T17:43:35.391Z",
+      "reads": [
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 1922,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/todo-quecker-1.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/pom.xml",
+          "tokens_estimated": 1528,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/frontend/package.json",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/architecture.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/robustness.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/ki-product-analysis.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/admin-guide.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/concepts/provider-config.md",
+          "tokens_estimated": 9414,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/OpenRouterExtractionClient.java",
+          "tokens_estimated": 386,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/GroqExtractionClient.java",
+          "tokens_estimated": 630,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/AbstractLlmExtractionClient.java",
+          "tokens_estimated": 6901,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/ApiRestClientConfig.java",
+          "tokens_estimated": 768,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/LlmProperties.java",
+          "tokens_estimated": 504,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/service/ApiUsageLogService.java",
+          "tokens_estimated": 1121,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/ProviderProperties.java",
+          "tokens_estimated": 382,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/service/QuotaService.java",
+          "tokens_estimated": 1070,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/config/ProviderStatusService.java",
+          "tokens_estimated": 2133,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/model/ChatResponse.java",
+          "tokens_estimated": 497,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/controller/ApiUsageController.java",
+          "tokens_estimated": 1556,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/ExtractionProviderRouter.java",
+          "tokens_estimated": 265,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/controller/dto/UsageResponse.java",
+          "tokens_estimated": 186,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/frontend/src/app/features/settings/usage-monitor/usage-monitor.ts",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/ProviderConfig.java",
+          "tokens_estimated": 310,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/config/ProviderSetupService.java",
+          "tokens_estimated": 4893,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/controller/ProviderSetupController.java",
+          "tokens_estimated": 1318,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 112,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/pom.xml",
+          "tokens_estimated": 8,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/frontend/package.json",
+          "tokens_estimated": 6,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+          "tokens_estimated": 45,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 203,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 73,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 33,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/architecture.md",
+          "tokens_estimated": 34,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/openrouter-completion.md",
+          "tokens_estimated": 1838,
+          "action": "create"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/open-issues.md",
+          "tokens_estimated": 1521,
+          "action": "create"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 35784,
+        "output_tokens_estimated": 3873,
+        "reads_count": 27,
+        "writes_count": 10,
+        "repeated_reads_blocked": 1,
+        "anatomy_lookups": 19
+      }
+    },
+    {
+      "id": "session-2026-04-26-1904",
+      "started": "2026-04-26T17:04:58.845Z",
+      "ended": "2026-04-26T17:49:40.877Z",
+      "reads": [
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 1922,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/todo-quecker-1.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/pom.xml",
+          "tokens_estimated": 1528,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/frontend/package.json",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/architecture.md",
+          "tokens_estimated": 2339,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/robustness.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/ki-product-analysis.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/admin-guide.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/concepts/provider-config.md",
+          "tokens_estimated": 9466,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/OpenRouterExtractionClient.java",
+          "tokens_estimated": 386,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/GroqExtractionClient.java",
+          "tokens_estimated": 630,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/AbstractLlmExtractionClient.java",
+          "tokens_estimated": 6901,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/ApiRestClientConfig.java",
+          "tokens_estimated": 768,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/LlmProperties.java",
+          "tokens_estimated": 504,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/service/ApiUsageLogService.java",
+          "tokens_estimated": 1121,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/ProviderProperties.java",
+          "tokens_estimated": 382,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/service/QuotaService.java",
+          "tokens_estimated": 1070,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/config/ProviderStatusService.java",
+          "tokens_estimated": 2133,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/model/ChatResponse.java",
+          "tokens_estimated": 497,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/controller/ApiUsageController.java",
+          "tokens_estimated": 1556,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/ExtractionProviderRouter.java",
+          "tokens_estimated": 265,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/controller/dto/UsageResponse.java",
+          "tokens_estimated": 186,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/frontend/src/app/features/settings/usage-monitor/usage-monitor.ts",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/ProviderConfig.java",
+          "tokens_estimated": 310,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/config/ProviderSetupService.java",
+          "tokens_estimated": 4893,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/controller/ProviderSetupController.java",
+          "tokens_estimated": 1318,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 112,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/pom.xml",
+          "tokens_estimated": 8,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/frontend/package.json",
+          "tokens_estimated": 6,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+          "tokens_estimated": 45,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 203,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 73,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 33,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/architecture.md",
+          "tokens_estimated": 34,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/openrouter-completion.md",
+          "tokens_estimated": 1838,
+          "action": "create"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/open-issues.md",
+          "tokens_estimated": 1521,
+          "action": "create"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/concepts/provider-config.md",
+          "tokens_estimated": 106,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/concepts/provider-config.md",
+          "tokens_estimated": 335,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/concepts/provider-config.md",
+          "tokens_estimated": 143,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/concepts/provider-config.md",
+          "tokens_estimated": 50,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/architecture.md",
+          "tokens_estimated": 26,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/open-issues.md",
+          "tokens_estimated": 172,
+          "action": "edit"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 38175,
+        "output_tokens_estimated": 4705,
+        "reads_count": 27,
+        "writes_count": 16,
+        "repeated_reads_blocked": 6,
+        "anatomy_lookups": 19
+      }
+    },
+    {
+      "id": "session-2026-04-26-1904",
+      "started": "2026-04-26T17:04:58.845Z",
+      "ended": "2026-04-26T17:53:59.952Z",
+      "reads": [
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 1922,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/todo-quecker-1.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/pom.xml",
+          "tokens_estimated": 1528,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/frontend/package.json",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/architecture.md",
+          "tokens_estimated": 2339,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/robustness.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/ki-product-analysis.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/admin-guide.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/concepts/provider-config.md",
+          "tokens_estimated": 9466,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/OpenRouterExtractionClient.java",
+          "tokens_estimated": 386,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/GroqExtractionClient.java",
+          "tokens_estimated": 630,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/AbstractLlmExtractionClient.java",
+          "tokens_estimated": 6901,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/ApiRestClientConfig.java",
+          "tokens_estimated": 768,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/LlmProperties.java",
+          "tokens_estimated": 504,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/service/ApiUsageLogService.java",
+          "tokens_estimated": 1121,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/ProviderProperties.java",
+          "tokens_estimated": 382,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/service/QuotaService.java",
+          "tokens_estimated": 1070,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/config/ProviderStatusService.java",
+          "tokens_estimated": 2133,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/model/ChatResponse.java",
+          "tokens_estimated": 497,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/controller/ApiUsageController.java",
+          "tokens_estimated": 1556,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/ExtractionProviderRouter.java",
+          "tokens_estimated": 265,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/controller/dto/UsageResponse.java",
+          "tokens_estimated": 186,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/frontend/src/app/features/settings/usage-monitor/usage-monitor.ts",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/ProviderConfig.java",
+          "tokens_estimated": 310,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/config/ProviderSetupService.java",
+          "tokens_estimated": 4893,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/controller/ProviderSetupController.java",
+          "tokens_estimated": 1318,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/open-issues.md",
+          "tokens_estimated": 1334,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 112,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/pom.xml",
+          "tokens_estimated": 8,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/frontend/package.json",
+          "tokens_estimated": 6,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+          "tokens_estimated": 45,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 203,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 73,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 33,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/architecture.md",
+          "tokens_estimated": 34,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/openrouter-completion.md",
+          "tokens_estimated": 1838,
+          "action": "create"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/open-issues.md",
+          "tokens_estimated": 1521,
+          "action": "create"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/concepts/provider-config.md",
+          "tokens_estimated": 106,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/concepts/provider-config.md",
+          "tokens_estimated": 335,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/concepts/provider-config.md",
+          "tokens_estimated": 143,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/concepts/provider-config.md",
+          "tokens_estimated": 50,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/architecture.md",
+          "tokens_estimated": 26,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/open-issues.md",
+          "tokens_estimated": 172,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/open-issues.md",
+          "tokens_estimated": 76,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/open-issues.md",
+          "tokens_estimated": 0,
+          "action": "edit"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 39509,
+        "output_tokens_estimated": 4781,
+        "reads_count": 28,
+        "writes_count": 18,
+        "repeated_reads_blocked": 6,
+        "anatomy_lookups": 20
+      }
+    },
+    {
+      "id": "session-2026-04-26-1904",
+      "started": "2026-04-26T17:04:58.845Z",
+      "ended": "2026-04-26T17:56:40.791Z",
+      "reads": [
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 1922,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/todo-quecker-1.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/pom.xml",
+          "tokens_estimated": 1528,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/frontend/package.json",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/architecture.md",
+          "tokens_estimated": 2339,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/robustness.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/ki-product-analysis.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/admin-guide.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/concepts/provider-config.md",
+          "tokens_estimated": 9466,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/OpenRouterExtractionClient.java",
+          "tokens_estimated": 386,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/GroqExtractionClient.java",
+          "tokens_estimated": 630,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/AbstractLlmExtractionClient.java",
+          "tokens_estimated": 6901,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/ApiRestClientConfig.java",
+          "tokens_estimated": 768,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/LlmProperties.java",
+          "tokens_estimated": 504,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/service/ApiUsageLogService.java",
+          "tokens_estimated": 1121,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/ProviderProperties.java",
+          "tokens_estimated": 382,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/service/QuotaService.java",
+          "tokens_estimated": 1070,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/config/ProviderStatusService.java",
+          "tokens_estimated": 2133,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/model/ChatResponse.java",
+          "tokens_estimated": 497,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/controller/ApiUsageController.java",
+          "tokens_estimated": 1556,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/extraction/ExtractionProviderRouter.java",
+          "tokens_estimated": 265,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/controller/dto/UsageResponse.java",
+          "tokens_estimated": 186,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/frontend/src/app/features/settings/usage-monitor/usage-monitor.ts",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/api/config/ProviderConfig.java",
+          "tokens_estimated": 310,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/config/ProviderSetupService.java",
+          "tokens_estimated": 4893,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/src/main/java/at/querchecker/controller/ProviderSetupController.java",
+          "tokens_estimated": 1318,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/open-issues.md",
+          "tokens_estimated": 1334,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 112,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/backend/pom.xml",
+          "tokens_estimated": 8,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/frontend/package.json",
+          "tokens_estimated": 6,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+          "tokens_estimated": 45,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 203,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 73,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/README.md",
+          "tokens_estimated": 33,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/architecture.md",
+          "tokens_estimated": 34,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/openrouter-completion.md",
+          "tokens_estimated": 1838,
+          "action": "create"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/open-issues.md",
+          "tokens_estimated": 1521,
+          "action": "create"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/concepts/provider-config.md",
+          "tokens_estimated": 106,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/concepts/provider-config.md",
+          "tokens_estimated": 335,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/concepts/provider-config.md",
+          "tokens_estimated": 143,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/concepts/provider-config.md",
+          "tokens_estimated": 50,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/architecture.md",
+          "tokens_estimated": 26,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/open-issues.md",
+          "tokens_estimated": 172,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/open-issues.md",
+          "tokens_estimated": 76,
+          "action": "edit"
+        },
+        {
+          "file": "/home/leo/programming/github/querchecker/docs/open-issues.md",
+          "tokens_estimated": 0,
+          "action": "edit"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 39509,
+        "output_tokens_estimated": 4781,
+        "reads_count": 28,
+        "writes_count": 18,
+        "repeated_reads_blocked": 6,
+        "anatomy_lookups": 20
       }
     }
   ],

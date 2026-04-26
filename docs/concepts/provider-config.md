@@ -202,7 +202,9 @@ zum bestehenden Timestamp) → `ProviderStatusStore` wird befüllt.
 ## `ProviderStatus` — Backend-Modell
 
 **Hinweis:** `SseHub.startToken` (bereits implementiert) dient als `serverStartToken` — wird
-bereits beim `server-hello` Event gesendet. Das `provider-status`-Event ist noch nicht implementiert.
+bereits beim `server-hello` Event gesendet. Das `provider-status`-Event ist implementiert
+(`ProviderStatusService.broadcastStatus()` → `sseHub.broadcast("provider-status", getStatus())`),
+aber noch **nicht end-to-end getestet** — Frontend-Empfang und Store-Befüllung ausstehend.
 
 ```java
 public record ProviderStatus(
@@ -266,33 +268,22 @@ SSE erkennt Neustart → normaler Reconnect-Flow mit Snackbar.
 
 ## Provider-agnostisches Fehler-Handling
 
-Die bestehende `RateLimitException` + `parseRetryAfter()` ist Groq-spezifisch.
-Im Rahmen dieses Features wird auf ein einheitliches Result-Modell umgestellt:
+✅ **Implementiert** (`at.querchecker.api.result.ApiCallResult`). `RateLimitException` existiert
+noch für externe Callers (`unwrapOrThrow` wirft sie), aber `AbstractLlmExtractionClient.callLlm()`
+arbeitet intern bereits mit `ApiCallResult`.
+
+Provider-spezifische Rate-Limit-Header (zur Referenz):
 
 | Provider         | Rate Limit | Retry-After            | Bemerkung                                                       |
 | ---------------- | ---------- | ---------------------- | --------------------------------------------------------------- |
-| Groq             | 429        | `Retry-After` Header   | gut dokumentiert                                                |
-| OpenRouter       | 429        | `X-RateLimit-*` Header | abweichendes Format                                             |
+| Groq             | 429        | `Retry-After` Header   | implementiert                                                   |
+| OpenRouter       | 429        | `X-RateLimit-*` Header | abweichendes Format — aktuell wie Groq behandelt (Fallback 60s) |
 | Ollama (LOCAL)   | keins      | —                      | lokal, kein Limit                                               |
 | Cerebras         | unbekannt  | unbekannt              | noch nicht getestet                                             |
-| Google Discovery | unbekannt  | unbekannt              | aktuell nur generisches `catch` → auf `ApiCallResult` umstellen |
+| Google Discovery | unbekannt  | unbekannt              | generisches `catch` vorhanden                                   |
 
-**Achtung:** `deepLearning.ExtractionResult` existiert bereits als einfaches DTO
-(term, confidence, condensedSpec). Das neue sealed interface braucht einen anderen Namen —
-z.B. `ApiCallResult` oder `ProviderCallResult`:
-
-```java
-public sealed interface ApiCallResult {
-    record Success(ChatResponse response)             implements ApiCallResult {}
-    record RateLimited(int retryAfterSeconds)         implements ApiCallResult {}
-    record Unreachable(String reason, int httpStatus) implements ApiCallResult {}  // 503, Timeout
-    record Unavailable(String reason, int httpStatus) implements ApiCallResult {}  // 401/403
-}
-```
-
-Dasselbe Prinzip gilt für `WebSearchService`.
-Fallback wenn kein `Retry-After` geliefert wird: konfigurierbares Default in `application.yml`.
-**Refactoring:** `AbstractLlmExtractionClient` von `RateLimitException` auf `ApiCallResult` umstellen.
+Dasselbe Prinzip gilt noch für `WebSearchService` (offen).
+Fallback wenn kein `Retry-After` geliefert wird: konfigurierbares Default in `application.yml` (Status unbekannt).
 
 ---
 
@@ -716,12 +707,13 @@ für Frontend-Blöcke `work-frontend`.
 
 ### Block A — Backend Core
 
-**Refactoring (zuerst):**
+**Refactoring:**
 
-- `ApiCallResult` (Sealed Interface) definieren — nicht `ExtractionResult` (Name vergeben)
-- `ExtractionClient` + `WebSearchService` (inkl. `GoogleDiscoveryWebSearchService`) auf `ApiCallResult` umstellen
-- `RateLimitException` durch `ApiCallResult.RateLimited` ersetzen
-- Fallback `retry-after-default-seconds` in `application.yml`
+- ✅ `ApiCallResult` (Sealed Interface) implementiert — `api/result/ApiCallResult.java`
+- ✅ `ExtractionClient` + `AbstractLlmExtractionClient` arbeiten intern mit `ApiCallResult`
+- ⚠️ `RateLimitException` noch nicht vollständig ersetzt — externe Callers werfen sie noch
+- ⚠️ `WebSearchService` (`GoogleDiscoveryWebSearchService`) noch nicht auf `ApiCallResult` umgestellt
+- ❓ Fallback `retry-after-default-seconds` in `application.yml` — Status unbekannt
 
 **Implementierung:**
 
