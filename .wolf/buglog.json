@@ -288,6 +288,22 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-27T10:35:49.247Z"
+    },
+    {
+      "id": "bug-019",
+      "timestamp": "2026-04-27T10:48:39.333Z",
+      "error_message": "Wrong operator: === should be !==",
+      "file": "docs/concepts/provider-config.md",
+      "root_cause": "Used \"===\" instead of \"!==\"",
+      "fix": "Changed operator === → !==",
+      "tags": [
+        "auto-detected",
+        "operator-fix",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-27T10:48:39.333Z"
     }
   ]
 }

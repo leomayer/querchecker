@@ -595,52 +595,22 @@ gestartet werden"_ + Link zur Kurzanleitung.
 
 ---
 
-## Migration: ConfigController ablösen (Schritt 11a)
+## Migration: ConfigController ablösen (Schritt 11a) ✓ Abgeschlossen
 
-Im Zuge dieser Implementierung wird der veraltete `ConfigController` vollständig entfernt
-und durch `GET /api/provider-status` ersetzt.
-
-### IST-Zustand
-
-- **Backend:** `ConfigController` liefert `GET /api/config/providers` (`API_URLS.configProviders`)
-  mit `keyPresent`, `limitsConfigured`, `active` je Provider — fachlich überholt durch `ProviderStatus`
-- **Frontend:** Generierter `ConfigService` (`config.service.ts`) ist **nicht in Verwendung** —
-  kein Feature-Komponent konsumiert ihn
-- **`ItemResearchComponent.aiSearchEnabled`:** `input(true)` — Stub, nie verdrahtet, immer aktiv
-
-### Umsetzung
-
-**Backend:**
-
-- `ConfigController` löschen
-- Kein Breaking Change: `ConfigService` hat keine aktiven Konsumenten
-
-**Frontend:**
-
-- Generierten `ConfigService` löschen (inkl. `API_URLS.configProviders`)
-- `aiSearchEnabled` in `ItemResearchComponent` von `input(true)` auf ein computed Signal umstellen,
-  das aus dem `ProviderStatusStore` liest:
+`ConfigController` und generierter `ConfigService` wurden entfernt.
+`item-research.aiSearchEnabled` ist ein computed Signal, das aus dem `ProviderStatusStore` liest:
 
 ```typescript
-// Vorher
-aiSearchEnabled = input(true);
-
-// Nachher
 aiSearchEnabled = computed(() => {
   const s = this.providerStatusStore.status();
   if (!s) return false;
-  const ok = (state: ProviderState) => state === 'CONFIGURED' || state === 'VALID';
+  const ok = (state: ProviderState) => state !== 'UNCONFIGURED' && state !== 'UNAVAILABLE';
   return ok(s.searchState) && ok(s.llmState);
 });
 ```
 
 `UNCONFIGURED` oder `UNAVAILABLE` bei einem der beiden Provider → `false` →
 `item-research` Degradation greift (Szenario 1 / 4).
-
-### Abhängigkeit
-
-Schritt 6 (ProviderStatusStore) muss vorher abgeschlossen sein.
-Schritt 11 (item-research Degradation) kann parallel oder direkt danach erfolgen.
 
 ---
 
