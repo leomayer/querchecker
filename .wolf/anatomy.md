@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-26T17:53:51.120Z
-> Files: 524 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-27T10:12:51.221Z
+> Files: 534 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../.claude/projects/-home-leo-programming-github-querchecker/memory/
 
@@ -10,12 +10,12 @@
 
 ## ./
 
-- `.gitignore` — Git ignore rules (~199 tok)
+- `.gitignore` — Git ignore rules (~234 tok)
 - `CLAUDE.md` — OpenWolf (~357 tok)
 - `docker-compose.prod.yml` — Docker Compose: 1 services (~448 tok)
 - `docker-compose.yml` — Docker Compose services (~77 tok)
 - `keybert-test.py` — Your test data (Short German Willhaben-style text) (~301 tok)
-- `README.md` — Project documentation (~2013 tok)
+- `README.md` — Project documentation (~2074 tok)
 
 ## .claude/
 
@@ -777,19 +777,56 @@
 
 - `architecture.md` — Architecture & Design Decisions (~2352 tok)
 - `local-models.md` — Kurzanleitung: Lokale KI-Modelle (~976 tok)
-- `open-issues.md` — Open Issues — Querchecker v0.2.0 (~1122 tok)
+- `open-issues.md` — Open Issues — Querchecker v0.2.0 (~946 tok)
 - `openrouter-completion.md` — OpenRouter — Completion Checklist (~1608 tok)
 
 ## docs/concepts/
 
-- `provider-config.md` — Querchecker — Konzept: Provider-Konfiguration & Graceful Startup (~9345 tok)
+- `provider-config.md` — Querchecker — Konzept: Provider-Konfiguration & Graceful Startup (~9357 tok)
 
 ## frontend/
 
 - `package.json` — Node.js package manifest (~425 tok)
+
+## frontend/src/
+
+- `styles.scss` — Styles: 17 rules, 40 vars (~1484 tok)
+
+## frontend/src/app/core/provider-status-popup/
+
+- `provider-status-popup.html` (~285 tok)
+- `provider-status-popup.scss` — Styles: 7 rules (~348 tok)
+
+## frontend/src/app/features/settings/
+
+- `settings.component.ts` — Exports SettingsComponent (~411 tok)
 
 ## frontend/src/app/features/settings/provider-config/
 
 - `provider-config.html` (~507 tok)
 - `provider-config.scss` — Styles: 11 rules (~591 tok)
 - `provider-config.ts` — Exports ProviderConfig (~372 tok)
+
+## frontend/src/app/features/settings/usage-monitor/
+
+- `usage-monitor.scss` — Styles: 5 rules (~620 tok)
+
+## frontend/src/app/features/wh-search/wh-detail/item-annotation/
+
+- `item-annotation.component.scss` — Styles: 11 rules (~750 tok)
+
+## frontend/src/app/features/wh-search/wh-detail/item-research/
+
+- `item-research.component.scss` — Styles: 17 rules, 5 vars (~1666 tok)
+
+## frontend/src/app/features/wh-search/wh-detail/item-research/icecat-accordion/
+
+- `icecat-accordion.component.scss` — Styles: 4 rules (~622 tok)
+
+## frontend/src/app/features/wh-search/wh-detail/item-research/specs-accordion/
+
+- `specs-accordion.component.scss` — Styles: 4 rules (~622 tok)
+
+## frontend/src/app/shared/layout/app-header/
+
+- `app-header.component.ts` — Exports AppHeaderComponent (~570 tok)

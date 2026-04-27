@@ -32,6 +32,11 @@ backend/src/main/resources/models/**/*.onnx
 backend/src/main/resources/models/**/*.gguf
 backend/src/main/resources/models/.venv/
 
+# OpenWolf session artifacts (runtime-only, no project value)
+.wolf/hooks/_session.json
+.wolf/token-ledger.json
+.wolf/memory.md
+
 # Investigation TODOs (personal notes, not project docs)
 docs/todo-*.md
 

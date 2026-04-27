@@ -48,6 +48,214 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-26T17:53:49.125Z"
+    },
+    {
+      "id": "bug-004",
+      "timestamp": "2026-04-27T09:47:05.701Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/concepts/provider-config.md",
+      "root_cause": "Had \"_\n  - Nur Web Search fehlt: _„Spec-Lookup nicht v",
+      "fix": "Changed to \"_\n  - Nur Web Search fehlt: _„Produktrecherche ni",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-27T09:47:05.701Z"
+    },
+    {
+      "id": "bug-005",
+      "timestamp": "2026-04-27T09:47:07.495Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/open-issues.md",
+      "root_cause": "Had \"Spec-Lookup\"",
+      "fix": "Changed to `--color-tertiary`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-27T09:47:07.495Z"
+    },
+    {
+      "id": "bug-006",
+      "timestamp": "2026-04-27T09:47:15.883Z",
+      "error_message": "Wrong reference: MatBadgeModule should be DeleteSweep",
+      "file": "frontend/src/app/features/settings/settings.component.ts",
+      "root_cause": "Used \"MatBadgeModule\" instead of \"DeleteSweep\"",
+      "fix": "Changed MatBadgeModule → DeleteSweep",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-27T09:47:15.883Z"
+    },
+    {
+      "id": "bug-007",
+      "timestamp": "2026-04-27T09:57:10.757Z",
+      "error_message": "Wrong reference: tertiary should be amber",
+      "file": "frontend/src/app/features/wh-search/wh-detail/item-research/item-research.component.scss",
+      "root_cause": "Used \"tertiary\" instead of \"amber\"",
+      "fix": "Changed tertiary → amber",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "scss"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-27T09:57:10.757Z"
+    },
+    {
+      "id": "bug-008",
+      "timestamp": "2026-04-27T09:57:12.393Z",
+      "error_message": "CSS fix: color",
+      "file": "frontend/src/app/features/wh-search/wh-detail/item-annotation/item-annotation.component.scss",
+      "root_cause": "color: var(--color-tertiary) → var(--color-amber-emphasis)",
+      "fix": "Changed color: var(--color-tertiary) → var(--color-amber-emphasis)",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "scss"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-27T09:57:12.393Z"
+    },
+    {
+      "id": "bug-009",
+      "timestamp": "2026-04-27T09:57:13.101Z",
+      "error_message": "Wrong reference: tertiary should be amber",
+      "file": "frontend/src/app/features/wh-search/wh-detail/item-research/icecat-accordion/icecat-accordion.component.scss",
+      "root_cause": "Used \"tertiary\" instead of \"amber\"",
+      "fix": "Changed tertiary → amber",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "scss"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-27T09:57:13.101Z"
+    },
+    {
+      "id": "bug-010",
+      "timestamp": "2026-04-27T09:57:17.984Z",
+      "error_message": "Wrong reference: tertiary should be amber",
+      "file": "frontend/src/app/features/wh-search/wh-detail/item-research/specs-accordion/specs-accordion.component.scss",
+      "root_cause": "Used \"tertiary\" instead of \"amber\"",
+      "fix": "Changed tertiary → amber",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "scss"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-27T09:57:17.984Z"
+    },
+    {
+      "id": "bug-011",
+      "timestamp": "2026-04-27T09:57:19.277Z",
+      "error_message": "Wrong reference: tertiary should be amber",
+      "file": "frontend/src/app/features/settings/usage-monitor/usage-monitor.scss",
+      "root_cause": "Used \"tertiary\" instead of \"amber\"",
+      "fix": "Changed tertiary → amber",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "scss"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-27T09:57:19.277Z"
+    },
+    {
+      "id": "bug-012",
+      "timestamp": "2026-04-27T09:57:20.076Z",
+      "error_message": "Wrong reference: tertiary should be amber",
+      "file": "frontend/src/app/core/provider-status-popup/provider-status-popup.scss",
+      "root_cause": "Used \"tertiary\" instead of \"amber\"",
+      "fix": "Changed tertiary → amber",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "scss"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-27T09:57:20.076Z"
+    },
+    {
+      "id": "bug-013",
+      "timestamp": "2026-04-27T09:57:27.750Z",
+      "error_message": "Significant refactor of ",
+      "file": "frontend/src/app/core/provider-status-popup/provider-status-popup.html",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 3→16 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-27T09:57:27.750Z"
+    },
+    {
+      "id": "bug-014",
+      "timestamp": "2026-04-27T09:57:34.772Z",
+      "error_message": "CSS fix: font-size, line-height, color",
+      "file": "frontend/src/app/core/provider-status-popup/provider-status-popup.scss",
+      "root_cause": "font-size: 0.85em → 20px; line-height: 1.5 → 1.4; color: var(--mat-sys-on-surface-variant) → var(--mat-sys-error)",
+      "fix": "Changed font-size: 0.85em → 20px; line-height: 1.5 → 1.4; color: var(--mat-sys-on-surface-variant) → var(--mat-sys-error)",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "scss"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-27T09:57:34.772Z"
+    },
+    {
+      "id": "bug-015",
+      "timestamp": "2026-04-27T09:58:53.638Z",
+      "error_message": "CSS fix: color",
+      "file": "frontend/src/app/features/wh-search/wh-detail/item-research/icecat-accordion/icecat-accordion.component.scss",
+      "root_cause": "color: var(--color-tertiary) → var(--color-amber-emphasis)",
+      "fix": "Changed color: var(--color-tertiary) → var(--color-amber-emphasis)",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "scss"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-27T09:58:53.638Z"
+    },
+    {
+      "id": "bug-016",
+      "timestamp": "2026-04-27T09:58:55.316Z",
+      "error_message": "CSS fix: color",
+      "file": "frontend/src/app/features/wh-search/wh-detail/item-research/specs-accordion/specs-accordion.component.scss",
+      "root_cause": "color: var(--color-tertiary) → var(--color-amber-emphasis)",
+      "fix": "Changed color: var(--color-tertiary) → var(--color-amber-emphasis)",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "scss"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-27T09:58:55.316Z"
     }
   ]
 }
