@@ -4,7 +4,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
-import { MatBadgeModule } from '@angular/material/badge';
 import { DeleteSweep } from './delete-sweep/delete-sweep';
 import { DlExtractionSettings } from './dl-extraction-settings/dl-extraction-settings';
 import { UsageMonitor } from './usage-monitor/usage-monitor';
@@ -20,7 +19,6 @@ import { Theme } from './theme';
     MatButtonToggleModule,
     MatExpansionModule,
     MatIconModule,
-    MatBadgeModule,
     DeleteSweep,
     DlExtractionSettings,
     UsageMonitor,

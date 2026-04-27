@@ -5,9 +5,22 @@
       <h2>Einige Features sind nicht eingerichtet</h2>
     </div>
 
-    <p class="popup-description">
-      Bitte konfiguriere die erforderlichen KI-Services im Einrichtungs-Assistenten.
-    </p>
+    @if (store.status(); as s) {
+      <div class="missing-features">
+        @if (s.searchState === 'UNCONFIGURED') {
+          <div class="missing-item">
+            <mat-icon>search_off</mat-icon>
+            <span>Ohne Web Search sind keine Technik-Details abrufbar.</span>
+          </div>
+        }
+        @if (s.llmState === 'UNCONFIGURED') {
+          <div class="missing-item">
+            <mat-icon>smart_toy</mat-icon>
+            <span>Ohne Textanalyse-Engine ist weder Inseratanalyse noch Produktrecherche verfügbar.</span>
+          </div>
+        }
+      </div>
+    }
 
     <div class="popup-actions">
       <button mat-flat-button color="primary" (click)="openSettings()">

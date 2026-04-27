@@ -11,6 +11,7 @@
   --color-primary: var(--color-haggle-primary);
   --color-ui-teal: #184d5c; // same as haggle-primary in light — adapts in dark
   --color-tertiary: #c8843a;
+  --color-amber-emphasis: #a4610a; // text-safe amber — WCAG AA 4.82:1 on light (--color-tertiary fails as text on light)
 
   --color-background: #fcf8f8;
   --color-surface: #fcf8f8;
@@ -41,6 +42,7 @@ body.dark-theme {
   --color-ui-teal: #9dcee0; // visible teal for UI elements (icons, borders) in dark mode
 
   --color-tertiary: #f0b97a;
+  --color-amber-emphasis: #f0b97a; // same as --color-tertiary dark — sufficient contrast on dark surface
   --color-positive: #81c784; // light green — 5.5:1 on dark surface
   --color-negative: #e07070; // lighter red — 5.8:1 on dark surface
   --color-on-negative: #500808; // 4.8:1 on #e07070
