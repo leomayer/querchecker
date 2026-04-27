@@ -256,6 +256,22 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-27T09:58:55.316Z"
+    },
+    {
+      "id": "bug-017",
+      "timestamp": "2026-04-27T10:18:28.666Z",
+      "error_message": "Wrong return value",
+      "file": "backend/src/main/java/at/querchecker/api/extraction/AbstractLlmExtractionClient.java",
+      "root_cause": "Was returning: new ChatRequest(model, messages, 0.0, 1024,",
+      "fix": "Now returns: new ChatRequest(model, messages, 0.0, 1024, respon",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "java"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-27T10:18:28.666Z"
     }
   ]
 }

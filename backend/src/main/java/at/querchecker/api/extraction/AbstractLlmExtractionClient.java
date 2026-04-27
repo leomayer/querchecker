@@ -55,6 +55,15 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     return "unknown";
   }
 
+  /**
+   * Whether this provider supports {@code response_format: json_object}.
+   * Groq: yes. OpenRouter: no — underlying model availability varies, some return HTTP 400.
+   * When false, JSON output is enforced via the system prompt instead.
+   */
+  protected boolean supportsJsonResponseFormat() {
+    return true;
+  }
+
   /** Primäres Modell (DL-Extraktion + erster QuickFacts-Lookup) */
   protected abstract String getModel();
 
@@ -474,8 +483,9 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
       messages.add(new ChatRequest.Message("system", systemPrompt));
     }
     messages.add(new ChatRequest.Message("user", userPrompt));
-    return new ChatRequest(model, messages, 0.0, 1024,
-        expectJson ? JSON_RESPONSE_FORMAT : null);
+    Map<String, String> responseFormat = (expectJson && supportsJsonResponseFormat())
+        ? JSON_RESPONSE_FORMAT : null;
+    return new ChatRequest(model, messages, 0.0, 1024, responseFormat);
   }
 
   protected QuickFactsResult parseJson(String json) {

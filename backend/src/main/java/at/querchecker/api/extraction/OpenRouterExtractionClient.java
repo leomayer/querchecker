@@ -20,6 +20,9 @@ public class OpenRouterExtractionClient extends AbstractLlmExtractionClient {
     @Value("${querchecker.api.limits.openrouter.model:}")
     private String model;
 
+    @Value("${querchecker.api.limits.openrouter.api-key:}")
+    private String apiKey;
+
     public OpenRouterExtractionClient(@Qualifier("openRouterRestClient") RestClient restClient,
                                       ApiUsageLogService usageLogService,
                                       ProviderStatusService providerStatusService) {
@@ -34,4 +37,15 @@ public class OpenRouterExtractionClient extends AbstractLlmExtractionClient {
 
     @Override
     protected String getModel() { return model; }
+
+    @Override
+    protected String getApiKeyInfo() {
+        if (apiKey == null || apiKey.isBlank()) return "MISSING/EMPTY";
+        return apiKey.length() + " chars, prefix='" + apiKey.substring(0, Math.min(4, apiKey.length())) + "...'";
+    }
+
+    @Override
+    protected boolean supportsJsonResponseFormat() {
+        return false;
+    }
 }

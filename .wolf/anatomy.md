@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-27T10:12:51.221Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-27T10:18:47.132Z
 > Files: 534 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../.claude/projects/-home-leo-programming-github-querchecker/memory/
@@ -60,7 +60,7 @@
 
 ## backend/src/main/java/at/querchecker/api/config/
 
-- `ApiRestClientConfig.java` — Erstellt vorkonfigurierte RestClient-Beans für LLM-Provider (Groq, OpenRouter). (~768 tok)
+- `ApiRestClientConfig.java` — Erstellt vorkonfigurierte RestClient-Beans für LLM-Provider (Groq, OpenRouter). (~795 tok)
 - `FreeLimitPeriod.java` — Class: FreeLimitPeriod (~26 tok)
 - `LimitUnit.java` — Class: LimitUnit (~25 tok)
 - `LlmMode.java` — Class: LlmMode (~23 tok)
@@ -80,11 +80,11 @@
 
 ## backend/src/main/java/at/querchecker/api/extraction/
 
-- `AbstractLlmExtractionClient.java` — Gemeinsame Logik für LLM-basierte ExtractionClient-Implementierungen (~6901 tok)
+- `AbstractLlmExtractionClient.java` — Gemeinsame Logik für LLM-basierte ExtractionClient-Implementierungen (~6552 tok)
 - `ExtractionClient.java` — Provider-unabhängiges Interface für LLM-Extraktion. (~632 tok)
 - `ExtractionProviderRouter.java` — Leitet Extraction-Calls an den konfigurierten aktiven Provider weiter. (~265 tok)
 - `GroqExtractionClient.java` — ExtractionClient-Implementierung für Groq (llama-3.x). (~630 tok)
-- `OpenRouterExtractionClient.java` — ExtractionClient-Implementierung für OpenRouter. (~386 tok)
+- `OpenRouterExtractionClient.java` — ExtractionClient-Implementierung für OpenRouter. (~475 tok)
 - `ProductNameResult.java` — Strukturiertes Ergebnis der PRODUCT_NAME-Extraktion. (~165 tok)
 
 ## backend/src/main/java/at/querchecker/api/model/
@@ -777,7 +777,7 @@
 
 - `architecture.md` — Architecture & Design Decisions (~2352 tok)
 - `local-models.md` — Kurzanleitung: Lokale KI-Modelle (~976 tok)
-- `open-issues.md` — Open Issues — Querchecker v0.2.0 (~946 tok)
+- `open-issues.md` — Open Issues — Querchecker v0.2.0 (~823 tok)
 - `openrouter-completion.md` — OpenRouter — Completion Checklist (~1608 tok)
 
 ## docs/concepts/

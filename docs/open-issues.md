@@ -39,19 +39,6 @@ Full spec in `docs/concepts/provider-config.md`.
 
 ---
 
-## OpenRouter Completion
-
-> Full implementation guide: `docs/openrouter-completion.md` — paste-ready code, no analysis needed.
-
-| # | Gap | Priority | Effort |
-|---|-----|----------|--------|
-| OR1 | `openRouterRestClient()` missing startup API key log | L | 1 line |
-| OR2 | `OpenRouterExtractionClient.getApiKeyInfo()` not overridden | L | ~5 lines |
-| OR3 | `response_format: json_object` sent to all providers — some OpenRouter models return HTTP 400 | M | Add `supportsJsonResponseFormat()` hook; OpenRouter overrides to `false` |
-| OR4 | No `free-limit` for OpenRouter in YAML — no quota bar in Usage Monitor | L | Config-only if budget tracking is wanted |
-
----
-
 ## Testing Gaps
 
 ### Backend
@@ -61,6 +48,7 @@ Full spec in `docs/concepts/provider-config.md`.
 | BT1 | `WhListingService` / `WhSearchService` | No test files visible |
 | BT2 | `DlExtractionController` (SSE broadcasting) | Not tested |
 | BT3 | `ProductLookupService` rate-limit retry path | Not tested |
+| BT4 | OpenRouter extraction path (OR1–OR3: startup log, `getApiKeyInfo`, `supportsJsonResponseFormat=false`) | Implemented but **untested** — needs live OpenRouter API key |
 
 ### Frontend
 

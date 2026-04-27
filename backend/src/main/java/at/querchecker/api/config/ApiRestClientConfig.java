@@ -42,11 +42,14 @@ public class ApiRestClientConfig {
     @Bean("openRouterRestClient")
     public RestClient openRouterRestClient() {
         String apiKey = providerProperties.getProvider(Provider.OPENROUTER).getApiKey();
+        log.info("[ApiRestClientConfig] OpenRouter API key: {}",
+                apiKey == null || apiKey.isBlank() ? "MISSING/EMPTY" : apiKey.length() + " chars, prefix='" + apiKey.substring(0, Math.min(4, apiKey.length())) + "...'");
         return RestClient.builder()
                 .requestFactory(createHttpRequestFactory())
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader("HTTP-Referer", "https://querchecker.at")
+                .defaultHeader("X-Title", "Querchecker")
                 .build();
     }
 
