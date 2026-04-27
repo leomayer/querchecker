@@ -5,8 +5,8 @@ import { trigger, transition, style, animate } from '@angular/animations';
 @Component({
   selector: 'app-placeholder',
   imports: [MatIconModule],
-  templateUrl: './placeholder.component.html',
-  styleUrl: './placeholder.component.scss',
+  templateUrl: './placeholder.html',
+  styleUrl: './placeholder.scss',
   animations: [
     trigger('fadeIn', [
       transition(':enter', [

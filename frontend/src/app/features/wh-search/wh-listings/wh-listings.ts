@@ -2,7 +2,7 @@ import { Component, computed, inject, model, output, signal } from '@angular/cor
 import {
   InterestLevelChangedEvent,
   RatingChangedEvent,
-} from './listing-card/listing-card.component';
+} from './listing-card/listing-card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,7 +11,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { WhItemDto } from '../../../api/model/whItemDto';
-import { ListingCardComponent } from './listing-card/listing-card.component';
+import { ListingCardComponent } from './listing-card/listing-card';
 import { SearchStore } from '../search.store';
 
 export type RatingFilter = 'LIKE' | 'KEEP' | 'DISLIKE' | 'ALL';
@@ -28,8 +28,8 @@ export type RatingFilter = 'LIKE' | 'KEEP' | 'DISLIKE' | 'ALL';
     MatSlideToggleModule,
     ListingCardComponent,
   ],
-  templateUrl: './wh-listings.component.html',
-  styleUrl: './wh-listings.component.scss',
+  templateUrl: './wh-listings.html',
+  styleUrl: './wh-listings.scss',
 })
 export class WhListingsComponent {
   protected readonly store = inject(SearchStore);

@@ -29,8 +29,8 @@ export interface InterestLevelChangedEvent {
 @Component({
   selector: 'app-listing-card',
   imports: [MatIconModule, MatButtonModule, MatTooltipModule, DatePipe, CustomCurrencyPipe],
-  templateUrl: './listing-card.component.html',
-  styleUrl: './listing-card.component.scss',
+  templateUrl: './listing-card.html',
+  styleUrl: './listing-card.scss',
 })
 export class ListingCardComponent {
   private readonly listingService = inject(ListingService);

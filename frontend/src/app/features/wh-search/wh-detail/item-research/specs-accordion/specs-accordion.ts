@@ -2,16 +2,20 @@ import { Component, computed, input, output } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { IcecatFeatureGroup } from '../../../../../core/model/icecat.model';
+import { SpecsFeatureGroup } from '../../../../../core/model/lookup.model';
 
+/**
+ * Generisches Spezifikations-Accordion für HTML-Fetch-Quellen (GSMArena, FlatpanelsHD).
+ * Eingabe: einfaches SpecsFeatureGroup[]-Format (name + features[{name, value}]).
+ */
 @Component({
-  selector: 'app-icecat-accordion',
+  selector: 'app-specs-accordion',
   imports: [MatExpansionModule, MatIconModule, MatTooltipModule],
-  templateUrl: './icecat-accordion.component.html',
-  styleUrl: './icecat-accordion.component.scss',
+  templateUrl: './specs-accordion.html',
+  styleUrl: './specs-accordion.scss',
 })
-export class IcecatAccordionComponent {
-  readonly groups = input.required<IcecatFeatureGroup[]>();
+export class SpecsAccordionComponent {
+  readonly groups = input.required<SpecsFeatureGroup[]>();
   readonly preferredKeys = input<Set<string>>(new Set());
   readonly canToggle = input<boolean>(false);
   readonly toggle = output<string>();
@@ -21,9 +25,9 @@ export class IcecatAccordionComponent {
     if (keys.size === 0) return [];
     const result: { key: string; value: string }[] = [];
     for (const group of this.groups()) {
-      for (const feature of group.Features) {
-        if (this.isPreferred(feature.Feature.Name.Value)) {
-          result.push({ key: feature.Feature.Name.Value, value: feature.PresentationValue ?? '' });
+      for (const feature of group.features) {
+        if (this.isPreferred(feature.name)) {
+          result.push({ key: feature.name, value: feature.value });
         }
       }
     }

@@ -7,8 +7,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { LocationFilterComponent } from '../location-filter/location-filter.component';
-import { CategoryFilterComponent } from '../category-filter/category-filter.component';
+import { LocationFilterComponent } from '../location-filter/location-filter';
+import { CategoryFilterComponent } from '../category-filter/category-filter';
 import { SearchStore } from '../search.store';
 import {
   addToSearchHistory,
@@ -30,8 +30,8 @@ import {
     LocationFilterComponent,
     CategoryFilterComponent,
   ],
-  templateUrl: './wh-filter.component.html',
-  styleUrl: './wh-filter.component.scss',
+  templateUrl: './wh-filter.html',
+  styleUrl: './wh-filter.scss',
 })
 export class WhFilterComponent {
   protected readonly store = inject(SearchStore);

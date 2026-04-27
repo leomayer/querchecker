@@ -22,7 +22,6 @@
 |---|-------|----------|-------|
 | T1 | Category lookup config → Settings UI | M | `category_search_source` currently seeded from Java `CategorySearchSourceDefinitions` — additive only, change requires DB DELETE + restart. Goal: CRUD in Settings/Provider. REST: GET/POST/DELETE for `CategorySearchSource`. Details: `todo-quecker-1.md` |
 | T2 | Category prompt config → Settings UI | M | Same problem as T1 for `dl_category_prompt` / `DlCategoryPromptDefinitions`. Details: `todo-quecker-1.md` |
-| T4 | Angular component naming convention | L | Drop `.component` suffix per Angular 20+ convention. Details: `memory/refactor_component_naming.md` |
 | T5 | Remove unused `ConfigController` | M | `GET /api/config/providers` is superseded by `GET /api/provider-status`. Generated `ConfigService` has no active consumers. `item-research.aiSearchEnabled` still `input(true)` stub — needs wiring to `ProviderStatusStore`. Block D in `provider-config.md` |
 
 ---

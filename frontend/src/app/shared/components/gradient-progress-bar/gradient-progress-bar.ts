@@ -3,8 +3,8 @@ import { Component, computed, input } from '@angular/core';
 @Component({
   selector: 'app-gradient-progress-bar',
   standalone: true,
-  templateUrl: './gradient-progress-bar.component.html',
-  styleUrl: './gradient-progress-bar.component.scss',
+  templateUrl: './gradient-progress-bar.html',
+  styleUrl: './gradient-progress-bar.scss',
 })
 export class GradientProgressBarComponent {
   /** Current usage value (raw number, same unit as limit). */

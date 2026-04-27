@@ -9,14 +9,14 @@ import { WhSearchResultDto } from '../../../api/model/whSearchResultDto';
 import { API_URLS } from '../../../core/api-urls';
 import { SearchStore } from '../search.store';
 import { LayoutState } from '../layout-state.enum';
-import { WhFilterComponent } from '../wh-filter/wh-filter.component';
-import { WhListingsComponent } from '../wh-listings/wh-listings.component';
-import { RatingChangedEvent } from '../wh-listings/listing-card/listing-card.component';
-import { WhSortComponent } from '../wh-sort/wh-sort.component';
-import { WhDetailComponent } from '../wh-detail/wh-detail.component';
-import { PlaceholderComponent } from '../../../shared/components/placeholder/placeholder.component';
-import { ZoneLeftComponent } from '../../../shared/layout/zone-left/zone-left.component';
-import { ZoneRightComponent } from '../../../shared/layout/zone-right/zone-right.component';
+import { WhFilterComponent } from '../wh-filter/wh-filter';
+import { WhListingsComponent } from '../wh-listings/wh-listings';
+import { RatingChangedEvent } from '../wh-listings/listing-card/listing-card';
+import { WhSortComponent } from '../wh-sort/wh-sort';
+import { WhDetailComponent } from '../wh-detail/wh-detail';
+import { PlaceholderComponent } from '../../../shared/components/placeholder/placeholder';
+import { ZoneLeftComponent } from '../../../shared/layout/zone-left/zone-left';
+import { ZoneRightComponent } from '../../../shared/layout/zone-right/zone-right';
 import { ConnectionBannerComponent } from '../../../core/connection-banner/connection-banner';
 import { HealthService } from '../../../core/health.service';
 
@@ -44,8 +44,8 @@ const FADE_IN = [style({ opacity: 0 }), animate('300ms ease-in', style({ opacity
     MatTooltipModule,
     ConnectionBannerComponent,
   ],
-  templateUrl: './main-layout.component.html',
-  styleUrl: './main-layout.component.scss',
+  templateUrl: './main-layout.html',
+  styleUrl: './main-layout.scss',
   animations: [
     trigger('rightZone', [
       // First search: slide in from right

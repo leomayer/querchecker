@@ -3,7 +3,7 @@ import { Component, input } from '@angular/core';
 @Component({
   selector: 'app-zone-left',
   template: `<ng-content />`,
-  styleUrl: './zone-left.component.scss',
+  styleUrl: './zone-left.scss',
   host: { '[style.flex-basis]': 'width()' },
 })
 export class ZoneLeftComponent {

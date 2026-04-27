@@ -21,8 +21,8 @@ export interface LightboxData {
   selector: 'app-image-lightbox',
   standalone: true,
   imports: [MatIconModule, MatButtonModule],
-  templateUrl: './image-lightbox.component.html',
-  styleUrl: './image-lightbox.component.scss',
+  templateUrl: './image-lightbox.html',
+  styleUrl: './image-lightbox.scss',
 })
 export class ImageLightboxComponent implements AfterViewInit {
   private data: LightboxData = inject(MAT_DIALOG_DATA);

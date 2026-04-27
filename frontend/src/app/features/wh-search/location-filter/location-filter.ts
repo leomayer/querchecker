@@ -7,8 +7,8 @@ import { WhMetaService } from '../../../core/wh-meta.service';
 @Component({
   selector: 'app-location-filter',
   imports: [HierarchicalFilterComponent],
-  templateUrl: './location-filter.component.html',
-  styleUrl: './location-filter.component.scss',
+  templateUrl: './location-filter.html',
+  styleUrl: './location-filter.scss',
 })
 export class LocationFilterComponent {
   locationAreaId = model<number | undefined>(undefined);

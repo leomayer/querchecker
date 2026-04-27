@@ -13,8 +13,8 @@ import { SnackService } from '../../services/snack.service';
 @Component({
   selector: 'app-header',
   imports: [MatToolbarModule, MatIconModule, MatButtonModule, MatTooltipModule],
-  templateUrl: './app-header.component.html',
-  styleUrl: './app-header.component.scss',
+  templateUrl: './app-header.html',
+  styleUrl: './app-header.scss',
 })
 export class AppHeaderComponent {
   private readonly router = inject(Router);

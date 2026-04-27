@@ -2,8 +2,8 @@ import { Component, VERSION } from '@angular/core';
 
 @Component({
   selector: 'app-footer',
-  templateUrl: './app-footer.component.html',
-  styleUrl: './app-footer.component.scss',
+  templateUrl: './app-footer.html',
+  styleUrl: './app-footer.scss',
 })
 export class AppFooterComponent {
   readonly year = new Date().getFullYear();

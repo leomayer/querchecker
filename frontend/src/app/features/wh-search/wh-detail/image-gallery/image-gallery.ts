@@ -6,14 +6,14 @@ import { GalleryImage } from './image-gallery.model';
 import {
   ImageLightboxComponent,
   LightboxData,
-} from '../../../../shared/components/image-lightbox/image-lightbox.component';
+} from '../../../../shared/components/image-lightbox/image-lightbox';
 
 @Component({
   selector: 'app-image-gallery',
   standalone: true,
   imports: [MatIconModule, MatButtonModule],
-  templateUrl: './image-gallery.component.html',
-  styleUrl: './image-gallery.component.scss',
+  templateUrl: './image-gallery.html',
+  styleUrl: './image-gallery.scss',
 })
 export class ImageGalleryComponent {
   images = input.required<GalleryImage[]>();

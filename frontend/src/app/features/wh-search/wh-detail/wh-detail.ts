@@ -12,9 +12,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { WhDetailDto } from '../../../api/model/whDetailDto';
 import { ListingService } from '../../../core/listing.service';
 import { SearchStore } from '../search.store';
-import { WhBaseComponent } from './wh-base/wh-base.component';
-import { ItemAnnotationComponent } from './item-annotation/item-annotation.component';
-import { ItemResearchComponent } from './item-research/item-research.component';
+import { WhBaseComponent } from './wh-base/wh-base';
+import { ItemAnnotationComponent } from './item-annotation/item-annotation';
+import { ItemResearchComponent } from './item-research/item-research';
 import { EventSourceServerService } from '../../../shared/utils/event-source-server';
 import { AppSseEventName, ListingRefreshedPayload } from '../../../core/sse-events';
 
@@ -32,8 +32,8 @@ const STORAGE_KEY_TOP = 'wh-detail--top-height';
     ]),
   ],
   imports: [MatIconModule, WhBaseComponent, ItemAnnotationComponent, ItemResearchComponent],
-  templateUrl: './wh-detail.component.html',
-  styleUrl: './wh-detail.component.scss',
+  templateUrl: './wh-detail.html',
+  styleUrl: './wh-detail.scss',
 })
 export class WhDetailComponent implements OnDestroy {
   protected readonly store = inject(SearchStore);

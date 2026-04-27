@@ -40,8 +40,8 @@ import { ItemDetailStore } from './item-detail.store';
     MatTooltipModule,
     TextFieldModule,
   ],
-  templateUrl: './item-annotation.component.html',
-  styleUrl: './item-annotation.component.scss',
+  templateUrl: './item-annotation.html',
+  styleUrl: './item-annotation.scss',
 })
 export class ItemAnnotationComponent {
   readonly detail = input.required<WhDetailDto>();

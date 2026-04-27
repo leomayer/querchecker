@@ -1,7 +1,7 @@
 import { Component, effect, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { AppHeaderComponent } from './shared/layout/app-header/app-header.component';
-import { AppFooterComponent } from './shared/layout/app-footer/app-footer.component';
+import { AppHeaderComponent } from './shared/layout/app-header/app-header';
+import { AppFooterComponent } from './shared/layout/app-footer/app-footer';
 import { StartupOverlayComponent } from './core/startup-overlay/startup-overlay';
 import { ProviderStatusPopup } from './core/provider-status-popup/provider-status-popup';
 import { ExtractionStore } from './features/wh-search/extraction.store';
@@ -18,8 +18,8 @@ import { SnackService } from './shared/services/snack.service';
     StartupOverlayComponent,
     ProviderStatusPopup,
   ],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss',
+  templateUrl: './app.html',
+  styleUrl: './app.scss',
 })
 export class AppComponent {
   // Eagerly initialize so SSE listeners are registered from app start.

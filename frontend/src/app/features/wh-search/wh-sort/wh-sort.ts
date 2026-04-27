@@ -15,8 +15,8 @@ export const SORT_FIELDS = [
 @Component({
   selector: 'app-wh-sort',
   imports: [MatFormFieldModule, MatSelectModule, MatButtonToggleModule, MatIconModule],
-  templateUrl: './wh-sort.component.html',
-  styleUrl: './wh-sort.component.scss',
+  templateUrl: './wh-sort.html',
+  styleUrl: './wh-sort.scss',
 })
 export class WhSortComponent {
   protected readonly store = inject(SearchStore);

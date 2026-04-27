@@ -14,8 +14,8 @@ import { ExtractionStore } from '../../extraction.store';
 import { IcecatData, IcecatFeatureGroup } from '../../../../core/model/icecat.model';
 import { SpecsFeatureGroup } from '../../../../core/model/lookup.model';
 import { LookupHistoryEntry } from '../../../../core/sse-events';
-import { IcecatAccordionComponent } from './icecat-accordion/icecat-accordion.component';
-import { SpecsAccordionComponent } from './specs-accordion/specs-accordion.component';
+import { IcecatAccordionComponent } from './icecat-accordion/icecat-accordion';
+import { SpecsAccordionComponent } from './specs-accordion/specs-accordion';
 import { PreferenceEntry, PreferencesService } from '../../../../core/preferences.service';
 import { HealthService } from '../../../../core/health.service';
 import { ProviderStatusStore, ProviderState } from '../../../../core/provider-status.store';
@@ -47,8 +47,8 @@ type LookupState =
     IcecatAccordionComponent,
     SpecsAccordionComponent,
   ],
-  templateUrl: './item-research.component.html',
-  styleUrl: './item-research.component.scss',
+  templateUrl: './item-research.html',
+  styleUrl: './item-research.scss',
 })
 export class ItemResearchComponent {
   readonly detail = input.required<WhDetailDto>();

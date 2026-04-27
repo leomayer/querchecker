@@ -7,8 +7,8 @@ import { WhMetaService } from '../../../core/wh-meta.service';
 @Component({
   selector: 'app-category-filter',
   imports: [HierarchicalFilterComponent],
-  templateUrl: './category-filter.component.html',
-  styleUrl: './category-filter.component.scss',
+  templateUrl: './category-filter.html',
+  styleUrl: './category-filter.scss',
 })
 export class CategoryFilterComponent {
   categoryWhId = model<number | undefined>(undefined);

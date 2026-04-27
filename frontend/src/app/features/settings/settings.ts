@@ -25,8 +25,8 @@ import { Theme } from './theme';
     CategoryPreferences,
     ProviderConfig,
   ],
-  templateUrl: './settings.component.html',
-  styleUrl: './settings.component.scss',
+  templateUrl: './settings.html',
+  styleUrl: './settings.scss',
 })
 export class SettingsComponent {
   private readonly location = inject(Location);

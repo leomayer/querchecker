@@ -6,7 +6,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { DomSanitizer } from '@angular/platform-browser';
 import { WhDetailDto } from '../../../../api/model/whDetailDto';
 import { CustomCurrencyPipe } from '../../../../shared/pipes/custom-currency/custom-currency-pipe';
-import { ImageGalleryComponent } from '../image-gallery/image-gallery.component';
+import { ImageGalleryComponent } from '../image-gallery/image-gallery';
 import { HierarchicalFilterComponent } from '../../../../shared/components/hierarchical-filter-component/hierarchical-filter-component';
 import { FilterNode } from '../../../../shared/components/hierarchical-filter-component/hierarchical-filter-component.model';
 import { SnackService } from '../../../../shared/services/snack.service';
@@ -22,8 +22,8 @@ import { SnackService } from '../../../../shared/services/snack.service';
     ImageGalleryComponent,
     HierarchicalFilterComponent,
   ],
-  templateUrl: './wh-base.component.html',
-  styleUrl: './wh-base.component.scss',
+  templateUrl: './wh-base.html',
+  styleUrl: './wh-base.scss',
 })
 export class WhBaseComponent {
   readonly detail = input.required<WhDetailDto>();
