@@ -272,6 +272,22 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-27T10:18:28.666Z"
+    },
+    {
+      "id": "bug-018",
+      "timestamp": "2026-04-27T10:35:49.247Z",
+      "error_message": "Incorrect value in code",
+      "file": "../../../.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+      "root_cause": "Had `GroqExtractionClient`",
+      "fix": "Changed to `supportsJsonResponseFormat()`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-27T10:35:49.247Z"
     }
   ]
 }

@@ -1,11 +1,11 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-27T10:18:47.132Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-27T10:43:08.240Z
 > Files: 534 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../.claude/projects/-home-leo-programming-github-querchecker/memory/
 
-- `MEMORY.md` — Querchecker Project Memory (~4297 tok)
+- `MEMORY.md` — Querchecker Project Memory (~4411 tok)
 - `user.md` — Technical Profile (~345 tok)
 
 ## ./
@@ -777,7 +777,7 @@
 
 - `architecture.md` — Architecture & Design Decisions (~2352 tok)
 - `local-models.md` — Kurzanleitung: Lokale KI-Modelle (~976 tok)
-- `open-issues.md` — Open Issues — Querchecker v0.2.0 (~823 tok)
+- `open-issues.md` — Open Issues — Querchecker v0.2.0 (~785 tok)
 - `openrouter-completion.md` — OpenRouter — Completion Checklist (~1608 tok)
 
 ## docs/concepts/
