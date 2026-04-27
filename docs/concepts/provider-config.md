@@ -553,9 +553,9 @@ gestartet werden"_ + Link zur Kurzanleitung.
 
 - Inputfeld disabled, Button ausgegraut
 - Hinweis je nach Situation:
-  - Alles fehlt: _„Spec-Lookup nicht verfügbar — Web Search und LLM nicht konfiguriert"_
-  - Nur Web Search fehlt: _„Spec-Lookup nicht verfügbar — Web Search nicht konfiguriert"_
-  - Nur LLM fehlt: _„Spec-Lookup und DL-Extraktion nicht verfügbar — LLM nicht konfiguriert"_
+  - Alles fehlt: _„Produktrecherche nicht verfügbar — Web Search und Textanalyse-Engine nicht konfiguriert"_
+  - Nur Web Search fehlt: _„Produktrecherche nicht verfügbar — Web Search nicht konfiguriert"_
+  - Nur LLM fehlt: _„Produktrecherche und Inseratanalyse nicht verfügbar — Textanalyse-Engine nicht konfiguriert"_
 - Immer: + Link zu Settings
 - Braucht YAML-Änderung + Neustart
 

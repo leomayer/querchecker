@@ -22,7 +22,6 @@
 |---|-------|----------|-------|
 | T1 | Category lookup config → Settings UI | M | `category_search_source` currently seeded from Java `CategorySearchSourceDefinitions` — additive only, change requires DB DELETE + restart. Goal: CRUD in Settings/Provider. REST: GET/POST/DELETE for `CategorySearchSource`. Details: `todo-quecker-1.md` |
 | T2 | Category prompt config → Settings UI | M | Same problem as T1 for `dl_category_prompt` / `DlCategoryPromptDefinitions`. Details: `todo-quecker-1.md` |
-| T3 | Provider switching at runtime (no restart) | M | `WebSearchProviderRouter` reads from static `SearchProperties` (application.yml). Goal: read active provider from `AppConfig` (DB) so it's switchable at runtime. Block F step 15 in `provider-config.md` |
 | T4 | Angular component naming convention | L | Drop `.component` suffix per Angular 20+ convention. Details: `memory/refactor_component_naming.md` |
 | T5 | Remove unused `ConfigController` | M | `GET /api/config/providers` is superseded by `GET /api/provider-status`. Generated `ConfigService` has no active consumers. `item-research.aiSearchEnabled` still `input(true)` stub — needs wiring to `ProviderStatusStore`. Block D in `provider-config.md` |
 
@@ -36,9 +35,7 @@ Full spec in `docs/concepts/provider-config.md`.
 | # | Block | Status | What's needed |
 |---|-------|--------|---------------|
 | P1 | Block B — ProviderStatusStore + Popup + Badge | Partial | `ProviderStatusStore` (read-only, SSE-driven). Hash-based popup on UNCONFIGURED. Badge on Settings button with Warning/Error color. |
-| P2 | Block B1 — UI wording | Open | (a) DL-Extraction → user-friendly German term. (b) "Spec-Lookup" → clearer description. (c) Validation table layout (Icon \| Provider \| Selected \| Configured \| Validated). (d) LLM-missing warning more prominent in popup. (e) `--color-tertiary` contrast fix for light mode. (f) Badge padding too small + invisible in dark mode |
 | P3 | Block E — Test-Button + Lazy Validation feedback | Open | Test-Button in Settings (remote providers only, CONFIGURED/UNREACHABLE/UNAVAILABLE). Lazy validation: first call failure → SSE event → frontend state update |
-| P4 | Block F step 15 — Runtime provider switch | Open | See T3 above |
 
 ---
 

@@ -57,6 +57,8 @@ Beim Öffnen eines Inserats extrahieren KI-Modelle automatisch den Produktnamen.
 
 [ ] Ähnliche Inserate — nach erkanntem Produktnamen wird in den aktuellen Suchergebnissen nach weiteren Inseraten des gleichen Produkts gesucht und direkt in der Detailansicht angezeigt. Kein zusätzlicher API-Aufruf — rein clientseitig über die bereits geladenen Listings.
 
+[ ] Provider-Wechsel zur Laufzeit — Web-Such-Provider (Brave / Google Discovery) ohne App-Neustart umschalten. Erfordert: aktiven Provider aus `AppConfig` (DB) lesen statt aus `application.yml`, `WebSearchProviderRouter` entsprechend anpassen.
+
 Bei positivem Feedback bin ich offen für weitere Features, sofern sie mich fachlich reizen und der Aufwand vertretbar ist.
 
 ---
