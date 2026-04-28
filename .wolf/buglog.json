@@ -560,6 +560,214 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-28T14:36:12.580Z"
+    },
+    {
+      "id": "bug-036",
+      "timestamp": "2026-04-28T16:02:16.504Z",
+      "error_message": "Wrong reference: externalProvider should be activeProvider",
+      "file": "backend/src/main/java/at/querchecker/api/config/LlmProperties.java",
+      "root_cause": "Used \"externalProvider\" instead of \"activeProvider\"",
+      "fix": "Changed externalProvider → activeProvider",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "java"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T16:02:16.504Z"
+    },
+    {
+      "id": "bug-037",
+      "timestamp": "2026-04-28T16:02:39.737Z",
+      "error_message": "Incorrect value in code",
+      "file": "backend/src/main/java/at/querchecker/config/ProviderSetupService.java",
+      "root_cause": "Had \"external-provider:\"",
+      "fix": "Changed to \"active-provider:\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "java"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T16:02:39.737Z"
+    },
+    {
+      "id": "bug-038",
+      "timestamp": "2026-04-28T16:03:12.369Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/local-models.md",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 12→42 lines (6 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T16:03:12.369Z"
+    },
+    {
+      "id": "bug-039",
+      "timestamp": "2026-04-28T16:12:00.912Z",
+      "error_message": "Wrong reference: getExternalProvider should be getActiveProvider",
+      "file": "backend/src/main/java/at/querchecker/config/ProviderStatusService.java",
+      "root_cause": "Used \"getExternalProvider\" instead of \"getActiveProvider\"",
+      "fix": "Changed getExternalProvider → getActiveProvider",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "java"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T16:12:00.912Z"
+    },
+    {
+      "id": "bug-040",
+      "timestamp": "2026-04-28T16:12:05.664Z",
+      "error_message": "Wrong reference: getExternalProvider should be getActiveProvider",
+      "file": "backend/src/main/java/at/querchecker/config/ProviderSetupService.java",
+      "root_cause": "Used \"getExternalProvider\" instead of \"getActiveProvider\"",
+      "fix": "Changed getExternalProvider → getActiveProvider",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "java"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T16:12:05.665Z"
+    },
+    {
+      "id": "bug-041",
+      "timestamp": "2026-04-28T16:12:16.039Z",
+      "error_message": "Wrong reference: getExternalProvider should be getActiveProvider",
+      "file": "backend/src/main/java/at/querchecker/controller/ApiUsageController.java",
+      "root_cause": "Used \"getExternalProvider\" instead of \"getActiveProvider\"",
+      "fix": "Changed getExternalProvider → getActiveProvider",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "java"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T16:12:16.039Z"
+    },
+    {
+      "id": "bug-042",
+      "timestamp": "2026-04-28T16:12:24.042Z",
+      "error_message": "Wrong reference: getExternalProvider should be getActiveProvider",
+      "file": "backend/src/main/java/at/querchecker/api/extraction/ExtractionProviderRouter.java",
+      "root_cause": "Used \"getExternalProvider\" instead of \"getActiveProvider\"",
+      "fix": "Changed getExternalProvider → getActiveProvider",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "java"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T16:12:24.042Z"
+    },
+    {
+      "id": "bug-043",
+      "timestamp": "2026-04-28T16:14:50.411Z",
+      "error_message": "Wrong reference: ymld should be yml",
+      "file": "config/querchecker.yml",
+      "root_cause": "Used \"ymld\" instead of \"yml\"",
+      "fix": "Changed ymld → yml",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "yml"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T16:14:50.411Z"
+    },
+    {
+      "id": "bug-044",
+      "timestamp": "2026-04-28T16:24:36.085Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/local-models.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 10→14 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T16:24:36.085Z"
+    },
+    {
+      "id": "bug-045",
+      "timestamp": "2026-04-28T16:35:52.867Z",
+      "error_message": "Significant refactor of ",
+      "file": "README.md",
+      "root_cause": "23 lines replaced/restructured",
+      "fix": "Rewrote 33→9 lines (23 removed) | Also: Querchecker startet auch ohne API-Keys (nur Willha; | Status-Meldung | Einrichtungs-Assistent | | Also: Der **Einrichtungs-Assistent** führt dich durch di; - **Web Search Provider** — API-Key von Brave oder",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-04-28T16:42:11.615Z"
+    },
+    {
+      "id": "bug-046",
+      "timestamp": "2026-04-28T16:42:25.796Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/dev-setup.md",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 40→57 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T16:42:25.796Z"
+    },
+    {
+      "id": "bug-047",
+      "timestamp": "2026-04-28T17:03:30.461Z",
+      "error_message": "Significant refactor of ",
+      "file": "README.md",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 4→4 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T17:03:30.461Z"
+    },
+    {
+      "id": "bug-048",
+      "timestamp": "2026-04-28T17:05:59.149Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/open-issues.md",
+      "root_cause": "Had `docs/dev-setup.md`",
+      "fix": "Changed to `ProductLookupService`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T17:05:59.149Z"
     }
   ]
 }

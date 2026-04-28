@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-28T14:36:12.571Z
-> Files: 544 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-28T17:06:05.488Z
+> Files: 545 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../.claude/projects/-home-leo-programming-github-querchecker/memory/
 
@@ -16,7 +16,7 @@
 - `docker-compose.prod.yml` — Docker Compose: 1 services (~448 tok)
 - `docker-compose.yml` — Docker Compose services (~77 tok)
 - `keybert-test.py` — Your test data (Short German Willhaben-style text) (~301 tok)
-- `README.md` — Project documentation (~2788 tok)
+- `README.md` — Project documentation (~3007 tok)
 
 ## .claude/
 
@@ -65,7 +65,7 @@
 - `FreeLimitPeriod.java` — Class: FreeLimitPeriod (~26 tok)
 - `LimitUnit.java` — Class: LimitUnit (~25 tok)
 - `LlmMode.java` — Class: LlmMode (~23 tok)
-- `LlmProperties.java` — Zentrale LLM-Konfiguration. (~504 tok)
+- `LlmProperties.java` — Zentrale LLM-Konfiguration. (~468 tok)
 - `ProviderConfig.java` — Konfiguration für einen einzelnen API-Provider. (~310 tok)
 - `ProviderProperties.java` — API-Provider-Konfiguration. (~382 tok)
 
@@ -82,8 +82,8 @@
 ## backend/src/main/java/at/querchecker/api/extraction/
 
 - `AbstractLlmExtractionClient.java` — Gemeinsame Logik für LLM-basierte ExtractionClient-Implementierungen (~6750 tok)
-- `ExtractionClient.java` — Provider-unabhängiges Interface für LLM-Extraktion. (~659 tok)
-- `ExtractionProviderRouter.java` — Leitet Extraction-Calls an den konfigurierten aktiven Provider weiter. (~265 tok)
+- `ExtractionClient.java` — Provider-unabhängiges Interface für LLM-Extraktion. (~658 tok)
+- `ExtractionProviderRouter.java` — Leitet Extraction-Calls an den konfigurierten aktiven Provider weiter. (~246 tok)
 - `GroqExtractionClient.java` — ExtractionClient-Implementierung für Groq (llama-3.x). (~630 tok)
 - `OpenRouterExtractionClient.java` — ExtractionClient-Implementierung für OpenRouter. (~475 tok)
 - `ProductNameResult.java` — Strukturiertes Ergebnis der PRODUCT_NAME-Extraktion. (~165 tok)
@@ -121,10 +121,10 @@
 - `AsyncConfig.java` — Configuration: AsyncConfig (~61 tok)
 - `CorsConfig.java` — Configuration: CorsConfig (~244 tok)
 - `HttpClientProperties.java` — HTTP client timeout configuration for external API calls (~169 tok)
-- `ProviderSetupService.java` — Baut die Datenstruktur für den Einrichtungs-Assistenten. (~4893 tok)
+- `ProviderSetupService.java` — Baut die Datenstruktur für den Einrichtungs-Assistenten. (~4565 tok)
 - `ProviderState.java` — Status eines externen Providers. (~243 tok)
 - `ProviderStatus.java` — SSE-Payload und REST-Antwort für den aktuellen Provider-Status. (~208 tok)
-- `ProviderStatusService.java` — Verwaltet den Laufzeit-Status aller externen Provider (Web Search + LLM). (~2133 tok)
+- `ProviderStatusService.java` — Verwaltet den Laufzeit-Status aller externen Provider (Web Search + LLM). (~1990 tok)
 - `ProviderTestService.java` — Führt minimale Verbindungstests für aktive Provider durch. (~436 tok)
 - `RequestUserAgentResolver.java` — Löst den User-Agent für ausgehende HTTP-Requests auf. (~335 tok)
 - `RestTemplateConfig.java` — Configuration: RestTemplateConfig (~169 tok)
@@ -136,7 +136,7 @@
 ## backend/src/main/java/at/querchecker/controller/
 
 - `AdminController.java` — Admin-Endpoints für Server-Verwaltung. (~497 tok)
-- `ApiUsageController.java` — RestController: ApiUsageController (2 endpoints) (~1556 tok)
+- `ApiUsageController.java` — RestController: ApiUsageController (2 endpoints) (~1452 tok)
 - `HealthController.java` — RestController: HealthController (1 endpoints) (~101 tok)
 - `ProviderSetupController.java` — Endpoints für den Einrichtungs-Assistenten. (~1318 tok)
 - `ProviderStatusController.java` — Gibt den aktuellen Provider-Status zurück. (~530 tok)
@@ -224,7 +224,7 @@
 ## backend/src/main/java/at/querchecker/dto/
 
 - `DlExtractionDonePayload.java` — Best term from the configured source model — pre-fills the spec-lookup field. (~129 tok)
-- `DlExtractionStatusResponse.java` — Overall extraction status for this item. (~255 tok)
+- `DlExtractionStatusResponse.java` — Overall extraction status for this item. (~237 tok)
 - `DlExtractionTermDto.java` — Class: DlExtractionTermDto (~99 tok)
 - `DlSettingsDto.java` — Class: DlSettingsDto (~74 tok)
 - `ListingRefreshedPayload.java` — SSE payload broadcast after an async Willhaben detail refresh. (~106 tok)
@@ -781,17 +781,18 @@
 
 ## config/
 
-- `querchecker.yml` (~885 tok)
+- `querchecker.yml` (~884 tok)
 
 ## docs/
 
-- `admin-guide.md` — Querchecker Admin Guide (~2994 tok)
+- `admin-guide.md` — Querchecker Admin Guide (~3031 tok)
 - `architecture.md` — Architecture & Design Decisions (~2606 tok)
+- `dev-setup.md` — Querchecker — Developer Setup (~1242 tok)
 - `extraction-engine.md` — Extraction Engine — Architecture Reference (~1118 tok)
 - `ki-product-analysis.md` — Automatische KI-Produktanalyse — Konzept & Architektur (~4405 tok)
 - `ki-produktanalyse.md` — Automatische KI-Produktanalyse — Konzept & Architektur (~2857 tok)
-- `local-models.md` — Kurzanleitung: Lokale KI-Modelle (~1364 tok)
-- `open-issues.md` — Open Issues — Querchecker v0.2.0 (~1574 tok)
+- `local-models.md` — Kurzanleitung: Lokale KI-Modelle (~1689 tok)
+- `open-issues.md` — Open Issues — Querchecker v0.2.0 (~1551 tok)
 - `openrouter-completion.md` — OpenRouter — Completion Checklist (~1608 tok)
 - `robustness.md` — Robustness & Error Handling (~2487 tok)
 

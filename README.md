@@ -91,17 +91,26 @@ cd frontend && npm run generate-api
 <strong>Ports (lokal)</strong><br><br>
 <table>
 <tr><th align="left">Dienst</th><th align="left">URL</th></tr>
-<tr><td>Frontend</td><td>http://localhost:14072</td></tr>
-<tr><td>Backend</td><td>http://localhost:14070</td></tr>
+<tr><td>Frontend</td><td><a href="http://localhost:14072">http://localhost:14072</a></td></tr>
+<tr><td>Backend</td><td><a href="http://localhost:14070">http://localhost:14070</a></td></tr>
+<tr><td>Swagger UI</td><td><a href="http://localhost:14070/swagger-ui.html">http://localhost:14070/swagger-ui.html</a></td></tr>
 <tr><td>PostgreSQL</td><td>localhost:14071</td></tr>
 </table>
 </td>
 </tr>
 </table>
 
-**Hot Reload**: Datei speichern → Spring DevTools erkennt die Änderung und startet den Context automatisch neu. JVM-Neustart nur bei Prozess-Crash nötig.
+#### Konfiguration: API-Keys für Web Search & Textanalyse-Engine
 
-**API-Keys**: Für KI-Extraktion und Item Research werden API-Keys für OpenRouter/Groq und Brave Search benötigt. → Details: [Admin Guide](docs/admin-guide.md)
+Querchecker funktioniert auch ohne konfigurierte API-Keys (nur Willhaben-Suche). Für **Web Search** (Brave) und **Textanalyse-Engine** (Groq/OpenRouter) brauchst du externe Provider.
+
+Siehst du beim **ersten Start** diese Nachricht, fehlt einer der Provider:
+
+![Setup Wizard Status](docs/screenshots/setup-wizard-error.png)
+
+Weitere Details → [Developer Setup](docs/dev-setup.md)
+
+**Hot Reload**: Datei speichern → Spring DevTools erkennt die Änderung und startet den Context automatisch neu. JVM-Neustart nur bei Prozess-Crash nötig.
 
 ### Deployment (Prod)
 
@@ -137,7 +146,7 @@ querchecker/
 | 🏗️ [Architecture & Design Decisions](docs/architecture.md)<br>SignalStore, SSE, conditional model registration, OpenAPI workflow | 📖 [Admin Guide](docs/admin-guide.md)<br>Installation, Konfiguration und Betrieb (API-Keys, Provider-Setup, Deployment)   |
 | 🛡️ [Robustness & Error Handling](docs/robustness.md)<br>API-Ausfälle, Rate-Limiting, Quota-Verwaltung, Server-Restarts           | ⚙️ [Provider-Konfiguration](docs/concepts/provider-config.md)<br>KI-Modelle und Web-Suche konfigurieren (lokal vs. Cloud) |
 | 🤖 [KI-Produktanalyse](docs/ki-produktanalyse.md)<br>Produktname-Extraktion und Item Research                                    | 💻 [Lokale Modelle](docs/local-models.md)<br>LLM lokal statt Cloud betreiben                                              |
-| ⚙️ [Extraction Engine](docs/extraction-engine.md)<br>Queue-Architektur, Status-Maschine, Modell-Registrierung                    |                                                                                                                           |
+| ⚙️ [Extraction Engine](docs/extraction-engine.md)<br>Queue-Architektur, Status-Maschine, Modell-Registrierung                    | 🛠️ [Developer Setup](docs/dev-setup.md)<br>Ersteinrichtung, API-Keys, Troubleshooting                                     |
 
 ---
 

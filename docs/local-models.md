@@ -64,12 +64,16 @@ python download_llama32.py
 
 ---
 
-## Konfiguration in `application.yml`
+## Konfiguration in `config/querchecker.yml`
+
+Der `mode`-Key ist bereits in `config/querchecker.yml` enthalten. Standard ist `API` — keine Änderung nötig für Cloud-Betrieb.
+
+Für lokale Modelle auf `LOCAL` setzen:
 
 ```yaml
 querchecker:
   llm:
-    mode: LOCAL # LOCAL | API
+    mode: LOCAL # API (Standard) | LOCAL
 ```
 
 Beim Start mit `mode: LOCAL` werden **ausschließlich lokale Modelle** registriert —
@@ -77,18 +81,48 @@ keine API-Keys nötig, kein Cloud-Zugriff.
 
 ---
 
-## Modell aktivieren / deaktivieren
+## Modell-Management via Datenbank
 
-Lokale Modelle werden über die Datenbank-Tabelle `dl_model_config` verwaltet.
+Lokale Modelle werden über die Datenbank-Tabelle `dl_model_config` verwaltet — nicht über die Kommandozeile.
 
-Aktives Modell prüfen:
+### Tabelle: `dl_model_config`
+
+| Spalte | Bedeutung |
+|---|---|
+| `name` | Modell-Name (z.B. `llama-3.2-3b`, `qwen3-4b`) |
+| `active` | `true` = Modell ist verfügbar; `false` = ignoriert |
+| `execution_order` | Priorität bei paralleler Verarbeitung (ascending) |
+| `source_model` | `true` = dieses Modell liefert `suggestedTerm` (Suchfeld-Vorbefüllung) |
+
+### Status prüfen
 
 ```sql
-SELECT name, active, execution_order FROM dl_model_config ORDER BY execution_order;
+SELECT name, active, source_model, execution_order FROM dl_model_config ORDER BY execution_order;
 ```
 
-Modell aktivieren / deaktivieren über die Settings-UI unter
-**Einstellungen → Textanalyse-Engine**.
+### Modelle aktivieren / deaktivieren
+
+**Über UI** (empfohlen):
+- **Einstellungen → Textanalyse-Engine**
+- Umschalten der `active`-Flag
+
+**Per SQL** (manuell):
+
+```sql
+UPDATE dl_model_config SET active = true WHERE name = 'qwen3-4b';
+UPDATE dl_model_config SET active = false WHERE name = 'llama-3.2-3b';
+```
+
+### Source-Modell wählen (suggestedTerm)
+
+Das `source_model`-Flag bestimmt, welches Modell den `suggestedTerm` (Produktname zur Suche) liefert.
+Nur ein Modell sollte `source_model = true` haben.
+
+```sql
+-- Qwen zum Source-Modell machen
+UPDATE dl_model_config SET source_model = false WHERE source_model = true;
+UPDATE dl_model_config SET source_model = true WHERE name = 'qwen3-4b';
+```
 
 ---
 
@@ -129,4 +163,11 @@ Der `ProductLookup`-Cache ist ein **reiner String-Match** auf `lookupTerm`. Die 
 
 Jede Variante erzeugt einen eigenen `ProductLookup`-Eintrag, verbraucht einen Brave-API-Call, und kein Eintrag wird jemals wiederverwendet. Der Cache degeneriert zu einem reinen Write-Only-Log.
 
-**Empfehlung:** Für produktiven Einsatz immer `querchecker.llm.external-provider: GROQ` oder `OPENROUTER` verwenden. Lokale Modelle eignen sich allenfalls für die Entwicklung ohne Internetabhängigkeit, aber nicht für zuverlässiges Caching.
+**Empfehlung:** Für produktiven Einsatz immer `querchecker.llm.active-provider: GROQ` oder `OPENROUTER` verwenden. Lokale Modelle eignen sich allenfalls für die Entwicklung ohne Internetabhängigkeit, aber nicht für zuverlässiges Caching.
+
+---
+
+## Siehe auch
+
+- 💻 [Developer Setup](dev-setup.md) — Ersteinrichtung, secrets.yml, Troubleshooting
+- ⚙️ [Admin Guide](admin-guide.md) — Provider-Konfiguration, Betrieb

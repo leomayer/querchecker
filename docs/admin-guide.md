@@ -212,7 +212,7 @@ Reference configuration from `config/querchecker.yml`:
 ```yaml
 querchecker:
   llm:
-    external-provider: GROQ # GROQ | OPENROUTER
+    active-provider: GROQ # GROQ | OPENROUTER
   api:
     limits:
       brave:
@@ -233,7 +233,7 @@ querchecker:
         alert-at-percent: 80
 ```
 
-API keys go in `secrets.yml` (not in Git). Switch provider via `external-provider: GROQ | OPENROUTER` — requires backend restart.
+API keys go in `secrets.yml` (not in Git). Switch provider via `active-provider: GROQ | OPENROUTER` — requires backend restart.
 
 ---
 
@@ -246,6 +246,8 @@ API keys go in `secrets.yml` (not in Git). Switch provider via `external-provide
 | `QUERCHECKER_DB_PASSWORD` | DB password          | `mypassword`     |
 
 Prod config: See `application-prod.yml`
+
+→ Dev-Setup inkl. erster Konfiguration: [Developer Setup](dev-setup.md)
 
 ---
 
@@ -330,6 +332,7 @@ location /api/ {
 
 ## See Also
 
+- 💻 [Developer Setup](dev-setup.md) — Ersteinrichtung, API-Keys, Troubleshooting
 - 🏗️ [Architecture & Design Decisions](architecture.md)
 - 🛡️ [Robustness & Error Handling](robustness.md) — Cache-TTL-Strategie, Quota-Verwaltung, Rate-Limiting
 - 🤖 [KI-Produktanalyse](ki-produktanalyse.md) — KI-Suche Pipeline und Suchquellen
