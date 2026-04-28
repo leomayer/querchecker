@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-28T09:06:20.493Z
-> Files: 536 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-28T13:14:39.600Z
+> Files: 542 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../.claude/projects/-home-leo-programming-github-querchecker/memory/
 
@@ -16,7 +16,7 @@
 - `docker-compose.prod.yml` — Docker Compose: 1 services (~448 tok)
 - `docker-compose.yml` — Docker Compose services (~77 tok)
 - `keybert-test.py` — Your test data (Short German Willhaben-style text) (~301 tok)
-- `README.md` — Project documentation (~2756 tok)
+- `README.md` — Project documentation (~2788 tok)
 
 ## .claude/
 
@@ -81,8 +81,8 @@
 
 ## backend/src/main/java/at/querchecker/api/extraction/
 
-- `AbstractLlmExtractionClient.java` — Gemeinsame Logik für LLM-basierte ExtractionClient-Implementierungen (~6552 tok)
-- `ExtractionClient.java` — Provider-unabhängiges Interface für LLM-Extraktion. (~632 tok)
+- `AbstractLlmExtractionClient.java` — Gemeinsame Logik für LLM-basierte ExtractionClient-Implementierungen (~6750 tok)
+- `ExtractionClient.java` — Provider-unabhängiges Interface für LLM-Extraktion. (~659 tok)
 - `ExtractionProviderRouter.java` — Leitet Extraction-Calls an den konfigurierten aktiven Provider weiter. (~265 tok)
 - `GroqExtractionClient.java` — ExtractionClient-Implementierung für Groq (llama-3.x). (~630 tok)
 - `OpenRouterExtractionClient.java` — ExtractionClient-Implementierung für OpenRouter. (~475 tok)
@@ -108,7 +108,7 @@
 - `SearchProperties.java` — Konfiguration für den aktiven Web-Search-Provider. (~166 tok)
 - `SearchProvider.java` — SearchProvider: toProvider (~96 tok)
 - `WebSearchProviderRouter.java` — Service: WebSearchProviderRouter (~195 tok)
-- `WebSearchService.java` — Quellunabhängiges Interface für Produktsuchen. (~384 tok)
+- `WebSearchService.java` — Quellunabhängiges Interface für Produktsuchen. (~563 tok)
 
 ## backend/src/main/java/at/querchecker/api/service/
 
@@ -125,6 +125,7 @@
 - `ProviderState.java` — Status eines externen Providers. (~243 tok)
 - `ProviderStatus.java` — SSE-Payload und REST-Antwort für den aktuellen Provider-Status. (~208 tok)
 - `ProviderStatusService.java` — Verwaltet den Laufzeit-Status aller externen Provider (Web Search + LLM). (~2133 tok)
+- `ProviderTestService.java` — Führt minimale Verbindungstests für aktive Provider durch. (~436 tok)
 - `RequestUserAgentResolver.java` — Löst den User-Agent für ausgehende HTTP-Requests auf. (~335 tok)
 - `RestTemplateConfig.java` — Configuration: RestTemplateConfig (~169 tok)
 - `SpringDocConfig.java` — Replaces the default PolymorphicModelConverter with a cycle-breaking pass-through. (~646 tok)
@@ -138,7 +139,7 @@
 - `ApiUsageController.java` — RestController: ApiUsageController (2 endpoints) (~1556 tok)
 - `HealthController.java` — RestController: HealthController (1 endpoints) (~101 tok)
 - `ProviderSetupController.java` — Endpoints für den Einrichtungs-Assistenten. (~1318 tok)
-- `ProviderStatusController.java` — Gibt den aktuellen Provider-Status zurück. (~226 tok)
+- `ProviderStatusController.java` — Gibt den aktuellen Provider-Status zurück. (~530 tok)
 - `SettingsPreferencesController.java` — RestController: SettingsPreferencesController (3 endpoints) (~687 tok)
 - `WhListingController.java` — RestController: WhListingController (6 endpoints) (~578 tok)
 - `WhListingDetailController.java` — RestController: WhListingDetailController (5 endpoints) (~594 tok)
@@ -780,9 +781,13 @@
 
 ## docs/
 
+- `admin-guide.md` — Querchecker Admin Guide (~2747 tok)
 - `architecture.md` — Architecture & Design Decisions (~2352 tok)
+- `extraction-engine.md` — Extraction Engine — Architecture Reference (~1121 tok)
+- `ki-product-analysis.md` — Automatische KI-Produktanalyse — Konzept & Architektur (~4405 tok)
+- `ki-produktanalyse.md` — Automatische KI-Produktanalyse — Konzept & Architektur (~4417 tok)
 - `local-models.md` — Kurzanleitung: Lokale KI-Modelle (~976 tok)
-- `open-issues.md` — Open Issues — Querchecker v0.2.0 (~710 tok)
+- `open-issues.md` — Open Issues — Querchecker v0.2.0 (~852 tok)
 - `openrouter-completion.md` — OpenRouter — Completion Checklist (~1608 tok)
 
 ## docs/concepts/
@@ -805,12 +810,13 @@
 ## frontend/src/app/features/settings/
 
 - `settings.component.ts` — Exports SettingsComponent (~411 tok)
+- `settings.html` (~942 tok)
 
 ## frontend/src/app/features/settings/provider-config/
 
-- `provider-config.html` (~507 tok)
-- `provider-config.scss` — Styles: 11 rules (~591 tok)
-- `provider-config.ts` — Exports ProviderConfig (~372 tok)
+- `provider-config.html` (~740 tok)
+- `provider-config.scss` — Styles: 11 rules, 1 vars (~626 tok)
+- `provider-config.ts` — Exports ProviderConfig (~1006 tok)
 
 ## frontend/src/app/features/settings/usage-monitor/
 

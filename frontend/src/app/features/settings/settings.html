@@ -31,7 +31,7 @@
           }
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <app-provider-config />
+      <app-provider-config (testCompleted)="usageMonitor.load()" />
     </mat-expansion-panel>
 
     <mat-expansion-panel>
@@ -87,7 +87,7 @@
           }
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <app-usage-monitor (warningChange)="usageHasWarning.set($event)" />
+      <app-usage-monitor #usageMonitor (warningChange)="usageHasWarning.set($event)" />
     </mat-expansion-panel>
 
     <mat-expansion-panel>

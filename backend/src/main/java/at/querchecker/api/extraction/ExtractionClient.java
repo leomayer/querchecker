@@ -1,6 +1,7 @@
 package at.querchecker.api.extraction;
 
 import at.querchecker.api.entity.Provider;
+import at.querchecker.api.result.ApiCallResult;
 import at.querchecker.deepLearning.entity.DlCategoryPrompt;
 import at.querchecker.research.model.QuickFactsResult;
 import at.querchecker.research.model.SearchResult;
@@ -15,6 +16,11 @@ import java.util.List;
 public interface ExtractionClient {
 
     Provider getProvider();
+
+    /** Minimaler Verbindungstest — überschrieben von AbstractLlmExtractionClient. LOCAL: no-op. */
+    default ApiCallResult<Void> testConnection() {
+        return new ApiCallResult.Success<>(null);
+    }
 
     /** Produktname aus Inseratstext — kurzer String, kein JSON */
     String extractProductName(

@@ -352,6 +352,86 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-28T09:05:26.485Z"
+    },
+    {
+      "id": "bug-023",
+      "timestamp": "2026-04-28T12:15:41.985Z",
+      "error_message": "CSS fix: display",
+      "file": "frontend/src/app/features/settings/provider-config/provider-config.scss",
+      "root_cause": "display: flex → inline-flex",
+      "fix": "Changed display: flex → inline-flex",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "scss"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T12:15:41.985Z"
+    },
+    {
+      "id": "bug-024",
+      "timestamp": "2026-04-28T12:34:29.339Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/admin-guide.md",
+      "root_cause": "13 lines replaced/restructured",
+      "fix": "Rewrote 43→88 lines (13 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T12:34:29.339Z"
+    },
+    {
+      "id": "bug-025",
+      "timestamp": "2026-04-28T12:41:20.332Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/extraction-engine.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 5→7 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T12:41:20.332Z"
+    },
+    {
+      "id": "bug-026",
+      "timestamp": "2026-04-28T12:41:39.494Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/admin-guide.md",
+      "root_cause": "Had `docs/ki-product-analysis.md`",
+      "fix": "Changed to `docs/ki-produktanalyse.md`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T12:41:39.494Z"
+    },
+    {
+      "id": "bug-027",
+      "timestamp": "2026-04-28T13:06:43.354Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/extraction-engine.md",
+      "root_cause": "Had ` and is persisted. This is not an error — cancell",
+      "fix": "Changed to ` and is persisted. This is not an error. When the",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T13:06:43.354Z"
     }
   ]
 }

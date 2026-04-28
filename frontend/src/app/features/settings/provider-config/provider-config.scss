@@ -97,6 +97,11 @@
   button mat-icon {
     color: inherit;
   }
+
+  button mat-progress-spinner {
+    display: inline-flex;
+    --mdc-circular-progress-active-indicator-color: currentColor;
+  }
 }
 
 .action-hint {

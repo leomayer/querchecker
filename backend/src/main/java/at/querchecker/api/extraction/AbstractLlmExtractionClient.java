@@ -78,6 +78,23 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
   }
 
   @Override
+  public ApiCallResult<Void> testConnection() {
+    ApiCallResult<ChatResponse> result = callLlm(
+        RequestType.EXTRACTION, null,
+        "You are a test assistant.",
+        "Say: ok",
+        false,
+        getModel()
+    );
+    return switch (result) {
+      case ApiCallResult.Success<ChatResponse> ignored    -> new ApiCallResult.Success<>(null);
+      case ApiCallResult.RateLimited<ChatResponse> rl     -> new ApiCallResult.RateLimited<>(rl.retryAfterSeconds());
+      case ApiCallResult.Unreachable<ChatResponse> u      -> new ApiCallResult.Unreachable<>(u.reason(), u.httpStatus());
+      case ApiCallResult.Unavailable<ChatResponse> u      -> new ApiCallResult.Unavailable<>(u.reason(), u.httpStatus());
+    };
+  }
+
+  @Override
   public String extractProductName(
     String title,
     String description,

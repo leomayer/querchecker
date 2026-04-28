@@ -17,6 +17,17 @@ public interface WebSearchService {
 
     SearchProvider getProvider();
 
+    /** Minimaler Verbindungstest — ruft search() mit harmlosen Parametern auf. */
+    default ApiCallResult<Void> testConnection() {
+        ApiCallResult<List<SearchResult>> r = search("test", "icecat.biz", null, null, 1);
+        return switch (r) {
+            case ApiCallResult.Success<List<SearchResult>> ignored -> new ApiCallResult.Success<>(null);
+            case ApiCallResult.RateLimited<List<SearchResult>> rl  -> new ApiCallResult.RateLimited<>(rl.retryAfterSeconds());
+            case ApiCallResult.Unreachable<List<SearchResult>> u   -> new ApiCallResult.Unreachable<>(u.reason(), u.httpStatus());
+            case ApiCallResult.Unavailable<List<SearchResult>> u   -> new ApiCallResult.Unavailable<>(u.reason(), u.httpStatus());
+        };
+    }
+
     /**
      * Sucht Treffer für den lookupTerm auf einer bestimmten Domain.
      *
