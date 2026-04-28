@@ -42,7 +42,7 @@ Dabei gilt:
 | ---------------- | ------------------------------------- | ---------------------------------- |
 | Brave Search     | `BRAVE`                               | produktiv, primär                  |
 | Google Discovery | `GOOGLE_DISCOVERY`                    | in Implementierung/Test — siehe O2 |
-| Keiner           | implizit (kein Key / Platzhalter-Key) | Spec-Lookup deaktiviert            |
+| Keiner           | implizit (kein Key / Platzhalter-Key) | KI-Suche deaktiviert            |
 
 ### Dimension 2: Externe KI (Textanalyse-Engine)
 
@@ -312,7 +312,7 @@ Nach SSE-Connect sendet Backend sofort ein `provider-status`-Event → `Provider
 
 - `UNCONFIGURED` (mind. 1) → `acknowledgedHash` aus localStorage prüfen:
   nicht vorhanden oder veraltet → Popup + Badge Warning; vorhanden → nur Badge Warning (silent)
-- `CONFIGURED` (alle) → Badge Warning, kein Popup, Spec-Lookup-Button aktiv
+- `CONFIGURED` (alle) → Badge Warning, kein Popup, KI-Suche-Button aktiv
 
 **Laufzeit:**
 Erster Call schlägt fehl → SSE-Event mit neuem Status:
@@ -347,7 +347,7 @@ beim Neustart nicht vorkommen (immer Reset auf `UNCONFIGURED`/`CONFIGURED`).
 ```
 ⚠️ Einige Features sind nicht eingerichtet
 
-Querchecker benötigt externe Provider für Spec-Lookup und DL-Extraktion.
+Querchecker benötigt externe Provider für KI-Suche und DL-Extraktion.
 Die Konfiguration erfolgt über eine secrets.yml die du nach der Einrichtung
 herunterlädst und im Backend-Verzeichnis ablegst.
 Danach ist ein Server-Neustart erforderlich.
@@ -355,7 +355,7 @@ Danach ist ein Server-Neustart erforderlich.
 🔴 Web Search    — nicht konfiguriert
 ✅ LLM Provider  — Groq (konfiguriert)
 
-Ohne Web Search ist Spec-Lookup nicht verfügbar.
+Ohne Web Search ist KI-Suche nicht verfügbar.
 
 [ Einrichten ]  [ Trotzdem fortfahren ]
 ```
@@ -438,7 +438,7 @@ Bei vollem `VALID`: nur Statusübersicht, keine Buttons.
 │ Provider einrichten                          │
 │                                              │
 │ Querchecker benötigt externe Provider für    │
-│ Spec-Lookup und DL-Extraktion. Die           │
+│ KI-Suche und DL-Extraktion. Die           │
 │ Konfiguration erfolgt über eine secrets.yml   │
 │ die du nach der Einrichtung herunterlädst    │
 │ und im Backend-Verzeichnis ablegst.          │
@@ -585,7 +585,7 @@ gestartet werden"_ + Link zur Kurzanleitung.
 
 ## Degradation im UI (Übersicht)
 
-| Zustand                  | Spec-Lookup-Button   | DL-Extraktion         | Badge   | Inputfeld |
+| Zustand                  | KI-Suche-Button   | DL-Extraktion         | Badge   | Inputfeld |
 | ------------------------ | -------------------- | --------------------- | ------- | --------- |
 | `UNCONFIGURED` (mind. 1) | ausgegraut + Tooltip | ausgegraut (wenn LLM) | Warning | disabled  |
 | `CONFIGURED` (alle)      | aktiv                | aktiv                 | Warning | aktiv     |
@@ -720,7 +720,6 @@ Settings zeigt korrekten Zustand pro Provider
 ### Block B1 — Wording
 
 8.  a) Prinzipiell verwende kein Wording auf der UI das zu sehr ins Backend geht. Konkret sollte DL-Extraction nicht aufscheinen, weil einerseits Englisch, andererseits DL wenig Bedeutung hat - Extraction vielleicht noch eher. Vielleicht gibt's hierzu ein besseres Wording
-    b) Spec-Lookup - einerseits ist der Begriff in der README als auch vermutlich hier oft genug verwendet worden. Es ist aber nur eine Kurzbezeichnung für den Teil, dass die (technische) Spezifikation eines Artikels nachgeschaut werden kann. Bitte das Wording entsprechend umgestalten
     c) Das Valdierungsergebnis in 3 bzw. 4 Tabellen-Spalten aufteilen, anstelle eines künstlich erzeugten <divs>, z.B.
     |Icon|Provider|Ausgewählte Provider|konfiguriert (als icon/Checkbox)|valdiert (als icon/checkbox)
     d) Auch wenn mir die Gestaltung vom provider-status-popup gut gefällt, sollte der Hinweis mit der Warnung "Ohne LLM Provider ist DL-Extraktion nicht verfügbar." prominenter ersichtlich sein. Oder einfacher rasch erkennbar, das etwas nicht weitergeht

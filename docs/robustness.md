@@ -17,7 +17,7 @@ How Querchecker handles failures gracefully. For ops teams and developers managi
 3. **For DL extraction** (`DlExtractionService`):
    - If `retryAfterSeconds ≤ 20`: `Thread.sleep(retryAfter + 500ms)` → retry once inline
    - If `> 20`: Save with `FAILED` status
-4. **For spec-lookup** (`ProductLookupService`):
+4. **For KI-Suche** (`ProductLookupService`):
    - If `retryAfterSeconds ≤ 20`: Schedule async retry via `CompletableFuture.delayedExecutor()`
    - Broadcast SSE `lookup-result` event with `RATE_LIMITED` status
    - If `> 20`: Fall back to `bestPartial` cached result (from earlier Brave search) if available
@@ -112,37 +112,22 @@ Also **documented in PRODUCT_NAME system prompt** to prevent at the source:
 
 ## Cache & TTL Strategy
 
-**`ProductLookup` entity** caches lookup results by `lookupTerm`:
+`ProductLookup` caches lookup results by `lookupTerm`:
 
-### COMPLETE (permanent)
-- Persisted once, never expires
-- Only deleted via Settings cleanup or manual SQL
-- Safe: product specs don't change post-release
+| Status           | In DB?       | Verhalten                                                               | Konfiguration                                      |
+| ---------------- | ------------ | ----------------------------------------------------------------------- | -------------------------------------------------- |
+| `COMPLETE`       | ✅ permanent | quickFacts sofort anzeigen — kein API-Call                              | —                                                  |
+| `FAILED`         | ✅ mit TTL   | kein API-Call solange TTL aktiv; danach erneute Suche                   | `product.lookup.failed.ttl.hours` (default 24h)    |
+| `ERROR`          | ✅ mit TTL   | kein API-Call solange TTL aktiv; danach erneute Suche                   | `product.lookup.error.ttl.minutes` (default 10min) |
+| `QUOTA_EXCEEDED` | ✅           | weiter zu Kontingent-Check; wird überschrieben wenn Periode neu startet | —                                                  |
+| `RATE_LIMITED`   | ❌           | Backend plant async Retry (wenn ≤20s); SSE-Push bei Ergebnis            | —                                                  |
+| `NO_SOURCES`     | ❌           | Quellen werden bei jedem Aufruf neu geprüft (virtual status)            | —                                                  |
 
-### FAILED (24h TTL)
-- Cached for 24 hours (configurable: `AppConfig` key `product.lookup.failed.ttl.hours`)
-- After expiry: next lookup request retries the multi-source loop
-- Handles: transient network blips, temporary source outages
+`COMPLETE` has no TTL — product specs don't change post-release. Deleted only via Settings cleanup or manual SQL.
 
-### ERROR (10min TTL)
-- Cached for 10 minutes (configurable: `product.lookup.error.ttl.minutes`)
-- Example: Jsoup timeout on HTML-fetch
-- After expiry: retry
+`NO_SOURCES` occurs when the listing's category has no `CategorySearchSource` entries (or all with `lookupEnabled=false`), or when `WhListing.whCategory == null`.
 
-### NO_SOURCES (never cached)
-- Virtual status: no DB entry
-- Every call re-checks `CategorySearchSource` entries
-- Handles: dynamic category configuration changes
-
-### QUOTA_EXCEEDED (re-checked each call)
-- Checked against current quota at request time
-- Not persisted; status re-evaluated if period rolls over
-- Safe: quota limits reset on schedule (daily/monthly)
-
-### RATE_LIMITED (never cached)
-- Not persisted; async retry scheduled
-- Frontend receives SSE `lookup-result` event when retry completes
-- Handles: transient API overload
+If no entry exists for the `lookupTerm`, the full pipeline runs: quota check → load sources → web search → LLM.
 
 ---
 

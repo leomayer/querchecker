@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-28T13:14:39.600Z
-> Files: 542 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-28T14:36:12.571Z
+> Files: 544 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../.claude/projects/-home-leo-programming-github-querchecker/memory/
 
@@ -262,7 +262,7 @@
 - `IcecatService.java` — Lädt vollständige Produktspezifikationen von Icecat (kein LLM-Extrakt). (~1150 tok)
 - `LookupHistoryService.java` — Service: LookupHistoryService (~1288 tok)
 - `ProductLookupController.java` — RestController: ProductLookupController (4 endpoints) (~2696 tok)
-- `ProductLookupService.java` — Orchestriert den vollständigen Spec-Lookup-Ablauf: (~7886 tok)
+- `ProductLookupService.java` — Orchestriert den vollständigen Spec-Lookup-Ablauf: (~7670 tok)
 - `SearchResultCacheService.java` — In-memory cache for web search results. (~350 tok)
 - `UrlValidator.java` — Validiert die vom LLM gelieferte sourceUrl gegen die echten Brave-Ergebnisse. (~841 tok)
 
@@ -775,24 +775,29 @@
 - `interfaces.py` — RequestInterface: request, stream, handle_request, close + 6 more (~1242 tok)
 - `socks_proxy.py` — SOCKSProxy: create_connection, handle_request, can_handle_request, close + 1 more (~3890 tok)
 
+## backend/src/test/java/at/querchecker/research/
+
+- `ProductLookupServiceTest.java` — Class: ProductLookupServiceTest (~4483 tok)
+
 ## config/
 
 - `querchecker.yml` (~885 tok)
 
 ## docs/
 
-- `admin-guide.md` — Querchecker Admin Guide (~2747 tok)
-- `architecture.md` — Architecture & Design Decisions (~2352 tok)
-- `extraction-engine.md` — Extraction Engine — Architecture Reference (~1121 tok)
+- `admin-guide.md` — Querchecker Admin Guide (~2994 tok)
+- `architecture.md` — Architecture & Design Decisions (~2606 tok)
+- `extraction-engine.md` — Extraction Engine — Architecture Reference (~1118 tok)
 - `ki-product-analysis.md` — Automatische KI-Produktanalyse — Konzept & Architektur (~4405 tok)
-- `ki-produktanalyse.md` — Automatische KI-Produktanalyse — Konzept & Architektur (~4417 tok)
-- `local-models.md` — Kurzanleitung: Lokale KI-Modelle (~976 tok)
-- `open-issues.md` — Open Issues — Querchecker v0.2.0 (~852 tok)
+- `ki-produktanalyse.md` — Automatische KI-Produktanalyse — Konzept & Architektur (~2857 tok)
+- `local-models.md` — Kurzanleitung: Lokale KI-Modelle (~1364 tok)
+- `open-issues.md` — Open Issues — Querchecker v0.2.0 (~1574 tok)
 - `openrouter-completion.md` — OpenRouter — Completion Checklist (~1608 tok)
+- `robustness.md` — Robustness & Error Handling (~2487 tok)
 
 ## docs/concepts/
 
-- `provider-config.md` — Querchecker — Konzept: Provider-Konfiguration & Graceful Startup (~9112 tok)
+- `provider-config.md` — Querchecker — Konzept: Provider-Konfiguration & Graceful Startup (~9036 tok)
 
 ## frontend/
 

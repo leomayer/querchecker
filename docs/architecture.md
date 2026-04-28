@@ -127,15 +127,19 @@ Fetching specs for a listing is a multi-step pipeline that can take several seco
 
 ```
 lookupTerm
-  → Web Search (Brave or Google Discovery)
-    → LLM: extract Quick Facts + icecatId from snippets
-      → Quality Evaluation (GOOD / PARTIAL / EMPTY)
-        → GOOD: persist COMPLETE, done
-        → PARTIAL / EMPTY: try next configured source
-          → Web Search again (different source domain)
-            → LLM extraction
-              → Quality Evaluation
-                → ...
+  → Cache check (ProductLookup by lookupTerm)
+      → COMPLETE: serve cached result, done
+      → FAILED / ERROR: respect TTL — skip pipeline while active
+  → Quota check
+      → QUOTA_EXCEEDED: reject, done
+  → Multi-source loop (CategorySearchSource per category, priority ASC)
+      → ICECAT / GENERIC: Web Search (Brave or Google Discovery) → snippets → LLM
+      → GSMARENA / FLATPANELSHD: HTML fetch (Jsoup) → full page text → LLM
+        → Quality Evaluation (GOOD / PARTIAL / EMPTY)
+            → GOOD: persist COMPLETE, done
+            → PARTIAL / EMPTY: try next source
+              → ...
+      → All sources exhausted: persist FAILED
 ```
 
 Each category has an ordered list of `CategorySearchSource` entries (e.g. ICECAT → GSMARENA → GENERIC). The loop continues until a `GOOD` result is found or all sources are exhausted. Results are cached permanently on `COMPLETE` — subsequent lookups for the same `lookupTerm` skip the pipeline entirely. Because `lookupTerm` is the cache key (not the listing ID), multiple listings for the same product share one cached result automatically.
@@ -146,6 +150,8 @@ Each category has an ordered list of `CategorySearchSource` entries (e.g. ICECAT
 - **Google Discovery Engine**: Requires a pre-configured data store of indexed URLs. Results are fast and high-quality for known sources, but products not in the index won't be found. Suited for production deployments with a curated source corpus. Pricing and quota differ significantly from Brave.
 
 The active provider is switched via `querchecker.api.search.active-provider` with no code changes required. Both implement `WebSearchService`.
+
+> For implementation-level differences between providers (snippet format, locale deduplication, pageSize workaround), see 🤖 [KI-Produktanalyse — Suchquellen](ki-produktanalyse.md#suchquellen-multi-source-loop).
 
 ### LLM Robustness
 
@@ -185,4 +191,4 @@ Generated output lands in `src/app/api/` and is committed to Git. Generated **se
 
 Production deployment uses Docker containers via `docker-compose.prod.yml` with a Traefik reverse proxy handling SSL via Let's Encrypt.
 
-See [robustness.md](robustness.md) for error handling, quota management, and startup behaviour.
+See 🛡️ [Robustness & Error Handling](robustness.md) for error handling, quota management, and startup behaviour.

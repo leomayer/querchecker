@@ -8,7 +8,7 @@ Configuration, maintenance, and operational procedures for Querchecker.
 
 ### Disabling Lookups for Specific Categories
 
-Categories can be excluded from LLM extraction (spec lookup) in two ways:
+Categories can be excluded from LLM extraction (KI-Suche) in two ways:
 
 #### 1. Implicit Disable: No Entry (Recommended)
 
@@ -205,6 +205,38 @@ WHERE source_type = 'FLATPANELSHD' AND lookup_enabled = false;
 
 ---
 
+## LLM & Search Provider Configuration
+
+Reference configuration from `config/querchecker.yml`:
+
+```yaml
+querchecker:
+  llm:
+    external-provider: GROQ # GROQ | OPENROUTER
+  api:
+    limits:
+      brave:
+        free-limit: 1000
+        free-limit-period: MONTHLY
+        alert-at-percent: 80
+      groq:
+        model: llama-3.1-8b-instant # DL-Extraktion + 1. QuickFacts-Lookup
+        model-lookup-secondary: llama-3.3-70b-versatile # Folge-Quellen (2+)
+        free-limit: 500000
+        free-limit-period: DAILY
+        limit-unit: TOKENS
+        alert-at-percent: 80
+      openrouter:
+        model: meta-llama/llama-3.3-70b-instruct:free
+        free-limit: 0
+        free-limit-period: DAILY
+        alert-at-percent: 80
+```
+
+API keys go in `secrets.yml` (not in Git). Switch provider via `external-provider: GROQ | OPENROUTER` — requires backend restart.
+
+---
+
 ## Environment Variables
 
 | Variable                  | Purpose              | Default          |
@@ -221,42 +253,83 @@ Prod config: See `application-prod.yml`
 
 Switching the web search provider from Brave to Google Discovery.
 
-### Voraussetzungen
+### Prerequisites
 
-- GCP Service Account Key (JSON) liegt unter `config/querdenker-google-auth.json`.  
-  (GCP Console → IAM → Service Accounts → Key herunterladen)
-- Konfiguration in `config/querchecker.yml` ist bereits gesetzt:
+- GCP Service Account Key (JSON) at `config/querdenker-google-auth.json`.
+  (GCP Console → IAM → Service Accounts → download key)
+- Config in `config/querchecker.yml` is already set:
 
-| Schlüssel | Wert |
+| Key | Value |
 |---|---|
 | `project-id` | `querdenker-490819` |
 | `engine-id` | `querchecker-search-app_1774604635088` |
 | `location` | `global` |
-| `free-limit` | 100 Requests / Monat |
+| `free-limit` | 100 requests / month |
 
-### Umschalten
+### Switching Provider
 
-1. Provider in `config/querchecker.yml` setzen:
+1. Set provider in `config/querchecker.yml`:
    ```yaml
    querchecker:
      api:
        search:
          active-provider: GOOGLE_DISCOVERY
    ```
-2. Backend neu starten — Provider-Wechsel erfordert Neustart.
-3. Testen — Spec-Lookup für ein beliebiges Inserat öffnen, Logs prüfen:
+2. Restart backend — provider switch requires restart.
+3. Verify — open KI-Suche for any listing, check logs:
    ```
    [GoogleDiscoveryWebSearchService] ...
    ```
 
-### Bekannte Lücke
+### Known Gap
 
-`GoogleDiscoveryWebSearchService` hat kein explizites Rate-Limit-Handling — gRPC-Fehler werden still als leere Liste zurückgegeben statt `RateLimitException` zu werfen. Bei Bedarf nachziehen, analog zu `BraveWebSearchService`.
+`GoogleDiscoveryWebSearchService` has no explicit rate-limit handling — gRPC errors are silently returned as an empty list instead of throwing `RateLimitException`. Align with `BraveWebSearchService` if needed.
+
+---
+
+## Local Deployment (End Users)
+
+Goal: non-technical users (Mac, Windows, Linux) start Querchecker with a single command. Only prerequisite: Docker Desktop (macOS `.dmg` / Windows `.exe` + WSL2 / Linux native). Access via `localhost:14072`.
+
+### docker-compose changes
+
+The current `docker-compose.prod.yml` targets a server with Traefik (SSL, domain). For local use:
+
+| Change | Details |
+|---|---|
+| Remove Traefik labels + external network | `traefik-network` does not exist locally |
+| Add port mapping | `14072:80` for frontend |
+| Disable GPU layers | `QUERCHECKER_DL_GPU_LAYERS=0` (no CUDA on Mac/Windows) |
+| Use default bridge network | No external network needed |
+
+### Out of scope
+
+- DL model download (app works without local models)
+- Changes to Dockerfiles or `application.yml`
+
+---
+
+## nginx SSE-Konfiguration
+
+Gilt für lokale und Produktiv-Deployments. Die Standard-nginx-Konfiguration puffert Responses — das blockiert Server-Sent Events (DL-Extraktion, KI-Suche Retry). Pflicht für `/api/`:
+
+```nginx
+location /api/ {
+    proxy_pass http://querchecker-backend:14070;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header Connection '';
+    proxy_http_version 1.1;
+    chunked_transfer_encoding off;
+    proxy_buffering off;
+    proxy_cache off;
+}
+```
 
 ---
 
 ## See Also
 
-- **Architecture**: `docs/architecture.md`
-- **Deployment**: `docs/todo-deployment.md`
-- **KI-Lookup**: `docs/ki-product-analysis.md`
+- 🏗️ [Architecture & Design Decisions](architecture.md)
+- 🛡️ [Robustness & Error Handling](robustness.md) — Cache-TTL-Strategie, Quota-Verwaltung, Rate-Limiting
+- 🤖 [KI-Produktanalyse](ki-produktanalyse.md) — KI-Suche Pipeline und Suchquellen

@@ -104,7 +104,7 @@ cd frontend && npm run generate-api
 
 **Hot Reload**: Datei speichern → Spring DevTools erkennt die Änderung und startet den Context automatisch neu. JVM-Neustart nur bei Prozess-Crash nötig.
 
-**API-Keys**: Für KI-Extraktion und Item Research werden API-Keys für OpenRouter/Groq und Brave Search benötigt. → Details: `docs/admin-guide.md`
+**API-Keys**: Für KI-Extraktion und Item Research werden API-Keys für OpenRouter/Groq und Brave Search benötigt. → Details: [Admin Guide](docs/admin-guide.md)
 
 ### Deployment (Prod)
 
@@ -135,11 +135,12 @@ querchecker/
 
 ## Dokumentation
 
-| 📐 Technisch & Design | ⚙️ Setup & Betrieb |
-| :--- | :--- |
-| 🏗️ [Architecture & Design Decisions](docs/architecture.md)<br>SignalStore, SSE, conditional model registration, OpenAPI workflow | 📖 [Admin Guide](docs/admin-guide.md)<br>Installation, Konfiguration und Betrieb (API-Keys, Provider-Setup, Deployment) |
-| 🛡️ [Robustness & Error Handling](docs/robustness.md)<br>API-Ausfälle, Rate-Limiting, Quota-Verwaltung, Server-Restarts | ⚙️ [Provider-Konfiguration](docs/concepts/provider-config.md)<br>KI-Modelle und Web-Suche konfigurieren (lokal vs. Cloud) |
-| 🤖 [KI-Produktanalyse](docs/ki-product-analysis.md)<br>Produktname-Extraktion und Item Research | 💻 [Lokale Modelle](docs/local-models.md)<br>LLM lokal statt Cloud betreiben |
+| 📐 Technisch & Design                                                                                                            | ⚙️ Setup & Betrieb                                                                                                        |
+| :------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------ |
+| 🏗️ [Architecture & Design Decisions](docs/architecture.md)<br>SignalStore, SSE, conditional model registration, OpenAPI workflow | 📖 [Admin Guide](docs/admin-guide.md)<br>Installation, Konfiguration und Betrieb (API-Keys, Provider-Setup, Deployment)   |
+| 🛡️ [Robustness & Error Handling](docs/robustness.md)<br>API-Ausfälle, Rate-Limiting, Quota-Verwaltung, Server-Restarts           | ⚙️ [Provider-Konfiguration](docs/concepts/provider-config.md)<br>KI-Modelle und Web-Suche konfigurieren (lokal vs. Cloud) |
+| 🤖 [KI-Produktanalyse](docs/ki-produktanalyse.md)<br>Produktname-Extraktion und Item Research                                    | 💻 [Lokale Modelle](docs/local-models.md)<br>LLM lokal statt Cloud betreiben                                              |
+| ⚙️ [Extraction Engine](docs/extraction-engine.md)<br>Queue-Architektur, Status-Maschine, Modell-Registrierung                    |                                                                                                                           |
 
 ---
 
@@ -151,11 +152,3 @@ querchecker/
 - [ ] Provider-Wechsel zur Laufzeit — Web-Such-Provider (Brave / Google Discovery) ohne App-Neustart umschalten.
 
 Bei positivem Feedback bin ich offen für weitere Features, sofern sie mich fachlich reizen und der Aufwand vertretbar ist.
-
-<!-- TEMP: Sprachkonzept — vor Veröffentlichung entfernen
-
-Dokumentationssprache:
-- README.md → Deutsch (Einstieg, Vision, allgemeine Einführung)
-- docs/architecture.md → Englisch (technische Reviewer)
-- docs/robustness.md → Englisch (Entwickler / Ops)
-- alle weiteren docs/ → zu konsolidieren

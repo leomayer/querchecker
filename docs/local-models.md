@@ -35,13 +35,13 @@ sudo zypper install libstdc++6
 
 ## Verfügbare Modelle
 
-| Modell-Klasse            | Modell                                  | VRAM    | Bemerkung                         |
-| ------------------------ | --------------------------------------- | ------- | --------------------------------- |
-| `Llama32ExtractionModel` | meta-llama/Llama-3.2-3B-Instruct (GGUF) | ~2 GB   | primäres lokales Modell, Standard |
-| `MdebertaExtractionModel`| mDeBERTa-v3-base-squad2                 | ~700 MB | NER-basiert, kein Instruct        |
-| `NuExtractExtractionModel`| numind/NuExtract-v1.5-tiny             | ~400 MB | Qwen2-0.5B-Finetune               |
-| `NuExtract15ExtractionModel`| numind/NuExtract-v1.5                | ~1 GB   | Qwen2-1.5B-Finetune               |
-| `Qwen25ExtractionModel`  | Qwen/Qwen2.5-3B-Instruct (GGUF)        | ~2 GB   | alternativ zu Llama 3.2           |
+| Modell-Klasse                | Modell                                  | VRAM    | Bemerkung                         |
+| ---------------------------- | --------------------------------------- | ------- | --------------------------------- |
+| `Llama32ExtractionModel`     | meta-llama/Llama-3.2-3B-Instruct (GGUF) | ~2 GB   | primäres lokales Modell, Standard |
+| `MdebertaExtractionModel`    | mDeBERTa-v3-base-squad2                 | ~700 MB | NER-basiert, kein Instruct        |
+| `NuExtractExtractionModel`   | numind/NuExtract-v1.5-tiny              | ~400 MB | Qwen2-0.5B-Finetune               |
+| `NuExtract15ExtractionModel` | numind/NuExtract-v1.5                   | ~1 GB   | Qwen2-1.5B-Finetune               |
+| `Qwen25ExtractionModel`      | Qwen/Qwen2.5-3B-Instruct (GGUF)         | ~2 GB   | alternativ zu Llama 3.2           |
 
 ---
 
@@ -69,7 +69,7 @@ python download_llama32.py
 ```yaml
 querchecker:
   llm:
-    mode: LOCAL          # LOCAL | API
+    mode: LOCAL # LOCAL | API
 ```
 
 Beim Start mit `mode: LOCAL` werden **ausschließlich lokale Modelle** registriert —
@@ -99,10 +99,34 @@ Wenn ein lokales Modell nicht startet, zeigt Querchecker in
 
 Häufige Ursachen:
 
-| Fehler                                      | Ursache                              | Lösung                                       |
-| ------------------------------------------- | ------------------------------------ | -------------------------------------------- |
-| `UnsatisfiedLinkError`                      | Native Library fehlt                 | `libstdc++6` installieren                    |
-| `FileNotFoundException` (GGUF-Datei)        | Modell nicht heruntergeladen         | Download-Skript ausführen                    |
-| `OutOfMemoryError`                          | Zu wenig RAM/VRAM                    | Kleineres Modell wählen                      |
-| `ClassNotFoundException` (JNI)              | DevTools ClassLoader-Problem         | `spring-devtools.properties` prüfen          |
-| Modell startet, liefert aber schlechte Ergebnisse | Falsches Modell für Kategorie  | Llama 3.2 oder Qwen 2.5 bevorzugen          |
+| Fehler                                            | Ursache                       | Lösung                              |
+| ------------------------------------------------- | ----------------------------- | ----------------------------------- |
+| `UnsatisfiedLinkError`                            | Native Library fehlt          | `libstdc++6` installieren           |
+| `FileNotFoundException` (GGUF-Datei)              | Modell nicht heruntergeladen  | Download-Skript ausführen           |
+| `OutOfMemoryError`                                | Zu wenig RAM/VRAM             | Kleineres Modell wählen             |
+| `ClassNotFoundException` (JNI)                    | DevTools ClassLoader-Problem  | `spring-devtools.properties` prüfen |
+| Modell startet, liefert aber schlechte Ergebnisse | Falsches Modell für Kategorie | Llama 3.2 oder Qwen 2.5 bevorzugen  |
+
+---
+
+## Bekannte Einschränkungen
+
+### Lokales LLM degradiert die Cache-Effizienz
+
+Der `ProductLookup`-Cache ist ein **reiner String-Match** auf `lookupTerm`. Die Qualität des Caches steht und fällt damit, dass dasselbe Produkt immer denselben normalisierten Term erzeugt.
+
+**API-Modelle (Groq / OpenRouter)** liefern konsistente Ergebnisse, weil:
+
+- Sie mit 70B+ Parametern trainiert wurden und damit einen deutlich größeren Sprachmodellkontext mitbringen als lokale Quantisierungen (typisch 3B–8B, INT4/INT8)
+- Sie gezielt durch RLHF/DPO auf Instruction-Following optimiert sind — strukturierte JSON-Ausgabe und exakte Produktnamen-Extraktion ist genau das, wofür diese Fine-Tuning-Stufen ausgelegt sind
+- Produktnamen werden normalisiert: ein API-Modell gibt konsistent `"Sony WH-1000XM5"` zurück, unabhängig davon ob der Inseratstext `"Sony WH1000XM5 Kopfhörer schwarz wie neu"` oder `"WH-1000XM5 NC-Headset OVP"` enthält
+
+**Lokale Modelle** dagegen können dasselbe Inserat unterschiedlich extrahieren:
+
+- Run 1: `"Sony WH-1000XM5"`
+- Run 2: `"Sony WH1000XM5 Schwarz"`
+- Run 3: `"WH 1000XM5 Noise Cancelling"`
+
+Jede Variante erzeugt einen eigenen `ProductLookup`-Eintrag, verbraucht einen Brave-API-Call, und kein Eintrag wird jemals wiederverwendet. Der Cache degeneriert zu einem reinen Write-Only-Log.
+
+**Empfehlung:** Für produktiven Einsatz immer `querchecker.llm.external-provider: GROQ` oder `OPENROUTER` verwenden. Lokale Modelle eignen sich allenfalls für die Entwicklung ohne Internetabhängigkeit, aber nicht für zuverlässiges Caching.

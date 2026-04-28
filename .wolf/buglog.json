@@ -432,6 +432,134 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-28T13:06:43.354Z"
+    },
+    {
+      "id": "bug-028",
+      "timestamp": "2026-04-28T13:33:21.943Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ki-produktanalyse.md",
+      "root_cause": "52 lines replaced/restructured",
+      "fix": "Rewrote 68→3 lines (52 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T13:33:21.943Z"
+    },
+    {
+      "id": "bug-029",
+      "timestamp": "2026-04-28T13:33:38.952Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "docs/open-issues.md",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T13:33:38.952Z"
+    },
+    {
+      "id": "bug-030",
+      "timestamp": "2026-04-28T13:45:59.602Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/architecture.md",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 21→27 lines (6 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T13:45:59.602Z"
+    },
+    {
+      "id": "bug-031",
+      "timestamp": "2026-04-28T14:06:29.975Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/open-issues.md",
+      "root_cause": "Had `catch (Exception e)`",
+      "fix": "Changed to `ResourceAccessException`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T14:06:29.975Z"
+    },
+    {
+      "id": "bug-032",
+      "timestamp": "2026-04-28T14:20:55.656Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/robustness.md",
+      "root_cause": "25 lines replaced/restructured",
+      "fix": "Rewrote 33→18 lines (25 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T14:20:55.656Z"
+    },
+    {
+      "id": "bug-033",
+      "timestamp": "2026-04-28T14:21:07.991Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/ki-produktanalyse.md",
+      "root_cause": "19 lines replaced/restructured",
+      "fix": "Rewrote 27→3 lines (19 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T14:21:07.991Z"
+    },
+    {
+      "id": "bug-034",
+      "timestamp": "2026-04-28T14:21:14.654Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/admin-guide.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 4→5 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T14:21:14.654Z"
+    },
+    {
+      "id": "bug-035",
+      "timestamp": "2026-04-28T14:36:12.580Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/open-issues.md",
+      "root_cause": "Had `ProductLookupService`",
+      "fix": "Changed to `docs/dev-setup.md`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T14:36:12.580Z"
     }
   ]
 }
