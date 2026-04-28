@@ -10,269 +10,179 @@ Technical deep-dive for developers interested in how Querchecker is built.
 
 Instead of traditional RxJS Subject-based state management, Querchecker uses **@ngrx/signals** for fine-grained reactivity:
 
-- **SearchStore** (`features/wh-search/search.store.ts`): Global app state (listings, filters, layout state)
-- **ExtractionStore** (`features/wh-search/extraction.store.ts`): DL extraction results, spec-lookup cache, Icecat data
-- **Computed signals** auto-track dependencies — no manual subscription cleanup needed
-- **Effects** for side effects (HTTP calls, navigation)
+- **SearchStore** (`features/wh-search/search.store.ts`): Global app state — listings, filters, layout state
+- **ExtractionStore** (`features/wh-search/extraction.store.ts`): DL extraction results, item research cache, Icecat data
 
-**Benefit**: Less boilerplate than traditional RxJS, better compiler optimizations, easier reasoning about data flow.
+Computed signals auto-track their dependencies, no manual subscription cleanup needed. Effects handle side effects (HTTP calls, navigation). The result is less boilerplate than traditional RxJS and easier reasoning about data flow.
 
 ### Angular 21+ Modern Syntax
 
-- **Standalone Components** — no NgModules, tree-shake unused code
-- **Control Flow** — `@if`, `@for`, `@switch` instead of `*ngIf`, `*ngFor`
-- **Input/Output** — `input()` / `output()` function APIs instead of decorators
-- **httpResource** — reactive HTTP state management (loading, data, error)
+The codebase uses only current Angular patterns throughout:
+
+- **Standalone Components** — no NgModules
+- **Control Flow** — `@if`, `@for`, `@switch` instead of structural directives
+- **`input()` / `output()`** — function APIs instead of decorators
+- **`httpResource()`** — reactive HTTP state (loading, data, error) without manual subscriptions
+- **No `ChangeDetectionStrategy.OnPush`** — Signals handle granularity, the decorator adds no value here
+
+### State Machine & Navigation
+
+The app uses a three-state layout machine (`SEARCH → LISTINGS → DETAIL`) managed in `SearchStore`. Each transition updates the route, so browser back/forward navigation works as expected. Transitions additionally trigger CSS animations for a smooth handoff between states. Filter state, scroll position, and loaded listings are preserved in the store, so navigating back from a detail view restores the previous results instantly without a new API call.
+
+The Settings page (`/settings`) is a separate route outside the state machine.
 
 ### Component Hierarchy
 
 ```
-MainLayoutComponent (route container, two httpResources: allListings + search)
+MainLayoutComponent
 ├── SearchStore (global state)
-├── ExtractionStore (global spec-lookup cache)
+├── ExtractionStore (item research + DL cache)
 ├── zone-left (filter panel)
 │   ├── location-filter
 │   ├── category-filter
-│   ├── wh-filter
-│   └── wh-sort
-└── zone-right (results / detail)
-    ├── app-wh-listings (LISTINGS state)
+│   └── wh-filter / wh-sort
+└── zone-right
+    ├── wh-listings (LISTINGS state)
     │   └── listing-card × N
-    ├── app-wh-detail (DETAIL state)
-    │   ├── wh-base (gallery, price, meta)
-    │   ├── item-annotation (rating, interest, notes)
-    │   └── item-research (spec-lookup, DL terms, Icecat accordion)
+    └── wh-detail (DETAIL state)
+        ├── wh-base (gallery, price, meta)
+        ├── item-annotation (rating, notes)
+        └── item-research (DL terms, item research, Icecat accordion)
 ```
-
-**State Machine**: SEARCH → LISTINGS → DETAIL with smooth animations.
 
 ---
 
 ## Backend Architecture
 
-### Spring Boot 3.5 + Java 21
-
-- **Lombok** (`@Data`, `@Builder`, `@NoArgsConstructor`) for boilerplate reduction
-- **SpotBugs** (Maven plugin) catches common bugs at compile time
-- **JPA/Hibernate** with PostgreSQL 16
-- **Jackson 2.18.3** (pinned in pom.xml — springdoc 2.8.6 incompatible with 2.19.x)
-- **spring-boot-devtools** for hot-reload on file save
-
 ### Package Structure
 
 ```
 at.querchecker/
-├── entity/          WhListing, WhListingDetail, WhCategory, WhLocation, AppConfig
-├── dto/             Generated + manual DTOs
-├── controller/      REST endpoints
-├── service/         Business logic
-├── repository/      JPA repositories
-├── config/          Beans, interceptors, UA forwarding
-├── sse/             Server-Sent Events (SSE) for async operations
-├── api/             LLM extraction & API usage logging
-├── wh/              Willhaben integration
-├── research/        Spec-lookup, Brave search, quality evaluation
-└── deepLearning/    DL orchestration, model management, prompts
+├── entity/       Core domain (WhListing, WhListingDetail, WhCategory, …)
+├── controller/   REST endpoints
+├── service/      Business logic
+├── repository/   JPA repositories
+├── config/       Beans, interceptors, UA forwarding
+├── sse/          Server-Sent Events hub
+├── api/          LLM extraction clients, usage logging
+├── wh/           Willhaben integration
+├── research/     Item research, web search, quality evaluation
+└── deepLearning/ DL orchestration, model management, prompts
 ```
 
 ### Conditional Model Registration
 
-**Problem**: Initializing local GGUF files at startup wastes memory if models aren't active.
+**Problem**: Local GGUF model files are large and cannot be unloaded at runtime. Initializing them unconditionally wastes memory whenever the app runs in API mode.
 
-**Solution**: `DlModelConfiguration` with `@EventListener(ApplicationReadyEvent.class)` registers models **after** full context initialization:
+**Solution**: `DlModelConfiguration` listens for `ApplicationReadyEvent` and registers models **after** the full context is initialized (database available):
 
-- **API mode** (`querchecker.llm.mode=API`): Only LLM API model (Groq or OpenRouter, depending on `active-provider`)
-- **LOCAL mode**: Query DB for active `DlModelConfig`, register only those
+- **API mode** (`querchecker.llm.mode=API`): Only `LlmApiExtractionModel` is registered
+- **LOCAL mode**: Active entries from `DlModelConfig` table are queried; only those are instantiated as singletons
 
-```java
-@EventListener(ApplicationReadyEvent.class)
-public void registerModels() {
-    List<DlModelConfig> active = modelConfigRepo.findByActiveTrueOrderByExecutionOrderAsc();
-    active.forEach(cfg -> {
-        ExtractionModel model = createModel(cfg);
-        applicationContext.getBeansOfType(ExtractionModel.class).put(cfg.getModelName(), model);
-    });
-}
-```
+`DlOrchestrationService` uses `ObjectProvider<List<ExtractionModel>>` for lazy dependency resolution — avoids circular initialization and handles the case where no models are registered cleanly.
 
-**Benefit**: No GGUF files loaded unless needed. Scalable to many models.
+**Benefit**: No GGUF file is loaded unless it's both active in the DB and LOCAL mode is configured. Adding a new model type requires only a DB row and a new `ExtractionModel` implementation.
+
+Note: Local GGUF inference is impractically slow without a GPU. LOCAL mode is documented as a community option; the intended production setup is API mode (Groq or OpenRouter).
 
 ### Sequential DL Execution
 
-**Queue Architecture** (`DlOrchestrationService`):
+**Queue architecture** (`DlOrchestrationService`):
 
-- `LinkedBlockingDeque<Runnable>` (unbounded) + `ThreadPoolExecutor(1,1)` — globally sequential, never parallel
-- **Priority by `executionOrder`**: Models sorted DESC, `addFirst()` → lowest executionOrder runs first
-- **Queue limit** (default 10): Overflow → `pollLast()` → lowest-priority run marked `CANCELLED`
-- **Duplicate check**: `existsByItemTextAndModelConfigAndStatusIn([DONE, INIT, PENDING])` — CANCELLED not skipped, enables retries
+- `LinkedBlockingDeque<Runnable>` + `ThreadPoolExecutor(1,1)` — globally sequential, never parallel
+- Models are sorted by `executionOrder`; `addFirst()` gives fast models priority over slow ones
+- Queue overflow (default: 10): `pollLast()` removes the lowest-priority pending run and marks it `CANCELLED`
+- `CANCELLED` is not terminal — duplicate detection skips `CANCELLED` status, so re-opening a listing automatically retries
 
-Why sequential? Prevents thundering herd on Groq API, consistent results.
+Why sequential? Prevents thundering-herd on Groq's free tier rate limits and produces consistent, comparable results across models.
 
 ### SSE for Async Operations
 
-**Server-Sent Events** stream results as they complete:
+Results stream to the frontend as they complete rather than waiting for all models to finish:
 
 ```
-User opens detail → scheduleExtraction() → DL queued (INIT)
-  → Model runs → DlPersistenceService.saveResults()
-    → publishEvent(DlExtractionCompletedEvent)
-      → DlExtractionController resolves itemTextId → whItemId
-        → SseHub.broadcast("dl-extract", { whItemId, terms, suggestedTerm })
+User opens detail → scheduleExtraction()
+  → DlOrchestrationService queues run (status: INIT)
+    → model executes → DlPersistenceService.saveResults()
+      → ApplicationEventPublisher fires DlExtractionCompletedEvent
+        → DlExtractionController resolves itemTextId → whItemId
+          → SseHub.broadcast("dl-extract", { whItemId, terms, suggestedTerm })
 ```
 
-Frontend receives results **per model** (Groq first, then Llama), not after all complete.
+The frontend receives partial results per model in real time. No polling, no loading spinner waiting for the slowest model.
 
-### Multi-Source Lookup with Fallback
+### Provider-Agnostic Design
 
-**ProductLookupService** loop (per `CategorySearchSource`):
+Neither the web search layer nor the LLM extraction layer is tied to a specific vendor.
+
+**Web search**: `WebSearchService` interface with `search(lookupTerm, siteDomain, keywords, queryExcludes, resultCount)`. Active provider is selected via `querchecker.api.search.active-provider`. Current implementations: `BraveWebSearchService`, `GoogleDiscoveryWebSearchService`.
+
+**LLM extraction**: `ExtractionClient` interface with implementations for Groq and OpenRouter (both OpenAI-compatible). `ExtractionProviderRouter` selects the active one via `querchecker.api.extraction.active-provider`. Switching providers requires only a config change, no code change.
+
+This pattern also makes quota handling straightforward: `ApiUsageLogService` tracks calls and tokens per `Provider` enum entry regardless of which implementation is active.
+
+### Item Research Flow
+
+Fetching specs for a listing is a multi-step pipeline that can take several seconds. Each step is a potential failure point with its own fallback:
 
 ```
-For each source (ordered by priority):
-  1. Brave Search → SearchResult[]
-  2. HTML-Fetch (FLATPANELSHD/GSMARENA) OR Snippets (ICECAT/GENERIC) → pageText
-  3. LLM extraction (extractQuickFacts or extractQuickFactsFromText) → QuickFactsResult
-  4. Quality evaluation (GOOD/PARTIAL/EMPTY)
-     → GOOD: stop, persist COMPLETE
-     → PARTIAL/EMPTY: try next source
-  5. Exception (rate-limit, network): retry async if ≤20s, else FAILED
+lookupTerm
+  → Web Search (Brave or Google Discovery)
+    → LLM: extract Quick Facts + icecatId from snippets
+      → Quality Evaluation (GOOD / PARTIAL / EMPTY)
+        → GOOD: persist COMPLETE, done
+        → PARTIAL / EMPTY: try next configured source
+          → Web Search again (different source domain)
+            → LLM extraction
+              → Quality Evaluation
+                → ...
 ```
 
-**Caching semantics**:
-- `COMPLETE` — permanent
-- `FAILED` — TTL 24h
-- `ERROR` — TTL 10min
-- `RATE_LIMITED` — not persisted, async retry
-- `NO_SOURCES` — virtual, re-checked each call
+Each category has an ordered list of `CategorySearchSource` entries (e.g. ICECAT → GSMARENA → GENERIC). The loop continues until a `GOOD` result is found or all sources are exhausted. Results are cached permanently on `COMPLETE` — subsequent lookups for the same `lookupTerm` skip the pipeline entirely. Because `lookupTerm` is the cache key (not the listing ID), multiple listings for the same product share one cached result automatically.
 
----
+**Web search providers** differ in a fundamental way:
 
-## API Integration
+- **Brave Search**: General web index. Any URL can appear in results — product pages, spec sheets, review sites. Supports dynamic discovery of new or obscure products. Free tier: 1,000 requests/month.
+- **Google Discovery Engine**: Requires a pre-configured data store of indexed URLs. Results are fast and high-quality for known sources, but products not in the index won't be found. Suited for production deployments with a curated source corpus. Pricing and quota differ significantly from Brave.
 
-### Extraction Client Interface
+The active provider is switched via `querchecker.api.search.active-provider` with no code changes required. Both implement `WebSearchService`.
 
-```java
-interface ExtractionClient {
-    extractProductName(title, description, categoryName, prompt)
-    extractQuickFacts(lookupTerm, categoryName, braveResults, mandatoryFields, prompt)
-    extractQuickFactsFromText(lookupTerm, categoryName, pageText, mandatoryFields, prompt)
-}
-```
+### LLM Robustness
 
-Implementations: `GroqExtractionClient`, `OpenRouterExtractionClient` (both OpenAI-compatible).
+`AbstractLlmExtractionClient` applies several hardening layers before returning results:
 
-**Router** (`ExtractionProviderRouter`): Active provider via `querchecker.api.extraction.active-provider` config.
-
-### LLM Extraction Robustness
-
-**AbstractLlmExtractionClient** applies:
-
-1. **Sanitization** — fix inch-mark errors (e.g., `"24""` → `"24 Zoll"`)
-2. **Filler-value stripping** — remove "unbekannt", "-", "n/a", etc. from quickFacts
-3. **JSON parsing with fallback** — if parse fails, try `tryParseJson()` with error recovery
-4. **icecatId validation** — case-insensitive pattern matching against Brave results
+1. **Sanitization** — fixes inch-mark encoding errors in raw LLM output (e.g. `24""` → `24 Zoll`) before JSON parsing
+2. **Filler-value stripping** — removes "unbekannt", "-", "n/a", "unknown" etc. from extracted fields so they don't count as fulfilled in quality evaluation
+3. **JSON retry** — if the first parse fails, a second attempt with error recovery is made before giving up
+4. **icecatId validation** — extracted IDs are cross-checked against the actual Brave Search result URLs to prevent hallucinations
+5. **Rate-limit tracking** — on 429 responses, estimated input token counts are logged so rate-limit hits appear in the usage monitor
 
 ---
 
 ## Database Design
 
-### Entities with Lombok
+### Enum Strategy
 
-All entities use `@Data @Builder @NoArgsConstructor @AllArgsConstructor` for minimal boilerplate.
+All enums use `@Enumerated(EnumType.STRING)` stored as `VARCHAR` rather than native PostgreSQL enum types. Native PG enums require DDL changes (`ALTER TYPE`) to add values, which conflicts with Flyway's sequential migration model. String columns can be extended with a simple `ALTER TABLE`.
 
-### Key Foreign Keys
+### PostgreSQL Arrays
 
-- `WhListingDetail.whListing` → 1:1 (User annotations)
-- `DlExtractionRun.itemText` + `modelConfig` → 2D index (per-model results)
-- `DlExtractionTerm.run` → many terms per run
-- `ProductLookup.whCategory` → nullable (default sources)
-
-### Arrays in PostgreSQL
-
-**`CategorySearchSource.queryExcludes`**: `TEXT[]` mapped via `@Type(ListArrayType.class)` from `hypersistence-utils-hibernate-63:3.9.11`.
-
----
-
-## DevTools & Hot-Reload
-
-**`src/main/resources/META-INF/spring-devtools.properties`**:
-
-```properties
-restart.exclude=llama-.*\.jar
-```
-
-Why? Llama JNI native library (`libjllama.so`) can't be reloaded by RestartClassLoader. Without this, hot-restarts fail with `UnsatisfiedLinkError`.
+`CategorySearchSource.queryExcludes` stores a `TEXT[]` array, mapped via `@Type(ListArrayType.class)` from `hypersistence-utils`. This allows per-source keyword exclusions without a join table for what is essentially a simple list.
 
 ---
 
 ## OpenAPI Code Generation
 
-**Workflow**:
-
 ```bash
-cd frontend
-npm run generate-api  # Calls openapi-generator-cli
+cd frontend && npm run generate-api  # reads from backend /v3/api-docs
 ```
 
-Reads Swagger spec from backend (`/v3/api-docs`), generates:
-- DTOs (`api/model/*.ts`)
-- Service classes (`api/api/*.service.ts`)
-
-**Important**: Generated service classes are NOT used. Only DTO types imported. Hand-written services in `core/` handle actual HTTP calls (more control, less magic).
-
----
-
-## Configuration
-
-### application.yml Structure
-
-```yaml
-querchecker:
-  dl:
-    min-confidence: 0.0
-    top-k: 5
-    source-model: llama  # Only this model sends suggestedTerm in SSE
-
-  llm:
-    mode: API  # or LOCAL
-
-  api:
-    extraction:
-      active-provider: GROQ  # or OPENROUTER
-    providers:
-      brave:
-        free-limit: 1000
-        free-limit-period: MONTHLY
-      groq:
-        model: llama-3.1-8b-instant
-        free-limit: 25000
-        free-limit-period: DAILY
-```
-
-API keys in `secret.yml` (not in Git).
-
----
-
-## Testing Strategy
-
-- **Unit Tests** — Mockito for services, repositories
-- **Integration Tests** — Real DB (testcontainers), actual HTTP calls where feasible
-- **Frontend** — Vitest (Angular 21+ default) with Jasmine syntax
-
-Current coverage: see test suite (`mvn test`). Gaps documented in `docs/open-issues.md`.
-
----
-
-## Performance Optimizations
-
-1. **Snippet Truncation** — Brave results capped to 5 results, 250 chars per description, 7 snippets × 250 chars max (~3125 tokens total, well under 6000 TPM limit)
-2. **Lazy Model Initialization** — Local GGUF files only loaded if active
-3. **Search Result Caching** — `SearchResultCacheService` in-memory cache (for retry on rate-limit)
-4. **Listing Detail Projection** — `WhListingDetailSummary` interface for efficient joins (viewCount, rating without loading full entity)
+Generated output lands in `src/app/api/` and is committed to Git. Generated **service classes are not used** — only the DTO types are imported. All HTTP calls go through hand-written services in `core/`, which gives full control over request construction, error handling, and SSE event wiring without fighting generated abstractions.
 
 ---
 
 ## Deployment & Ops
 
-See [docs/robustness.md](robustness.md) for error handling and monitoring.
+Production deployment uses Docker containers via `docker-compose.prod.yml` with a Traefik reverse proxy handling SSL via Let's Encrypt.
 
-Production deployment: Docker containers orchestrated via `docker-compose.prod.yml`, Traefik reverse proxy with SSL via Let's Encrypt.
+See [robustness.md](robustness.md) for error handling, quota management, and startup behaviour.

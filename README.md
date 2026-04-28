@@ -18,48 +18,33 @@ Mir war dabei wichtig:
 
 ## Die App
 
-## 🔍 Suche & Filterung
+![Querchecker Gesamtansicht](docs/screenshots/overview.png)
+
+Der Workflow ist bewusst linear gehalten: Du startest eine Suche, bekommst deine Ergebnisse als Karten, und klickst dich in die Detailansicht — ohne dass die Seite neu lädt. Die drei Zustände (Suche, Ergebnisse, Detail) wechseln fließend ineinander, du verlierst nie den Kontext.
+
+In der Detailansicht siehst du alle Bilder des Inserats in einer Galerie, kannst das Inserat bewerten (👍/👎), Notizen hinzufügen (werden automatisch gespeichert) und direkt in die KI-gestützte Produktanalyse wechseln. Dort schlägt Querchecker automatisch einen Produktnamen vor — du kannst ihn korrigieren, und auf Knopfdruck werden technische Spezifikationen nachgeschlagen: aus Quellen wie Icecat, GSMArena oder FlatpanelsHD, aufbereitet von einem LLM zu strukturierten Quick Facts. Felder, die dir wichtig sind (z.B. Duplex-Druck, Akkukapazität), kannst du als bevorzugt markieren — sie erscheinen dann immer ganz oben.
+
+Was du **nicht** siehst: wie viele API-Aufrufe das im Hintergrund kostet. Querchecker arbeitet mit freien API-Kontingenten (Groq, Brave Search) und trackt die Nutzung intern — in den Einstellungen gibt es einen Usage Monitor, der dir zeigt wie weit du noch von deinem Tageslimit entfernt bist.
+
+---
+
+### 🔍 Suche & Filterung
 
 Damit du nicht den Überblick verlierst, kannst du deine Suche im Querchecker sehr präzise steuern. Der Filter-Bereich ist in drei logische Schritte unterteilt:
 
-| Was & Wie viel                                                                                                                                                                             | 📍Wo &  Kategorie                                                                                                                                                   | Extras & Aktion                                                                                                                                                                   |
-| :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| <img src="docs/screenshots/search_part1.png" width="100%" />                                                                                                                               | <img src="docs/screenshots/search_part2.png" width="100%" />                                                                                                        | <img src="docs/screenshots/search_part3.png" width="100%" />                                                                                                                      |
-| **Deine Basis-Suche**<br>Hier gibst du deinen **Suchbegriff** ein und legst dein **Budget** fest. Du entscheidest auch gleich vorab, wie viele **Ergebnisse** du pro Seite laden möchtest. | **Standort & Kategorien**<br>Grenze deine Suche auf ein **Bundesland** oder einen **Bezirk** ein. Über die **Kategorie** filterst du gezielt nach Hardware-Gruppen. | **Sicherheit & Start**<br>Aktiviere **Nur Paylivery**, wenn du nur Angebote mit Käuferschutz sehen willst. Mit einem Klick auf **Suchen** geht es los oder du setzt alles zurück. |
+| Was & Wie viel                                                                                                                                                                             | 📍Wo &  Kategorie                                                                                                                                                   | Extras & Aktion                                                                                                                                                      |
+| :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <img src="docs/screenshots/search_part1.png" width="100%" />                                                                                                                               | <img src="docs/screenshots/search_part2.png" width="100%" />                                                                                                        | <img src="docs/screenshots/search_part3.png" width="100%" />                                                                                                         |
+| **Deine Basis-Suche**<br>Hier gibst du deinen **Suchbegriff** ein und legst dein **Budget** fest. Du entscheidest auch gleich vorab, wie viele **Ergebnisse** du pro Seite laden möchtest. | **Standort & Kategorien**<br>Grenze deine Suche auf ein **Bundesland** oder einen **Bezirk** ein. Über die **Kategorie** filterst du gezielt nach Hardware-Gruppen. | **Suche**<br>Aktiviere **Nur Paylivery**, wenn du nur Angebote mit Käuferschutz sehen willst. Mit einem Klick auf **Suchen** geht es los oder du setzt alles zurück. |
 
 ---
 
-### Detailansicht & Annotationen
+### 📋 Detailansicht und 🔬 KI-Produktanalyse
 
-![Detailansicht](docs/screenshots/detail.png)
-
-Die Detailansicht zeigt alle Inseratsinformationen, eine vollständige Bildergalerie mit Zoom und Navigation, sowie die persönlichen Annotationen: Notizen (Autosave), Rating, Interesse-Level und Tags.
-
----
-
-### KI-Produktanalyse & Spec-Lookup
-
-![Spec-Lookup](docs/screenshots/spec-lookup.png)
-
-Beim Öffnen eines Inserats extrahieren KI-Modelle automatisch den Produktnamen. Auf Knopfdruck werden technische Spezifikationen nachgeschlagen — Brave Search findet relevante Quellen, ein LLM extrahiert daraus strukturierte Quick Facts. Bevorzugte Felder (z.B. Duplex, Patronen-Verfügbarkeit) erscheinen immer prominent. Ein Klick öffnet den aktuellen Marktpreis auf Geizhals.
-
-- Mehr zur KI-Konfiguration (lokal / remote): → [docs/concepts/provider-config.md](docs/concepts/provider-config.md)
-
-- Mehr zu dem Punkt, wie KI-Extraktion und Spezifikationen ermittelt werden: → [docs/ki-product-analysis.md](docs/ki-product-analysis.md)
-
----
-
-## Geplante Features
-
-[ ] Mobile-optimiertes Layout
-
-[ ] Lokales Modell als Fallback — wenn die Remote-LLM-API nicht erreichbar ist, automatisch auf das lokal verfügbare Modell ausweichen (nahtlose Redundanz)
-
-[ ] Ähnliche Inserate — nach erkanntem Produktnamen wird in den aktuellen Suchergebnissen nach weiteren Inseraten des gleichen Produkts gesucht und direkt in der Detailansicht angezeigt. Kein zusätzlicher API-Aufruf — rein clientseitig über die bereits geladenen Listings.
-
-[ ] Provider-Wechsel zur Laufzeit — Web-Such-Provider (Brave / Google Discovery) ohne App-Neustart umschalten. Erfordert: aktiven Provider aus `AppConfig` (DB) lesen statt aus `application.yml`, `WebSearchProviderRouter` entsprechend anpassen.
-
-Bei positivem Feedback bin ich offen für weitere Features, sofern sie mich fachlich reizen und der Aufwand vertretbar ist.
+| 📋 Detailansicht & Anmerkungen                                                                                                                               | 🔬 KI-Produktanalyse                                                                                                                                                                                                                                                                                  |
+| :----------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <img src="docs/screenshots/detail.png" width="100%" />                                                                                                       | <img src="docs/screenshots/spec-lookup.png" width="100%" />                                                                                                                                                                                                                                           |
+| Alle Inseratsinformationen, eine Bildergalerie mit Zoom und Navigation sowie persönliche Annotationen: Notizen (Autosave), Rating, Interesse-Level und Tags. | KI-Modelle extrahieren automatisch den Produktnamen. Auf Knopfdruck werden technische Spezifikationen nachgeschlagen und zu strukturierten Quick Facts aufbereitet. Bevorzugte Felder (z.B. Duplex, Patronen-Verfügbarkeit) erscheinen immer prominent. Ein Klick öffnet den Marktpreis auf Geizhals. |
 
 ---
 
@@ -77,52 +62,51 @@ Bei positivem Feedback bin ich offen für weitere Features, sofern sie mich fach
 
 ---
 
-## Quickstart (Dev)
+## Quickstart
 
-**Voraussetzungen:** Docker, Java 21, Node.js 20+
+### Lokal (Dev)
+
+<table>
+<tr>
+<td valign="top" width="45%">
+<strong>Voraussetzungen</strong><br><br>
+Docker &nbsp;·&nbsp; Java 21 &nbsp;·&nbsp; Node.js 20+
 
 ```bash
 # PostgreSQL starten
 docker compose up -d
 
 # Backend
+
 cd backend && mvn spring-boot:run
 
 # Frontend
+
 cd frontend && npm install && npm start
 
 # Nach Backend-API-Änderungen
+
 cd frontend && npm run generate-api
 ```
 
-**Ports (lokal):**
-
-| Dienst    | URL                        |
-| --------- | -------------------------- |
-| Frontend  | http://localhost:14072     |
-| Backend   | http://localhost:14070     |
-| PostgreSQL | localhost:14071           |
+</td>
+<td valign="top" width="55%">
+<strong>Ports (lokal)</strong><br><br>
+<table>
+<tr><th align="left">Dienst</th><th align="left">URL</th></tr>
+<tr><td>Frontend</td><td>http://localhost:14072</td></tr>
+<tr><td>Backend</td><td>http://localhost:14070</td></tr>
+<tr><td>PostgreSQL</td><td>localhost:14071</td></tr>
+</table>
+</td>
+</tr>
+</table>
 
 **Hot Reload**: Datei speichern → Spring DevTools erkennt die Änderung und startet den Context automatisch neu. JVM-Neustart nur bei Prozess-Crash nötig.
 
-**API-Keys**: Für KI-Extraktion und Spec-Lookup werden API-Keys für OpenRouter/Groq und Brave Search benötigt. → [Details: docs/api-setup.md](docs/api-setup.md)
+**API-Keys**: Für KI-Extraktion und Item Research werden API-Keys für OpenRouter/Groq und Brave Search benötigt. → Details: `docs/admin-guide.md`
 
-## Struktur
-
-```
-querchecker/
-├── backend/                ← Spring Boot (Maven)
-├── frontend/               ← Angular 21+
-├── docs/
-│   ├── screenshots/        ← Screenshots für README
-│   ├── api-setup.md        ← LLM-Konfiguration (lokal & remote)
-│   └── ki-produktanalyse.md ← KI-Extraktion & Spec-Ermittlung
-├── docker-compose.yml      ← Dev: nur PostgreSQL
-├── docker-compose.prod.yml ← Prod: nginx + backend + postgres
-└── README.md
-```
-
-## Deployment
+### Deployment (Prod)
 
 ```bash
 docker compose -f docker-compose.prod.yml up -d
@@ -132,10 +116,46 @@ Traefik-Labels in `docker-compose.prod.yml` anpassen (Domain, certresolver).
 
 ---
 
-## Für Entwickler & Ops
+## Struktur
 
-Falls dich die technischen Details interessieren:
+```
+querchecker/
+├── backend/                ← Spring Boot (Maven)
+├── frontend/               ← Angular 21+
+├── docs/
+│   ├── screenshots/        ← Screenshots für README
+│   ├── concepts/           ← Design-Konzepte (Provider-Konfiguration, …)
+│   └── *.md                ← Technische Dokumentation
+├── docker-compose.yml      ← Dev: nur PostgreSQL
+├── docker-compose.prod.yml ← Prod: nginx + backend + postgres
+└── README.md
+```
 
-- 🏗️ [Architecture & Design Decisions](docs/architecture.md) — wie die App gebaut ist (SignalStore, SSE, conditional model registration, OpenAPI workflow, etc.)
-- 🛡️ [Robustness & Error Handling](docs/robustness.md) — wie es mit API-Ausfällen, Rate-Limiting, Quota-Verwaltung und Server-Restarts umgeht
-- 📚 [API-Setup](docs/concepts/provider-config.md) — KI-Modelle und Brave Search konfigurieren (lokal vs. remote)
+---
+
+## Dokumentation
+
+| 📐 Technisch & Design | ⚙️ Setup & Betrieb |
+| :--- | :--- |
+| 🏗️ [Architecture & Design Decisions](docs/architecture.md)<br>SignalStore, SSE, conditional model registration, OpenAPI workflow | 📖 [Admin Guide](docs/admin-guide.md)<br>Installation, Konfiguration und Betrieb (API-Keys, Provider-Setup, Deployment) |
+| 🛡️ [Robustness & Error Handling](docs/robustness.md)<br>API-Ausfälle, Rate-Limiting, Quota-Verwaltung, Server-Restarts | ⚙️ [Provider-Konfiguration](docs/concepts/provider-config.md)<br>KI-Modelle und Web-Suche konfigurieren (lokal vs. Cloud) |
+| 🤖 [KI-Produktanalyse](docs/ki-product-analysis.md)<br>Produktname-Extraktion und Item Research | 💻 [Lokale Modelle](docs/local-models.md)<br>LLM lokal statt Cloud betreiben |
+
+---
+
+## Geplante Features
+
+- [ ] Mobile-optimiertes Layout
+- [ ] Lokales Modell als Fallback — wenn die Remote-LLM-API nicht erreichbar ist, automatisch auf das lokal verfügbare Modell ausweichen (nahtlose Redundanz)
+- [ ] Ähnliche Inserate — nach erkanntem Produktnamen wird in den aktuellen Suchergebnissen nach weiteren Inseraten des gleichen Produkts gesucht und direkt in der Detailansicht angezeigt. Kein zusätzlicher API-Aufruf — rein clientseitig über die bereits geladenen Listings.
+- [ ] Provider-Wechsel zur Laufzeit — Web-Such-Provider (Brave / Google Discovery) ohne App-Neustart umschalten.
+
+Bei positivem Feedback bin ich offen für weitere Features, sofern sie mich fachlich reizen und der Aufwand vertretbar ist.
+
+<!-- TEMP: Sprachkonzept — vor Veröffentlichung entfernen
+
+Dokumentationssprache:
+- README.md → Deutsch (Einstieg, Vision, allgemeine Einführung)
+- docs/architecture.md → Englisch (technische Reviewer)
+- docs/robustness.md → Englisch (Entwickler / Ops)
+- alle weiteren docs/ → zu konsolidieren

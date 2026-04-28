@@ -1,11 +1,12 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-27T10:48:43.058Z
-> Files: 534 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-28T09:06:20.493Z
+> Files: 536 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../.claude/projects/-home-leo-programming-github-querchecker/memory/
 
-- `MEMORY.md` — Querchecker Project Memory (~4411 tok)
+- `MEMORY.md` — Querchecker Project Memory (~4436 tok)
+- `todo_readme_doccheck.md` (~203 tok)
 - `user.md` — Technical Profile (~345 tok)
 
 ## ./
@@ -15,7 +16,7 @@
 - `docker-compose.prod.yml` — Docker Compose: 1 services (~448 tok)
 - `docker-compose.yml` — Docker Compose services (~77 tok)
 - `keybert-test.py` — Your test data (Short German Willhaben-style text) (~301 tok)
-- `README.md` — Project documentation (~2074 tok)
+- `README.md` — Project documentation (~2756 tok)
 
 ## .claude/
 
@@ -301,7 +302,7 @@
 
 ## backend/src/main/java/at/querchecker/research/seeder/
 
-- `CategorySearchSourceDefinitions.java` — CategorySearchSourceDefinitions: SourceConfig (~1803 tok)
+- `CategorySearchSourceDefinitions.java` — CategorySearchSourceDefinitions: SourceConfig (~1710 tok)
 - `CategorySearchSourceSeeder.java` — Seedet CategorySearchSource-Einträge je Kategorie. (~825 tok)
 - `CategorySpecPreferenceSeeder.java` — Seedet SYSTEM-Pflichtfelder je Kategorie. (~1262 tok)
 
@@ -772,6 +773,10 @@
 - `http2.py` — HTTPConnectionState: has_body_headers, handle_request (~6686 tok)
 - `interfaces.py` — RequestInterface: request, stream, handle_request, close + 6 more (~1242 tok)
 - `socks_proxy.py` — SOCKSProxy: create_connection, handle_request, can_handle_request, close + 1 more (~3890 tok)
+
+## config/
+
+- `querchecker.yml` (~885 tok)
 
 ## docs/
 

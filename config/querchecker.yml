@@ -30,8 +30,8 @@ querchecker:
   # ---------------------------------------------------------------------------
   api:
     search:
-      #active-provider: BRAVE # BRAVE | GOOGLE_DISCOVERY — Neustart nötig bei Wechsel
-      active-provider: GOOGLE_DISCOVERY # BRAVE | GOOGLE_DISCOVERY — Neustart nötig bei Wechsel
+      active-provider: BRAVE # BRAVE | GOOGLE_DISCOVERY — Neustart nötig bei Wechsel
+      #active-provider: GOOGLE_DISCOVERY # BRAVE | GOOGLE_DISCOVERY — Neustart nötig bei Wechsel
 
     # Nur relevant bei search.active-provider: GOOGLE_DISCOVERY
     google-discovery:

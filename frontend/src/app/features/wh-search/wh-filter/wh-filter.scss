@@ -1,3 +1,6 @@
+:host {
+  overflow: auto;
+}
 .filter-section {
   padding: 16px var(--layout-gutter);
   display: flex;

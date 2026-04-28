@@ -304,6 +304,54 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-27T10:48:39.333Z"
+    },
+    {
+      "id": "bug-020",
+      "timestamp": "2026-04-28T08:41:24.601Z",
+      "error_message": "Significant refactor of ",
+      "file": "README.md",
+      "root_cause": "7 lines replaced/restructured",
+      "fix": "Rewrote 13→6 lines (7 removed) | Also: **Voraussetzungen:** Docker, Java 21, Node.js 20+; **Ports (lokal):**",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-28T08:41:31.741Z"
+    },
+    {
+      "id": "bug-021",
+      "timestamp": "2026-04-28T08:55:12.673Z",
+      "error_message": "Significant refactor of ",
+      "file": "README.md",
+      "root_cause": "9 lines replaced/restructured",
+      "fix": "Rewrote 16→8 lines (9 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T08:55:12.673Z"
+    },
+    {
+      "id": "bug-022",
+      "timestamp": "2026-04-28T09:05:26.485Z",
+      "error_message": "Significant refactor of ",
+      "file": "README.md",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 8→18 lines (6 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-28T09:05:26.485Z"
     }
   ]
 }

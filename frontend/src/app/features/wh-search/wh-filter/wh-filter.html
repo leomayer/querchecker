@@ -67,7 +67,7 @@
     </div>
 
     <div class="search-row">
-      <mat-form-field class="rows-field">
+      <mat-form-field class="rows-field" subscriptSizing="dynamic">
         <mat-label>Ergebnisse</mat-label>
         <mat-select [value]="rows()" (valueChange)="store.setFilterDraft({ rows: $event })">
           @for (opt of rowOptions; track opt) {
