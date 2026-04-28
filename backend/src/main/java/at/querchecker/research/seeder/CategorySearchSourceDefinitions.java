@@ -112,7 +112,8 @@ public final class CategorySearchSourceDefinitions {
     entry(
       "Drucker",
       List.of(
-        new SourceConfig("icecat.biz", "Icecat", ICECAT, true, ICECAT_EXCLUDES, SNIPPETS_COUNT)
+        new SourceConfig("icecat.biz", "Icecat", ICECAT, true, ICECAT_EXCLUDES, SNIPPETS_COUNT),
+        new SourceConfig("druckerchannel.de", "Druckerchannel", GENERIC, true, null, SNIPPETS_COUNT)
       )
     ),
     entry(
