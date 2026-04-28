@@ -88,6 +88,16 @@ public class ProductLookupService {
         WhCategory whCategory,
         Map<String, String> condensedSpec
     ) {
+        return lookupWithRetry(listingId, lookupTerm, whCategory, condensedSpec, 0);
+    }
+
+    private ProductLookupResult lookupWithRetry(
+        Long listingId,
+        String lookupTerm,
+        WhCategory whCategory,
+        Map<String, String> condensedSpec,
+        int retryCount
+    ) {
         log.info("[ProductLookupService] === LOOKUP START ===");
         if (whCategory != null) {
             log.info("[ProductLookupService] Category: id={}, name={}, level={}",
@@ -295,7 +305,21 @@ public class ProductLookupService {
                 return ProductLookupResult.rateLimited(60, "Provider", "Unknown");
             }
 
-            log.error("[ProductLookupService] Unerwarteter Fehler bei Lookup für '{}': {}", lookupTerm, errorMsg, e);
+            // Retry on transient network errors (timeout, connection refused, etc.)
+            boolean isTransientError = e instanceof org.springframework.web.client.ResourceAccessException;
+            if (isTransientError && retryCount < 2) {
+                int delayMs = (int) Math.pow(2, retryCount) * 500; // 500ms, 1s backoff
+                log.warn("[ProductLookupService] Transient network error (attempt {}/2) for '{}': {} — retrying in {}ms",
+                    retryCount + 1, lookupTerm, errorMsg, delayMs);
+                try {
+                    Thread.sleep(delayMs);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+                return lookupWithRetry(listingId, lookupTerm, whCategory, condensedSpec, retryCount + 1);
+            }
+
+            log.error("[ProductLookupService] Unerwarteter Fehler bei Lookup für '{}': {} (retryCount={})", lookupTerm, errorMsg, retryCount, e);
             save(lookupTerm, LookupStatus.ERROR, null);
             String errorType = errorMsg.contains("timeout") ? "API_TIMEOUT" : "LOOKUP_FAILED";
             String message = errorType.equals("API_TIMEOUT")

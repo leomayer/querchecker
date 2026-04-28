@@ -340,6 +340,53 @@ class ProductLookupServiceTest {
     assertThat(result.getStatus()).isEqualTo(LookupStatus.NO_SOURCES);
   }
 
+  // --- Transient Network Error Retry ---
+
+  @Test
+  void lookup_retriesOnTransientTimeout_succeedsOnSecondAttempt() {
+    setupNoCache();
+    setupQuotaOk();
+    CategorySearchSource src = source("icecat.biz", SourceType.ICECAT);
+    when(sourceService.findForCategory(any())).thenReturn(List.of(src));
+
+    String url = "https://icecat.biz/p/samsung-123.html";
+    // First call: timeout; second call: success
+    when(webSearchService.search(any(), any(), any(), any(), anyInt()))
+      .thenThrow(new org.springframework.web.client.ResourceAccessException("Connection timeout"))
+      .thenReturn(new ApiCallResult.Success<>(List.of(searchResult(url))));
+
+    when(llmClient.extractQuickFacts(any(), any(), any(), any(), any(), any(), anyInt())).thenReturn(
+      quickFacts(Map.of("cpu", "Snapdragon"), "123456", url)
+    );
+    when(urlValidator.resolveIcecatId(any(), any())).thenReturn("123456");
+    when(urlValidator.resolveSourceUrl(any(), any())).thenReturn(url);
+    when(urlValidator.matchesExpectedPattern(url, SourceType.ICECAT)).thenReturn(true);
+    when(qualityEvaluator.evaluate(any(), any(), eq(SourceType.ICECAT))).thenReturn(ExtractionQuality.GOOD);
+
+    ProductLookupResult result = service.lookup(null, "Samsung", mock(WhCategory.class), null);
+
+    assertThat(result.getStatus()).isEqualTo(LookupStatus.COMPLETE);
+    verify(webSearchService, times(2)).search(any(), any(), any(), any(), anyInt());
+  }
+
+  @Test
+  void lookup_savesErrorAfterExhaustingRetries_onPersistentTimeout() {
+    setupNoCache();
+    setupQuotaOk();
+    CategorySearchSource src = source("icecat.biz", SourceType.ICECAT);
+    when(sourceService.findForCategory(any())).thenReturn(List.of(src));
+
+    // All attempts fail with timeout
+    when(webSearchService.search(any(), any(), any(), any(), anyInt()))
+      .thenThrow(new org.springframework.web.client.ResourceAccessException("Connection timeout"));
+
+    ProductLookupResult result = service.lookup(null, "Samsung", mock(WhCategory.class), null);
+
+    assertThat(result.getStatus()).isEqualTo(LookupStatus.ERROR);
+    verify(repo).save(argThat(pl -> pl.getLookupStatus() == LookupStatus.ERROR));
+    verify(webSearchService, times(3)).search(any(), any(), any(), any(), anyInt()); // 3 attempts: 0 + 2 retries
+  }
+
   // --- Hilfsmethoden ---
 
   private void setupNoCache() {
