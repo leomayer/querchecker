@@ -1,8 +1,5 @@
 import { Component, computed, inject, model, output, signal } from '@angular/core';
-import {
-  InterestLevelChangedEvent,
-  RatingChangedEvent,
-} from './listing-card/listing-card';
+import { InterestLevelChangedEvent, RatingChangedEvent } from './listing-card/listing-card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';

@@ -32,8 +32,7 @@
                 <code class="local-error-detail">{{ s.llmError }}</code>
               }
               <span class="local-guide-hint"
-                >Zur Fehlerbehebung:
-                <code>docs/local-models.md</code> im Projektverzeichnis.</span
+                >Zur Fehlerbehebung: <code>docs/local-models.md</code> im Projektverzeichnis.</span
               >
             </div>
           </div>
@@ -47,11 +46,7 @@
   @if (canTestSearch() || canTestLlm() || canSetup()) {
     <div class="provider-actions">
       @if (canTestSearch()) {
-        <button
-          mat-stroked-button
-          [disabled]="testingSearch()"
-          (click)="testProvider('search')"
-        >
+        <button mat-stroked-button [disabled]="testingSearch()" (click)="testProvider('search')">
           @if (testingSearch()) {
             <mat-progress-spinner diameter="16" mode="indeterminate" />
           } @else {
@@ -61,11 +56,7 @@
         </button>
       }
       @if (canTestLlm()) {
-        <button
-          mat-stroked-button
-          [disabled]="testingLlm()"
-          (click)="testProvider('llm')"
-        >
+        <button mat-stroked-button [disabled]="testingLlm()" (click)="testProvider('llm')">
           @if (testingLlm()) {
             <mat-progress-spinner diameter="16" mode="indeterminate" />
           } @else {

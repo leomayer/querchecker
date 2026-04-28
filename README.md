@@ -77,15 +77,12 @@ Docker &nbsp;·&nbsp; Java 21 &nbsp;·&nbsp; Node.js 20+
 docker compose up -d
 
 # Backend
-
 cd backend && mvn spring-boot:run
 
 # Frontend
-
 cd frontend && npm install && npm start
 
 # Nach Backend-API-Änderungen
-
 cd frontend && npm run generate-api
 ```
 

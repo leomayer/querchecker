@@ -38,14 +38,20 @@ export class ProviderConfig {
   readonly canTestSearch = computed(() => {
     const s = this.store.status();
     if (!s) return false;
-    return s.searchState === 'CONFIGURED' || s.searchState === 'UNREACHABLE' || s.searchState === 'UNAVAILABLE';
+    return (
+      s.searchState === 'CONFIGURED' ||
+      s.searchState === 'UNREACHABLE' ||
+      s.searchState === 'UNAVAILABLE'
+    );
   });
 
   readonly canTestLlm = computed(() => {
     const s = this.store.status();
     if (!s) return false;
     if (s.llmProvider === 'LOCAL') return false;
-    return s.llmState === 'CONFIGURED' || s.llmState === 'UNREACHABLE' || s.llmState === 'UNAVAILABLE';
+    return (
+      s.llmState === 'CONFIGURED' || s.llmState === 'UNREACHABLE' || s.llmState === 'UNAVAILABLE'
+    );
   });
 
   readonly testingSearch = signal(false);
