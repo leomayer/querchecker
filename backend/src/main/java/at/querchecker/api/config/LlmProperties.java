@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 /**
  * Zentrale LLM-Konfiguration.
  *
- * mode: API  → external-provider bestimmt den Zugang (Groq, OpenRouter).
+ * mode: API  → active-provider bestimmt den Zugang (Groq, OpenRouter).
  *              Der source-model-Substring wird automatisch aus dem Provider-Namen abgeleitet
  *              (GROQ → "groq", OPENROUTER → "openrouter") — kein separater Config-Wert nötig.
  *
@@ -23,7 +23,7 @@ public class LlmProperties {
     private LlmMode mode = LlmMode.API;
 
     /** Nur relevant bei mode: API — GROQ | OPENROUTER */
-    private Provider externalProvider = Provider.GROQ;
+    private Provider activeProvider = Provider.GROQ;
 
     /**
      * Substring-Match gegen DlModelConfig.modelName — bestimmt welches DL-Modell
@@ -38,12 +38,12 @@ public class LlmProperties {
 
     /**
      * Liefert den effektiven Substring für den suggestedTerm-Match.
-     * API-Modus:   automatisch aus external-provider abgeleitet (GROQ → "groq")
+     * API-Modus:   automatisch aus active-provider abgeleitet (GROQ → "groq")
      * LOCAL-Modus: local-source-model
      */
     public String getEffectiveSourceModel() {
         return mode == LlmMode.API
-            ? externalProvider.name().toLowerCase()
+            ? activeProvider.name().toLowerCase()
             : localSourceModel;
     }
 }

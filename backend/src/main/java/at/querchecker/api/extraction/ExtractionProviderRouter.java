@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * Leitet Extraction-Calls an den konfigurierten aktiven Provider weiter.
- * Aktiver Provider: querchecker.llm.external-provider in config/querchecker.yml
+ * Aktiver Provider: querchecker.llm.active-provider in config/querchecker.yml
  */
 @Service
 @RequiredArgsConstructor
@@ -19,7 +19,7 @@ public class ExtractionProviderRouter {
     private final List<ExtractionClient> clients;
 
     public ExtractionClient getActive() {
-        Provider active = llmProperties.getExternalProvider();
+        Provider active = llmProperties.getActiveProvider();
         return clients.stream()
             .filter(c -> c.getProvider() == active)
             .findFirst()

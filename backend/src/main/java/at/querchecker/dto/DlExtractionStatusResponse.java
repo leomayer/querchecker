@@ -21,7 +21,7 @@ public class DlExtractionStatusResponse {
     private List<DlExtractionTermDto> terms;
 
     /**
-     * Best term from the configured source model (querchecker.llm.local-source-model / external-provider),
+     * Best term from the configured source model (querchecker.llm.local-source-model / active-provider),
      * selected by highest confidence. Null if no matching model terms exist yet.
      * Used to pre-fill the product search field in the research panel.
      */

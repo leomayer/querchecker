@@ -75,7 +75,7 @@ public class ProviderStatusService {
         if (llmProperties.getMode() == at.querchecker.api.config.LlmMode.LOCAL) {
             return ProviderState.CONFIGURED; // LOCAL-Modelle: DJL wirft beim Start → UNAVAILABLE
         }
-        return switch (llmProperties.getExternalProvider()) {
+        return switch (llmProperties.getActiveProvider()) {
             case GROQ -> {
                 String key = providerProperties.getProvider(
                     at.querchecker.api.entity.Provider.GROQ).getApiKey();
@@ -170,6 +170,6 @@ public class ProviderStatusService {
 
     private String resolveLlmProviderName() {
         if (llmProperties.getMode() == at.querchecker.api.config.LlmMode.LOCAL) return "LOCAL";
-        return llmProperties.getExternalProvider().name();
+        return llmProperties.getActiveProvider().name();
     }
 }

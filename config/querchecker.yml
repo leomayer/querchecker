@@ -1,7 +1,7 @@
 spring:
   config:
     import:
-      - optional:file:../config/secrets.ymld # API-Keys (nie in Git)
+      - optional:file:../config/secrets.yml # API-Keys (nie in Git)
 
 querchecker:
   # ---------------------------------------------------------------------------
@@ -13,7 +13,7 @@ querchecker:
     # Nur relevant bei mode: API
     # Bei API wird der suggestedTerm automatisch aus dem Provider-Namen abgeleitet
     # (GROQ → "groq", OPENROUTER → "openrouter") — kein separater source-model-Wert nötig
-    external-provider: GROQ # GROQ | OPENROUTER
+    active-provider: GROQ # GROQ | OPENROUTER
 
     # Nur relevant bei mode: LOCAL
     # Substring-Match gegen DlModelConfig.modelName — bestimmt welches lokale Modell

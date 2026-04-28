@@ -143,7 +143,7 @@ public class ProviderSetupService {
         if (llmProperties.getMode() == LlmMode.LOCAL) {
             activeProvider = "LOCAL";
         } else {
-            activeProvider = llmProperties.getExternalProvider().name();
+            activeProvider = llmProperties.getActiveProvider().name();
         }
 
         return new SetupDimensionDto(
@@ -325,8 +325,8 @@ public class ProviderSetupService {
                 continue;
             }
 
-            // external-provider für LLM
-            if (trimmed.startsWith("external-provider:") && request.llmProvider() != null) {
+            // active-provider für LLM
+            if (trimmed.startsWith("active-provider:") && request.llmProvider() != null) {
                 String llm = request.llmProvider();
                 if (!"LOCAL".equals(llm)) {
                     result.add(replaceYamlValue(line, llm));

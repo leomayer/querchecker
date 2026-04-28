@@ -44,7 +44,7 @@ public class ApiUsageController {
 
         return new UsageResponse(
                 searchProperties.getActiveProvider().name(),
-                llmProperties.getExternalProvider().name(),
+                llmProperties.getActiveProvider().name(),
                 providerUsage(Provider.BRAVE, null, now),
                 providerUsage(Provider.GOOGLE_DISCOVERY, null, now),
                 groqUsage,

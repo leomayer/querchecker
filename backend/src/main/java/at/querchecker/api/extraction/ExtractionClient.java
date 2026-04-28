@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Provider-unabhängiges Interface für LLM-Extraktion.
  * Implementierungen: GroqExtractionClient, OpenRouterExtractionClient
- * Aktiver Provider: querchecker.llm.external-provider in config/querchecker.yml
+ * Aktiver Provider: querchecker.llm.active-provider in config/querchecker.yml
  */
 public interface ExtractionClient {
 
