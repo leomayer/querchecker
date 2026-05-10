@@ -768,6 +768,38 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-28T17:05:59.149Z"
+    },
+    {
+      "id": "bug-049",
+      "timestamp": "2026-05-10T18:47:03.263Z",
+      "error_message": "Wrong reference: rgba should be 000",
+      "file": "frontend/src/app/shared/components/image-lightbox/image-lightbox.scss",
+      "root_cause": "Used \"rgba\" instead of \"000\"",
+      "fix": "Changed rgba → 000",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "scss"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-10T18:47:03.263Z"
+    },
+    {
+      "id": "bug-050",
+      "timestamp": "2026-05-10T18:47:16.928Z",
+      "error_message": "Significant refactor of ",
+      "file": "frontend/src/styles.scss",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 6→4 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "scss"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-10T18:47:16.928Z"
     }
   ]
 }

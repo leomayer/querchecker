@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-28T17:06:05.488Z
-> Files: 545 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-10T18:47:16.920Z
+> Files: 546 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../.claude/projects/-home-leo-programming-github-querchecker/memory/
 
@@ -806,7 +806,7 @@
 
 ## frontend/src/
 
-- `styles.scss` — Styles: 17 rules, 40 vars (~1484 tok)
+- `styles.scss` — Styles: 17 rules, 40 vars (~1495 tok)
 
 ## frontend/src/app/core/provider-status-popup/
 
@@ -843,6 +843,10 @@
 ## frontend/src/app/features/wh-search/wh-detail/item-research/specs-accordion/
 
 - `specs-accordion.component.scss` — Styles: 4 rules (~622 tok)
+
+## frontend/src/app/shared/components/image-lightbox/
+
+- `image-lightbox.scss` — Styles: 10 rules (~701 tok)
 
 ## frontend/src/app/shared/layout/app-header/
 
