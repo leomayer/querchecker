@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-07T15:25:10.734Z
-> Files: 583 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-07T17:03:25.453Z
+> Files: 591 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../.claude/projects/-home-leo-programming-github-querchecker/memory/
 
@@ -123,12 +123,12 @@
 ## backend/src/main/java/at/querchecker/auth/
 
 - `AccessKey.java` — Entity: AccessKey (~320 tok)
-- `AccessKeyController.java` — RestController: AccessKeyController (6 endpoints) (~540 tok)
+- `AccessKeyController.java` — RestController: AccessKeyController (7 endpoints) (~601 tok)
 - `AccessKeyRepository.java` — Class: AccessKeyRepository (~72 tok)
-- `AccessKeyService.java` — Service: AccessKeyService (~747 tok)
+- `AccessKeyService.java` — Service: AccessKeyService (~908 tok)
 - `AuthController.java` — RestController: AuthController (4 endpoints) (~327 tok)
 - `AuthProperties.java` — Component: AuthProperties (~96 tok)
-- `AuthService.java` — Service: AuthService (~975 tok)
+- `AuthService.java` — Service: AuthService (~991 tok)
 - `LocalProfileAuthFilter.java` — Component: LocalProfileAuthFilter (~455 tok)
 - `QuerCheckerPrincipal.java` — QuerCheckerPrincipal: withoutKey, withKey, hasKey (~118 tok)
 - `Role.java` — Class: Role (~56 tok)
@@ -141,7 +141,7 @@
 
 - `AccessKeyCreatedDto.java` — Class: AccessKeyCreatedDto (~89 tok)
 - `AccessKeyOverviewDto.java` — Class: AccessKeyOverviewDto (~83 tok)
-- `AuthStatusDto.java` — Class: AuthStatusDto (~36 tok)
+- `AuthStatusDto.java` — Class: AuthStatusDto (~45 tok)
 - `LoginResponseDto.java` — Class: LoginResponseDto (~31 tok)
 
 ## backend/src/main/java/at/querchecker/config/
@@ -810,8 +810,8 @@
 
 - `AccessKeyControllerTest.java` — Class: AccessKeyControllerTest (~1610 tok)
 - `AccessKeyServiceTest.java` — Class: AccessKeyServiceTest (~1411 tok)
-- `AuthControllerTest.java` — Class: AuthControllerTest (~750 tok)
-- `AuthServiceTest.java` — Class: AuthServiceTest (~1788 tok)
+- `AuthControllerTest.java` — Class: AuthControllerTest (~753 tok)
+- `AuthServiceTest.java` — Class: AuthServiceTest (~2057 tok)
 - `SessionCookieAuthFilterTest.java` — Class: SessionCookieAuthFilterTest (~1884 tok)
 
 ## backend/src/test/java/at/querchecker/research/
@@ -857,8 +857,9 @@
 
 ## frontend/src/app/core/
 
-- `api-urls.ts` — Exports API_URLS (~314 tok)
-- `auth.service.ts` — Exports AuthRole, AuthService (~367 tok)
+- `access-key.service.ts` — Exports AccessKeyOverview, AccessKeyCreated, AccessKeyService (~433 tok)
+- `api-urls.ts` — Exports API_URLS (~387 tok)
+- `auth.service.ts` — False for the dev-only LocalProfileAuthFilter SUPERUSER — there's no session to log out of. (~518 tok)
 
 ## frontend/src/app/core/provider-status-popup/
 
@@ -868,9 +869,15 @@
 ## frontend/src/app/features/settings/
 
 - `settings.component.ts` — Exports SettingsComponent (~411 tok)
-- `settings.html` (~1249 tok)
+- `settings.html` (~1336 tok)
 - `settings.scss` — Styles: 13 rules (~514 tok)
-- `settings.ts` — Exports SettingsComponent (~630 tok)
+- `settings.ts` — Exports SettingsComponent (~662 tok)
+
+## frontend/src/app/features/settings/access-key-management/
+
+- `access-key-management.html` (~1282 tok)
+- `access-key-management.scss` — Styles: 5 rules (~499 tok)
+- `access-key-management.ts` — Exports AccessKeyManagement (~1438 tok)
 
 ## frontend/src/app/features/settings/provider-config/
 
@@ -904,6 +911,12 @@
 
 - `specs-accordion.component.scss` — Styles: 4 rules (~622 tok)
 
+## frontend/src/app/shared/components/confirm-dialog/
+
+- `confirm-dialog.html` (~121 tok)
+- `confirm-dialog.scss` — Styles: 2 rules (~110 tok)
+- `confirm-dialog.ts` — Renders the confirm button in the error color for destructive actions. (~282 tok)
+
 ## frontend/src/app/shared/components/image-lightbox/
 
 - `image-lightbox.scss` — Styles: 10 rules (~701 tok)
@@ -915,3 +928,7 @@
 ## frontend/src/app/shared/layout/app-header/
 
 - `app-header.component.ts` — Exports AppHeaderComponent (~570 tok)
+
+## frontend/src/app/shared/services/
+
+- `confirm-dialog.service.ts` — Emits true if confirmed, false if cancelled/dismissed. (~182 tok)

@@ -1,0 +1,111 @@
+.created-key-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-positive) 12%, transparent);
+
+  code {
+    font-size: 0.85rem;
+    user-select: all;
+  }
+
+  .created-key-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+
+    strong {
+      font-size: 0.8rem;
+    }
+  }
+}
+
+.new-key-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+
+  mat-form-field {
+    width: 160px;
+  }
+}
+
+.access-key-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  th,
+  td {
+    padding: 6px 8px;
+    text-align: left;
+  }
+
+  th {
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--mat-sys-on-surface-variant);
+    border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline) 30%, transparent);
+  }
+
+  .na {
+    color: var(--mat-sys-on-surface-variant);
+    opacity: 0.5;
+  }
+
+  .actions-cell {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .status-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-positive);
+
+    &.status-revoked {
+      color: var(--color-rating-down);
+    }
+  }
+
+  .revoked-row {
+    opacity: 0.6;
+  }
+
+  .self-row {
+    background: color-mix(in srgb, var(--mat-sys-primary) 8%, transparent);
+  }
+
+  .self-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    background: var(--mat-sys-primary);
+    color: var(--mat-sys-on-primary);
+  }
+}
+
+.error-text {
+  font-size: 0.875rem;
+  color: var(--color-rating-down);
+  margin: 8px 0;
+}
+
+.delete-menu-item {
+  color: var(--color-rating-down);
+
+  mat-icon {
+    color: inherit;
+  }
+}

@@ -53,7 +53,7 @@ class AuthControllerTest {
 
     @Test
     void me_withoutAuth_isReachable() throws Exception {
-        when(authService.me()).thenReturn(new AuthStatusDto(false, null));
+        when(authService.me()).thenReturn(new AuthStatusDto(false, null, false, null));
 
         mockMvc.perform(get("/api/auth/me"))
             .andExpect(status().isOk())

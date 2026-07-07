@@ -1,0 +1,17 @@
+<app-moveable-dialog-header (dlgClose)="cancel()">
+  {{ data.title }}
+</app-moveable-dialog-header>
+
+<div class="confirm-content">
+  <p>{{ data.message }}</p>
+</div>
+
+<div class="confirm-footer">
+  <button mat-button (click)="cancel()">{{ data.cancelLabel ?? 'Abbrechen' }}</button>
+  <button
+    mat-flat-button
+    [color]="data.destructive ? 'warn' : 'primary'"
+    (click)="confirm()">
+    {{ data.confirmLabel ?? 'Bestätigen' }}
+  </button>
+</div>

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -51,6 +52,9 @@ public class AccessKeyService {
     }
 
     // Sperre wirkt sofort: bestehende Sessions dieses Keys werden gelöscht.
+    // @Transactional nötig: deleteByAccessKeyId ist eine abgeleitete Delete-Query, die (anders als
+    // save()) keine eigene Transaktion vom Repository-Proxy bekommt.
+    @Transactional
     public AccessKeyOverviewDto revoke(Long id) {
         AccessKey key = findOrThrow(id);
         key.setRevoked(true);
@@ -64,6 +68,15 @@ public class AccessKeyService {
         AccessKey key = findOrThrow(id);
         key.setRevoked(false);
         return toOverview(repository.save(key));
+    }
+
+    // Hard-Delete — anders als revoke() bleibt hier keine History. Sessions zuerst löschen
+    // (FK user_session.access_key_id -> access_key.id, kein ON DELETE CASCADE).
+    @Transactional
+    public void deleteKey(Long id) {
+        findOrThrow(id);
+        userSessionRepository.deleteByAccessKeyId(id);
+        repository.deleteById(id);
     }
 
     private AccessKey findOrThrow(Long id) {

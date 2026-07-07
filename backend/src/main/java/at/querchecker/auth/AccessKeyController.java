@@ -4,6 +4,7 @@ import at.querchecker.auth.dto.AccessKeyCreatedDto;
 import at.querchecker.auth.dto.AccessKeyOverviewDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -53,5 +54,11 @@ public class AccessKeyController {
     @PreAuthorize("hasRole('SUPERUSER')")
     public AccessKeyOverviewDto unrevoke(@PathVariable Long id) {
         return service.unrevoke(id);
+    }
+
+    @DeleteMapping("/keys/{id}")
+    @PreAuthorize("hasRole('SUPERUSER')")
+    public void deleteKey(@PathVariable Long id) {
+        service.deleteKey(id);
     }
 }

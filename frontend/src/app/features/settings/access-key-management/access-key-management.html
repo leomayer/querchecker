@@ -1,0 +1,130 @@
+<div class="new-key-row">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Rolle</mat-label>
+    <mat-select [(ngModel)]="newRole">
+      <mat-option value="USER">User</mat-option>
+      <mat-option value="SUPERUSER">Superuser</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  @if (newRole() === 'USER') {
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Kontingent/Tag</mat-label>
+      <input matInput type="number" min="0" [(ngModel)]="newQuota" />
+    </mat-form-field>
+  }
+
+  <button mat-flat-button [disabled]="generating()" (click)="generate()">
+    <mat-icon>add</mat-icon>
+    Neuen Key generieren
+  </button>
+</div>
+
+@if (createdKey(); as created) {
+  <div class="created-key-banner">
+    <mat-icon>vpn_key</mat-icon>
+    <div class="created-key-text">
+      <strong>Key erstellt — nur jetzt sichtbar:</strong>
+      <code>{{ created.secretKey }}</code>
+    </div>
+    <button mat-icon-button (click)="copyKey(created.secretKey)" matTooltip="Kopieren">
+      <mat-icon>content_copy</mat-icon>
+    </button>
+    <button mat-icon-button (click)="dismissCreatedKey()" matTooltip="Schließen">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+}
+
+@if (keys().length > 0) {
+  <table class="access-key-table">
+    <thead>
+      <tr>
+        <th>Rolle</th>
+        <th>Kontingent</th>
+        <th>Erstellt</th>
+        <th>Zuletzt genutzt</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (key of keys(); track key.id) {
+        <tr [class.revoked-row]="key.revoked" [class.self-row]="isSelf(key)">
+          @if (editingId() === key.id) {
+            <td>
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-select [(ngModel)]="editRole">
+                  <mat-option value="USER">User</mat-option>
+                  <mat-option value="SUPERUSER">Superuser</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </td>
+            <td>
+              @if (editRole() === 'USER') {
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <input matInput type="number" min="0" [(ngModel)]="editQuota" />
+                </mat-form-field>
+              } @else {
+                <span class="na">–</span>
+              }
+            </td>
+            <td>{{ key.createdAt | date: 'short' }}</td>
+            <td>{{ key.lastUsedAt ? (key.lastUsedAt | date: 'short') : '–' }}</td>
+            <td>{{ key.revoked ? 'Gesperrt' : 'Aktiv' }}</td>
+            <td class="actions-cell">
+              <button mat-icon-button (click)="saveEdit(key.id)" matTooltip="Speichern">
+                <mat-icon>check</mat-icon>
+              </button>
+              <button mat-icon-button (click)="cancelEdit()" matTooltip="Abbrechen">
+                <mat-icon>close</mat-icon>
+              </button>
+            </td>
+          } @else {
+            <td>
+              {{ roleLabel(key.role) }}
+              @if (isSelf(key)) {
+                <span class="self-badge" matTooltip="Der Key deiner aktuellen Session">Du</span>
+              }
+            </td>
+            <td>{{ key.role === 'SUPERUSER' ? '–' : key.quotaLimit + '/Tag' }}</td>
+            <td>{{ key.createdAt | date: 'short' }}</td>
+            <td>{{ key.lastUsedAt ? (key.lastUsedAt | date: 'short') : '–' }}</td>
+            <td>
+              <span class="status-badge" [class.status-revoked]="key.revoked">
+                {{ key.revoked ? 'Gesperrt' : 'Aktiv' }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button mat-icon-button [matMenuTriggerFor]="rowMenu" matTooltip="Aktionen">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #rowMenu="matMenu">
+                <button mat-menu-item (click)="startEdit(key)">
+                  <mat-icon>edit</mat-icon>
+                  Bearbeiten
+                </button>
+                <button mat-menu-item [disabled]="isSelf(key)" (click)="toggleRevoke(key)">
+                  <mat-icon>{{ key.revoked ? 'lock_open' : 'lock' }}</mat-icon>
+                  {{ key.revoked ? 'Entsperren' : 'Sperren' }}
+                </button>
+                <button
+                  mat-menu-item
+                  [disabled]="isSelf(key)"
+                  (click)="deleteKey(key)"
+                  class="delete-menu-item">
+                  <mat-icon>delete</mat-icon>
+                  Löschen
+                </button>
+              </mat-menu>
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+} @else if (loading()) {
+  <p>Lade Zugriffs-Keys…</p>
+} @else if (error()) {
+  <p class="error-text">Fehler beim Laden der Zugriffs-Keys.</p>
+}

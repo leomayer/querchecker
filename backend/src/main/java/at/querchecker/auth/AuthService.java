@@ -63,9 +63,9 @@ public class AuthService {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()
                 && authentication.getPrincipal() instanceof QuerCheckerPrincipal principal) {
-            return new AuthStatusDto(true, principal.role());
+            return new AuthStatusDto(true, principal.role(), principal.hasKey(), principal.accessKeyId());
         }
-        return new AuthStatusDto(false, null);
+        return new AuthStatusDto(false, null, false, null);
     }
 
     private Optional<String> readCookie(HttpServletRequest request) {

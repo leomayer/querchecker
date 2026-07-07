@@ -152,7 +152,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void me_withAuthenticatedPrincipal_returnsRole() {
+    void me_withKeyBasedPrincipal_returnsRoleAndHasKeyTrue() {
         service = service();
         var principal = QuerCheckerPrincipal.withKey(Role.USER, 1L);
         var auth = new PreAuthenticatedAuthenticationToken(principal, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
@@ -163,6 +163,26 @@ class AuthServiceTest {
 
         assertThat(status.authenticated()).isTrue();
         assertThat(status.role()).isEqualTo(Role.USER);
+        assertThat(status.hasKey()).isTrue();
+        assertThat(status.accessKeyId()).isEqualTo(1L);
+    }
+
+    @Test
+    void me_withLocalProfilePrincipal_returnsHasKeyFalse() {
+        // LocalProfileAuthFilter grants SUPERUSER without any AccessKey — logout would be a no-op
+        // there, so the frontend needs hasKey=false to hide the "Abmelden" button.
+        service = service();
+        var principal = QuerCheckerPrincipal.withoutKey(Role.SUPERUSER);
+        var auth = new PreAuthenticatedAuthenticationToken(principal, null, List.of(new SimpleGrantedAuthority("ROLE_SUPERUSER")));
+        auth.setAuthenticated(true);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        var status = service.me();
+
+        assertThat(status.authenticated()).isTrue();
+        assertThat(status.role()).isEqualTo(Role.SUPERUSER);
+        assertThat(status.hasKey()).isFalse();
+        assertThat(status.accessKeyId()).isNull();
     }
 
     @Test
@@ -173,5 +193,6 @@ class AuthServiceTest {
 
         assertThat(status.authenticated()).isFalse();
         assertThat(status.role()).isNull();
+        assertThat(status.hasKey()).isFalse();
     }
 }

@@ -19,4 +19,9 @@ export const API_URLS = {
   authMe: '/api/auth/me',
   authLoginWithKey: '/api/auth/login-with-key',
   authLogout: '/api/auth/logout',
+  authGenerateKey: '/api/auth/generate-key',
+  authKeys: '/api/auth/keys',
+  authKey: (id: number) => `/api/auth/keys/${id}`,
+  authKeyRevoke: (id: number) => `/api/auth/keys/${id}/revoke`,
+  authKeyUnrevoke: (id: number) => `/api/auth/keys/${id}/unrevoke`,
 } as const;

@@ -1029,6 +1029,103 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-07T15:25:10.743Z"
+    },
+    {
+      "id": "bug-065",
+      "timestamp": "2026-07-07T16:00:53.000Z",
+      "error_message": "POST /api/auth/keys/{id}/revoke -> 500 InvalidDataAccessApiUsageException: No EntityManager with actual transaction available for current thread - cannot reliably process 'remove' call",
+      "file": "backend/src/main/java/at/querchecker/auth/AccessKeyService.java",
+      "root_cause": "AccessKeyService.revoke() called userSessionRepository.deleteByAccessKeyId(id), a Spring Data JPA derived delete query. Unlike save()/findById(), a derived deleteBy... query loads-then-removes each entity via entityManager.remove(), which requires an actual writable transaction bound to the thread -- the repository proxy does not provide one for this call path on its own. Only found by manually exercising the endpoint end-to-end via curl against the running dev backend; the Mockito-based AccessKeyServiceTest mocks the repository entirely, so it never touches a real EntityManager/transaction and couldn't catch this.",
+      "fix": "Added @Transactional to AccessKeyService.revoke(), matching the project's existing convention (WhListingService, WhItemService, etc. annotate service methods that perform repository writes/deletes beyond a single save()).",
+      "tags": [
+        "spring-data-jpa",
+        "transactional",
+        "java",
+        "runtime-verification"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T16:00:53.000Z"
+    },
+    {
+      "id": "bug-066",
+      "timestamp": "2026-07-07T16:17:26.759Z",
+      "error_message": "CSS fix: color",
+      "file": "frontend/src/app/features/settings/access-key-management/access-key-management.scss",
+      "root_cause": "color: var(--color-rating-down) → inherit",
+      "fix": "Changed color: var(--color-rating-down) → inherit",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "scss"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T16:17:26.759Z"
+    },
+    {
+      "id": "bug-067",
+      "timestamp": "2026-07-07T16:22:48.613Z",
+      "error_message": "Wrong return value",
+      "file": "backend/src/main/java/at/querchecker/auth/AuthService.java",
+      "root_cause": "Was returning: new AuthStatusDto(true, principal.role());",
+      "fix": "Now returns: new AuthStatusDto(true, principal.role(), principa",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "java"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T16:22:48.613Z"
+    },
+    {
+      "id": "bug-068",
+      "timestamp": "2026-07-07T16:23:30.568Z",
+      "error_message": "Wrong reference: authenticated should be hasKey",
+      "file": "frontend/src/app/features/settings/settings.html",
+      "root_cause": "Used \"authenticated\" instead of \"hasKey\"",
+      "fix": "Changed authenticated → hasKey",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T16:23:30.568Z"
+    },
+    {
+      "id": "bug-069",
+      "timestamp": "2026-07-07T16:34:49.675Z",
+      "error_message": "Missing guard clause",
+      "file": "frontend/src/app/features/settings/access-key-management/access-key-management.ts",
+      "root_cause": "No early return/throw for edge case: !confirmed",
+      "fix": "Added guard clause: if (!confirmed)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T16:34:49.675Z"
+    },
+    {
+      "id": "bug-070",
+      "timestamp": "2026-07-07T16:55:23.803Z",
+      "error_message": "Wrong return value",
+      "file": "backend/src/main/java/at/querchecker/auth/AuthService.java",
+      "root_cause": "Was returning: new AuthStatusDto(true, principal.role(), principa",
+      "fix": "Now returns: new AuthStatusDto(true, principal.role(), principa",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "java"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T16:55:23.803Z"
     }
   ]
 }

@@ -18,6 +18,9 @@
 <!-- Mistakes made and corrected. Each entry prevents the same mistake recurring. -->
 <!-- Format: [YYYY-MM-DD] Description of what went wrong and what to do instead. -->
 
+- **[2026-07-07]** Spring Data JPA derived `deleteByX(...)` repository methods (e.g. `UserSessionRepository.deleteByAccessKeyId`) need `@Transactional` on the *calling service method* — unlike `save()`/`findById()`, they load-then-remove each entity via `entityManager.remove()`, which throws `TransactionRequiredException`/`InvalidDataAccessApiUsageException` without an actual writable transaction. Caught only by manually curling the real endpoint (`AccessKeyService.revoke()`), not by the Mockito unit test (mocks never touch a real EntityManager). When adding a new service method that calls a derived delete/bulk-modify repository method, add `@Transactional` immediately, don't wait for it to blow up at runtime.
+- **[2026-07-07]** In this CLI session (no Zed IDE attached), source edits do **not** auto-recompile/auto-restart the already-running dev backend — `target/classes/*.class` timestamps stay stale until `mvn compile` is run manually. The "saves auto-trigger recompile" behavior in project memory assumes Zed's background compiler is active. When verifying a fix against the running dev server from a bare shell, always run `mvn -q -o compile` yourself first and confirm the `.class` file timestamp is newer than the `.java` source before retesting — otherwise you're silently testing stale bytecode.
+
 ## Decision Log
 
 <!-- Significant technical decisions with rationale. Why X was chosen over Y. -->

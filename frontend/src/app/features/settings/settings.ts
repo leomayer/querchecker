@@ -12,6 +12,7 @@ import { DlExtractionSettings } from './dl-extraction-settings/dl-extraction-set
 import { UsageMonitor } from './usage-monitor/usage-monitor';
 import { CategoryPreferences } from './category-preferences/category-preferences';
 import { ProviderConfig } from './provider-config/provider-config';
+import { AccessKeyManagement } from './access-key-management/access-key-management';
 import { ProviderStatusStore } from '../../core/provider-status.store';
 import { AuthService } from '../../core/auth.service';
 import { Theme } from './theme';
@@ -31,6 +32,7 @@ import { Theme } from './theme';
     UsageMonitor,
     CategoryPreferences,
     ProviderConfig,
+    AccessKeyManagement,
   ],
   templateUrl: './settings.html',
   styleUrl: './settings.scss',

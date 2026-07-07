@@ -100,6 +100,16 @@
         </mat-expansion-panel-header>
         <app-delete-sweep />
       </mat-expansion-panel>
+
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon class="panel-icon">admin_panel_settings</mat-icon>
+            Zugriffsverwaltung
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <app-access-key-management />
+      </mat-expansion-panel>
     } @else {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
@@ -121,7 +131,7 @@
       </mat-expansion-panel>
     }
 
-    @if (auth.authenticated()) {
+    @if (auth.hasKey()) {
       <div class="logout-row">
         <button mat-button (click)="logout()">
           <mat-icon>logout</mat-icon>
