@@ -1,5 +1,5 @@
 @if (detail(); as listing) {
-  <div class="detail-panel" [@detailSlide]>
+  <div class="detail-panel" animate.enter="detail-slide-in" animate.leave="detail-slide-out">
     <div class="detail-header">
       <h2 class="detail-title">{{ listing.title }}</h2>
     </div>
