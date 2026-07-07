@@ -1,13 +1,17 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-10T18:47:16.920Z
-> Files: 546 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-07T15:25:10.734Z
+> Files: 583 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../.claude/projects/-home-leo-programming-github-querchecker/memory/
 
 - `MEMORY.md` — Querchecker Project Memory (~4436 tok)
 - `todo_readme_doccheck.md` (~203 tok)
 - `user.md` — Technical Profile (~345 tok)
+
+## ../../../Downloads/
+
+- `leo-bio-raw.md` — Leo — Bio Raw Material (~5315 tok)
 
 ## ./
 
@@ -45,7 +49,7 @@
 - `.factorypath` (~6176 tok)
 - `.project` (~226 tok)
 - `Dockerfile` — Docker container definition (~84 tok)
-- `pom.xml` — /*.onnx</exclude> (~1426 tok)
+- `pom.xml` — /*.onnx</exclude> (~1553 tok)
 - `spotbugs-exclude.xml` — Declares alone (~374 tok)
 
 ## backend/.settings/
@@ -116,6 +120,30 @@
 - `QuotaService.java` — Prüft und verwaltet API-Kontingente basierend auf ProviderProperties. (~1070 tok)
 - `QuotaStatus.java` — Class: QuotaStatus (~27 tok)
 
+## backend/src/main/java/at/querchecker/auth/
+
+- `AccessKey.java` — Entity: AccessKey (~320 tok)
+- `AccessKeyController.java` — RestController: AccessKeyController (6 endpoints) (~540 tok)
+- `AccessKeyRepository.java` — Class: AccessKeyRepository (~72 tok)
+- `AccessKeyService.java` — Service: AccessKeyService (~747 tok)
+- `AuthController.java` — RestController: AuthController (4 endpoints) (~327 tok)
+- `AuthProperties.java` — Component: AuthProperties (~96 tok)
+- `AuthService.java` — Service: AuthService (~975 tok)
+- `LocalProfileAuthFilter.java` — Component: LocalProfileAuthFilter (~455 tok)
+- `QuerCheckerPrincipal.java` — QuerCheckerPrincipal: withoutKey, withKey, hasKey (~118 tok)
+- `Role.java` — Class: Role (~56 tok)
+- `SessionCookieAuthFilter.java` — Component: SessionCookieAuthFilter (~986 tok)
+- `UserSession.java` — Entity: UserSession (~240 tok)
+- `UserSessionCleanupScheduler.java` — Component: UserSessionCleanupScheduler (~172 tok)
+- `UserSessionRepository.java` — Class: UserSessionRepository (~105 tok)
+
+## backend/src/main/java/at/querchecker/auth/dto/
+
+- `AccessKeyCreatedDto.java` — Class: AccessKeyCreatedDto (~89 tok)
+- `AccessKeyOverviewDto.java` — Class: AccessKeyOverviewDto (~83 tok)
+- `AuthStatusDto.java` — Class: AuthStatusDto (~36 tok)
+- `LoginResponseDto.java` — Class: LoginResponseDto (~31 tok)
+
 ## backend/src/main/java/at/querchecker/config/
 
 - `AsyncConfig.java` — Configuration: AsyncConfig (~61 tok)
@@ -128,6 +156,7 @@
 - `ProviderTestService.java` — Führt minimale Verbindungstests für aktive Provider durch. (~436 tok)
 - `RequestUserAgentResolver.java` — Löst den User-Agent für ausgehende HTTP-Requests auf. (~335 tok)
 - `RestTemplateConfig.java` — Configuration: RestTemplateConfig (~169 tok)
+- `SecurityConfig.java` — Configuration: SecurityConfig (~709 tok)
 - `SpringDocConfig.java` — Replaces the default PolymorphicModelConverter with a cycle-breaking pass-through. (~646 tok)
 - `UserAgentFilter.java` — Component: UserAgentFilter (~266 tok)
 - `UserAgentHolder.java` — Speichert den User-Agent des ersten Browser-Requests. (~250 tok)
@@ -339,7 +368,7 @@
 ## backend/src/main/resources/
 
 - `application-prod.yml` (~329 tok)
-- `application.yml` (~386 tok)
+- `application.yml` (~461 tok)
 
 ## backend/src/main/resources/META-INF/
 
@@ -385,6 +414,8 @@
 - `V4__create_dl_extraction_run.sql` — SQL: tables: dl_extraction_run (~213 tok)
 - `V40__create_listing_lookup_history.sql` — SQL: tables: listing_lookup_history (~182 tok)
 - `V41__add_extracted_model_to_dl_extraction_term.sql` — Add extractedModel column to dl_extraction_term (~57 tok)
+- `V42__create_access_key.sql` — SQL: tables: access_key (~96 tok)
+- `V43__create_user_session.sql` — SQL: tables: user_session (~93 tok)
 - `V5__create_dl_extraction_term.sql` — SQL: tables: dl_extraction_term (~132 tok)
 - `V6__add_wh_category_to_wh_listing.sql` — SQL: 1 alter(s) (~50 tok)
 - `V7__rename_model_config_roberta_to_bert_multi.sql` (~43 tok)
@@ -775,6 +806,14 @@
 - `interfaces.py` — RequestInterface: request, stream, handle_request, close + 6 more (~1242 tok)
 - `socks_proxy.py` — SOCKSProxy: create_connection, handle_request, can_handle_request, close + 1 more (~3890 tok)
 
+## backend/src/test/java/at/querchecker/auth/
+
+- `AccessKeyControllerTest.java` — Class: AccessKeyControllerTest (~1610 tok)
+- `AccessKeyServiceTest.java` — Class: AccessKeyServiceTest (~1411 tok)
+- `AuthControllerTest.java` — Class: AuthControllerTest (~750 tok)
+- `AuthServiceTest.java` — Class: AuthServiceTest (~1788 tok)
+- `SessionCookieAuthFilterTest.java` — Class: SessionCookieAuthFilterTest (~1884 tok)
+
 ## backend/src/test/java/at/querchecker/research/
 
 - `ProductLookupServiceTest.java` — Class: ProductLookupServiceTest (~4483 tok)
@@ -796,6 +835,10 @@
 - `openrouter-completion.md` — OpenRouter — Completion Checklist (~1608 tok)
 - `robustness.md` — Robustness & Error Handling (~2487 tok)
 
+## docs/auth/
+
+- `berechtigungen-konzept.md` — Querchecker — Berechtigungs- & Kontingent-Konzept (~5170 tok)
+
 ## docs/concepts/
 
 - `provider-config.md` — Querchecker — Konzept: Provider-Konfiguration & Graceful Startup (~9036 tok)
@@ -808,6 +851,15 @@
 
 - `styles.scss` — Styles: 17 rules, 40 vars (~1495 tok)
 
+## frontend/src/app/
+
+- `app.config.ts` — Exports appConfig (~536 tok)
+
+## frontend/src/app/core/
+
+- `api-urls.ts` — Exports API_URLS (~314 tok)
+- `auth.service.ts` — Exports AuthRole, AuthService (~367 tok)
+
 ## frontend/src/app/core/provider-status-popup/
 
 - `provider-status-popup.html` (~285 tok)
@@ -816,7 +868,9 @@
 ## frontend/src/app/features/settings/
 
 - `settings.component.ts` — Exports SettingsComponent (~411 tok)
-- `settings.html` (~942 tok)
+- `settings.html` (~1249 tok)
+- `settings.scss` — Styles: 13 rules (~514 tok)
+- `settings.ts` — Exports SettingsComponent (~630 tok)
 
 ## frontend/src/app/features/settings/provider-config/
 
@@ -827,6 +881,12 @@
 ## frontend/src/app/features/settings/usage-monitor/
 
 - `usage-monitor.scss` — Styles: 5 rules (~620 tok)
+
+## frontend/src/app/features/wh-search/wh-detail/
+
+- `wh-detail.html` (~175 tok)
+- `wh-detail.scss` — Styles: 8 rules, 1 vars (~592 tok)
+- `wh-detail.ts` — Exports WhDetailComponent (~1082 tok)
 
 ## frontend/src/app/features/wh-search/wh-detail/item-annotation/
 
@@ -847,6 +907,10 @@
 ## frontend/src/app/shared/components/image-lightbox/
 
 - `image-lightbox.scss` — Styles: 10 rules (~701 tok)
+
+## frontend/src/app/shared/components/placeholder/
+
+- `placeholder.ts` — Exports PlaceholderComponent (~81 tok)
 
 ## frontend/src/app/shared/layout/app-header/
 

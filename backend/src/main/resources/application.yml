@@ -36,6 +36,10 @@ querchecker:
   http:
     connect-timeout-ms: 10000 # TCP-Verbindungs-Timeout für externe APIs (Groq, OpenRouter, Brave, Icecat)
     read-timeout-ms: 30000 # Lese-Timeout für komplette Antwort
+  auth:
+    session-days: 30 # Session-Cookie-Gültigkeit
+    sliding-extension-hours: 24 # expiresAt nur verlängern, wenn letzte Verlängerung länger als das her ist
+    session-cleanup-cron: '0 0 3 * * *' # täglich 03:00, löscht abgelaufene user_session-Zeilen
 
 logging:
   level:

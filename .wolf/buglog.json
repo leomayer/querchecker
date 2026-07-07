@@ -800,6 +800,235 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-10T18:47:16.928Z"
+    },
+    {
+      "id": "bug-051",
+      "timestamp": "2026-07-07T14:03:02.408Z",
+      "error_message": "Wrong reference: isUnauthorized should be isForbidden",
+      "file": "backend/src/test/java/at/querchecker/auth/AccessKeyControllerTest.java",
+      "root_cause": "Used \"isUnauthorized\" instead of \"isForbidden\"",
+      "fix": "Changed isUnauthorized → isForbidden",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "java"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T14:03:02.408Z"
+    },
+    {
+      "id": "bug-052",
+      "timestamp": "2026-07-07T14:03:20.000Z",
+      "error_message": "APPLICATION FAILED TO START: Parameter 0 of constructor in at.querchecker.config.UserAgentFilter required a bean of type 'at.querchecker.config.UserAgentHolder' that could not be found",
+      "file": "backend/src/test/java/at/querchecker/auth/AccessKeyControllerTest.java",
+      "root_cause": "@WebMvcTest auto-includes any Filter-typed bean in its slice (UserAgentFilter implements jakarta.servlet.Filter), but plain @Component beans like UserAgentHolder are excluded from the slice — so the filter's constructor dependency can't be satisfied. First @WebMvcTest in the project, so this gotcha hadn't surfaced before.",
+      "fix": "Added @MockBean UserAgentHolder to the @WebMvcTest to satisfy UserAgentFilter's constructor.",
+      "tags": [
+        "spring-security",
+        "webmvctest",
+        "java",
+        "test-slice"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T14:03:20.000Z"
+    },
+    {
+      "id": "bug-053",
+      "timestamp": "2026-07-07T14:56:56.838Z",
+      "error_message": "Null/undefined access in ",
+      "file": "backend/src/main/java/at/querchecker/auth/AccessKeyService.java",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "java"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T14:56:56.838Z"
+    },
+    {
+      "id": "bug-054",
+      "timestamp": "2026-07-07T14:57:09.135Z",
+      "error_message": "Significant refactor of ",
+      "file": "backend/src/main/java/at/querchecker/auth/AccessKeyController.java",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 35→55 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "java"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T14:57:09.135Z"
+    },
+    {
+      "id": "bug-055",
+      "timestamp": "2026-07-07T15:01:47.533Z",
+      "error_message": "Significant refactor of ",
+      "file": "backend/src/test/java/at/querchecker/auth/AccessKeyControllerTest.java",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 23→28 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "java"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T15:01:47.533Z"
+    },
+    {
+      "id": "bug-056",
+      "timestamp": "2026-07-07T15:01:57.273Z",
+      "error_message": "Significant refactor of ",
+      "file": "backend/src/test/java/at/querchecker/auth/AuthControllerTest.java",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 19→24 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "java"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T15:01:57.273Z"
+    },
+    {
+      "id": "bug-057",
+      "timestamp": "2026-07-07T15:06:23.254Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/auth/berechtigungen-konzept.md",
+      "root_cause": "Had `local`",
+      "fix": "Changed to `!prod`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T15:06:23.254Z"
+    },
+    {
+      "id": "bug-058",
+      "timestamp": "2026-07-07T15:06:50.314Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/auth/berechtigungen-konzept.md",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 4→10 lines (3 removed) | Also: - Sliding-Expiration-Drosselung: konkretes Interva; - P3 (Angular-UI) und P4 (Kontingent-Zählung) ausa",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-07T15:07:07.250Z"
+    },
+    {
+      "id": "bug-059",
+      "timestamp": "2026-07-07T17:00:04.000Z",
+      "error_message": "AccessKeyControllerTest/AuthControllerTest: all requests return 200 with empty body, isForbidden() assertions fail with 'Status expected:<403> but was:<200>'",
+      "file": "backend/src/test/java/at/querchecker/auth/AccessKeyControllerTest.java",
+      "root_cause": "@MockBean SessionCookieAuthFilter (a concrete OncePerRequestFilter wired into the Spring Security chain via SecurityConfig.addFilterBefore) causes Mockito to mock doFilter() itself to a no-op that never calls chain.doFilter() — every request is silently swallowed by the mocked filter, so the controller is never invoked and MockMvc sees a default empty 200 response. Separately, LocalProfileAuthFilter (@Profile(\"!prod\")) is also auto-included by @WebMvcTest since no profile is active by default in tests, so it auto-grants SUPERUSER to every request, defeating the withoutSuperuserRole_isForbidden tests too.",
+      "fix": "Never @MockBean a Filter bean that's part of the security chain. Instead mock its real constructor dependencies (UserSessionRepository, AccessKeyRepository) so the real filter runs, and add @ActiveProfiles(\"prod\") to the @WebMvcTest so LocalProfileAuthFilter (@Profile(\"!prod\")) is excluded, matching real prod auth behavior.",
+      "tags": [
+        "spring-security",
+        "webmvctest",
+        "java",
+        "test-slice",
+        "mockito"
+      ],
+      "related_bugs": [
+        "bug-052"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T17:00:04.000Z"
+    },
+    {
+      "id": "bug-060",
+      "timestamp": "2026-07-07T15:09:49.438Z",
+      "error_message": "Missing guard clause",
+      "file": "frontend/src/app/features/settings/settings.ts",
+      "root_cause": "No early return/throw for edge case: !key",
+      "fix": "Added guard clause: if (!key)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T15:09:49.438Z"
+    },
+    {
+      "id": "bug-061",
+      "timestamp": "2026-07-07T15:10:26.063Z",
+      "error_message": "CSS fix: color",
+      "file": "frontend/src/app/features/settings/settings.scss",
+      "root_cause": "color: var(--color-positive) → var(--mat-sys-error)",
+      "fix": "Changed color: var(--color-positive) → var(--mat-sys-error)",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "scss"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T15:10:26.063Z"
+    },
+    {
+      "id": "bug-062",
+      "timestamp": "2026-07-07T15:24:49.051Z",
+      "error_message": "Incorrect value in code",
+      "file": "frontend/src/app/features/wh-search/wh-detail/wh-detail.ts",
+      "root_cause": "Had '@angular/animations'",
+      "fix": "Changed to '@angular/material/icon'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T15:24:49.051Z"
+    },
+    {
+      "id": "bug-063",
+      "timestamp": "2026-07-07T15:24:55.897Z",
+      "error_message": "Wrong reference: detailSlide should be animate",
+      "file": "frontend/src/app/features/wh-search/wh-detail/wh-detail.html",
+      "root_cause": "Used \"detailSlide\" instead of \"animate\"",
+      "fix": "Changed detailSlide → animate",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T15:24:55.897Z"
+    },
+    {
+      "id": "bug-064",
+      "timestamp": "2026-07-07T15:25:10.743Z",
+      "error_message": "Significant refactor of ",
+      "file": "frontend/src/app/shared/components/placeholder/placeholder.ts",
+      "root_cause": "9 lines replaced/restructured",
+      "fix": "Rewrote 19→10 lines (9 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T15:25:10.743Z"
     }
   ]
 }
