@@ -101,3 +101,23 @@ mat-card-actions {
   font-size: 0.85rem;
   color: var(--color-positive);
 }
+
+.access-key-row {
+  justify-content: flex-start;
+
+  mat-form-field {
+    flex: 1;
+  }
+}
+
+.access-key-error {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  color: var(--mat-sys-error);
+}
+
+.logout-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}

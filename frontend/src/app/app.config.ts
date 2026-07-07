@@ -16,6 +16,7 @@ import { ServerErrorInterceptor } from './core/http-error.interceptor';
 import { UaForwardingInterceptor } from './core/ua-forwarding.interceptor';
 import { HealthService } from './core/health.service';
 import { ErrorNotificationService } from './core/error-notification.service';
+import { AuthService } from './core/auth.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -33,6 +34,7 @@ export const appConfig: ApplicationConfig = {
       inject(EventSourceServerService); // Open SSE connection eagerly at startup
       inject(HealthService); // Start health polling immediately
       inject(ErrorNotificationService); // Start error notification listener
+      inject(AuthService); // Load auth status (GET /api/auth/me) immediately
     }),
   ],
 };

@@ -7,33 +7,6 @@
   </div>
 
   <mat-accordion class="settings-accordion" multi>
-    <mat-expansion-panel [expanded]="providerStatus.badgeVisible()">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon class="panel-icon" [class.error-icon]="providerStatus.badgeVisible()">
-            {{
-              providerStatus.badgeIsError()
-                ? 'error'
-                : providerStatus.badgeVisible()
-                  ? 'warning'
-                  : 'key'
-            }}
-          </mat-icon>
-          @if (providerStatus.badgeVisible()) {
-            Einige Features sind nicht eingerichtet
-          } @else {
-            Externe KI-Services
-          }
-          @if (providerStatus.badgeVisible()) {
-            <span class="warn-badge" [class.error-badge]="providerStatus.badgeIsError()">
-              {{ providerStatus.badgeIsError() ? 'Fehler' : 'Einrichtung erforderlich' }}
-            </span>
-          }
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-      <app-provider-config (testCompleted)="usageMonitor.load()" />
-    </mat-expansion-panel>
-
     <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-panel-title>
@@ -55,49 +28,106 @@
       </div>
     </mat-expansion-panel>
 
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon class="panel-icon">auto_awesome</mat-icon>
-          Kategorie-Präferenzen
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-      <app-category-preferences />
-    </mat-expansion-panel>
+    @if (auth.isSuperuser()) {
+      <mat-expansion-panel [expanded]="providerStatus.badgeVisible()">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon class="panel-icon" [class.error-icon]="providerStatus.badgeVisible()">
+              {{
+                providerStatus.badgeIsError()
+                  ? 'error'
+                  : providerStatus.badgeVisible()
+                    ? 'warning'
+                    : 'key'
+              }}
+            </mat-icon>
+            @if (providerStatus.badgeVisible()) {
+              Einige Features sind nicht eingerichtet
+            } @else {
+              Externe KI-Services
+            }
+            @if (providerStatus.badgeVisible()) {
+              <span class="warn-badge" [class.error-badge]="providerStatus.badgeIsError()">
+                {{ providerStatus.badgeIsError() ? 'Fehler' : 'Einrichtung erforderlich' }}
+              </span>
+            }
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <app-provider-config (testCompleted)="usageMonitor.load()" />
+      </mat-expansion-panel>
 
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon class="panel-icon">token</mat-icon>
-          Inseratanalyse
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-      <app-dl-extraction-settings />
-    </mat-expansion-panel>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon class="panel-icon">auto_awesome</mat-icon>
+            Kategorie-Präferenzen
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <app-category-preferences />
+      </mat-expansion-panel>
 
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon class="panel-icon" [class.warn-icon]="usageHasWarning()">
-            {{ usageHasWarning() ? 'warning' : 'monitoring' }}
-          </mat-icon>
-          API-Verbrauch
-          @if (usageHasWarning()) {
-            <span class="warn-badge">Kontingent fast voll</span>
-          }
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-      <app-usage-monitor #usageMonitor (warningChange)="usageHasWarning.set($event)" />
-    </mat-expansion-panel>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon class="panel-icon">token</mat-icon>
+            Inseratanalyse
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <app-dl-extraction-settings />
+      </mat-expansion-panel>
 
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon class="panel-icon">delete_sweep</mat-icon>
-          Aufräumen
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-      <app-delete-sweep />
-    </mat-expansion-panel>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon class="panel-icon" [class.warn-icon]="usageHasWarning()">
+              {{ usageHasWarning() ? 'warning' : 'monitoring' }}
+            </mat-icon>
+            API-Verbrauch
+            @if (usageHasWarning()) {
+              <span class="warn-badge">Kontingent fast voll</span>
+            }
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <app-usage-monitor #usageMonitor (warningChange)="usageHasWarning.set($event)" />
+      </mat-expansion-panel>
+
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon class="panel-icon">delete_sweep</mat-icon>
+            Aufräumen
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <app-delete-sweep />
+      </mat-expansion-panel>
+    } @else {
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon class="panel-icon">lock</mat-icon>
+            Zugriffscode
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="setting-row access-key-row">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Zugriffscode</mat-label>
+            <input matInput [(ngModel)]="accessKeyInput" (keydown.enter)="submitAccessKey()" />
+          </mat-form-field>
+          <button mat-flat-button (click)="submitAccessKey()">Einloggen</button>
+        </div>
+        @if (loginError()) {
+          <p class="access-key-error">{{ loginError() }}</p>
+        }
+      </mat-expansion-panel>
+    }
+
+    @if (auth.authenticated()) {
+      <div class="logout-row">
+        <button mat-button (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          Abmelden
+        </button>
+      </div>
+    }
   </mat-accordion>
 </div>
