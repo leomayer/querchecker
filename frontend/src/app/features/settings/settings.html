@@ -110,20 +110,34 @@
         </mat-expansion-panel-header>
         <app-access-key-management />
       </mat-expansion-panel>
-    } @else {
-      <mat-expansion-panel>
+    }
+
+    @if (!auth.hasKey()) {
+      <mat-expansion-panel [expanded]="openSection() === 'access-key'">
         <mat-expansion-panel-header>
           <mat-panel-title>
             <mat-icon class="panel-icon">lock</mat-icon>
             Zugriffscode
           </mat-panel-title>
         </mat-expansion-panel-header>
+        @if (isLocalSuperuser()) {
+          <p class="access-key-hint">
+            Lokale Entwicklungsumgebung — läuft automatisch als Superuser. Ein Zugriffscode-Login
+            hätte hier keine Wirkung (Local-Profil hat Vorrang vor dem Session-Cookie).
+          </p>
+        }
         <div class="setting-row access-key-row">
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Zugriffscode</mat-label>
-            <input matInput [(ngModel)]="accessKeyInput" (keydown.enter)="submitAccessKey()" />
+            <input
+              matInput
+              [disabled]="isLocalSuperuser()"
+              [(ngModel)]="accessKeyInput"
+              (keydown.enter)="submitAccessKey()" />
           </mat-form-field>
-          <button mat-flat-button (click)="submitAccessKey()">Einloggen</button>
+          <button mat-flat-button [disabled]="isLocalSuperuser()" (click)="submitAccessKey()">
+            Einloggen
+          </button>
         </div>
         @if (loginError()) {
           <p class="access-key-error">{{ loginError() }}</p>

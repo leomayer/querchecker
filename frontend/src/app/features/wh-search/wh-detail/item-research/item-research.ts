@@ -19,6 +19,7 @@ import { SpecsAccordionComponent } from './specs-accordion/specs-accordion';
 import { PreferenceEntry, PreferencesService } from '../../../../core/preferences.service';
 import { HealthService } from '../../../../core/health.service';
 import { ProviderStatusStore, ProviderState } from '../../../../core/provider-status.store';
+import { AuthService } from '../../../../core/auth.service';
 
 type LookupState =
   | 'empty'
@@ -57,6 +58,7 @@ export class ItemResearchComponent {
   private readonly health = inject(HealthService);
   private readonly providerStatusStore = inject(ProviderStatusStore);
   private readonly router = inject(Router);
+  protected readonly auth = inject(AuthService);
 
   protected readonly searchTerm = signal('');
 
@@ -65,6 +67,9 @@ export class ItemResearchComponent {
 
     let lastLoadedWhItemId: number | null = null;
     effect(() => {
+      // AI-Endpoints brauchen eine Session (Konzept Kap. 1) — als GUEST würden diese
+      // Calls ohnehin nur mit 403 zurückkommen, daher gar nicht erst feuern.
+      if (!this.auth.authenticated()) return;
       const id = this.detail().whItemId;
       const listingId = this.detail().id;
       if (id == null || id === lastLoadedWhItemId) return;
@@ -79,6 +84,7 @@ export class ItemResearchComponent {
     // is created trigger a re-fetch. untracked() keeps detail() out of the dependency set.
     const restartCountAtMount = this.health.serverRestartCount();
     effect(() => {
+      if (!this.auth.authenticated()) return;
       if (this.health.serverRestartCount() <= restartCountAtMount) return;
       const id = untracked(() => this.detail().whItemId);
       if (id != null) {
@@ -90,6 +96,7 @@ export class ItemResearchComponent {
     // Also auto-triggers the spec-lookup when a suggested term arrives and no
     // lookup result exists yet — the backend returns cached data instantly when available.
     effect(() => {
+      if (!this.auth.authenticated()) return;
       const id = this.detail().whItemId;
       const listingId = this.detail().id;
       if (id == null || listingId == null) return;
@@ -164,8 +171,8 @@ export class ItemResearchComponent {
     return null;
   });
 
-  protected navigateToSettings(): void {
-    void this.router.navigate(['/settings']);
+  protected navigateToSettings(openSection?: string): void {
+    void this.router.navigate(['/settings'], openSection ? { queryParams: { open: openSection } } : {});
   }
 
   // --- Extraction state ---
@@ -374,6 +381,7 @@ export class ItemResearchComponent {
 
   protected readonly searchButtonDisabled = computed<boolean>(
     () =>
+      !this.auth.authenticated() ||
       !this.aiSearchEnabled() ||
       !this.searchTerm().trim() ||
       this.lookupState() === 'loading' ||

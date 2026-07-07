@@ -9,6 +9,7 @@ import at.querchecker.dto.WhPreviewDto;
 import at.querchecker.entity.WhCategory;
 import at.querchecker.entity.WhItem;
 import at.querchecker.entity.WhListing;
+import at.querchecker.auth.QuerCheckerPrincipal;
 import at.querchecker.repository.WhItemRepository;
 import at.querchecker.repository.WhListingRepository;
 import at.querchecker.willHaben.WhConstants;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -67,12 +69,23 @@ public class WhItemService {
 
     ItemText itemText = itemTextService.findOrCreateOrUpdate(listing);
     long itemId = item.getId();
+    // openDetail() itself is public (normale Suche, Konzept Kap. 1) — die DL-Extraktion
+    // ist aber ein AI-Zugriff und verbraucht Provider-Kontingent, daher nur für eine
+    // gültige Session (USER/SUPERUSER) einplanen, nicht für GUEST.
+    // Achtung: authentication ist NIE null an dieser Stelle — Springs eigener
+    // AnonymousAuthenticationFilter füllt für GUEST automatisch ein authentifiziertes
+    // AnonymousAuthenticationToken. Nur ein echter QuerCheckerPrincipal zählt als Session.
+    var authentication = SecurityContextHolder.getContext().getAuthentication();
+    boolean hasSession = authentication != null
+      && authentication.getPrincipal() instanceof QuerCheckerPrincipal;
     TransactionSynchronizationManager.registerSynchronization(
       new TransactionSynchronization() {
         @Override
         public void afterCommit() {
           whListingRefreshService.refreshAsync(listing.getId(), itemId);
-          dlOrchestrationService.scheduleExtraction(itemText);
+          if (hasSession) {
+            dlOrchestrationService.scheduleExtraction(itemText);
+          }
         }
       }
     );

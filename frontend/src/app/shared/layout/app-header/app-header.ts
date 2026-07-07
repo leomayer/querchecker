@@ -9,6 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Theme } from '../../../features/settings/theme';
 import { ProviderStatusStore } from '../../../core/provider-status.store';
 import { SnackService } from '../../services/snack.service';
+import { AuthService } from '../../../core/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -21,6 +22,18 @@ export class AppHeaderComponent {
   private readonly snack = inject(SnackService);
   readonly theme = inject(Theme);
   protected readonly providerStatus = inject(ProviderStatusStore);
+  protected readonly auth = inject(AuthService);
+
+  readonly roleLabel = computed(() => {
+    if (this.auth.isSuperuser()) return 'Superuser';
+    if (this.auth.authenticated()) return 'User';
+    return 'Gast';
+  });
+  readonly roleIcon = computed(() => {
+    if (this.auth.isSuperuser()) return 'admin_panel_settings';
+    if (this.auth.authenticated()) return 'verified_user';
+    return 'person_outline';
+  });
 
   readonly isOnSettings = toSignal(
     this.router.events.pipe(

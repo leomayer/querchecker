@@ -106,6 +106,15 @@ export class AccessKeyManagement implements OnInit {
     this.editingId.set(null);
   }
 
+  onEditRoleChange(role: AuthRole): void {
+    this.editRole.set(role);
+    // Wechsel von SUPERUSER (quotaLimit=0) zu USER — 0/Tag macht keinen Sinn, sinnvollen
+    // Default vorschlagen statt den alten Superuser-Wert stehen zu lassen.
+    if (role === 'USER' && this.editQuota() < 5) {
+      this.editQuota.set(10);
+    }
+  }
+
   saveEdit(id: number): void {
     const quota = this.editRole() === 'SUPERUSER' ? null : this.editQuota();
     this.accessKeyService.updateKey(id, this.editRole(), quota).subscribe({

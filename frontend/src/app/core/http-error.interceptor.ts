@@ -11,6 +11,7 @@ import { catchError } from 'rxjs/operators';
 import { HealthService } from './health.service';
 import { API_URLS } from './api-urls';
 import { SnackService } from '../shared/services/snack.service';
+import { AuthService } from './auth.service';
 
 /**
  * Detects server errors and network failures, then notifies the HealthService
@@ -39,6 +40,16 @@ export class ServerErrorInterceptor implements HttpInterceptor {
               .get(SnackService)
               .error('Bitte später erneut versuchen', `Serverfehler (${error.status})`);
           }
+        }
+        // Session invalidiert/gesperrt (z.B. Key mid-session revoked) — Auth-State neu laden,
+        // damit UI sofort auf Gast kippt statt eine stale "eingeloggt"-Anzeige + generischen
+        // Fehler zu zeigen. /api/auth/** selbst ausgenommen (login-with-key/me/logout haben
+        // eigene Fehlerbehandlung, kein Refresh-Rekursionsrisiko, aber unnötig).
+        if (
+          (error.status === 401 || error.status === 403) &&
+          !req.url.startsWith('/api/auth/')
+        ) {
+          this.injector.get(AuthService).refresh();
         }
         return throwError(() => error);
       }),

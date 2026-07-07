@@ -6,6 +6,7 @@ import io.swagger.v3.core.converter.ModelConverterContext;
 import io.swagger.v3.oas.models.media.Schema;
 import org.springdoc.core.converters.PolymorphicModelConverter;
 import org.springdoc.core.providers.ObjectMapperProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -26,8 +27,12 @@ public class SpringDocConfig {
      *
      * Fix: track in-progress type resolutions per thread. If a type is seen again
      * while already being resolved, return a $ref immediately instead of recursing.
+     *
+     * Guarded by springdoc.api-docs.enabled: ObjectMapperProvider only exists when
+     * springdoc's own autoconfiguration runs, which prod disables (springdoc.api-docs.enabled=false).
      */
     @Bean
+    @ConditionalOnProperty(name = "springdoc.api-docs.enabled", havingValue = "true", matchIfMissing = true)
     public PolymorphicModelConverter polymorphicModelConverter(ObjectMapperProvider objectMapperProvider) {
         ThreadLocal<Set<Type>> resolving = ThreadLocal.withInitial(HashSet::new);
         return new PolymorphicModelConverter(objectMapperProvider) {

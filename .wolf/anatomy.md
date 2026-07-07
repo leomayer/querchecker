@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-07T17:03:25.453Z
-> Files: 591 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-07T22:24:21.700Z
+> Files: 600 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../.claude/projects/-home-leo-programming-github-querchecker/memory/
 
@@ -20,7 +20,7 @@
 - `docker-compose.prod.yml` — Docker Compose: 1 services (~448 tok)
 - `docker-compose.yml` — Docker Compose services (~77 tok)
 - `keybert-test.py` — Your test data (Short German Willhaben-style text) (~301 tok)
-- `README.md` — Project documentation (~3007 tok)
+- `README.md` — Project documentation (~3075 tok)
 
 ## .claude/
 
@@ -61,7 +61,7 @@
 
 ## backend/src/main/java/at/querchecker/
 
-- `QuercheckerApplication.java` — QuercheckerApplication: main (~118 tok)
+- `QuercheckerApplication.java` — QuercheckerApplication: main (~227 tok)
 
 ## backend/src/main/java/at/querchecker/api/config/
 
@@ -108,7 +108,7 @@
 ## backend/src/main/java/at/querchecker/api/search/
 
 - `BraveWebSearchService.java` — Brave Search-Implementierung von WebSearchService. (~2940 tok)
-- `GoogleDiscoveryWebSearchService.java` — Strips locale prefix (e.g. /de/, /us/, /ar-sa/) from the URL path for deduplication. (~2209 tok)
+- `GoogleDiscoveryWebSearchService.java` — Strips only the locale prefix (e.g. /de/, /us/, /ar-sa/) from the URL path for deduplication — (~2139 tok)
 - `SearchProperties.java` — Konfiguration für den aktiven Web-Search-Provider. (~166 tok)
 - `SearchProvider.java` — SearchProvider: toProvider (~96 tok)
 - `WebSearchProviderRouter.java` — Service: WebSearchProviderRouter (~195 tok)
@@ -156,8 +156,8 @@
 - `ProviderTestService.java` — Führt minimale Verbindungstests für aktive Provider durch. (~436 tok)
 - `RequestUserAgentResolver.java` — Löst den User-Agent für ausgehende HTTP-Requests auf. (~335 tok)
 - `RestTemplateConfig.java` — Configuration: RestTemplateConfig (~169 tok)
-- `SecurityConfig.java` — Configuration: SecurityConfig (~709 tok)
-- `SpringDocConfig.java` — Replaces the default PolymorphicModelConverter with a cycle-breaking pass-through. (~646 tok)
+- `SecurityConfig.java` — Configuration: SecurityConfig (~894 tok)
+- `SpringDocConfig.java` — Replaces the default PolymorphicModelConverter with a cycle-breaking pass-through. (~704 tok)
 - `UserAgentFilter.java` — Component: UserAgentFilter (~266 tok)
 - `UserAgentHolder.java` — Speichert den User-Agent des ersten Browser-Requests. (~250 tok)
 - `YamlCommentParser.java` — Parst YAML-Dateien und extrahiert Inline-Kommentare pro Schlüssel-Pfad. (~864 tok)
@@ -339,7 +339,7 @@
 ## backend/src/main/java/at/querchecker/service/
 
 - `AppConfigService.java` — Service: AppConfigService (~673 tok)
-- `WhItemService.java` — For mutation responses — listing metadata not needed by frontend callers. (~1736 tok)
+- `WhItemService.java` — For mutation responses — listing metadata not needed by frontend callers. (~1851 tok)
 - `WhListingRefreshService.java` — Fetches fresh listing data (description, images, category) from Willhaben (~1910 tok)
 - `WhListingService.java` — Service: WhListingService (~1534 tok)
 
@@ -826,6 +826,7 @@
 
 - `admin-guide.md` — Querchecker Admin Guide (~3031 tok)
 - `architecture.md` — Architecture & Design Decisions (~2606 tok)
+- `auth-guide.md` — Querchecker Auth Guide (~950 tok)
 - `dev-setup.md` — Querchecker — Developer Setup (~1242 tok)
 - `extraction-engine.md` — Extraction Engine — Architecture Reference (~1118 tok)
 - `ki-product-analysis.md` — Automatische KI-Produktanalyse — Konzept & Architektur (~4405 tok)
@@ -837,7 +838,7 @@
 
 ## docs/auth/
 
-- `berechtigungen-konzept.md` — Querchecker — Berechtigungs- & Kontingent-Konzept (~5170 tok)
+- `berechtigungen-konzept.md` — Querchecker — Berechtigungs- & Kontingent-Konzept (~5024 tok)
 
 ## docs/concepts/
 
@@ -860,6 +861,7 @@
 - `access-key.service.ts` — Exports AccessKeyOverview, AccessKeyCreated, AccessKeyService (~433 tok)
 - `api-urls.ts` — Exports API_URLS (~387 tok)
 - `auth.service.ts` — False for the dev-only LocalProfileAuthFilter SUPERUSER — there's no session to log out of. (~518 tok)
+- `http-error.interceptor.ts` — Detects server errors and network failures, then notifies the HealthService (~663 tok)
 
 ## frontend/src/app/core/provider-status-popup/
 
@@ -869,15 +871,15 @@
 ## frontend/src/app/features/settings/
 
 - `settings.component.ts` — Exports SettingsComponent (~411 tok)
-- `settings.html` (~1336 tok)
-- `settings.scss` — Styles: 13 rules (~514 tok)
-- `settings.ts` — Exports SettingsComponent (~662 tok)
+- `settings.html` (~1467 tok)
+- `settings.scss` — Styles: 14 rules (~548 tok)
+- `settings.ts` — API routes: GET (1 endpoints) (~866 tok)
 
 ## frontend/src/app/features/settings/access-key-management/
 
-- `access-key-management.html` (~1282 tok)
-- `access-key-management.scss` — Styles: 5 rules (~499 tok)
-- `access-key-management.ts` — Exports AccessKeyManagement (~1438 tok)
+- `access-key-management.html` (~1310 tok)
+- `access-key-management.scss` — Styles: 6 rules (~634 tok)
+- `access-key-management.ts` — Exports AccessKeyManagement (~1533 tok)
 
 ## frontend/src/app/features/settings/provider-config/
 
@@ -888,6 +890,10 @@
 ## frontend/src/app/features/settings/usage-monitor/
 
 - `usage-monitor.scss` — Styles: 5 rules (~620 tok)
+
+## frontend/src/app/features/wh-search/
+
+- `extraction.store.ts` — Maps listingId → whItemId so SSE lookup-result events can update the store. (~4576 tok)
 
 ## frontend/src/app/features/wh-search/wh-detail/
 
@@ -902,6 +908,9 @@
 ## frontend/src/app/features/wh-search/wh-detail/item-research/
 
 - `item-research.component.scss` — Styles: 17 rules, 5 vars (~1666 tok)
+- `item-research.html` (~2758 tok)
+- `item-research.scss` — Styles: 17 rules, 5 vars (~1731 tok)
+- `item-research.ts` — True when AI search is usable. (~5687 tok)
 
 ## frontend/src/app/features/wh-search/wh-detail/item-research/icecat-accordion/
 
@@ -928,6 +937,9 @@
 ## frontend/src/app/shared/layout/app-header/
 
 - `app-header.component.ts` — Exports AppHeaderComponent (~570 tok)
+- `app-header.html` (~319 tok)
+- `app-header.scss` — Styles: 8 rules (~827 tok)
+- `app-header.ts` — Exports AppHeaderComponent (~699 tok)
 
 ## frontend/src/app/shared/services/
 

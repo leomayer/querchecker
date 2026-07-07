@@ -2,6 +2,10 @@
   <div class="toolbar-inner">
     <h1 class="brand-title">Leo's Querchecker</h1>
     <span class="spacer"></span>
+    <span class="role-chip" [matTooltip]="'Angemeldet als ' + roleLabel()">
+      <mat-icon>{{ roleIcon() }}</mat-icon>
+      {{ roleLabel() }}
+    </span>
     @if (providerStatus.badgeVisible()) {
       <button
         class="setup-chip"

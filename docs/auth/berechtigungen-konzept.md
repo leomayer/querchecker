@@ -337,15 +337,11 @@ Bei öffentlichem EU/Österreich-Betrieb DSGVO-relevant (personenbezogene Daten:
 - P4 (Kontingent-Zählung) ausarbeiten
 ```
 
-### P1 — Umsetzungsstatus (abgeschlossen)
-
-Implementiert: `Role`-Enum, `AccessKey`-Entity + `V42__create_access_key.sql`, `AccessKeyRepository`, `AccessKeyService`, `AccessKeyController` (`generate-key`, `keys`). Tests: `AccessKeyServiceTest`, `AccessKeyControllerTest`.
+### P1 — Status: abgeschlossen
 
 **Abweichung von der ursprünglichen Konzeption:** Das Konzept-Dokument ging davon aus, dass Spring Security bereits im Projekt vorhanden ist — war nicht der Fall (keine `spring-boot-starter-security`-Dependency, keine `SecurityConfig`, nirgends). Deshalb zusätzlich `spring-boot-starter-security` + `commons-codec` (`DigestUtils.sha256Hex`) zu `backend/pom.xml` hinzugefügt sowie eine minimale `SecurityConfig` (`@EnableMethodSecurity`, `/api/auth/**` = `authenticated()`, alles andere `permitAll()`). `@PreAuthorize("hasRole('SUPERUSER')")` war zu diesem Zeitpunkt ein reiner Platzhalter — kein Filter vergab `ROLE_SUPERUSER`, `generate-key`/`keys` waren also für alle 403. Mit P2 (Session-Cookie-Filter + Local-Profile-Filter) ist das aufgelöst.
 
-### P2 — Umsetzungsstatus (Backend abgeschlossen)
-
-Implementiert: `QuerCheckerPrincipal`, `UserSession` + `V43__create_user_session.sql`, `AuthService`/`AuthController` (`login-with-key`/`logout`/`me`), `LocalProfileAuthFilter` + `SessionCookieAuthFilter`, `SecurityConfig`-Endpoint-Regeln, Key-Verwaltung (`PATCH`/`revoke`/`unrevoke`), Session-Cleanup-Job. Tests: `AuthServiceTest`, `SessionCookieAuthFilterTest`, `AuthControllerTest`, erweiterter `AccessKeyControllerTest`/`AccessKeyServiceTest` — alle Mockito/`@WebMvcTest`, kein `@SpringBootTest`.
+### P2 — Status: Backend abgeschlossen
 
 **Bewusste Abweichungen von der ursprünglichen Konzeption (Nutzer-Entscheidungen, 2026-07-07):**
 - **Kein IP-Allowlist-Filter.** Noch kein Traefik/Cloud-Setup vorhanden; Admin-IP wäre ohnehin evtl. dynamisch (Heimnetz). Ersatzlos gestrichen statt „nur Komfort-Fallback" — reduziert auf zwei Filter (lokal/prod-Erkennung + Session-Cookie).
@@ -353,12 +349,15 @@ Implementiert: `QuerCheckerPrincipal`, `UserSession` + `V43__create_user_session
 - **Kein Env-Var-Bootstrap-Key.** Erste Idee (Backend legt beim ersten Start automatisch einen SUPERUSER-Key aus einer Env-Var an) verworfen zugunsten eines einmaligen manuellen SQL-Inserts — einfacher, kein zusätzlicher Code-Pfad, da noch kein Cloud-Deployment existiert, das das rechtfertigen würde.
 - **Kein `@SpringBootTest`-IT** (`SecurityConfigIT` aus dem P2-Prompt). Projekt hatte bislang keine `@SpringBootTest`/Testcontainers-Infrastruktur — Unit-Tests (Mockito) + `@WebMvcTest` decken die Filter-Logik und Endpoint-Regeln ausreichend ab, ohne neue Test-Infrastruktur einzuführen.
 
-**P3 (Angular-UI) — teilweise vorgezogen, zusammen mit P2 umgesetzt (Nutzer-Vorgabe: Settings-Menü außer Font-Größe komplett SUPERUSER-only):**
-- ✅ `AuthService` (`frontend/src/app/core/auth.service.ts`) — Signal `role`/`authenticated`, `isSuperuser` computed, gespeist aus `GET /api/auth/me` via `provideAppInitializer`. Kein `localStorage`, kein Token im State (wie im Konzept gefordert).
-- ✅ Settings-Gating: alle Panels außer „Font-Größe" hinter `@if (auth.isSuperuser())`; Zugriffscode-Eingabe (Key → `login-with-key`) + Abmelden-Button direkt in `settings.html`, statt eines separaten Toolbar/Footer-Status-Elements.
-- ❌ Offen: dezentes Status-Element in Toolbar/Footer (Icon + „Gast"/Rolle), AI-UI-Elemente (Spec-Lookup, DL-Extraktion) statusabhängig ein-/ausblenden, eigene Zugriffsverwaltungs-UI (Tabelle + „Neuen Key generieren"-Dialog aus Kap. 3).
+### P3 (Angular-UI) — Status: abgeschlossen (bis auf P4-Anbindung)
 
-Offen: Rest von P3 (siehe oben) und P4 (`AccessKeyUsage`-Kontingent-Zählung).
+Umgesetzt: `AuthService`, Settings-Gating (Nutzer-Vorgabe: alles außer Font-Größe SUPERUSER-only), Zugriffsverwaltungs-UI inkl. Generieren/Bearbeiten/Sperren/Löschen, Rollen-Chip im Header (Gast/User/Superuser), GUEST-Gating der KI-Produktsuche (Feld/Buttons deaktiviert + Hinweistext statt aktivem, aber wirkungslosem UI).
+
+**Nicht-offensichtliche Design-Punkte:**
+- **Self-Lockout-Schutz:** `GET /api/auth/me` liefert zusätzlich `hasKey`/`accessKeyId`; die eigene Session wird in der Zugriffsverwaltung als „Du"-Badge markiert, Bearbeiten/Sperren/Löschen dafür deaktiviert — verhindert, dass sich ein Superuser selbst aussperrt.
+- `LocalProfileAuthFilter` hat Vorrang vor `SessionCookieAuthFilter` (Kap. 2) — ein Key-Login während normalem Dev-Betrieb (`!prod`) ist dadurch wirkungslos. Settings zeigt das Zugriffscode-Feld in diesem Zustand deaktiviert mit Erklärung an, statt ein scheinbar funktionierendes Formular zu zeigen.
+
+Offen: P4 (`AccessKeyUsage`-Kontingent-Zählung, Kap. 4/8) — Kontingent-Anzeige im Frontend baut darauf auf.
 
 ---
 

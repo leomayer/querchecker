@@ -194,8 +194,24 @@ export const ExtractionStore = signalStore(
             }
           },
           error: () => {
+            // Store an ERROR result — otherwise lookupResults[whItemId] stays empty and the
+            // auto-lookup effect in item-research.ts re-triggers the same failing request forever.
             patchState(store, (s) => ({
               lookupLoadingIds: s.lookupLoadingIds.filter((id) => id !== whItemId),
+              lookupResults: {
+                ...s.lookupResults,
+                [whItemId]: {
+                  lookupStatus: 'ERROR' as const,
+                  quickFacts: {},
+                  icecatId: null,
+                  sourceType: null,
+                  sourceDomain: null,
+                  siteLabel: null,
+                  sourceUrl: null,
+                  featureGroups: null,
+                  lookupTerm,
+                },
+              },
             }));
           },
         });

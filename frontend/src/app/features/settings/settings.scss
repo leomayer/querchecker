@@ -110,6 +110,13 @@ mat-card-actions {
   }
 }
 
+.access-key-hint {
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--mat-sys-on-surface-variant);
+}
+
 .access-key-error {
   margin: 4px 0 0;
   font-size: 0.85rem;

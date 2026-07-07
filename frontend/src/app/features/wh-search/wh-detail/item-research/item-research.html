@@ -6,38 +6,40 @@
   </div>
 }
 
-<!-- 1. Search row — always visible at top -->
-<div class="search-row">
-  <mat-form-field
-    class="search-field"
-    subscriptSizing="dynamic"
-    [matTooltip]="
-      lookupState() === 'NO_SOURCES'
-        ? 'Nutze die Produktdaten aus dem Inserat unten (keine KI-Suche für die Kategorie konfiguriert)'
-        : !aiSearchEnabled()
-          ? 'KI-Suche nicht konfiguriert'
-          : ''
-    "
-    [matTooltipDisabled]="aiSearchEnabled() && lookupState() !== 'NO_SOURCES'">
-    <input
-      matInput
-      placeholder="Produktsuche"
-      [(ngModel)]="searchTerm"
-      (keyup.enter)="onLookup()"
-      [disabled]="!aiSearchEnabled() || lookupState() === 'NO_SOURCES'" />
-  </mat-form-field>
-  <button
-    mat-icon-button
-    (click)="onLookup()"
-    [disabled]="searchButtonDisabled()"
-    matTooltip="KI-Suche starten">
-    @if (lookupState() === 'loading') {
-      <mat-spinner diameter="16" />
-    } @else {
-      <mat-icon>auto_awesome</mat-icon>
-    }
-  </button>
-</div>
+<!-- 1. Search row — hidden entirely for GUEST, see placeholder below instead -->
+@if (auth.authenticated()) {
+  <div class="search-row">
+    <mat-form-field
+      class="search-field"
+      subscriptSizing="dynamic"
+      [matTooltip]="
+        lookupState() === 'NO_SOURCES'
+          ? 'Nutze die Produktdaten aus dem Inserat unten (keine KI-Suche für die Kategorie konfiguriert)'
+          : !aiSearchEnabled()
+            ? 'KI-Suche nicht konfiguriert'
+            : ''
+      "
+      [matTooltipDisabled]="aiSearchEnabled() && lookupState() !== 'NO_SOURCES'">
+      <input
+        matInput
+        placeholder="Produktsuche"
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="onLookup()"
+        [disabled]="!aiSearchEnabled() || lookupState() === 'NO_SOURCES'" />
+    </mat-form-field>
+    <button
+      mat-icon-button
+      (click)="onLookup()"
+      [disabled]="searchButtonDisabled()"
+      matTooltip="KI-Suche starten">
+      @if (lookupState() === 'loading') {
+        <mat-spinner diameter="16" />
+      } @else {
+        <mat-icon>auto_awesome</mat-icon>
+      }
+    </button>
+  </div>
+}
 
 <!-- 2. History chips — shown when previous lookups exist -->
 @if (lookupHistory().length > 0) {
@@ -107,7 +109,13 @@
     </div>
   } @else {
     <div class="placeholder">
-      @if (!aiSearchEnabled()) {
+      @if (!auth.authenticated()) {
+        <mat-icon class="placeholder-icon large">lock</mat-icon>
+        <span class="placeholder-title">KI-Produktsuche benötigt einen Zugriffscode</span>
+        <button mat-flat-button class="settings-link" (click)="navigateToSettings('access-key')">
+          <mat-icon>key</mat-icon>Zugriffscode eingeben
+        </button>
+      } @else if (!aiSearchEnabled()) {
         <mat-icon class="placeholder-icon">block</mat-icon>
         <span>{{ providerDisabledMessage() ?? 'Produktsuche nicht konfiguriert' }}</span>
         @if (providerUnavailableStatus()) {

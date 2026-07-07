@@ -1,4 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
+import { map } from 'rxjs';
 import { Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -39,11 +42,22 @@ import { Theme } from './theme';
 })
 export class SettingsComponent {
   private readonly location = inject(Location);
+  private readonly route = inject(ActivatedRoute);
+
+  readonly openSection = toSignal(
+    this.route.queryParamMap.pipe(map((params) => params.get('open'))),
+    { initialValue: null },
+  );
 
   readonly theme = inject(Theme);
   readonly usageHasWarning = signal(false);
   readonly providerStatus = inject(ProviderStatusStore);
   readonly auth = inject(AuthService);
+
+  // LocalProfileAuthFilter läuft vor SessionCookieAuthFilter und gewinnt immer, solange kein
+  // "prod"-Profil aktiv ist — ein Key-Login hier hätte serverseitig keine Wirkung (siehe
+  // berechtigungen-konzept.md Kap. 2). Unterscheidbar von echtem GUEST über isSuperuser()+!hasKey().
+  readonly isLocalSuperuser = computed(() => this.auth.isSuperuser() && !this.auth.hasKey());
 
   readonly accessKeyInput = signal('');
   readonly loginError = signal<string | null>(null);

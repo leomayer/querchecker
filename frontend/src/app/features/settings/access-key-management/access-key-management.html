@@ -10,7 +10,7 @@
   @if (newRole() === 'USER') {
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>Kontingent/Tag</mat-label>
-      <input matInput type="number" min="0" [(ngModel)]="newQuota" />
+      <input matInput type="number" min="5" [(ngModel)]="newQuota" />
     </mat-form-field>
   }
 
@@ -37,6 +37,7 @@
 }
 
 @if (keys().length > 0) {
+  <div class="table-scroll">
   <table class="access-key-table">
     <thead>
       <tr>
@@ -54,7 +55,7 @@
           @if (editingId() === key.id) {
             <td>
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <mat-select [(ngModel)]="editRole">
+                <mat-select [ngModel]="editRole()" (ngModelChange)="onEditRoleChange($event)">
                   <mat-option value="USER">User</mat-option>
                   <mat-option value="SUPERUSER">Superuser</mat-option>
                 </mat-select>
@@ -63,7 +64,7 @@
             <td>
               @if (editRole() === 'USER') {
                 <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                  <input matInput type="number" min="0" [(ngModel)]="editQuota" />
+                  <input matInput type="number" min="5" [(ngModel)]="editQuota" />
                 </mat-form-field>
               } @else {
                 <span class="na">–</span>
@@ -100,7 +101,7 @@
                 <mat-icon>more_vert</mat-icon>
               </button>
               <mat-menu #rowMenu="matMenu">
-                <button mat-menu-item (click)="startEdit(key)">
+                <button mat-menu-item [disabled]="isSelf(key)" (click)="startEdit(key)">
                   <mat-icon>edit</mat-icon>
                   Bearbeiten
                 </button>
@@ -123,6 +124,7 @@
       }
     </tbody>
   </table>
+  </div>
 } @else if (loading()) {
   <p>Lade Zugriffs-Keys…</p>
 } @else if (error()) {

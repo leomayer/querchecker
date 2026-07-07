@@ -1126,6 +1126,378 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-07T16:55:23.803Z"
+    },
+    {
+      "id": "bug-071",
+      "timestamp": "2026-07-07T19:03:25.311Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/auth/berechtigungen-konzept.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 6→8 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T19:03:25.311Z"
+    },
+    {
+      "id": "bug-072",
+      "timestamp": "2026-07-07T20:09:36.000Z",
+      "error_message": "No qualifying bean of type 'org.springdoc.core.providers.ObjectMapperProvider' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}",
+      "file": "backend/src/main/java/at/querchecker/config/SpringDocConfig.java",
+      "root_cause": "polymorphicModelConverter bean unconditionally required ObjectMapperProvider, which springdoc only autoconfigures when its own api-docs/swagger-ui are enabled. application-prod.yml sets springdoc.api-docs.enabled=false, so this crashed context startup whenever the prod profile actually ran (never caught before since dev never disables springdoc, and prod profile was never manually tested locally until the P2 auth-testing session).",
+      "fix": "Added @ConditionalOnProperty(name = \"springdoc.api-docs.enabled\", havingValue = \"true\", matchIfMissing = true) to the polymorphicModelConverter bean method.",
+      "tags": [
+        "spring-boot",
+        "springdoc",
+        "prod-profile",
+        "startup-crash"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T20:09:36.000Z"
+    },
+    {
+      "id": "bug-073",
+      "timestamp": "2026-07-07T20:18:12.736Z",
+      "error_message": "Wrong reference: quickFacts should be as",
+      "file": "frontend/src/app/features/wh-search/extraction.store.ts",
+      "root_cause": "Used \"quickFacts\" instead of \"as\"",
+      "fix": "Changed quickFacts → as",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T20:18:12.736Z"
+    },
+    {
+      "id": "bug-074",
+      "timestamp": "2026-07-07T20:18:12.736Z",
+      "error_message": "Frontend spammed POST /api/listings/{id}/lookup in an infinite loop, every request returning 403, observed while manually testing the prod auth profile as GUEST",
+      "file": "frontend/src/app/features/wh-search/extraction.store.ts",
+      "root_cause": "item-research.ts:92-107 has an effect that auto-triggers ExtractionStore.lookup() whenever !lookupResults[id] && !lookupLoadingIds.includes(id). The old error handler in ExtractionStore.lookup() only cleared lookupLoadingIds on failure, never set lookupResults — so the effect's guard condition became true again immediately after every failed request, re-firing forever. Never surfaced before because dev always runs as SUPERUSER (LocalProfileAuthFilter), so lookup calls never got a 403 — first GUEST-as-prod-profile test exposed it. Same class of gap already flagged in berechtigungen-konzept.md Kap. 8 (\"AI-UI-Elemente nicht statusabhängig ausblenden\"), but this is worse than a hidden-button UX gap: it's a real self-inflicted request-flood against the own backend.",
+      "fix": "lookup()'s error handler now also patches lookupResults[whItemId] to a minimal { lookupStatus: 'ERROR', ... } result (status already existed in LookupResult model and is already rendered by item-research.html:125), so the effect's guard condition goes false and the loop stops after the first failed attempt.",
+      "tags": [
+        "auth",
+        "infinite-loop",
+        "guest-flow",
+        "frontend",
+        "effect"
+      ],
+      "related_bugs": [
+        "bug-072"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T20:18:12.736Z"
+    },
+    {
+      "id": "bug-075",
+      "timestamp": "2026-07-07T20:19:06.397Z",
+      "error_message": "Wrong reference: 401 should be 403",
+      "file": "docs/auth/berechtigungen-konzept.md",
+      "root_cause": "Used \"401\" instead of \"403\"",
+      "fix": "Changed 401 → 403",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T20:19:06.397Z"
+    },
+    {
+      "id": "bug-076",
+      "timestamp": "2026-07-07T20:30:58.832Z",
+      "error_message": "Incorrect value in code",
+      "file": "frontend/src/app/shared/layout/app-header/app-header.html",
+      "root_cause": "Had 'Angemeldet als: '",
+      "fix": "Changed to 'Angemeldet als '",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T20:30:58.832Z"
+    },
+    {
+      "id": "bug-077",
+      "timestamp": "2026-07-07T20:31:27.958Z",
+      "error_message": "Wrong reference: private should be protected",
+      "file": "frontend/src/app/features/wh-search/wh-detail/item-research/item-research.ts",
+      "root_cause": "Used \"private\" instead of \"protected\"",
+      "fix": "Changed private → protected",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T20:31:27.958Z"
+    },
+    {
+      "id": "bug-078",
+      "timestamp": "2026-07-07T20:31:49.391Z",
+      "error_message": "Wrong condition in logic",
+      "file": "frontend/src/app/features/wh-search/wh-detail/item-research/item-research.html",
+      "root_cause": "Condition was: if (!aiSearchEnabled()",
+      "fix": "Changed to: if (!auth.authenticated()",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T20:31:49.391Z"
+    },
+    {
+      "id": "bug-079",
+      "timestamp": "2026-07-07T20:33:15.644Z",
+      "error_message": "Null/undefined access in ",
+      "file": "backend/src/main/java/at/querchecker/service/WhItemService.java",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "java"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T20:33:15.644Z"
+    },
+    {
+      "id": "bug-080",
+      "timestamp": "2026-07-07T20:33:52.695Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/auth/berechtigungen-konzept.md",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 9→13 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T20:33:52.695Z"
+    },
+    {
+      "id": "bug-081",
+      "timestamp": "2026-07-07T20:33:52.695Z",
+      "error_message": "Backend log showed scheduleExtraction (DL-Extraktion, LLM call) running for a GUEST session, discovered during manual auth testing — user asked \"unklar ist mir auch, warum überhaupt eine Suche durchgeführt wurde\"",
+      "file": "backend/src/main/java/at/querchecker/service/WhItemService.java",
+      "root_cause": "openDetail() unconditionally scheduled dlOrchestrationService.scheduleExtraction(itemText) in its afterCommit hook on every detail view. The detail endpoint itself is public (normale Suche, Konzept Kap. 1), so GUEST users silently triggered LLM/provider-quota-consuming AI calls just by opening a listing — completely bypassing the auth model, which was built specifically to gate AI access behind a session.",
+      "fix": "Read SecurityContextHolder.getContext().getAuthentication() before the afterCommit hook; only call scheduleExtraction() when an authenticated principal is present (USER/SUPERUSER). Detail view itself stays public and unaffected.",
+      "tags": [
+        "auth",
+        "security",
+        "quota",
+        "backend",
+        "dl-extraction"
+      ],
+      "related_bugs": [
+        "bug-072",
+        "bug-074"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T20:33:52.695Z"
+    },
+    {
+      "id": "bug-082",
+      "timestamp": "2026-07-07T20:39:26.145Z",
+      "error_message": "Significant refactor of ",
+      "file": "frontend/src/app/features/wh-search/wh-detail/item-research/item-research.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 3→3 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T20:39:26.145Z"
+    },
+    {
+      "id": "bug-083",
+      "timestamp": "2026-07-07T20:39:38.244Z",
+      "error_message": "Type error",
+      "file": "frontend/src/app/features/settings/settings.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T20:39:38.244Z"
+    },
+    {
+      "id": "bug-084",
+      "timestamp": "2026-07-07T20:58:32.854Z",
+      "error_message": "Significant refactor of ",
+      "file": "frontend/src/app/features/settings/settings.html",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 10→22 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T20:58:32.854Z"
+    },
+    {
+      "id": "bug-085",
+      "timestamp": "2026-07-07T20:58:32.854Z",
+      "error_message": "User found the Zugriffscode input in Settings fully editable/enabled while running as Local-Dev-Superuser (no key), expected a locked field with an explanatory subtitle instead",
+      "file": "frontend/src/app/features/settings/settings.html",
+      "root_cause": "LocalProfileAuthFilter is registered before SessionCookieAuthFilter (SecurityConfig.filterChain) and unconditionally sets the SUPERUSER principal whenever no Authentication exists yet — so SessionCookieAuthFilter's cookie check (guarded by \"if authentication == null\") never runs while the !prod profile is active. Logging in with a real access key while running plain dev therefore creates a session row and cookie that are silently never read back — a functional no-op the UI didn't disclose.",
+      "fix": "Added SettingsComponent.isLocalSuperuser computed (auth.isSuperuser() && !auth.hasKey() — distinguishes Local-dev-auto-superuser from a real GUEST). Settings now shows a disabled field+button with an italic hint explaining the login has no effect here, instead of a misleadingly functional form.",
+      "tags": [
+        "auth",
+        "ux",
+        "filter-order",
+        "frontend"
+      ],
+      "related_bugs": [
+        "bug-072",
+        "bug-074",
+        "bug-081"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T20:58:32.854Z"
+    },
+    {
+      "id": "bug-086",
+      "timestamp": "2026-07-07T21:08:16.887Z",
+      "error_message": "Null/undefined access in ",
+      "file": "backend/src/main/java/at/querchecker/api/search/GoogleDiscoveryWebSearchService.java",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "java"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T21:08:16.887Z"
+    },
+    {
+      "id": "bug-087",
+      "timestamp": "2026-07-07T21:08:16.887Z",
+      "error_message": "User noticed hundreds of \"[GoogleDiscovery] Skipping locale duplicate\" TRACE lines for a single printer product lookup",
+      "file": "backend/src/main/java/at/querchecker/api/search/GoogleDiscoveryWebSearchService.java",
+      "root_cause": "canonicalizePath() built the dedup key from host+path only, dropping the query string entirely. For domains like druckerchannel.de, distinct pages are addressed purely via query params (techinfo.php?m[]=1477 vs techinfo.php?m[]=6264, device_info.php?ID=4899 vs ?ID=4900) — all of these collapsed onto the same canonical key (e.g. \"druckerchannel.de/techinfo.php\") and got wrongly discarded as duplicates by the HashSet check in mapSdkResults(). The locale-prefix-stripping the method was meant for (/de/ vs /us/ same-content variants) never needed query stripping — that was an unintended side effect of using uri.getPath() instead of the full path+query.",
+      "fix": "canonicalizePath() now appends the query string back onto the canonicalized path (still strips only the locale path prefix). Distinct query-addressed pages are no longer falsely deduped, so the loop needs far fewer Google Discovery result pages to fill resultCount and returns the actually-different pages it was dropping before.",
+      "tags": [
+        "search",
+        "google-discovery",
+        "dedup",
+        "backend"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T21:08:16.887Z"
+    },
+    {
+      "id": "bug-088",
+      "timestamp": "2026-07-07T21:37:00.000Z",
+      "error_message": "GUEST (confirmed via header showing 'Gast') still triggered scheduleExtraction on opening a listing detail — the bug-081 fix (SecurityContextHolder-based GUEST gating in WhItemService.openDetail()) did not actually prevent it, found via manual re-test",
+      "file": "backend/src/main/java/at/querchecker/service/WhItemService.java",
+      "root_cause": "The bug-081 fix checked `authentication != null && authentication.isAuthenticated()`, but SecurityContextHolder.getContext().getAuthentication() is NEVER null by the time a request reaches the Service layer — Spring Security's built-in AnonymousAuthenticationFilter (runs after our custom SessionCookieAuthFilter, confirmed via the whitelabel-error-page stack trace) fills the gap with a non-null AnonymousAuthenticationToken that already has isAuthenticated()==true for true GUEST requests. So the guard was always true regardless of real auth state.",
+      "fix": "Changed the check to `authentication.getPrincipal() instanceof QuerCheckerPrincipal` — only our own custom filters (LocalProfileAuthFilter/SessionCookieAuthFilter) ever set that principal type; Spring's anonymous fallback uses a plain String (\"anonymousUser\") principal, so it correctly evaluates to false for real GUEST. Mirrors the same check AuthService.me() already used correctly.",
+      "tags": [
+        "auth",
+        "security",
+        "spring-security",
+        "anonymous-authentication",
+        "backend"
+      ],
+      "related_bugs": [
+        "bug-081"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T21:37:00.000Z"
+    },
+    {
+      "id": "bug-089",
+      "timestamp": "2026-07-07T22:12:32.701Z",
+      "error_message": "Incorrect value in code",
+      "file": "frontend/src/app/features/settings/access-key-management/access-key-management.html",
+      "root_cause": "Had \"access-key-table\"",
+      "fix": "Changed to \"table-scroll\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T22:12:32.701Z"
+    },
+    {
+      "id": "bug-090",
+      "timestamp": "2026-07-07T22:13:01.172Z",
+      "error_message": "Significant refactor of ",
+      "file": "frontend/src/app/features/settings/access-key-management/access-key-management.scss",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 5→3 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "scss"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T22:13:01.172Z"
+    },
+    {
+      "id": "bug-091",
+      "timestamp": "2026-07-07T22:15:08.407Z",
+      "error_message": "CSS fix: width, min-width",
+      "file": "frontend/src/app/features/settings/access-key-management/access-key-management.scss",
+      "root_cause": "width: 100% → 12%; min-width: 560px → 640px",
+      "fix": "Changed width: 100% → 12%; min-width: 560px → 640px",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "scss"
+      ],
+      "related_bugs": [],
+      "occurrences": 4,
+      "last_seen": "2026-07-07T22:19:00.612Z"
+    },
+    {
+      "id": "bug-092",
+      "timestamp": "2026-07-07T22:23:41.081Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/auth/berechtigungen-konzept.md",
+      "root_cause": "11 lines replaced/restructured",
+      "fix": "Rewrote 17→9 lines (11 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-07T22:23:41.081Z"
     }
   ]
 }

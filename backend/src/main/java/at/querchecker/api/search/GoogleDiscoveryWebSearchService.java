@@ -153,12 +153,17 @@ public class GoogleDiscoveryWebSearchService implements WebSearchService {
     return results;
   }
 
-  /** Strips locale prefix (e.g. /de/, /us/, /ar-sa/) from the URL path for deduplication. */
+  /**
+   * Strips only the locale prefix (e.g. /de/, /us/, /ar-sa/) from the URL path for deduplication —
+   * the query string is kept, otherwise pages like techinfo.php?m[]=1477 and techinfo.php?m[]=6264
+   * (genuinely different content) collapse onto the same canonical key and get wrongly discarded.
+   */
   private String canonicalizePath(String url) {
     try {
       java.net.URI uri = new java.net.URI(url);
       String path = uri.getHost() + LOCALE_PATH_PREFIX.matcher(uri.getPath()).replaceFirst("/");
-      return path;
+      String query = uri.getQuery();
+      return query != null ? path + "?" + query : path;
     } catch (Exception e) {
       return url;
     }
