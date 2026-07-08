@@ -42,7 +42,7 @@ public class DlPersistenceService {
         runRepo.save(run);
 
         eventPublisher.publishEvent(new DlExtractionCompletedEvent(
-            run.getItemText().getId(), run.getModelConfig().getModelName(), ExtractionStatus.DONE));
+            run.getItemText().getId(), run.getModelConfig().getModelName(), ExtractionStatus.DONE.name()));
     }
 
     public void saveFailed(DlExtractionRun run, String errorMessage) {
@@ -51,7 +51,7 @@ public class DlPersistenceService {
         runRepo.save(run);
 
         eventPublisher.publishEvent(new DlExtractionCompletedEvent(
-            run.getItemText().getId(), run.getModelConfig().getModelName(), ExtractionStatus.FAILED));
+            run.getItemText().getId(), run.getModelConfig().getModelName(), ExtractionStatus.FAILED.name()));
     }
 
     private String toJson(Object value) {

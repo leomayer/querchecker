@@ -93,7 +93,7 @@ public class DlExtractionController {
                 .whItemId(whItemId)
                 .terms(terms)
                 .suggestedTerm(suggestedTerm)
-                .modelStatus(event.getModelStatus().name())
+                .modelStatus(event.getModelStatus())
                 .build());
         } catch (Exception e) {
             log.error("Failed to broadcast dl-extract for itemTextId={}, model={}",
