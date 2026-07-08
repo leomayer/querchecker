@@ -1,11 +1,12 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-07T22:24:21.700Z
-> Files: 600 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-08T18:33:16.895Z
+> Files: 615 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../.claude/projects/-home-leo-programming-github-querchecker/memory/
 
-- `MEMORY.md` — Querchecker Project Memory (~4436 tok)
+- `backend.md` — Backend Details (~7706 tok)
+- `MEMORY.md` — Querchecker Project Memory (~4750 tok)
 - `todo_readme_doccheck.md` (~203 tok)
 - `user.md` — Technical Profile (~345 tok)
 
@@ -75,7 +76,7 @@
 
 ## backend/src/main/java/at/querchecker/api/entity/
 
-- `ApiUsageLog.java` — LLM-Modellname (z.B. "llama-3.1-8b-instant"), null für Such-Provider (~284 tok)
+- `ApiUsageLog.java` — LLM-Modellname (z.B. "llama-3.1-8b-instant"), null für Such-Provider (~298 tok)
 - `Provider.java` — Provider: getDisplayName (~112 tok)
 - `RequestType.java` — Class: RequestType (~36 tok)
 
@@ -85,7 +86,7 @@
 
 ## backend/src/main/java/at/querchecker/api/extraction/
 
-- `AbstractLlmExtractionClient.java` — Gemeinsame Logik für LLM-basierte ExtractionClient-Implementierungen (~6750 tok)
+- `AbstractLlmExtractionClient.java` — Gemeinsame Logik für LLM-basierte ExtractionClient-Implementierungen (~6942 tok)
 - `ExtractionClient.java` — Provider-unabhängiges Interface für LLM-Extraktion. (~658 tok)
 - `ExtractionProviderRouter.java` — Leitet Extraction-Calls an den konfigurierten aktiven Provider weiter. (~246 tok)
 - `GroqExtractionClient.java` — ExtractionClient-Implementierung für Groq (llama-3.x). (~630 tok)
@@ -116,7 +117,7 @@
 
 ## backend/src/main/java/at/querchecker/api/service/
 
-- `ApiUsageLogService.java` — Protokolliert jeden echten API-Call — nie bei Cache-Hits. (~1121 tok)
+- `ApiUsageLogService.java` — Protokolliert jeden echten API-Call — nie bei Cache-Hits. (~1079 tok)
 - `QuotaService.java` — Prüft und verwaltet API-Kontingente basierend auf ProviderProperties. (~1070 tok)
 - `QuotaStatus.java` — Class: QuotaStatus (~27 tok)
 
@@ -126,28 +127,32 @@
 - `AccessKeyController.java` — RestController: AccessKeyController (7 endpoints) (~601 tok)
 - `AccessKeyRepository.java` — Class: AccessKeyRepository (~72 tok)
 - `AccessKeyService.java` — Service: AccessKeyService (~908 tok)
+- `AccessKeyUsage.java` — Ebene-2-Kontingent: zählt Nutzeraktionen (Spec-Lookups) pro Key und Tag. (~350 tok)
+- `AccessKeyUsageRepository.java` — Verbleibendes Tageskontingent des Keys in einer Query — die DB rechnet, (~689 tok)
+- `AccessKeyUsageService.java` — Ebene-2-Kontingent (Key-Kontingent) aus dem Berechtigungskonzept, Kap. 4. (~936 tok)
 - `AuthController.java` — RestController: AuthController (4 endpoints) (~327 tok)
-- `AuthProperties.java` — Component: AuthProperties (~96 tok)
-- `AuthService.java` — Service: AuthService (~991 tok)
+- `AuthProperties.java` — DSGVO-Retention für Key-Nutzungshistorie (access_key_usage), Konzept Kap. 7. (~130 tok)
+- `AuthService.java` — Service: AuthService (~1164 tok)
 - `LocalProfileAuthFilter.java` — Component: LocalProfileAuthFilter (~455 tok)
-- `QuerCheckerPrincipal.java` — QuerCheckerPrincipal: withoutKey, withKey, hasKey (~118 tok)
+- `QuerCheckerPrincipal.java` — accessKeyId der aktuellen USER-Session für Traceability-Zwecke (nicht Kontingent-Buchung, (~323 tok)
+- `QuotaExceededException.java` — Ebene-2-Kontingent des Keys für den heutigen Tag erschöpft. (~148 tok)
 - `Role.java` — Class: Role (~56 tok)
 - `SessionCookieAuthFilter.java` — Component: SessionCookieAuthFilter (~986 tok)
 - `UserSession.java` — Entity: UserSession (~240 tok)
-- `UserSessionCleanupScheduler.java` — Component: UserSessionCleanupScheduler (~172 tok)
+- `UserSessionCleanupScheduler.java` — Component: UserSessionCleanupScheduler (~295 tok)
 - `UserSessionRepository.java` — Class: UserSessionRepository (~105 tok)
 
 ## backend/src/main/java/at/querchecker/auth/dto/
 
 - `AccessKeyCreatedDto.java` — Class: AccessKeyCreatedDto (~89 tok)
 - `AccessKeyOverviewDto.java` — Class: AccessKeyOverviewDto (~83 tok)
-- `AuthStatusDto.java` — Class: AuthStatusDto (~45 tok)
+- `AuthStatusDto.java` — Class: AuthStatusDto (~123 tok)
 - `LoginResponseDto.java` — Class: LoginResponseDto (~31 tok)
 
 ## backend/src/main/java/at/querchecker/config/
 
 - `AsyncConfig.java` — Configuration: AsyncConfig (~61 tok)
-- `CorsConfig.java` — Configuration: CorsConfig (~244 tok)
+- `CorsConfig.java` — Configuration: CorsConfig (~231 tok)
 - `HttpClientProperties.java` — HTTP client timeout configuration for external API calls (~169 tok)
 - `ProviderSetupService.java` — Baut die Datenstruktur für den Einrichtungs-Assistenten. (~4565 tok)
 - `ProviderState.java` — Status eines externen Providers. (~243 tok)
@@ -189,8 +194,8 @@
 
 ## backend/src/main/java/at/querchecker/deepLearning/
 
-- `DlCategoryPromptDefinitions.java` — Zentrale Definition aller Kategorie-Prompts. (~2209 tok)
-- `DlExtractionCompletedEvent.java` — Class: DlExtractionCompletedEvent (~82 tok)
+- `DlCategoryPromptDefinitions.java` — Zentrale Definition aller Kategorie-Prompts. (~2148 tok)
+- `DlExtractionCompletedEvent.java` — String, nicht {@link ExtractionStatus} — Transportwert für SSE, entkoppelt von der (~173 tok)
 - `ExtractionResult.java` — Class: ExtractionResult (~114 tok)
 - `ExtractionStatus.java` — Class: ExtractionStatus (~49 tok)
 - `HtmlUtils.java` — Utility for extracting plain text from HTML content. (~169 tok)
@@ -205,7 +210,7 @@
 
 ## backend/src/main/java/at/querchecker/deepLearning/controller/
 
-- `DlExtractionController.java` — Returns extraction terms + overall status for a whItemId. (~1953 tok)
+- `DlExtractionController.java` — Returns extraction terms + overall status for a whItemId. (~1821 tok)
 - `DlSettingsController.java` — RestController: DlSettingsController (3 endpoints) (~225 tok)
 
 ## backend/src/main/java/at/querchecker/deepLearning/entity/
@@ -242,8 +247,8 @@
 - `DlCategoryPromptSeeder.java` — Befüllt DlCategoryPrompt per Upsert beim Start. (~1408 tok)
 - `DlExtractionService.java` — Service: DlExtractionService (~1523 tok)
 - `DlFilterService.java` — Service: DlFilterService (~184 tok)
-- `DlOrchestrationService.java` — Service: DlOrchestrationService (~2638 tok)
-- `DlPersistenceService.java` — Service: DlPersistenceService (~737 tok)
+- `DlOrchestrationService.java` — Rate-Limit (Burst-Schutz, 2s) + Tagesvolumen (Kosten-Schutz, 5x Lookup-Kontingent) für (~3345 tok)
+- `DlPersistenceService.java` — Service: DlPersistenceService (~692 tok)
 - `DlPromptResolver.java` — Löst Prompt auf: Eigene Kategorie → Eltern → ... → Default (whCategory=null). (~653 tok)
 - `ExtractionTask.java` — ExtractionTask: run, getRun (~135 tok)
 - `ItemTextCleanupScheduler.java` — Löscht alte ItemText-Records die: (~351 tok)
@@ -289,9 +294,9 @@
 - `ExtractionQualityEvaluator.java` — Bewertet die Qualität eines LLM-Extraktionsergebnisses. (~604 tok)
 - `HtmlFetchService.java` — Entscheidet ob für einen SourceType ein vollständiger HTML-Fetch gemacht wird. (~979 tok)
 - `IcecatService.java` — Lädt vollständige Produktspezifikationen von Icecat (kein LLM-Extrakt). (~1150 tok)
-- `LookupHistoryService.java` — Service: LookupHistoryService (~1288 tok)
-- `ProductLookupController.java` — RestController: ProductLookupController (4 endpoints) (~2696 tok)
-- `ProductLookupService.java` — Orchestriert den vollständigen Spec-Lookup-Ablauf: (~7670 tok)
+- `LookupHistoryService.java` — Service: LookupHistoryService (~1257 tok)
+- `ProductLookupController.java` — RestController: ProductLookupController (4 endpoints) (~2639 tok)
+- `ProductLookupService.java` — Orchestriert den vollständigen Spec-Lookup-Ablauf: (~8019 tok)
 - `SearchResultCacheService.java` — In-memory cache for web search results. (~350 tok)
 - `UrlValidator.java` — Validiert die vom LLM gelieferte sourceUrl gegen die echten Brave-Ergebnisse. (~841 tok)
 
@@ -302,8 +307,8 @@
 - `CategorySpecPreferenceField.java` — Entity: CategorySpecPreferenceField (~206 tok)
 - `ExtractionQuality.java` — ≥60% SYSTEM-Pflichtfelder extrahiert + icecatId vorhanden (bei ICECAT-Quellen). (~146 tok)
 - `FieldSource.java` — Geseedet durch CategorySpecPreferenceSeeder. Generische Spec-Labels (cpu, ram, panel_type). (~303 tok)
-- `ListingLookupHistory.java` — Entity: ListingLookupHistory (~332 tok)
-- `LookupStatus.java` — Class: LookupStatus (~161 tok)
+- `ListingLookupHistory.java` — Null für SUPERUSER (auch dev/local-profile) und GUEST — kein Kontingent, kein Key. (~343 tok)
+- `LookupStatus.java` — Class: LookupStatus (~186 tok)
 - `ProductLookup.java` — Gesetzt wenn ein COMPLETE-Ergebnis aus dem Cache bedient wurde (kein Brave-Call). (~589 tok)
 - `SourceType.java` — Class: SourceType (~95 tok)
 
@@ -416,6 +421,9 @@
 - `V41__add_extracted_model_to_dl_extraction_term.sql` — Add extractedModel column to dl_extraction_term (~57 tok)
 - `V42__create_access_key.sql` — SQL: tables: access_key (~96 tok)
 - `V43__create_user_session.sql` — SQL: tables: user_session (~93 tok)
+- `V44__create_access_key_usage.sql` — SQL: tables: access_key_usage (~72 tok)
+- `V45__add_access_key_id_to_lookup_and_usage_log.sql` (~48 tok)
+- `V46__add_extraction_consumed_count.sql` (~26 tok)
 - `V5__create_dl_extraction_term.sql` — SQL: tables: dl_extraction_term (~132 tok)
 - `V6__add_wh_category_to_wh_listing.sql` — SQL: 1 alter(s) (~50 tok)
 - `V7__rename_model_config_roberta_to_bert_multi.sql` (~43 tok)
@@ -810,13 +818,14 @@
 
 - `AccessKeyControllerTest.java` — Class: AccessKeyControllerTest (~1610 tok)
 - `AccessKeyServiceTest.java` — Class: AccessKeyServiceTest (~1411 tok)
-- `AuthControllerTest.java` — Class: AuthControllerTest (~753 tok)
-- `AuthServiceTest.java` — Class: AuthServiceTest (~2057 tok)
+- `AccessKeyUsageServiceTest.java` — Class: AccessKeyUsageServiceTest (~586 tok)
+- `AuthControllerTest.java` — Class: AuthControllerTest (~756 tok)
+- `AuthServiceTest.java` — Class: AuthServiceTest (~2078 tok)
 - `SessionCookieAuthFilterTest.java` — Class: SessionCookieAuthFilterTest (~1884 tok)
 
 ## backend/src/test/java/at/querchecker/research/
 
-- `ProductLookupServiceTest.java` — Class: ProductLookupServiceTest (~4483 tok)
+- `ProductLookupServiceTest.java` — Setzt eine USER-Session mit gegebenem accessKeyId in den SecurityContext. (~5331 tok)
 
 ## config/
 
@@ -838,7 +847,8 @@
 
 ## docs/auth/
 
-- `berechtigungen-konzept.md` — Querchecker — Berechtigungs- & Kontingent-Konzept (~5024 tok)
+- `berechtigung-P4-kontingent-zaehlung.md` — Berechtigungskonzept — Implementierungs-Prompt P4 (Kontingent-Zählung) (~1243 tok)
+- `berechtigungen-konzept.md` — Querchecker — Berechtigungs- & Kontingent-Konzept (~5591 tok)
 
 ## docs/concepts/
 
@@ -856,12 +866,22 @@
 
 - `app.config.ts` — Exports appConfig (~536 tok)
 
+## frontend/src/app/api/model/
+
+- `lookupHistoryEntryDto.ts` — OpenAPI definition (~364 tok)
+- `lookupResponse.ts` — OpenAPI definition (~413 tok)
+
 ## frontend/src/app/core/
 
 - `access-key.service.ts` — Exports AccessKeyOverview, AccessKeyCreated, AccessKeyService (~433 tok)
 - `api-urls.ts` — Exports API_URLS (~387 tok)
-- `auth.service.ts` — False for the dev-only LocalProfileAuthFilter SUPERUSER — there's no session to log out of. (~518 tok)
+- `auth.service.ts` — False for the dev-only LocalProfileAuthFilter SUPERUSER — there's no session to log out of. (~688 tok)
+- `dl-extraction.service.ts` — Best term from the configured source model — pre-fills the research search field. (~402 tok)
 - `http-error.interceptor.ts` — Detects server errors and network failures, then notifies the HealthService (~663 tok)
+
+## frontend/src/app/core/model/
+
+- `lookup.model.ts` — Raw JSON string from backend — parsed into featureGroups by ExtractionStore. (~378 tok)
 
 ## frontend/src/app/core/provider-status-popup/
 
@@ -871,13 +891,13 @@
 ## frontend/src/app/features/settings/
 
 - `settings.component.ts` — Exports SettingsComponent (~411 tok)
-- `settings.html` (~1467 tok)
-- `settings.scss` — Styles: 14 rules (~548 tok)
+- `settings.html` (~1538 tok)
+- `settings.scss` — Styles: 15 rules (~625 tok)
 - `settings.ts` — API routes: GET (1 endpoints) (~866 tok)
 
 ## frontend/src/app/features/settings/access-key-management/
 
-- `access-key-management.html` (~1310 tok)
+- `access-key-management.html` (~1321 tok)
 - `access-key-management.scss` — Styles: 6 rules (~634 tok)
 - `access-key-management.ts` — Exports AccessKeyManagement (~1533 tok)
 
@@ -893,7 +913,8 @@
 
 ## frontend/src/app/features/wh-search/
 
-- `extraction.store.ts` — Maps listingId → whItemId so SSE lookup-result events can update the store. (~4576 tok)
+- `extraction.store.ts` — Maps listingId → whItemId so SSE lookup-result events can update the store. (~4692 tok)
+- `search.store.ts` — Exports SearchStore (~2752 tok)
 
 ## frontend/src/app/features/wh-search/wh-detail/
 
@@ -908,9 +929,9 @@
 ## frontend/src/app/features/wh-search/wh-detail/item-research/
 
 - `item-research.component.scss` — Styles: 17 rules, 5 vars (~1666 tok)
-- `item-research.html` (~2758 tok)
+- `item-research.html` (~2941 tok)
 - `item-research.scss` — Styles: 17 rules, 5 vars (~1731 tok)
-- `item-research.ts` — True when AI search is usable. (~5687 tok)
+- `item-research.ts` — True when AI search is usable. (~5878 tok)
 
 ## frontend/src/app/features/wh-search/wh-detail/item-research/icecat-accordion/
 

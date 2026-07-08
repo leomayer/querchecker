@@ -12,6 +12,7 @@
 
 - **Project:** querchecker
 - **Description:** Querchecker entstand aus einem konkreten Bedarf: die Suche nach einem gebrauchten Drucker auf dem Willhaben Marktplatz (Kleinanzeigen). Welche Modelle haben noch verfügbare Patronen? Gibt es Ersatztei
+- **`mat-select` panelWidth quirk (Angular Material 21.x):** default `panelWidth` is `'auto'`, but `'auto'` means "match trigger width" (measures trigger's bounding rect), NOT "size to content" as older Material docs implied. To get a content-sized dropdown panel (wider than a narrow trigger), bind `[panelWidth]="null"` — plain attribute `panelWidth="auto"` has zero effect since it's already the default. Source: `select.mjs` `_getOverlayWidth()`.
 
 ## Do-Not-Repeat
 
