@@ -1,5 +1,6 @@
 import { inject } from '@angular/core';
 import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
+import { AuthService } from '../../core/auth.service';
 import { withLookupHistory } from './lookup-history.feature';
 import { DlExtractionTermDto } from '../../api/model/dlExtractionTermDto';
 import {
@@ -54,6 +55,7 @@ export const ExtractionStore = signalStore(
   withMethods((store) => {
     const dlService = inject(DlExtractionService);
     const productLookupService = inject(ProductLookupService);
+    const authService = inject(AuthService);
     return {
       remove(whItemId: number): void {
         patchState(store, (s) => {
@@ -192,6 +194,8 @@ export const ExtractionStore = signalStore(
             if (result.history) {
               store.setHistory(whItemId, result.history);
             }
+            // Kontingent kann sich geändert haben (Konzept Kap. 4) — Settings-Anzeige aktuell halten.
+            authService.refresh();
           },
           error: () => {
             // Store an ERROR result — otherwise lookupResults[whItemId] stays empty and the
@@ -295,6 +299,7 @@ export const ExtractionStore = signalStore(
       AppSseEventName,
       DlExtractionDonePayload
     >;
+    const authService = inject(AuthService);
 
     const onDlExtract = (payload: DlExtractionDonePayload): void => {
       const whItemId = payload?.whItemId;
@@ -362,6 +367,8 @@ export const ExtractionStore = signalStore(
       if (payload.history) {
         store.setHistory(whItemId, payload.history);
       }
+      // Kontingent kann sich geändert haben (Konzept Kap. 4) — Settings-Anzeige aktuell halten.
+      authService.refresh();
     };
 
     const onErrorNotification = (event: SseEvent<ErrorNotificationPayload>): void => {
