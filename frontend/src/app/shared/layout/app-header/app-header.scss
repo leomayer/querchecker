@@ -99,12 +99,16 @@
   gap: 4px;
   padding: 4px 12px 4px 8px;
   border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  font: inherit;
   font-size: 0.82rem;
   font-weight: 600;
   background: rgba(255, 255, 255, 0.16);
   color: var(--color-on-haggle-primary);
   margin-right: 8px;
   white-space: nowrap;
+  transition: background 0.2s ease;
 
   mat-icon {
     font-size: 16px;
@@ -112,6 +116,14 @@
     height: 16px;
     flex-shrink: 0;
     color: var(--color-on-haggle-primary);
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.26);
+  }
+
+  &:active {
+    opacity: 0.9;
   }
 }
 

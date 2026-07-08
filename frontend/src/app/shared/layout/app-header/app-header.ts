@@ -56,6 +56,24 @@ export class AppHeaderComponent {
     this.router.navigate(['/', 'setup']);
   }
 
+  showRoleInfo(): void {
+    if (this.auth.isSuperuser()) {
+      this.snack.success('Kein Kontingent-Limit für Superuser', 'Superuser');
+      return;
+    }
+    if (this.auth.authenticated()) {
+      const used = this.auth.quotaUsed();
+      const limit = this.auth.quotaLimit();
+      const message =
+        used != null && limit != null
+          ? `${used}/${limit} KI-Anfragen heute genutzt`
+          : 'Kontingent-Information nicht verfügbar';
+      this.snack.success(message, 'Dein Kontingent');
+      return;
+    }
+    this.snack.info('Nicht angemeldet — kein Kontingent aktiv', 'Gast');
+  }
+
   navigateSettings(): void {
     if (this.isOnSettings()) {
       this.snack.info('Sie befinden sich bereits auf dieser Seite', 'Einstellungen');
