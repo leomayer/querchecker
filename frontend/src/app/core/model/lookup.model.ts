@@ -4,7 +4,14 @@ export interface SpecsFeatureGroup {
 }
 
 export interface LookupResult {
-  lookupStatus: 'COMPLETE' | 'FAILED' | 'QUOTA_EXCEEDED' | 'NO_SOURCES' | 'ERROR' | 'RATE_LIMITED';
+  lookupStatus:
+    | 'COMPLETE'
+    | 'FAILED'
+    | 'QUOTA_EXCEEDED'
+    | 'KEY_QUOTA_EXCEEDED'
+    | 'NO_SOURCES'
+    | 'ERROR'
+    | 'RATE_LIMITED';
   quickFacts: Record<string, string>;
   icecatId: string | null;
   icecatSpecsJson?: string | null;

@@ -9,7 +9,16 @@ export interface DlSettingsDto {
 }
 
 export interface DlExtractionStatusResponse {
-  extractionStatus: 'DONE' | 'PENDING' | 'CANCELLED' | 'NONE' | 'FAILED';
+  extractionStatus:
+    | 'DONE'
+    | 'PENDING'
+    | 'CANCELLED'
+    | 'NONE'
+    | 'FAILED'
+    // Transient, only ever arrives via SSE (never persisted, never returned by GET /terms) —
+    // background rate-limit/volume-cap block for DL-Extraktion (Konzept Kap. 4, Ebene-2b).
+    | 'RATE_LIMITED'
+    | 'EXTRACTION_QUOTA_EXCEEDED';
   terms: DlExtractionTermDto[];
   /** Best term from the configured source model — pre-fills the research search field. */
   suggestedTerm?: string | null;

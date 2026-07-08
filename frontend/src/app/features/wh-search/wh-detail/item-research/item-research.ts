@@ -27,6 +27,7 @@ type LookupState =
   | 'COMPLETE'
   | 'FAILED'
   | 'QUOTA_EXCEEDED'
+  | 'KEY_QUOTA_EXCEEDED'
   | 'NO_SOURCES'
   | 'ERROR'
   | 'RATE_LIMITED';
@@ -188,6 +189,20 @@ export class ItemResearchComponent {
     const id = this.detail().whItemId;
     if (id == null) return false;
     return this.extractionStore.extractionStatus()[id] === 'FAILED';
+  });
+
+  /** Background rate-limit (2s) for DL-Extraktion — self-heals, retries on next reopen. */
+  protected readonly extractionRateLimited = computed<boolean>(() => {
+    const id = this.detail().whItemId;
+    if (id == null) return false;
+    return this.extractionStore.extractionStatus()[id] === 'RATE_LIMITED';
+  });
+
+  /** Daily background volume cap (5x lookup quota) for DL-Extraktion reached. */
+  protected readonly extractionQuotaExceeded = computed<boolean>(() => {
+    const id = this.detail().whItemId;
+    if (id == null) return false;
+    return this.extractionStore.extractionStatus()[id] === 'EXTRACTION_QUOTA_EXCEEDED';
   });
 
   /** Merged condensedSpec from all extracted terms for the current item. */

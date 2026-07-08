@@ -31,6 +31,7 @@ export namespace LookupResponse {
         Complete: 'COMPLETE',
         Failed: 'FAILED',
         QuotaExceeded: 'QUOTA_EXCEEDED',
+        KeyQuotaExceeded: 'KEY_QUOTA_EXCEEDED',
         NoSources: 'NO_SOURCES',
         Error: 'ERROR',
         RateLimited: 'RATE_LIMITED'

@@ -178,6 +178,13 @@
           >Das monatliche Freikontingent der Websuche wurde erreicht.<br />Weitere Suchen sind erst
           im nächsten Abrechnungszeitraum möglich.</small
         >
+      } @else if (lookupState() === 'KEY_QUOTA_EXCEEDED') {
+        <mat-icon class="placeholder-icon error">block</mat-icon>
+        <span>Tageskontingent erschöpft</span>
+        <small
+          >Dein tägliches KI-Anfragen-Kontingent für diesen Key wurde erreicht.<br />Weitere
+          Anfragen sind ab morgen wieder möglich.</small
+        >
       } @else if (lookupState() === 'RATE_LIMITED') {
         <mat-icon class="placeholder-icon amber">timer</mat-icon>
         <span>
@@ -225,6 +232,12 @@
       } @else if (extractionFailed()) {
         <mat-icon class="placeholder-icon">manage_search</mat-icon>
         <span>Fehler beim Extrahieren der Produktdaten</span>
+      } @else if (extractionRateLimited()) {
+        <mat-icon class="placeholder-icon">timer</mat-icon>
+        <span>Kurz warten — Analyse folgt in Kürze</span>
+      } @else if (extractionQuotaExceeded()) {
+        <mat-icon class="placeholder-icon">hourglass_empty</mat-icon>
+        <span>Analyse für heute nicht mehr verfügbar</span>
       } @else if (extractionDoneNoTerm()) {
         <mat-icon class="placeholder-icon">help_outline</mat-icon>
         <span>Produktname nicht erkennbar — bitte manuell eingeben</span>
