@@ -45,6 +45,7 @@ public final class DlCategoryPromptDefinitions {
           - Alle Werte sind Strings.
           - Einheiten normalisieren (z.B. "TB" statt "1000 GB", "GHz" statt "MHz").
           - Kein Zoll-Zeichen in Werten: schreibe "24 Zoll" statt "24\"" — ein rohes Anführungszeichen macht das JSON ungültig.
+          - JEDER Eintrag in condensedSpec MUSS ein "Key": "Value"-Paar sein. Niemals ein bloßer String ohne zugehörigen Key (z.B. verboten: { "Material": "Holz", "Hart" } — "Hart" braucht einen Key, z.B. "Härtegrad": "Hart"). Findest du für einen Wert keinen passenden Key, lass den Wert weg statt ihn ohne Key einzufügen.
        b) Keys:
           - jeder Key darf nur einmal vorhanden sein.
           - Deutsch

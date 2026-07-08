@@ -647,16 +647,25 @@ public abstract class AbstractLlmExtractionClient implements ExtractionClient {
     return text.length() <= maxChars ? text : text.substring(0, maxChars);
   }
 
+  // Matches inch-notation like 17", 21.5", 24″ — both ASCII quote and Unicode double-prime,
+  // since listings use either. Caught before the blanket quote-swap below: even the "safe"
+  // ″ replacement still visually reads as a quote to the LLM, which then re-normalizes it back
+  // to an unescaped " in its JSON output (observed failure: "Bildschirmgröße": "17"").
+  private static final Pattern INCH_NOTATION = Pattern.compile("(\\d+(?:[.,]\\d+)?)\\s*[\"″]");
+
   /**
    * Sanitizes user-supplied text before injecting it into LLM prompts.
    * Prevents the LLM from copying problematic characters into its JSON output:
-   * - " (straight double quote / inch mark) → ″ (U+2033 DOUBLE PRIME): visually identical,
-   *   the LLM still understands "21,5 Zoll" context but won't break JSON strings
+   * - 17", 24″ etc. → "17 Zoll", "24 Zoll": removes the quote-like glyph entirely so there's
+   *   nothing left for the LLM to echo back unescaped.
+   * - " (straight double quote) → ″ (U+2033 DOUBLE PRIME): remaining quotes (e.g. actual
+   *   quotations in the ad text) are still visually identical but won't break JSON strings.
    * - \ (backslash) → / : prevents accidental JSON escape sequences (\n, \t, etc.)
    */
   private static String sanitizeInput(String text) {
     if (text == null) return "";
-    return text.replace('"', '″').replace('\\', '/');
+    String withoutInchMarks = INCH_NOTATION.matcher(text).replaceAll("$1 Zoll");
+    return withoutInchMarks.replace('"', '″').replace('\\', '/');
   }
 
   /**
