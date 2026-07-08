@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-08T18:33:16.895Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-08T19:04:28.266Z
 > Files: 615 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../.claude/projects/-home-leo-programming-github-querchecker/memory/
@@ -958,9 +958,9 @@
 ## frontend/src/app/shared/layout/app-header/
 
 - `app-header.component.ts` — Exports AppHeaderComponent (~570 tok)
-- `app-header.html` (~319 tok)
-- `app-header.scss` — Styles: 8 rules (~827 tok)
-- `app-header.ts` — Exports AppHeaderComponent (~699 tok)
+- `app-header.html` (~346 tok)
+- `app-header.scss` — Styles: 8 rules (~876 tok)
+- `app-header.ts` — Exports AppHeaderComponent (~872 tok)
 
 ## frontend/src/app/shared/services/
 
