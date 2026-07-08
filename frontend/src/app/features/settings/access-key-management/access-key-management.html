@@ -1,7 +1,7 @@
 <div class="new-key-row">
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>Rolle</mat-label>
-    <mat-select [(ngModel)]="newRole">
+    <mat-select [(ngModel)]="newRole" [panelWidth]="null">
       <mat-option value="USER">User</mat-option>
       <mat-option value="SUPERUSER">Superuser</mat-option>
     </mat-select>
@@ -55,7 +55,7 @@
           @if (editingId() === key.id) {
             <td>
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <mat-select [ngModel]="editRole()" (ngModelChange)="onEditRoleChange($event)">
+                <mat-select [ngModel]="editRole()" (ngModelChange)="onEditRoleChange($event)" [panelWidth]="null">
                   <mat-option value="USER">User</mat-option>
                   <mat-option value="SUPERUSER">Superuser</mat-option>
                 </mat-select>
