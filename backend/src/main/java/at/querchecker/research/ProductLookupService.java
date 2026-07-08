@@ -9,6 +9,8 @@ import at.querchecker.api.search.SearchProvider;
 import at.querchecker.api.search.WebSearchProviderRouter;
 import at.querchecker.api.service.QuotaService;
 import at.querchecker.api.service.QuotaStatus;
+import at.querchecker.auth.AccessKeyUsageService;
+import at.querchecker.auth.QuerCheckerPrincipal;
 import at.querchecker.deepLearning.entity.PromptType;
 import at.querchecker.deepLearning.service.DlPromptResolver;
 import at.querchecker.entity.WhCategory;
@@ -78,6 +80,7 @@ public class ProductLookupService {
     private final LookupHistoryService lookupHistoryService;
     private final SseHub sseHub;
     private final WhItemRepository whItemRepository;
+    private final AccessKeyUsageService accessKeyUsageService;
 
     /**
      * @param listingId required for SSE push on rate-limit retry; pass null to suppress retry scheduling
@@ -88,7 +91,22 @@ public class ProductLookupService {
         WhCategory whCategory,
         Map<String, String> condensedSpec
     ) {
-        return lookupWithRetry(listingId, lookupTerm, whCategory, condensedSpec, 0);
+        // Ebene-2-Kontingent (Konzept Kap. 4): Check vor Cache/Pipeline, Buchung nur bei echtem
+        // Abschluss (nicht Cache-Hit, nicht Provider-Erschöpfung). accessKeyId ist null für
+        // SUPERUSER/local/GUEST → der Service überspringt dann Check und Buchung.
+        // QuotaExceededException propagiert bewusst an den Controller (nicht in lookupWithRetry
+        // gefangen), der sie auf QUOTA_EXCEEDED mappt.
+        Long accessKeyId = currentUserAccessKeyId();
+        accessKeyUsageService.checkQuota(accessKeyId);
+        return lookupWithRetry(listingId, lookupTerm, whCategory, condensedSpec, 0, accessKeyId);
+    }
+
+    /**
+     * accessKeyId der aktuellen USER-Session — {@code null} für SUPERUSER (auch dev/local-profile)
+     * und GUEST, sodass für diese kein Kontingent gilt. Muster analog {@code WhItemService.openDetail()}.
+     */
+    private Long currentUserAccessKeyId() {
+        return QuerCheckerPrincipal.resolveCurrentAccessKeyId();
     }
 
     private ProductLookupResult lookupWithRetry(
@@ -96,7 +114,8 @@ public class ProductLookupService {
         String lookupTerm,
         WhCategory whCategory,
         Map<String, String> condensedSpec,
-        int retryCount
+        int retryCount,
+        Long billableAccessKeyId
     ) {
         log.info("[ProductLookupService] === LOOKUP START ===");
         if (whCategory != null) {
@@ -243,6 +262,7 @@ public class ProductLookupService {
 
             switch (quality) {
                 case GOOD -> {
+                    accessKeyUsageService.consume(billableAccessKeyId);
                     return saveAndReturn(lookupTerm, extracted, icecatId, sourceUrl, source, LookupStatus.COMPLETE);
                 }
                 case PARTIAL -> {
@@ -261,6 +281,7 @@ public class ProductLookupService {
 
         // 6. Kein GOOD → bestes PARTIAL verwenden
         if (bestPartial != null) {
+            accessKeyUsageService.consume(billableAccessKeyId);
             return saveAndReturn(
                 lookupTerm,
                 bestPartial.result(),
@@ -280,6 +301,7 @@ public class ProductLookupService {
             // Partial result from a previous source is good enough — skip retry entirely
             if (bestPartial != null) {
                 log.info("[ProductLookupService] Using bestPartial despite rate limit — saving as COMPLETE");
+                accessKeyUsageService.consume(billableAccessKeyId);
                 return saveAndReturn(lookupTerm, bestPartial.result(), bestPartial.icecatId(),
                         bestPartial.sourceUrl(), bestPartial.source(), LookupStatus.COMPLETE);
             }
@@ -316,7 +338,7 @@ public class ProductLookupService {
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
                 }
-                return lookupWithRetry(listingId, lookupTerm, whCategory, condensedSpec, retryCount + 1);
+                return lookupWithRetry(listingId, lookupTerm, whCategory, condensedSpec, retryCount + 1, billableAccessKeyId);
             }
 
             log.error("[ProductLookupService] Unerwarteter Fehler bei Lookup für '{}': {} (retryCount={})", lookupTerm, errorMsg, retryCount, e);

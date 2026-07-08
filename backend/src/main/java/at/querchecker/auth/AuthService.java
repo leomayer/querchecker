@@ -29,6 +29,7 @@ public class AuthService {
     private final AccessKeyRepository accessKeyRepository;
     private final UserSessionRepository userSessionRepository;
     private final AuthProperties authProperties;
+    private final AccessKeyUsageService accessKeyUsageService;
 
     public LoginResponseDto login(String submittedKey, HttpServletResponse response) {
         AccessKey accessKey = accessKeyRepository.findBySecretKeyHash(DigestUtils.sha256Hex(submittedKey))
@@ -63,9 +64,19 @@ public class AuthService {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()
                 && authentication.getPrincipal() instanceof QuerCheckerPrincipal principal) {
-            return new AuthStatusDto(true, principal.role(), principal.hasKey(), principal.accessKeyId());
+            Integer quotaRemaining = null;
+            Integer quotaLimit = null;
+            // Kontingent nur für USER-Keys anzeigen — SUPERUSER hat keinen Check (Konzept Kap. 4).
+            if (principal.role() == Role.USER && principal.hasKey()) {
+                quotaRemaining = accessKeyUsageService.remainingToday(principal.accessKeyId());
+                quotaLimit = accessKeyRepository.findById(principal.accessKeyId())
+                    .map(AccessKey::getQuotaLimit)
+                    .orElse(null);
+            }
+            return new AuthStatusDto(true, principal.role(), principal.hasKey(),
+                principal.accessKeyId(), quotaRemaining, quotaLimit);
         }
-        return new AuthStatusDto(false, null, false, null);
+        return new AuthStatusDto(false, null, false, null, null, null);
     }
 
     private Optional<String> readCookie(HttpServletRequest request) {

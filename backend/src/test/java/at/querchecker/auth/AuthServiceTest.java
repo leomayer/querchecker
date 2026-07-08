@@ -32,6 +32,7 @@ class AuthServiceTest {
 
     @Mock AccessKeyRepository accessKeyRepository;
     @Mock UserSessionRepository userSessionRepository;
+    @Mock AccessKeyUsageService accessKeyUsageService;
     @Mock HttpServletRequest request;
     @Mock HttpServletResponse response;
 
@@ -39,7 +40,7 @@ class AuthServiceTest {
     private AuthService service;
 
     private AuthService service() {
-        return new AuthService(accessKeyRepository, userSessionRepository, authProperties);
+        return new AuthService(accessKeyRepository, userSessionRepository, authProperties, accessKeyUsageService);
     }
 
     private AccessKey activeKey(Role role) {

@@ -11,4 +11,6 @@ public class AuthProperties {
 
     private int sessionDays = 30;
     private int slidingExtensionHours = 24;
+    /** DSGVO-Retention für Key-Nutzungshistorie (access_key_usage), Konzept Kap. 7. */
+    private int usageRetentionDays = 90;
 }

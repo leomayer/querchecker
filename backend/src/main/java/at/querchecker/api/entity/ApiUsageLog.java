@@ -38,6 +38,9 @@ public class ApiUsageLog {
     /** LLM-Modellname (z.B. "llama-3.1-8b-instant"), null für Such-Provider */
     private String modelName;
 
+    /** Null für SUPERUSER (auch dev/local-profile) und GUEST — kein Kontingent, kein Key. */
+    private Long accessKeyId;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 

@@ -1,6 +1,6 @@
 # Querchecker — Berechtigungs- & Kontingent-Konzept
 
-> Status: P1 + P2 implementiert (Backend). Rest (P3 Angular-UI, P4 Kontingent-Zählung) offen. Abgeleitete Implementierungs-Prompts: `berechtigung-P1-key-generierung.md`, `berechtigung-P2-auth-laufzeit.md`.
+> Status: P1–P4 implementiert. Ebene-2-Kontingent (Key-Kontingent) läuft. Ursprünglicher Implementierungs-Prompt: `berechtigung-P4-kontingent-zaehlung.md`.
 >
 > **Abweichung von der ursprünglichen Konzeption (siehe Kap. 8):** Kein IP-Allowlist-Filter, kein separates `local`-Profil — es gibt noch kein Traefik/Cloud-Setup, daher wurde die Filter-Kette auf zwei Filter reduziert (`@Profile("!prod")` statt `local`, Session-Cookie). Bootstrap des ersten SUPERUSER-Keys ausschließlich per manuellem SQL-Insert.
 
@@ -329,12 +329,12 @@ Bei öffentlichem EU/Österreich-Betrieb DSGVO-relevant (personenbezogene Daten:
 ## Kapitel 8 — Offene Punkte (für Folge-Session)
 
 ```
-- Definition "eine AI-Anfrage": nur Item-Research-Lookup, oder zählt
-  DL-Extraktion (dl-feature.md) separat mit?
-- Zeitpunkt des Kontingent-Abzugs: bei Start vs. nach Abschluss der Aktion
-  (inkl. Race-Condition-Absicherung bei parallelen Requests)
+- [geklärt/erledigt P4] Definition "eine AI-Anfrage" = nur Item-Research-Lookup;
+  DL-Extraktion zählt NICHT (keine bewusste User-Aktion)
+- [geklärt/erledigt P4] Kontingent-Abzug nach Abschluss (consume nur im Erfolgspfad);
+  Race-Condition per atomarem ON-CONFLICT-Upsert abgesichert
 - Dynamische Drosselung bei hohem Traffic (Kap. 5) — zurückgestellt
-- P4 (Kontingent-Zählung) ausarbeiten
+- [erledigt] P4 (Kontingent-Zählung) — siehe P4-Status oben
 ```
 
 ### P1 — Status: abgeschlossen
@@ -357,7 +357,20 @@ Umgesetzt: `AuthService`, Settings-Gating (Nutzer-Vorgabe: alles außer Font-Gr�
 - **Self-Lockout-Schutz:** `GET /api/auth/me` liefert zusätzlich `hasKey`/`accessKeyId`; die eigene Session wird in der Zugriffsverwaltung als „Du"-Badge markiert, Bearbeiten/Sperren/Löschen dafür deaktiviert — verhindert, dass sich ein Superuser selbst aussperrt.
 - `LocalProfileAuthFilter` hat Vorrang vor `SessionCookieAuthFilter` (Kap. 2) — ein Key-Login während normalem Dev-Betrieb (`!prod`) ist dadurch wirkungslos. Settings zeigt das Zugriffscode-Feld in diesem Zustand deaktiviert mit Erklärung an, statt ein scheinbar funktionierendes Formular zu zeigen.
 
-Offen: P4 (`AccessKeyUsage`-Kontingent-Zählung, Kap. 4/8) — Kontingent-Anzeige im Frontend baut darauf auf.
+Offen: P4 (`AccessKeyUsage`-Kontingent-Zählung, Kap. 4/8) — Kontingent-Anzeige im Frontend baut darauf auf. Implementierungs-Prompt: `berechtigung-P4-kontingent-zaehlung.md` (2026-07-08: „eine AI-Anfrage" = nur Spec-Lookup, DL-Extraktion zählt nicht).
+
+### P4 (Kontingent-Zählung) — Status: abgeschlossen (2026-07-08)
+
+Ebene-2-Kontingent (Kap. 4) implementiert: Entity `AccessKeyUsage` + Migration `V44__create_access_key_usage.sql`, `AccessKeyUsageRepository` (native `findRemainingToday` + atomares `incrementToday`-Upsert per `ON CONFLICT`), `AccessKeyUsageService` (checkQuota/consume/remainingToday, `null` accessKeyId = SUPERUSER/GUEST → No-op), `QuotaExceededException`.
+
+**Einhängung** (`ProductLookupService.lookup()`): `checkQuota` vor Cache-Check (propagiert bewusst an `ProductLookupController`, der auf `QUOTA_EXCEEDED` mappt — nicht im inneren try/catch gefangen); `consume` nur an den synchronen Erfolgspfaden (GOOD, bestes PARTIAL, PARTIAL trotz Rate-Limit). Cache-Hit, Provider-Erschöpfung und der asynchrone Rate-Limit-Retry buchen **nicht**. `accessKeyId` wird über `SecurityContextHolder`/`QuerCheckerPrincipal` aufgelöst (nur `role == USER` → echte Id, sonst `null`).
+
+**Bewusste Abweichungen vom P4-Prompt (Nutzer-implizit / Vereinfachung):**
+- **`AuthStatusDto` um `quotaRemaining` *und* `quotaLimit` erweitert** (Prompt nannte nur `quotaRemaining`). Beide nötig für die „X/Y heute"-Anzeige; nur der eigene Key, kein Info-Leak. Frontend: `AuthService.quotaUsed = quotaLimit - quotaRemaining`, Anzeige in Settings neben „Abmelden" (nur `role === 'USER'`).
+- **Retention über `AuthProperties.usageRetentionDays` (Default 90) statt AppConfig-Key.** Konsistent mit der Schwester-Config `sessionDays`, die schon im selben `AuthProperties` liegt; der Cleanup läuft im bestehenden `UserSessionCleanupScheduler` (`deleteByPeriodDateBefore`) mit — kein neuer Cronjob.
+- **QUOTA_EXCEEDED wird nicht per `ProductLookup` gecacht** — anders als das Provider-Kontingent, denn Ebene-2 ist pro User, ein globaler Cache-Eintrag würde alle sperren.
+
+Tests: `AccessKeyUsageServiceTest` (Check unter/über/am Limit, Skip bei `null`, Increment, remaining), `ProductLookupServiceTest` erweitert (consume bei GOOD-Erfolg, kein consume bei Cache-Hit, `QuotaExceededException` propagiert vor Pipeline). Mockito/`@WebMvcTest`, kein `@SpringBootTest` (Konvention aus P2).
 
 ---
 

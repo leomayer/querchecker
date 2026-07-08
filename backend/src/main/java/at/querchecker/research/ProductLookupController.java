@@ -2,6 +2,7 @@ package at.querchecker.research;
 
 import at.querchecker.deepLearning.entity.DlExtractionTerm;
 import at.querchecker.deepLearning.repository.DlExtractionTermRepository;
+import at.querchecker.auth.QuotaExceededException;
 import at.querchecker.deepLearning.extraction.LlmApiExtractionModel;
 import at.querchecker.entity.WhItem;
 import at.querchecker.entity.WhListing;
@@ -79,12 +80,22 @@ public class ProductLookupController {
     );
 
     Map<String, String> condensedSpec = resolveCondensedSpec(id);
-    ProductLookupResult result = productLookupService.lookup(
-      id,
-      req.getLookupTerm(),
-      listing.getWhCategory(),
-      condensedSpec
-    );
+    ProductLookupResult result;
+    try {
+      result = productLookupService.lookup(
+        id,
+        req.getLookupTerm(),
+        listing.getWhCategory(),
+        condensedSpec
+      );
+    } catch (QuotaExceededException e) {
+      // Ebene-2-Kontingent des Keys erschöpft — bewusst minimale Antwort ohne Zahlen (Konzept Kap. 4).
+      log.info("Kontingent erschöpft für listingId={}: {}", id, e.getMessage());
+      return LookupResponse.builder()
+        .lookupStatus(LookupStatus.KEY_QUOTA_EXCEEDED)
+        .quickFacts(Map.of())
+        .build();
+    }
     log.info(
       "Lookup result: status={}, quickFacts={}, sourceType={}, sourceDomain={}",
       result.getStatus(),

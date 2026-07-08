@@ -1,5 +1,6 @@
 package at.querchecker.research;
 
+import at.querchecker.auth.QuerCheckerPrincipal;
 import at.querchecker.research.entity.ListingLookupHistory;
 import at.querchecker.research.model.LookupHistoryEntryDto;
 import at.querchecker.research.model.LookupResponse;
@@ -44,6 +45,7 @@ public class LookupHistoryService {
                 .siteLabel(result.getSiteLabel())
                 .sourceUrl(result.getSourceUrl())
                 .featureGroupsJson(result.getFeatureGroupsJson())
+                .accessKeyId(QuerCheckerPrincipal.resolveCurrentAccessKeyId())
                 .build();
         repo.save(entry);
         return pruneAndReturn(listingId);
@@ -62,6 +64,7 @@ public class LookupHistoryService {
                 .siteLabel(response.getSiteLabel())
                 .sourceUrl(response.getSourceUrl())
                 .featureGroupsJson(response.getFeatureGroupsJson())
+                .accessKeyId(QuerCheckerPrincipal.resolveCurrentAccessKeyId())
                 .build();
         repo.save(entry);
         return pruneAndReturn(listingId);

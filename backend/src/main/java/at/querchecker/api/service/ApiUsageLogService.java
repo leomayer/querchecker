@@ -4,6 +4,7 @@ import at.querchecker.api.entity.ApiUsageLog;
 import at.querchecker.api.entity.Provider;
 import at.querchecker.api.entity.RequestType;
 import at.querchecker.api.repository.ApiUsageLogRepository;
+import at.querchecker.auth.QuerCheckerPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +37,7 @@ public class ApiUsageLogService {
             .tokensOutput(tokensOutput)
             .durationMs(durationMs)
             .modelName(modelName)
+            .accessKeyId(QuerCheckerPrincipal.resolveCurrentAccessKeyId())
             .createdAt(LocalDateTime.now())
             .build());
     }

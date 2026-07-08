@@ -88,8 +88,30 @@ class ProductLookupServiceTest {
   @Mock
   WhItemRepository whItemRepository;
 
+  @Mock
+  at.querchecker.auth.AccessKeyUsageService accessKeyUsageService;
+
   @InjectMocks
   ProductLookupService service;
+
+  @org.junit.jupiter.api.AfterEach
+  void clearSecurityContext() {
+    org.springframework.security.core.context.SecurityContextHolder.clearContext();
+  }
+
+  /** Setzt eine USER-Session mit gegebenem accessKeyId in den SecurityContext. */
+  private void withUserSession(long accessKeyId) {
+    var principal = at.querchecker.auth.QuerCheckerPrincipal.withKey(
+      at.querchecker.auth.Role.USER,
+      accessKeyId
+    );
+    var auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+      principal,
+      null,
+      java.util.List.of()
+    );
+    org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(auth);
+  }
 
   @BeforeEach
   void routerSetup() {
@@ -385,6 +407,62 @@ class ProductLookupServiceTest {
     assertThat(result.getStatus()).isEqualTo(LookupStatus.ERROR);
     verify(repo).save(argThat(pl -> pl.getLookupStatus() == LookupStatus.ERROR));
     verify(webSearchService, times(3)).search(any(), any(), any(), any(), anyInt()); // 3 attempts: 0 + 2 retries
+  }
+
+  // --- Ebene-2-Kontingent (Konzept Kap. 4) ---
+
+  @Test
+  void lookup_consumesQuota_onGoodSuccess() {
+    withUserSession(42L);
+    setupNoCache();
+    setupQuotaOk();
+    CategorySearchSource src = source("gsmarena.com", GSMARENA);
+    when(sourceService.findForCategory(any())).thenReturn(List.of(src));
+
+    String url = "https://www.gsmarena.com/samsung_galaxy_s25-13322.php";
+    when(webSearchService.search(any(), any(), any(), any(), anyInt())).thenReturn(
+      new ApiCallResult.Success<>(List.of(searchResult(url)))
+    );
+    when(llmClient.extractQuickFacts(any(), any(), any(), any(), any(), any(), anyInt())).thenReturn(
+      quickFacts(Map.of("cpu", "Snapdragon 8 Elite"), null, url)
+    );
+    when(urlValidator.resolveIcecatId(any(), any())).thenReturn(null);
+    when(urlValidator.resolveSourceUrl(any(), any())).thenReturn(url);
+    when(urlValidator.matchesExpectedPattern(url, GSMARENA)).thenReturn(true);
+    when(qualityEvaluator.evaluate(any(), any(), eq(GSMARENA))).thenReturn(ExtractionQuality.GOOD);
+
+    ProductLookupResult result = service.lookup(null, "Samsung Galaxy S25", mock(WhCategory.class), null);
+
+    assertThat(result.getStatus()).isEqualTo(LookupStatus.COMPLETE);
+    verify(accessKeyUsageService).checkQuota(42L);
+    verify(accessKeyUsageService).consume(42L);
+  }
+
+  @Test
+  void lookup_doesNotConsume_onCacheHit() {
+    withUserSession(42L);
+    ProductLookup cached = cachedResult(LookupStatus.COMPLETE, LocalDateTime.now());
+    when(repo.findByLookupTerm(any())).thenReturn(Optional.of(cached));
+
+    ProductLookupResult result = service.lookup(null, "Samsung S25", mock(WhCategory.class), null);
+
+    assertThat(result.getStatus()).isEqualTo(LookupStatus.COMPLETE);
+    verify(accessKeyUsageService).checkQuota(42L); // Check läuft, aber ...
+    verify(accessKeyUsageService, never()).consume(any()); // ... Cache-Hit bucht nicht
+  }
+
+  @Test
+  void lookup_propagatesQuotaExceeded_whenCheckThrows() {
+    withUserSession(42L);
+    doThrow(new at.querchecker.auth.QuotaExceededException(42L))
+      .when(accessKeyUsageService).checkQuota(42L);
+
+    org.assertj.core.api.Assertions
+      .assertThatThrownBy(() -> service.lookup(null, "Samsung S25", mock(WhCategory.class), null))
+      .isInstanceOf(at.querchecker.auth.QuotaExceededException.class);
+
+    verifyNoInteractions(sourceService);
+    verify(accessKeyUsageService, never()).consume(any());
   }
 
   // --- Hilfsmethoden ---

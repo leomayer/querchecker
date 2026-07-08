@@ -125,6 +125,23 @@ mat-card-actions {
 
 .logout-row {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: 16px;
   margin-top: 8px;
+}
+
+.quota-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.875rem;
+
+  .quota-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--color-ui-teal);
+  }
 }

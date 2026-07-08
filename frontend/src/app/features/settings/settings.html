@@ -147,6 +147,12 @@
 
     @if (auth.hasKey()) {
       <div class="logout-row">
+        @if (auth.role() === 'USER' && auth.quotaLimit() !== null) {
+          <span class="quota-info">
+            <mat-icon class="quota-icon">bolt</mat-icon>
+            {{ auth.quotaUsed() }}/{{ auth.quotaLimit() }} KI-Anfragen heute
+          </span>
+        }
         <button mat-button (click)="logout()">
           <mat-icon>logout</mat-icon>
           Abmelden

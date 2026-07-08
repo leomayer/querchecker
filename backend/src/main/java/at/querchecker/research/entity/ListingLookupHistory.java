@@ -45,6 +45,9 @@ public class ListingLookupHistory {
     @Column(columnDefinition = "TEXT")
     private String featureGroupsJson;
 
+    /** Null für SUPERUSER (auch dev/local-profile) und GUEST — kein Kontingent, kein Key. */
+    private Long accessKeyId;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

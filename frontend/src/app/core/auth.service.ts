@@ -10,6 +10,8 @@ interface AuthStatusResponse {
   role: AuthRole;
   hasKey: boolean;
   accessKeyId: number | null;
+  quotaRemaining: number | null;
+  quotaLimit: number | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -22,7 +24,17 @@ export class AuthService {
   readonly hasKey = signal(false);
   /** Id of the AccessKey backing the current session — null without a real key (dev/local-profile). */
   readonly accessKeyId = signal<number | null>(null);
+  /** Heute verbleibendes Key-Kontingent — nur für role === 'USER' befüllt, sonst null. */
+  readonly quotaRemaining = signal<number | null>(null);
+  /** Tageskontingent des Keys — nur für role === 'USER' befüllt, sonst null. */
+  readonly quotaLimit = signal<number | null>(null);
   readonly isSuperuser = computed(() => this.role() === 'SUPERUSER');
+  /** Verbrauch heute (limit - remaining) für die "X/Y"-Anzeige. */
+  readonly quotaUsed = computed(() => {
+    const limit = this.quotaLimit();
+    const remaining = this.quotaRemaining();
+    return limit !== null && remaining !== null ? limit - remaining : null;
+  });
 
   constructor() {
     this.refresh();
@@ -30,8 +42,8 @@ export class AuthService {
 
   refresh(): void {
     this.http.get<AuthStatusResponse>(API_URLS.authMe).subscribe({
-      next: (res) => this.applyStatus(res.authenticated, res.role, res.hasKey, res.accessKeyId),
-      error: () => this.applyStatus(false, null, false, null),
+      next: (res) => this.applyStatus(res),
+      error: () => this.applyStatus(null),
     });
   }
 
@@ -42,20 +54,15 @@ export class AuthService {
   }
 
   logout() {
-    return this.http
-      .post(API_URLS.authLogout, {})
-      .pipe(tap(() => this.applyStatus(false, null, false, null)));
+    return this.http.post(API_URLS.authLogout, {}).pipe(tap(() => this.applyStatus(null)));
   }
 
-  private applyStatus(
-    authenticated: boolean,
-    role: AuthRole,
-    hasKey: boolean,
-    accessKeyId: number | null,
-  ): void {
-    this.authenticated.set(authenticated);
-    this.role.set(role);
-    this.hasKey.set(hasKey);
-    this.accessKeyId.set(accessKeyId);
+  private applyStatus(res: AuthStatusResponse | null): void {
+    this.authenticated.set(res?.authenticated ?? false);
+    this.role.set(res?.role ?? null);
+    this.hasKey.set(res?.hasKey ?? false);
+    this.accessKeyId.set(res?.accessKeyId ?? null);
+    this.quotaRemaining.set(res?.quotaRemaining ?? null);
+    this.quotaLimit.set(res?.quotaLimit ?? null);
   }
 }
