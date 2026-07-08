@@ -77,6 +77,10 @@ export const SearchStore = signalStore(
             layoutState: LayoutState.LISTINGS,
             searchPatches: {},
             cachedSearchKey: null, // force re-fetch for new search
+            // Reset: a leftover text filter from a previous search session silently hid
+            // results matching the new keyword too. Rating filter stays — it's a deliberate
+            // per-listing decision (e.g. already excluded DOWN-rated ones), not stale state.
+            listingFilterText: '',
           });
           extractionStore.clear();
           persistSearch(store.filterDraft(), {
