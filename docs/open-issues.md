@@ -14,7 +14,7 @@
 | F3  | More platforms (eBay Kleinanzeigen, Shpock)  | L        | Ideation only                                                                                                                                                               |
 | F4  | Market price comparison (multi-shop)         | L        | Brave per-shop queries (`site:geizhals.at`, `site:idealo.at`, `site:amazon.de`) → LLM extracts best price + URL. High quota cost. Geizhals deep-link is current workaround. |
 | F5  | Leave search field open after LLM extraction | L        | After LLM finds a search term, keep the field editable instead of auto-filling. Useful when LLM term needs manual adjustment before lookup.                                 |
-| F6  | Single-User / Multi-User concept             | L        | Ideation only — user management, per-user key management, per-user quota. Currently single-user with HTTP Basic Auth.                                                       |
+| ✅ F6  | Single-User / Multi-User concept             | Done        | Zugriffscode-basierte Auth mit GUEST/USER/SUPERUSER, Session-Cookie, Tageskontingent pro Code inkl. Verwaltung in Settings. Doku: `docs/auth-guide.md`.                                                       |
 
 ---
 

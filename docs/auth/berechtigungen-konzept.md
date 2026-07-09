@@ -4,7 +4,6 @@
 
 ## Offen
 
-- **Merge des Auth Guide in die Haupt-Doku** (README / Admin Guide) — Seite steht noch separat
 - **Usage-Monitor: Breakdown pro Zugriffscode** (Ebene-2-Auswertung) — `access_key_usage` ist als History-Tabelle dafür ausgelegt (SQL-Aggregation nach Zugriffscode/Zeitraum), UI-Bereich noch nicht gebaut
 
 ## Zurückgestellt (bewusst, erst bei Bedarf)

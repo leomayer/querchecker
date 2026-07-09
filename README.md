@@ -147,7 +147,7 @@ querchecker/
 | 🛡️ [Robustness & Error Handling](docs/robustness.md)<br>API-Ausfälle, Rate-Limiting, Quota-Verwaltung, Server-Restarts           | ⚙️ [Provider-Konfiguration](docs/concepts/provider-config.md)<br>KI-Modelle und Web-Suche konfigurieren (lokal vs. Cloud) |
 | 🤖 [KI-Produktanalyse](docs/ki-produktanalyse.md)<br>Produktname-Extraktion und Item Research                                    | 💻 [Lokale Modelle](docs/local-models.md)<br>LLM lokal statt Cloud betreiben                                              |
 | ⚙️ [Extraction Engine](docs/extraction-engine.md)<br>Queue-Architektur, Status-Maschine, Modell-Registrierung                    | 🛠️ [Developer Setup](docs/dev-setup.md)<br>Ersteinrichtung, API-Keys, Troubleshooting                                     |
-|                                                                                                                                     | 🔑 [Auth Guide](docs/auth-guide.md)<br>Zugriffscodes, Rollen und Zugriffsverwaltung *(Entwurf, Kontingent-Zählung ausständig)*        |
+|                                                                                                                                     | 🔑 [Auth Guide](docs/auth-guide.md)<br>Zugriffscodes, Rollen, Tageskontingent und Zugriffsverwaltung        |
 
 ---
 
