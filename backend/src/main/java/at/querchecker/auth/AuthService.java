@@ -35,7 +35,7 @@ public class AuthService {
         AccessKey accessKey = accessKeyRepository.findBySecretKeyHash(DigestUtils.sha256Hex(submittedKey))
             .filter(k -> !k.isRevoked())
             // Gleiche Fehlermeldung für unbekannten und gesperrten Key — kein Information-Leak.
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ungültiger oder gesperrter Zugriffs-Key"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ungültiger oder gesperrter Zugriffscode"));
 
         accessKey.setUsed(true);
         accessKey.setLastUsedAt(Instant.now());

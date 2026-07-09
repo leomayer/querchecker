@@ -82,7 +82,7 @@ export class AccessKeyManagement implements OnInit {
       },
       error: () => {
         this.generating.set(false);
-        this.snack.error('Key konnte nicht erstellt werden.');
+        this.snack.error('Zugriffscode konnte nicht erstellt werden.');
       },
     });
   }
@@ -93,7 +93,7 @@ export class AccessKeyManagement implements OnInit {
 
   copyKey(key: string): void {
     navigator.clipboard.writeText(key);
-    this.snack.success('Key kopiert.');
+    this.snack.success('Zugriffscode kopiert.');
   }
 
   startEdit(key: AccessKeyOverview): void {
@@ -132,7 +132,7 @@ export class AccessKeyManagement implements OnInit {
 
   toggleRevoke(key: AccessKeyOverview): void {
     if (this.isSelf(key)) {
-      this.snack.error('Der eigene aktive Key kann nicht gesperrt werden.');
+      this.snack.error('Der eigene aktive Zugriffscode kann nicht gesperrt werden.');
       return;
     }
     const action$ = key.revoked
@@ -147,13 +147,13 @@ export class AccessKeyManagement implements OnInit {
 
   deleteKey(key: AccessKeyOverview): void {
     if (this.isSelf(key)) {
-      this.snack.error('Der eigene aktive Key kann nicht gelöscht werden.');
+      this.snack.error('Der eigene aktive Zugriffscode kann nicht gelöscht werden.');
       return;
     }
     this.confirmDialog
       .confirm({
-        title: 'Key löschen',
-        message: 'Key endgültig löschen? Das kann nicht rückgängig gemacht werden.',
+        title: 'Zugriffscode löschen',
+        message: 'Zugriffscode endgültig löschen? Das kann nicht rückgängig gemacht werden.',
         confirmLabel: 'Löschen',
         destructive: true,
       })

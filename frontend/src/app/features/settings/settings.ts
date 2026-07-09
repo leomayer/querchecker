@@ -73,7 +73,7 @@ export class SettingsComponent {
     this.loginError.set(null);
     this.auth.login(key).subscribe({
       next: () => this.accessKeyInput.set(''),
-      error: () => this.loginError.set('Ungültiger oder gesperrter Zugriffs-Key'),
+      error: () => this.loginError.set('Ungültiger oder gesperrter Zugriffscode'),
     });
   }
 

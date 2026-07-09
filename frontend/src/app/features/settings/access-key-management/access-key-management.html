@@ -24,7 +24,7 @@
   <div class="created-key-banner">
     <mat-icon>vpn_key</mat-icon>
     <div class="created-key-text">
-      <strong>Key erstellt — nur jetzt sichtbar:</strong>
+      <strong>Zugriffscode erstellt — nur jetzt sichtbar:</strong>
       <code>{{ created.secretKey }}</code>
     </div>
     <button mat-icon-button (click)="copyKey(created.secretKey)" matTooltip="Kopieren">
@@ -85,7 +85,7 @@
             <td>
               {{ roleLabel(key.role) }}
               @if (isSelf(key)) {
-                <span class="self-badge" matTooltip="Der Key deiner aktuellen Session">Du</span>
+                <span class="self-badge" matTooltip="Der Zugriffscode deiner aktuellen Session">Du</span>
               }
             </td>
             <td>{{ key.role === 'SUPERUSER' ? '–' : key.quotaLimit + '/Tag' }}</td>
@@ -126,7 +126,7 @@
   </table>
   </div>
 } @else if (loading()) {
-  <p>Lade Zugriffs-Keys…</p>
+  <p>Lade Zugriffscodes…</p>
 } @else if (error()) {
-  <p class="error-text">Fehler beim Laden der Zugriffs-Keys.</p>
+  <p class="error-text">Fehler beim Laden der Zugriffscodes.</p>
 }
