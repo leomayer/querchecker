@@ -1,12 +1,12 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-08T19:04:28.266Z
-> Files: 615 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-09T12:51:11.252Z
+> Files: 614 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../.claude/projects/-home-leo-programming-github-querchecker/memory/
 
 - `backend.md` — Backend Details (~7706 tok)
-- `MEMORY.md` — Querchecker Project Memory (~4750 tok)
+- `MEMORY.md` — Querchecker Project Memory (~4847 tok)
 - `todo_readme_doccheck.md` (~203 tok)
 - `user.md` — Technical Profile (~345 tok)
 
@@ -835,7 +835,7 @@
 
 - `admin-guide.md` — Querchecker Admin Guide (~3031 tok)
 - `architecture.md` — Architecture & Design Decisions (~2606 tok)
-- `auth-guide.md` — Querchecker Auth Guide (~950 tok)
+- `auth-guide.md` — Querchecker Auth Guide (~2602 tok)
 - `dev-setup.md` — Querchecker — Developer Setup (~1242 tok)
 - `extraction-engine.md` — Extraction Engine — Architecture Reference (~1118 tok)
 - `ki-product-analysis.md` — Automatische KI-Produktanalyse — Konzept & Architektur (~4405 tok)
@@ -847,8 +847,7 @@
 
 ## docs/auth/
 
-- `berechtigung-P4-kontingent-zaehlung.md` — Berechtigungskonzept — Implementierungs-Prompt P4 (Kontingent-Zählung) (~1243 tok)
-- `berechtigungen-konzept.md` — Querchecker — Berechtigungs- & Kontingent-Konzept (~5591 tok)
+- `berechtigungen-konzept.md` — Berechtigungskonzept — Offene Punkte (~245 tok)
 
 ## docs/concepts/
 
@@ -897,7 +896,7 @@
 
 ## frontend/src/app/features/settings/access-key-management/
 
-- `access-key-management.html` (~1321 tok)
+- `access-key-management.html` (~1323 tok)
 - `access-key-management.scss` — Styles: 6 rules (~634 tok)
 - `access-key-management.ts` — Exports AccessKeyManagement (~1533 tok)
 

@@ -5,6 +5,10 @@
 > Last updated: 2026-04-19
 
 ## User Preferences
+- Doku-Tiefe: keine DB-Schemata, Code-Snippets, Klassen-/Konstanten-Interna in docs/ — nur Verhalten + Design-Warum; Code ist Source of Truth (2026-07-09)
+- Doku: keine internen Phasen-Labels (P1–P4) in Nutzer-/Entwickler-Doku — Leser haben den Kontext nicht (2026-07-09)
+- Doku-Terminologie: „Zugriffscode" statt „Key" in deutschem Fließtext; Code-/DB-Identifier (accessKeyId, access_key) bleiben (2026-07-09)
+- Doku: Inhalte, die mehr Fragen aufwerfen als beantworten (z.B. DSGVO-Framing ohne echte Person hinter dem Key), lieber entfernen als stehen lassen (2026-07-09)
 
 <!-- How the user likes things done. Code style, tools, patterns, communication. -->
 

@@ -1836,6 +1836,134 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-07-08T19:04:28.275Z"
+    },
+    {
+      "id": "bug-114",
+      "timestamp": "2026-07-09T11:49:44.141Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/auth/berechtigungen-konzept.md",
+      "root_cause": "Had `, „unbegrenzt\"",
+      "fix": "Changed to `, „kein Kontingent-Limit\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-09T11:49:44.141Z"
+    },
+    {
+      "id": "bug-115",
+      "timestamp": "2026-07-09T11:54:33.148Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/auth-guide.md",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 5→7 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-09T11:54:33.148Z"
+    },
+    {
+      "id": "bug-116",
+      "timestamp": "2026-07-09T12:01:05.108Z",
+      "error_message": "Incorrect value in code",
+      "file": "../../../.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+      "root_cause": "Had `docs/auth/berechtigungen-konzept.md`",
+      "fix": "Changed to `docs/auth-guide.md`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-09T12:01:20.127Z"
+    },
+    {
+      "id": "bug-117",
+      "timestamp": "2026-07-09T12:14:45.509Z",
+      "error_message": "Wrong reference: Key should be Zugriffscode",
+      "file": "docs/auth-guide.md",
+      "root_cause": "Used \"Key\" instead of \"Zugriffscode\"",
+      "fix": "Changed Key → Zugriffscode",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 5,
+      "last_seen": "2026-07-09T12:19:51.890Z"
+    },
+    {
+      "id": "bug-118",
+      "timestamp": "2026-07-09T12:15:26.698Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/auth-guide.md",
+      "root_cause": "Had \"-Rollenwert; großzügiger User = höheres `",
+      "fix": "Changed to \"-Rollenwert; großzügiger Nutzer = höheres `",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-09T12:15:26.698Z"
+    },
+    {
+      "id": "bug-119",
+      "timestamp": "2026-07-09T12:15:44.305Z",
+      "error_message": "Incorrect value in code",
+      "file": "docs/auth/berechtigungen-konzept.md",
+      "root_cause": "Had \"-Breakdown** (Ebene-2-Auswertung) — `",
+      "fix": "Changed to `access_key_usage`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-09T12:15:44.305Z"
+    },
+    {
+      "id": "bug-120",
+      "timestamp": "2026-07-09T12:20:04.184Z",
+      "error_message": "Wrong reference: Key should be Zugriffscode",
+      "file": "frontend/src/app/features/settings/access-key-management/access-key-management.html",
+      "root_cause": "Used \"Key\" instead of \"Zugriffscode\"",
+      "fix": "Changed Key → Zugriffscode",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-09T12:20:04.184Z"
+    },
+    {
+      "id": "bug-121",
+      "timestamp": "2026-07-09T12:24:06.636Z",
+      "error_message": "Significant refactor of ",
+      "file": "docs/auth-guide.md",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 6→5 lines (6 removed) | Also: **Ebene 1 — Provider-Kontingent** (global, pro Pro; **Ebene 2 — Zugriffscode-Kontingent** (pro Zugriff",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-07-09T12:24:38.377Z"
     }
   ]
 }
