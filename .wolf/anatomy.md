@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-09T12:51:11.252Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-09T13:10:49.342Z
 > Files: 614 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../.claude/projects/-home-leo-programming-github-querchecker/memory/
@@ -21,7 +21,7 @@
 - `docker-compose.prod.yml` — Docker Compose: 1 services (~448 tok)
 - `docker-compose.yml` — Docker Compose services (~77 tok)
 - `keybert-test.py` — Your test data (Short German Willhaben-style text) (~301 tok)
-- `README.md` — Project documentation (~3075 tok)
+- `README.md` — Project documentation (~3069 tok)
 
 ## .claude/
 
@@ -841,13 +841,13 @@
 - `ki-product-analysis.md` — Automatische KI-Produktanalyse — Konzept & Architektur (~4405 tok)
 - `ki-produktanalyse.md` — Automatische KI-Produktanalyse — Konzept & Architektur (~2857 tok)
 - `local-models.md` — Kurzanleitung: Lokale KI-Modelle (~1689 tok)
-- `open-issues.md` — Open Issues — Querchecker v0.2.0 (~1551 tok)
+- `open-issues.md` — Open Issues — Querchecker v0.2.0 (~1561 tok)
 - `openrouter-completion.md` — OpenRouter — Completion Checklist (~1608 tok)
 - `robustness.md` — Robustness & Error Handling (~2487 tok)
 
 ## docs/auth/
 
-- `berechtigungen-konzept.md` — Berechtigungskonzept — Offene Punkte (~245 tok)
+- `berechtigungen-konzept.md` — Berechtigungskonzept — Offene Punkte (~222 tok)
 
 ## docs/concepts/
 
@@ -896,9 +896,9 @@
 
 ## frontend/src/app/features/settings/access-key-management/
 
-- `access-key-management.html` (~1323 tok)
+- `access-key-management.html` (~1328 tok)
 - `access-key-management.scss` — Styles: 6 rules (~634 tok)
-- `access-key-management.ts` — Exports AccessKeyManagement (~1533 tok)
+- `access-key-management.ts` — Exports AccessKeyManagement (~1548 tok)
 
 ## frontend/src/app/features/settings/provider-config/
 
