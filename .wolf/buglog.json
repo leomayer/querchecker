@@ -2012,6 +2012,22 @@
       "related_bugs": [],
       "occurrences": 5,
       "last_seen": "2026-07-09T13:04:51.677Z"
+    },
+    {
+      "id": "bug-125",
+      "timestamp": "2026-07-09T13:20:12.505Z",
+      "error_message": "Incorrect value in code",
+      "file": "../../../.claude/projects/-home-leo-programming-github-querchecker/memory/MEMORY.md",
+      "root_cause": "Had `memory/feedback_response_format.md`",
+      "fix": "Changed to \" not „Key\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-07-09T13:20:12.505Z"
     }
   ]
 }

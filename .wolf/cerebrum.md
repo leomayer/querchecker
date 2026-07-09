@@ -13,6 +13,7 @@
 <!-- How the user likes things done. Code style, tools, patterns, communication. -->
 
 ## Key Learnings
+- Auth-Doku-Struktur: docs/auth-guide.md = einzige vollständige Auth-Doku (Nutzer+Admin+Technik); docs/auth/berechtigungen-konzept.md = nur offene Punkte; README-Doku-Tabelle (Z. ~150) verlinkt alle Doc-Seiten — dort prüfen bevor 'Merge in Haupt-Doku'-TODOs entstehen (2026-07-09)
 
 - **Project:** querchecker
 - **Description:** Querchecker entstand aus einem konkreten Bedarf: die Suche nach einem gebrauchten Drucker auf dem Willhaben Marktplatz (Kleinanzeigen). Welche Modelle haben noch verfügbare Patronen? Gibt es Ersatztei

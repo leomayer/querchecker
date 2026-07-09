@@ -1,12 +1,13 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-07-09T13:10:49.342Z
-> Files: 614 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-07-09T13:20:12.496Z
+> Files: 615 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../../.claude/projects/-home-leo-programming-github-querchecker/memory/
 
 - `backend.md` — Backend Details (~7706 tok)
-- `MEMORY.md` — Querchecker Project Memory (~4847 tok)
+- `feedback_doc_style.md` (~448 tok)
+- `MEMORY.md` — Querchecker Project Memory (~4880 tok)
 - `todo_readme_doccheck.md` (~203 tok)
 - `user.md` — Technical Profile (~345 tok)
 
